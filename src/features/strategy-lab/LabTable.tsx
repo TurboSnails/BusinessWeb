@@ -137,9 +137,9 @@ export function LossBars({ series, values, scale, caption }: {
         return (
           <div key={s.key} className="lab-bars__row" title={`${s.label} ${fmtPct(v, 1, true)}`}>
             <span className="lab-bars__label">{s.label}</span>
-            <span className="lab-bars__track">
-              {w > 0 ? <span className={`lab-bars__bar is-${s.tone}`} style={{ width: `${w}%` }} /> : null}
-            </span>
+            <svg className="lab-bars__track" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">
+              {w > 0 ? <rect className={`lab-bars__bar is-${s.tone}`} x="0" y="0" width={w} height="8" /> : null}
+            </svg>
             <span className="lab-bars__value">{fmtPct(v, 1, true)}</span>
           </div>
         )
@@ -153,10 +153,11 @@ export function RatioBar({ value, refValue = 0.7 }: { value: number; refValue?: 
   const w = Math.max(0, Math.min(1, value)) * 100
   return (
     <span className="lab-ratio">
-      <span className="lab-ratio__track">
-        <span className="lab-ratio__bar" style={{ width: `${w}%` }} />
-        <span className="lab-ratio__ref" style={{ left: `${refValue * 100}%` }} aria-hidden="true" />
-      </span>
+      <svg className="lab-ratio__track" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+        <rect className="lab-ratio__bg" x="0" y="3" width="100" height="8" />
+        <rect className="lab-ratio__bar" x="0" y="3" width={w} height="8" />
+        <line className="lab-ratio__ref" x1={refValue * 100} x2={refValue * 100} y1="0" y2="14" />
+      </svg>
       <span className="lab-ratio__value">{fmtNum(value, 2)}</span>
     </span>
   )

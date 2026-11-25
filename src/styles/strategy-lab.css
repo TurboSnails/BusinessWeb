@@ -128,19 +128,24 @@
 .lab-bars { display: grid; gap: 3px; min-width: 13rem; }
 .lab-bars__row { display: grid; grid-template-columns: 3.6rem minmax(4.5rem, 9rem) 3.8rem; align-items: center; gap: 8px; }
 .lab-bars__label { font-size: 0.74rem; color: var(--text-secondary); white-space: nowrap; }
-.lab-bars__track { position: relative; height: 8px; }
-.lab-bars__bar { position: absolute; inset: 0 auto 0 0; border-radius: 0 2px 2px 0; background: var(--lab-ref); }
+.lab-bars__track { display: block; width: 100%; height: 8px; overflow: visible; }
+.lab-bars__bar { fill: var(--lab-ref); }
 .lab-bars__value { font-size: 0.78rem; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-primary); white-space: nowrap; }
-:is(.lab-bars__bar, .lab-legend__swatch).is-ref { background: var(--lab-ref); }
-:is(.lab-bars__bar, .lab-legend__swatch).is-main { background: var(--lab-main); }
-:is(.lab-bars__bar, .lab-legend__swatch).is-main-soft { background: var(--lab-main-soft); }
-:is(.lab-bars__bar, .lab-legend__swatch).is-alt { background: var(--lab-alt); }
+.lab-legend__swatch.is-ref { background: var(--lab-ref); }
+.lab-legend__swatch.is-main { background: var(--lab-main); }
+.lab-legend__swatch.is-main-soft { background: var(--lab-main-soft); }
+.lab-legend__swatch.is-alt { background: var(--lab-alt); }
+.lab-bars__bar.is-ref { fill: var(--lab-ref); }
+.lab-bars__bar.is-main { fill: var(--lab-main); }
+.lab-bars__bar.is-main-soft { fill: var(--lab-main-soft); }
+.lab-bars__bar.is-alt { fill: var(--lab-alt); }
 
 /* 参与度条（0–1，虚线 0.7） */
 .lab-ratio { display: grid; grid-template-columns: minmax(6rem, 9rem) 2.6rem; align-items: center; gap: 8px; }
-.lab-ratio__track { position: relative; height: 8px; border-radius: 2px; background: var(--system-gray6); }
-.lab-ratio__bar { position: absolute; inset: 0 auto 0 0; border-radius: 0 2px 2px 0; background: var(--lab-main); }
-.lab-ratio__ref { position: absolute; top: -3px; bottom: -3px; border-left: 1.5px dashed var(--text-secondary); }
+.lab-ratio__track { display: block; width: 100%; height: 14px; overflow: visible; }
+.lab-ratio__bg { fill: var(--system-gray6); }
+.lab-ratio__bar { fill: var(--lab-main); }
+.lab-ratio__ref { stroke: var(--text-secondary); stroke-width: 1.5px; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
 .lab-ratio__value { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; color: var(--text-primary); }
 
 /* 反弹两行 */
@@ -171,5 +176,6 @@
 .lab-chip__count { font-size: 0.72rem; opacity: 0.75; font-variant-numeric: tabular-nums; }
 
 @media (forced-colors: active) {
-  .lab-bars__bar, .lab-ratio__bar, .lab-legend__swatch { forced-color-adjust: none; border: 1px solid CanvasText; }
+  .lab-legend__swatch { forced-color-adjust: none; border: 1px solid CanvasText; }
+  .lab-bars__bar, .lab-ratio__bar { forced-color-adjust: none; stroke: CanvasText; stroke-width: 1px; vector-effect: non-scaling-stroke; }
 }
