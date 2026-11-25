@@ -1371,3 +1371,83 @@ test('shillerMonthly rebuilds the Multpl price and yield tables up to the last c
   // 10 月股息为空，沿用 9 月的 81.9：81.9 / 7700 = 1.06%
   assert.deepEqual(yields, [['2026-09-30', 1.07], ['2026-10-31', 1.06]])
 })
+
+test('shillerMonthly appends daily-close averages after the snapshot and carries the dividend up to 12 months', async () => {
+  const { shillerMonthly, DIVIDEND_CARRY_MONTHS } = await import('./macro-posture.mjs')
+  assert.equal(DIVIDEND_CARRY_MONTHS, 12)
+  const csv = 'date,P,D,E,CPI,GS10\n2026-01,7000,70,,330,4.1\n2026-02,7100,,,331,4.2\n'
+  const extra = [['2026-02', 9999], ['2026-03', 7200], ['2027-01', 7300], ['2027-02', 7400]]
+  const { price, yield: yields } = shillerMonthly(csv, '2027-02-28', extra)
+  // 快照已有的 2026-02 不被覆盖；之后的月份接上
+  assert.deepEqual(price.map(([d]) => d), ['2026-01-01', '2026-02-01', '2026-03-01', '2027-01-01', '2027-02-01'])
+  assert.equal(price[1][1], 7100)
+  // 70 / 7300 = 0.96%：2027-01 距 2026-01 正好 12 个月，仍沿用；2027-02 超过上限，不给股息率
+  assert.deepEqual(yields.at(-1), ['2027-01-31', 0.96])
+})
+
+test('monthlyAveragesFromDaily needs every trading day but one, and the last one, of each month', async () => {
+  const { monthlyAveragesFromDaily } = await import('./macro-posture.mjs')
+  const { isTradingDay } = await import('./lib/trading-calendar.mjs')
+  const days = month => {
+    const out = []
+    for (let d = `${month}-01`; d <= monthEnd(month); d = addDays(d, 1)) if (isTradingDay('us', d)) out.push(d)
+    return out
+  }
+  const nov = days('2026-11')
+  const dec = days('2026-12')
+  const closes = [...nov.map((d, i) => [d, 100 + i]), ...dec.slice(0, -1).map(d => [d, 200])]
+  const novAvg = Number((nov.reduce((s, _, i) => s + 100 + i, 0) / nov.length).toFixed(2))
+  // 12 月缺最后一个交易日：停在 11 月
+  assert.deepEqual(monthlyAveragesFromDaily(closes, '2026-10', '2026-12-31'), [['2026-11', novAvg]])
+  // 11 月缺月中一天仍可用；缺两天不可用
+  assert.equal(monthlyAveragesFromDaily(closes.filter(([d]) => d !== nov[5]), '2026-10', '2026-11-30').length, 1)
+  assert.deepEqual(monthlyAveragesFromDaily(closes.filter(([d]) => d !== nov[5] && d !== nov[6]), '2026-10', '2026-11-30'), [])
+  // 月份未结束（completeThrough 在月中之前）不计
+  assert.deepEqual(monthlyAveragesFromDaily(closes, '2026-10', '2026-10-31'), [])
+})
+
+test('applyPriceCorrections fixes the verified 1974-07 Shiller price and its yield, only when the source still has it', async () => {
+  const { applyPriceCorrections } = await import('./macro-posture.mjs')
+  const fixed = applyPriceCorrections([['1974-06-01', 89.79], ['1974-07-01', 79.31]], [['1974-07-31', 4.45]])
+  assert.deepEqual(fixed.price, [['1974-06-01', 89.79], ['1974-07-01', 82.82]])
+  assert.deepEqual(fixed.yield, [['1974-07-31', 4.26]])
+  const already = applyPriceCorrections([['1974-07-01', 82.82]], [['1974-07-31', 4.26]])
+  assert.deepEqual(already.price, [['1974-07-01', 82.82]])
+  assert.deepEqual(already.yield, [['1974-07-31', 4.26]])
+  assert.deepEqual(already.applied, [])
+})
+
+test('collectCore falls back to the Shiller snapshot, fills later months from daily closes and discloses it', async () => {
+  const { collectCore, FRED_IDS, SNAPSHOT_DISCLOSURE } = await import('./macro-posture.mjs')
+  const { isTradingDay } = await import('./lib/trading-calendar.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'collect-core-'))
+  try {
+    const nov = []
+    for (let d = '2026-11-01'; d <= '2026-11-30'; d = addDays(d, 1)) if (isTradingDay('us', d)) nov.push(d)
+    // 本地日线缓存缺 11 月最后一个交易日，由 FRED 日收盘补上
+    await writeFile(join(directory, 'spx-daily.json'), JSON.stringify({ rows: nov.slice(0, -1).map(d => [d, 7000]) }))
+    const fetcher = async url => {
+      const id = String(url).split('id=')[1]
+      if (!id) return { ok: false, status: 503, text: async () => '' }
+      const rows = id === 'SP500' ? [[nov.at(-1), 7300]] : [['2026-10-01', 1]]
+      return { ok: true, status: 200, text: async () => `observation_date,${id}\n${rows.map(r => r.join(',')).join('\n')}\n` }
+    }
+    const notes = []
+    const warnings = []
+    const core = await collectCore('2026-12-01', fetcher, {
+      dailyDirectory: directory, warn: line => warnings.push(line), onSnapshot: note => notes.push(note),
+    })
+    assert.ok(FRED_IDS.every(id => Array.isArray(core[id])))
+    const expected = Number(((7000 * (nov.length - 1) + 7300) / nov.length).toFixed(2))
+    assert.deepEqual(core.price.at(-1), ['2026-11-01', expected])
+    assert.deepEqual(core.price.find(([d]) => d === '1974-07-01'), ['1974-07-01', 82.82])
+    assert.equal(core.yield.at(-1)[0], '2026-11-30')
+    assert.equal(warnings.length, 2)
+    assert.match(warnings[0], /2026-11 至 2026-11 用标普日收盘均价补齐/)
+    assert.equal(notes.length, 1)
+    assert.ok(notes[0].startsWith(SNAPSHOT_DISCLOSURE))
+    assert.match(notes[0], /股息到 2026-06/)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
