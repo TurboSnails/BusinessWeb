@@ -1,0 +1,72 @@
+{
+  "fred_dgs5.csv": {
+    "description": "FRED DGS5：5 年期美国国债固定期限收益率，日度，%",
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS5",
+    "fetchedAt": "2026-11-25T13:18:21+00:00",
+    "bytes": 269329,
+    "sha256": "7eb4dd3b7b02c8794910aaebbdaf6cf3f000c2380f5ced7fcfce2fd001412acf"
+  },
+  "fred_gs5.csv": {
+    "description": "FRED GS5：5 年期美国国债收益率，月均值，%（1953-04 起，用于 1962 年以前）",
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GS5",
+    "fetchedAt": "2026-11-25T13:18:23+00:00",
+    "bytes": 14214,
+    "sha256": "49e61dc82bac413c9ce0461b5b54eab8d588376f6b9cfa15c93c478760ba81a3"
+  },
+  "fred_cpiaucsl.csv": {
+    "description": "FRED CPIAUCSL：美国 CPI（季调），月度",
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+    "fetchedAt": "2026-11-25T13:18:25+00:00",
+    "bytes": 17782,
+    "sha256": "c9be2d4909ffd28d91f07df5d113151b0fe7ba602144ee6fd453d3bc8426efde"
+  },
+  "bbk_gold_dem.csv": {
+    "description": "德国央行 BBEX3.D.XAU.DEM.EA.AC.C01：法兰克福交易所黄金定价，1 公斤纯金 = 马克，日度，1968-06-18 至 1998-12",
+    "url": "https://api.statistiken.bundesbank.de/rest/download/BBEX3/D.XAU.DEM.EA.AC.C01?format=csv&lang=en",
+    "fetchedAt": "2026-11-25T13:18:28+00:00",
+    "bytes": 249244,
+    "sha256": "32317d855f9d2767de29aa13ec9c8884570591e2efb463a8852a323122440dbb"
+  },
+  "bbk_usd_dem.csv": {
+    "description": "德国央行 BBEX3.D.USD.DEM.AA.AC.000：法兰克福交易所汇率定价，1 美元 = 马克，日度",
+    "url": "https://api.statistiken.bundesbank.de/rest/download/BBEX3/D.USD.DEM.AA.AC.000?format=csv&lang=en",
+    "fetchedAt": "2026-11-25T13:18:31+00:00",
+    "bytes": 422806,
+    "sha256": "c3b9d5773d04e752d1b265ff2f8a929097262c5039f57766bb6f293d5cc418de"
+  },
+  "yahoo_gc.json": {
+    "description": "Yahoo GC=F：COMEX 黄金期货近月连续合约，日度，2000-08 起",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?period1=0&period2=<下载时刻>&interval=1d",
+    "fetchedAt": "2026-11-25T13:18:34+00:00",
+    "bytes": 607522,
+    "sha256": "e55c815aeb7311c2758b259a26b9e96833e664bf96bc8349ce01eefe182f105e"
+  },
+  "yahoo_gld.json": {
+    "description": "Yahoo GLD：SPDR 黄金 ETF，日度（含调整收盘），2004-11 起",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=0&period2=<下载时刻>&interval=1d",
+    "fetchedAt": "2026-11-25T13:18:36+00:00",
+    "bytes": 605192,
+    "sha256": "0b8eafbc3e5a68493e68176f0473a228bc8782f7ab75698d1c1714a4bed064af"
+  },
+  "yahoo_iei.json": {
+    "description": "Yahoo IEI：iShares 3–7 年期美国国债 ETF，日度（核对债券收益用）",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/IEI?period1=0&period2=<下载时刻>&interval=1d",
+    "fetchedAt": "2026-11-25T13:18:39+00:00",
+    "bytes": 547577,
+    "sha256": "0017a0b5409136d602eae3281f76cd6c17dc61125b49d1230f14b5ba09da9295"
+  },
+  "yahoo_ief.json": {
+    "description": "Yahoo IEF：iShares 7–10 年期美国国债 ETF，日度（核对债券收益用）",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/IEF?period1=0&period2=<下载时刻>&interval=1d",
+    "fetchedAt": "2026-11-25T13:18:41+00:00",
+    "bytes": 657823,
+    "sha256": "4038d400dc5caa63fb643af2e60d6ce5b8f8ac4f11d144d206d3ac73805a60ff"
+  },
+  "worldbank_cmo_monthly.xlsx": {
+    "description": "世界银行 Pink Sheet 月度商品价格（黄金为伦敦月均价，美元/盎司；第二来源）",
+    "url": "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx",
+    "fetchedAt": "2026-11-25T13:18:43+00:00",
+    "bytes": 587760,
+    "sha256": "3c8d9d8dbb48342fdbf24777c39a8ce8964cc2fd0958f72f6779e6e4ad99cde2"
+  }
+}
