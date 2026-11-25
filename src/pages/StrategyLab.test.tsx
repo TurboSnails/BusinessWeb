@@ -6,6 +6,7 @@ import data from '../features/strategy-lab/data/late-cycle.json'
 import daily from '../features/strategy-lab/data/daily-execution.json'
 import vt from '../features/strategy-lab/data/vol-target.json'
 import vol from '../features/strategy-lab/data/etf-volume.json'
+import confirm from '../features/strategy-lab/data/vol-confirm.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -55,7 +56,7 @@ describe('研究中页签', () => {
   it('按日执行研究：研究列表、三个写法的预注册结论', () => {
     renderPage()
     const index = screen.getByRole('navigation', { name: '研究列表' })
-    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-v01', '#lab-etf-volume', '#lab-vol-target', '#lab-daily-execution', '#lab-late-cycle'])
+    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-v01', '#lab-vol-confirm', '#lab-etf-volume', '#lab-vol-target', '#lab-daily-execution', '#lab-late-cycle'])
     expect(screen.getByTestId('lab-daily-answer').textContent).toContain(daily.answer)
     const table = screen.getByTestId('lab-daily-table')
     for (const id of ['D1', 'D2', 'D3'] as const) expect(table.textContent).toContain(daily.verdict[id])
@@ -84,6 +85,13 @@ describe('研究中页签', () => {
     const table = screen.getByTestId('lab-etf-volume-table')
     for (const id of ['V1', 'V2', 'V3'] as const) expect(table.textContent).toContain(vol.decision[id].text)
     expect(within(table).getAllByRole('row')).toHaveLength(5)
+  })
+
+  it('降波动确认检验：10 个市场逐行、上限表 3 行', () => {
+    renderPage()
+    expect(within(screen.getByTestId('lab-vol-confirm-table')).getAllByRole('row')).toHaveLength(1 + 1 + confirm.overseas.length)
+    expect(within(screen.getByTestId('lab-cap-table')).getAllByRole('row')).toHaveLength(4)
+    expect(screen.getByTestId('lab-vol-confirm-answer').textContent).toContain('部分成立')
   })
 
   it('百分比用「−」号', () => {

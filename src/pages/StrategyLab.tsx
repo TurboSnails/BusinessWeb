@@ -4,6 +4,7 @@ import { Page } from '../components/ui'
 import DailyExecutionStudy from '../features/strategy-lab/DailyExecutionStudy'
 import EffectiveStrategies from '../features/strategy-lab/EffectiveStrategies'
 import EtfVolumeStudy from '../features/strategy-lab/EtfVolumeStudy'
+import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
 import LateCycleStudy from '../features/strategy-lab/LateCycleStudy'
 import TrioNav from '../features/combined-strategy/TrioNav'
@@ -26,6 +27,7 @@ export default function StrategyLab(): JSX.Element {
         <nav className="lab-index" aria-label="研究列表">
           <ol>
             <li><a href="#lab-v01">有效策略初版：一条按月、一条按日</a><span>美股宏观攻守（现行）+ A 股 ETF 日线择时（影子运行）</span></li>
+            <li><a href="#lab-vol-confirm">降低波动：确认检验与决定</a><span>波动率目标部分成立，不纳入规则；最可靠的是调低上限</span></li>
             <li><a href="#lab-etf-volume">A 股 ETF 择时加成交量</a><span>三种成交量条件都没有帮助</span></li>
             <li><a href="#lab-vol-target">波动率目标：市场越乱，仓位越低</a><span>回撤明显更浅，但按事先门槛差一点不通过</span></li>
             <li><a href="#lab-daily-execution">宏观攻守能不能按日执行</a><span>不通过，维持按月</span></li>
@@ -33,6 +35,7 @@ export default function StrategyLab(): JSX.Element {
           </ol>
         </nav>
         <EffectiveStrategies />
+        <VolConfirmStudy />
         <EtfVolumeStudy />
         <VolTargetStudy />
         <DailyExecutionStudy />

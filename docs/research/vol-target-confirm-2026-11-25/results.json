@@ -1,0 +1,475 @@
+{
+  "prereg": "docs/research/vol-target-confirm-2026-11-25/PREREG.md",
+  "inputs": {
+    "robustness": {
+      "file": "../robustness-2026-11-25/inputs.json",
+      "sha256": "701bfabf4fdd329964304a5f1f6a0504ef2ea4bce2e956a7fd5fb57c3c1e7d41"
+    },
+    "tiers": {
+      "file": "../macro-significance-2026-11-25/inputs.json",
+      "sha256": "01bb2d63b8262da75d33b167bd664f339646cef0e1e1b08b9304a65f69d072cf"
+    },
+    "spx": {
+      "file": "../../../data-raw/macro-posture-daily/spx-daily.json",
+      "sha256": "2275fdb648465c9ff5610da6ffac9e97b3787fa3291e15bd319860f9992ed3e7"
+    },
+    "intl": {
+      "file": "./inputs-intl.json",
+      "sha256": "1a7305be593f38568bb7293a1f00e33a67bc3c4bc2d9ef7280674f5ad7700461"
+    }
+  },
+  "scoringCheck": "646/646",
+  "U1": {
+    "first": "1959-09",
+    "last": "1972-12",
+    "scale": 0.9193157301652578,
+    "base": {
+      "periods": 160,
+      "cagr": 0.06463200723005946,
+      "vol": 0.06720450540813208,
+      "dailyMaxDd": -0.2248574102038695,
+      "sharpeNet": 0.288041099808025,
+      "avgEquity": 0.6466676673671512,
+      "turnoverPerYear": 0.6619633743620535
+    },
+    "matched": {
+      "periods": 160,
+      "cagr": 0.06308236980274562,
+      "vol": 0.061780653466228456,
+      "dailyMaxDd": -0.20792887432099494,
+      "sharpeNet": 0.28716210372608064,
+      "avgEquity": 0.5944917587998925,
+      "turnoverPerYear": 0.6085533428443087
+    },
+    "vt3": {
+      "periods": 160,
+      "cagr": 0.059166958571025274,
+      "vol": 0.06010499371351483,
+      "dailyMaxDd": -0.18288630833064978,
+      "sharpeNet": 0.2274199815397682,
+      "avgEquity": 0.5944917587998967,
+      "turnoverPerYear": 1.2505333401961989
+    },
+    "pass": {
+      "vol": false,
+      "dd": false,
+      "sharpe": false
+    },
+    "holds": false
+  },
+  "overseas": {
+    "n225": {
+      "name": "日经 225",
+      "symbol": "^N225",
+      "extremeDays": [],
+      "first": "1972-01",
+      "last": "2026-09",
+      "scale": 0.7795787240643912,
+      "base": {
+        "periods": 657,
+        "cagr": 0.04566934452334115,
+        "vol": 0.1467763146039581,
+        "dailyMaxDd": -0.6575788778183485,
+        "sharpeNet": 0.38788351377702956,
+        "avgEquity": 0.6999999999999835,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 657,
+        "cagr": 0.037349555207813356,
+        "vol": 0.11442369206182747,
+        "dailyMaxDd": -0.547696196197961,
+        "sharpeNet": 0.39024482827205803,
+        "avgEquity": 0.5457051068451471,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 657,
+        "cagr": 0.04073599455962529,
+        "vol": 0.1020541385360918,
+        "dailyMaxDd": -0.49693557181278436,
+        "sharpeNet": 0.4276448859764628,
+        "avgEquity": 0.545705106845061,
+        "turnoverPerYear": 1.1600192596336238
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    },
+    "ixic": {
+      "name": "纳斯达克综合",
+      "symbol": "^IXIC",
+      "extremeDays": [],
+      "first": "1973-02",
+      "last": "2026-09",
+      "scale": 0.7482401006806636,
+      "base": {
+        "periods": 644,
+        "cagr": 0.07715124324031741,
+        "vol": 0.14306425808582593,
+        "dailyMaxDd": -0.6345445104849912,
+        "sharpeNet": 0.5705625881784322,
+        "avgEquity": 0.6999999999999873,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 644,
+        "cagr": 0.059229266295416805,
+        "vol": 0.10704641487394263,
+        "dailyMaxDd": -0.5184261438579953,
+        "sharpeNet": 0.5693977368322436,
+        "avgEquity": 0.5237680704765529,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 644,
+        "cagr": 0.05948082582346781,
+        "vol": 0.08589770056036944,
+        "dailyMaxDd": -0.3154010106567977,
+        "sharpeNet": 0.6390949725730553,
+        "avgEquity": 0.523768070476455,
+        "turnoverPerYear": 1.1953920054581102
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    },
+    "tsx": {
+      "name": "多伦多综合",
+      "symbol": "^GSPTSE",
+      "extremeDays": [],
+      "first": "1981-06",
+      "last": "2026-09",
+      "scale": 0.8441665267337486,
+      "base": {
+        "periods": 544,
+        "cagr": 0.046288455053885125,
+        "vol": 0.10746762825498575,
+        "dailyMaxDd": -0.3787037616929787,
+        "sharpeNet": 0.46792992832898256,
+        "avgEquity": 0.6999999999998732,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 544,
+        "cagr": 0.03973194746426989,
+        "vol": 0.09072057448032486,
+        "dailyMaxDd": -0.32899629541546804,
+        "sharpeNet": 0.4678467088284164,
+        "avgEquity": 0.590916568713562,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 544,
+        "cagr": 0.03831802666783224,
+        "vol": 0.07750660886043516,
+        "dailyMaxDd": -0.29670612222741877,
+        "sharpeNet": 0.4790969471858933,
+        "avgEquity": 0.5909165687135169,
+        "turnoverPerYear": 0.9656026140410076
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    },
+    "ftse": {
+      "name": "富时 100",
+      "symbol": "^FTSE",
+      "extremeDays": [],
+      "first": "1986-01",
+      "last": "2026-09",
+      "scale": 0.8622454662171926,
+      "base": {
+        "periods": 489,
+        "cagr": 0.03858258920836266,
+        "vol": 0.11964414923014806,
+        "dailyMaxDd": -0.3958446495956104,
+        "sharpeNet": 0.3965845582555734,
+        "avgEquity": 0.6999999999998789,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 489,
+        "cagr": 0.034063102768703724,
+        "vol": 0.1031626252331083,
+        "dailyMaxDd": -0.3491426112962135,
+        "sharpeNet": 0.3973554850699183,
+        "avgEquity": 0.6035718263519858,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 489,
+        "cagr": 0.02774922596748386,
+        "vol": 0.09175859402479791,
+        "dailyMaxDd": -0.3522791551115536,
+        "sharpeNet": 0.3374546168381607,
+        "avgEquity": 0.6035718263519304,
+        "turnoverPerYear": 0.8817028458245756
+      },
+      "pass": {
+        "vol": true,
+        "dd": false,
+        "sharpe": false
+      },
+      "holds": false
+    },
+    "hsi": {
+      "name": "恒生",
+      "symbol": "^HSI",
+      "extremeDays": [
+        "1987-10-26 -33.3%",
+        "1989-06-05 -21.7%",
+        "1997-10-29 18.8%"
+      ],
+      "first": "1988-12",
+      "last": "2026-09",
+      "scale": 0.8487736525198868,
+      "base": {
+        "periods": 454,
+        "cagr": 0.04853956819240013,
+        "vol": 0.1747119102803378,
+        "dailyMaxDd": -0.5118678465394263,
+        "sharpeNet": 0.3543161742711064,
+        "avgEquity": 0.6999999999998853,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 454,
+        "cagr": 0.04310007340867905,
+        "vol": 0.14829086622736903,
+        "dailyMaxDd": -0.45247837956689785,
+        "sharpeNet": 0.35459101671412024,
+        "avgEquity": 0.5941415567639801,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 454,
+        "cagr": 0.04100828399699963,
+        "vol": 0.13218853985794135,
+        "dailyMaxDd": -0.43723032265293604,
+        "sharpeNet": 0.3491769392866842,
+        "avgEquity": 0.5941415567638234,
+        "turnoverPerYear": 0.9941012871911631
+      },
+      "pass": {
+        "vol": true,
+        "dd": false,
+        "sharpe": true
+      },
+      "holds": false
+    },
+    "dax": {
+      "name": "德国 DAX",
+      "symbol": "^GDAXI",
+      "extremeDays": [],
+      "first": "1989-12",
+      "last": "2026-09",
+      "scale": 0.8524423574905666,
+      "base": {
+        "periods": 442,
+        "cagr": 0.057044818893815075,
+        "vol": 0.15172845796309697,
+        "dailyMaxDd": -0.58303807758457,
+        "sharpeNet": 0.45593488349581995,
+        "avgEquity": 0.6999999999998854,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 442,
+        "cagr": 0.04994809318672577,
+        "vol": 0.12933976440447065,
+        "dailyMaxDd": -0.5208870199049904,
+        "sharpeNet": 0.45667504691108085,
+        "avgEquity": 0.5967096502435272,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 442,
+        "cagr": 0.045337735707935645,
+        "vol": 0.11265217326216967,
+        "dailyMaxDd": -0.44338589096926584,
+        "sharpeNet": 0.45272095430109494,
+        "avgEquity": 0.5967096502432989,
+        "turnoverPerYear": 0.8235492424703779
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    },
+    "rut": {
+      "name": "罗素 2000",
+      "symbol": "^RUT",
+      "extremeDays": [],
+      "first": "1989-09",
+      "last": "2026-09",
+      "scale": 0.74516746214465,
+      "base": {
+        "periods": 445,
+        "cagr": 0.058888306349908826,
+        "vol": 0.15129505472414395,
+        "dailyMaxDd": -0.4562378367226855,
+        "sharpeNet": 0.4719670357848731,
+        "avgEquity": 0.6999999999998852,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 445,
+        "cagr": 0.04584082151578728,
+        "vol": 0.11274015196382636,
+        "dailyMaxDd": -0.3563920290130582,
+        "sharpeNet": 0.47423359575187835,
+        "avgEquity": 0.521617223501308,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 445,
+        "cagr": 0.04001372360474087,
+        "vol": 0.09708074598288506,
+        "dailyMaxDd": -0.24530932214398082,
+        "sharpeNet": 0.4505049888513115,
+        "avgEquity": 0.5216172235011695,
+        "turnoverPerYear": 1.2430445480789896
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    },
+    "sse": {
+      "name": "上证综指",
+      "symbol": "000001.SS",
+      "extremeDays": [],
+      "first": "1999-07",
+      "last": "2026-09",
+      "scale": 0.881129230215866,
+      "base": {
+        "periods": 327,
+        "cagr": 0.027408599324284744,
+        "vol": 0.16028468363034354,
+        "dailyMaxDd": -0.5809738800626929,
+        "sharpeNet": 0.23802505983244365,
+        "avgEquity": 0.6999999999999131,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 327,
+        "cagr": 0.02549450693860056,
+        "vol": 0.14123151990259825,
+        "dailyMaxDd": -0.5329570974235125,
+        "sharpeNet": 0.23682150380325243,
+        "avgEquity": 0.6167904611511348,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 327,
+        "cagr": 0.03465443447660488,
+        "vol": 0.12873062474668798,
+        "dailyMaxDd": -0.3967923165637103,
+        "sharpeNet": 0.29395802926465603,
+        "avgEquity": 0.6167904611510296,
+        "turnoverPerYear": 0.9072481807155892
+      },
+      "pass": {
+        "vol": false,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": false
+    },
+    "asx": {
+      "name": "澳大利亚 200",
+      "symbol": "^AXJO",
+      "extremeDays": [],
+      "first": "1994-11",
+      "last": "2026-09",
+      "scale": 0.8713210803535353,
+      "base": {
+        "periods": 383,
+        "cagr": 0.03739337119015018,
+        "vol": 0.10667025476668655,
+        "dailyMaxDd": -0.410438435498805,
+        "sharpeNet": 0.4397382200319748,
+        "avgEquity": 0.6999999999998958,
+        "turnoverPerYear": 0
+      },
+      "matched": {
+        "periods": 383,
+        "cagr": 0.033166406749359556,
+        "vol": 0.09294404162489614,
+        "dailyMaxDd": -0.36661151426533345,
+        "sharpeNet": 0.44161471453771084,
+        "avgEquity": 0.6099247562475184,
+        "turnoverPerYear": 0
+      },
+      "vt3": {
+        "periods": 383,
+        "cagr": 0.032078114119114876,
+        "vol": 0.08347755677732303,
+        "dailyMaxDd": -0.22093287223730584,
+        "sharpeNet": 0.4574419746455813,
+        "avgEquity": 0.609924756247384,
+        "turnoverPerYear": 0.919880746252155
+      },
+      "pass": {
+        "vol": true,
+        "dd": true,
+        "sharpe": true
+      },
+      "holds": true
+    }
+  },
+  "intlHolds": 6,
+  "verdict": "部分成立",
+  "reportUs1973": {
+    "first": "1973-01",
+    "last": "2026-08",
+    "scale": 0.8173716747139405,
+    "base": {
+      "periods": 644,
+      "cagr": 0.10314269611026061,
+      "vol": 0.11283204166880394,
+      "dailyMaxDd": -0.3297512229104327,
+      "sharpeNet": 0.585766930471585,
+      "avgEquity": 0.6772821346737226,
+      "turnoverPerYear": 0.7189888387907438
+    },
+    "matched": {
+      "periods": 644,
+      "cagr": 0.09333601521826673,
+      "vol": 0.09222753383226273,
+      "dailyMaxDd": -0.27545815111201,
+      "sharpeNet": 0.5892441585868664,
+      "avgEquity": 0.5535912326720627,
+      "turnoverPerYear": 0.5876811112630207
+    },
+    "vt3": {
+      "periods": 644,
+      "cagr": 0.09270732996051922,
+      "vol": 0.08354632678112973,
+      "dailyMaxDd": -0.18709739252583046,
+      "sharpeNet": 0.6208109929144305,
+      "avgEquity": 0.5535912326720932,
+      "turnoverPerYear": 1.4168303057409293
+    },
+    "pass": {
+      "vol": false,
+      "dd": true,
+      "sharpe": true
+    },
+    "holds": false
+  }
+}

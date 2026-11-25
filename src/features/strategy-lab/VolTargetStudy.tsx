@@ -98,7 +98,7 @@ export default function VolTargetStudy(): JSX.Element {
 
   return (
     <article className="ss-section lab-study" id="lab-vol-target" aria-labelledby="lab-vt-title" data-testid="lab-vol-target">
-      <p className="lab-status">2026-11-25 · 已完成 · 按事先门槛不通过 · 不改仓位规则</p>
+      <p className="lab-status">2026-11-25 · 已完成 · 按事先门槛不通过，确认检验部分成立 · 不改仓位规则</p>
       <h2 id="lab-vt-title">波动率目标：市场越乱，仓位越低</h2>
 
       <div className="ss-cover lab-answer" data-testid="lab-vt-answer">
@@ -148,7 +148,7 @@ export default function VolTargetStudy(): JSX.Element {
       <h3 className="cs-subhead">怎么理解、下一步</h3>
       <ol className="ss-list">
         <li>按事先定的门槛，三个写法都不通过，仓位规则不变。</li>
-        <li>但在今天检验过的 10 个美股高位回落写法里（月中刹车 4 个、按日执行 3 个、波动率目标 3 个），它是唯一在同等仓位下明显降低损失的。如果你的目标是「少亏」而不是「多赚」，VT3 值得继续：要先用「同等收益下回撤更浅」重新写一次门槛，并用 1950–1972 年和影子跟踪检验，不能因为这次结果好看就直接放宽门槛采用。</li>
+        <li>但在今天检验过的 10 个美股高位回落写法里（月中刹车 4 个、按日执行 3 个、波动率目标 3 个），它是唯一在同等仓位下明显降低损失的。随后按预注册做了确认检验（美国 1959–1972 年 + 海外 9 个指数），结果只是「部分成立」，没有纳入规则，见上面「降低波动：确认检验与决定」。</li>
         <li>它和宏观攻守互补：宏观管慢的衰退型下跌，波动率管快的急跌。</li>
       </ol>
 
