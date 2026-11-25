@@ -1,7 +1,7 @@
 import type { StrategySpec } from '../types'
 
 /**
- * 综合策略说明书 v1.0.6：写明标普月均价与股息率的来源和备用路径、月初检查新增的两项，
+ * 综合策略说明书 v1.0.6（已归档）：写明标普月均价与股息率的来源和备用路径、月初检查新增的两项，
  * 更正第十三章的样本区间表述；仓位规则不变。
  * 规则出处：scripts/lib/macro-posture/model.mjs（v2.2）、scripts/lib/market-radar/indicators.mjs（radar-v1）、
  * scripts/lib/combined-strategy/（fusion-v1）。数字取自 2026-10 月底的数据文件。
@@ -9,7 +9,7 @@ import type { StrategySpec } from '../types'
 export const SPEC_V1_0_6: StrategySpec = {
   version: '1.0.6',
   date: '2026-11-25',
-  status: 'current',
+  status: 'archived',
   title: '综合策略说明书',
   summary: '美股仓位只按宏观攻守的五档定；市场雷达的冷热只决定这个阶段具体怎么做，不改变仓位。',
   components: [

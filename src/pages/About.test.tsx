@@ -3,6 +3,7 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import About from './About'
+import { SITE_UPDATES } from '../data/siteUpdates'
 
 afterEach(() => {
   cleanup()
@@ -27,7 +28,9 @@ describe('About 页面：站点介绍', () => {
     expect(screen.getByRole('heading', { level: 1, name: '关于「Live」' })).toBeTruthy()
     expect(document.body.textContent).not.toMatch(/Hassan 投资工作台/)
     expect(screen.getByRole('heading', { name: '最近更新' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: '新入口：市场雷达（自建指标，与大师方案分开）' }).getAttribute('href')).toBe('/invest/market-radar')
+    // 「最近更新」列出最新几条，每条链接到对应页面（不写死某一条，避免新增更新后测试失效）
+    const latest = SITE_UPDATES[0]
+    expect(screen.getByRole('link', { name: latest.title }).getAttribute('href')).toBe(latest.href)
   })
 
   it('介绍里列出三个栏目，并链接到对应页面', () => {

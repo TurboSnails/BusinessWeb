@@ -7,6 +7,7 @@ import combined from '../../../public/data/combined-strategy.json'
 import macro from '../../../public/data/macro-posture.json'
 import significance from '../../../docs/research/macro-significance-2026-11-25/results.json'
 import monthEnd from '../../../docs/research/month-end-close-2026-11-25/results.json'
+import robustness from '../../../docs/research/robustness-2026-11-25/results.json'
 import { STRATEGY_SPECS, currentSpec, findSpec } from './index'
 import type { SpecSection } from './types'
 
@@ -181,4 +182,29 @@ describe('现行版本的回测数字与数据一致', () => {
     expect(monthEnd.verdict.text).toBe('月末收盘口径下结论不变')
     expect(JSON.stringify(section('evidence'))).toContain(monthEnd.verdict.text)
   })
+
+  it('稳健性检验表与 robustness 研究结果一致', () => {
+    const block = section('evidence')?.blocks.find(b => b.type === 'table' && b.caption?.startsWith('稳健性检验'))
+    if (!block || block.type !== 'table') throw new Error('缺少稳健性检验表')
+    const [param, primary, secondary] = block.rows
+    const { random } = robustness.A
+    expect(param[2]).toBe(robustness.A.verdict)
+    expect(param[1]).toContain(`第 ${(random.productionSharpePercentile * 100).toFixed(1)} 百分位`)
+    expect(param[1]).toContain(`夏普中位 ${random.sharpe.median.toFixed(2)}`)
+    expect(param[1]).toContain(`${random.sharpe.p5.toFixed(2)}–${random.sharpe.p95.toFixed(2)}`)
+    expect(param[1]).toContain(`回撤中位 −${Math.abs(random.maxDd.median * 100).toFixed(1)}%`)
+    expect(random.shareBoth).toBe(1)
+    expect(primary[2]).toBe(robustness.B.verdict)
+    for (const [row, w] of [[primary, robustness.B.primary], [secondary, robustness.B.secondary]] as const) {
+      const s = w.perf.strategy
+      const c = w.perf.static70
+      expect(row[0]).toContain(`${w.from} 至 ${w.to}`)
+      expect(row[0]).toContain(`${w.months} 个月`)
+      expect(row[1]).toContain(`本策略年化 ${(s.cagr * 100).toFixed(2)}%、回撤 −${Math.abs(s.maxDd * 100).toFixed(2)}%、夏普 ${s.sharpe.toFixed(2)}`)
+      expect(row[1]).toContain(`恒定七成 ${(c.cagr * 100).toFixed(2)}%、−${Math.abs(c.maxDd * 100).toFixed(2)}%、${c.sharpe.toFixed(2)}`)
+    }
+    expect(JSON.stringify(section('alternatives'))).toContain('维持现金')
+    expect(Object.values(robustness.C.verdicts).every(v => v === '不采用，维持现金')).toBe(true)
+  })
 })
+
