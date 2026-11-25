@@ -106,7 +106,8 @@ const expectNear = (label: string, actual: number, expected: number, tolerance: 
 describe('现行版本的回测数字与数据一致', () => {
   const spec = currentSpec()
   const section = (id: string) => spec.sections.find(s => s.id === id)
-  // 数据截止月与说明书相同（成文时）按显示精度严格核对；之后数据逐月延长，只防止抄错行、写错数量级
+  // 数据截止月与说明书相同（成文时）按显示精度的一个单位核对（容许数据小幅修订造成的进位）；
+  // 之后数据逐月延长，只防止抄错行、写错数量级
   const strict = macro.backtest.end === spec.dataThrough
   const tol = (rounding: number, drift: number) => (strict ? rounding : drift)
   const variant = (id: string) => {
@@ -123,12 +124,12 @@ describe('现行版本的回测数字与数据一致', () => {
     expect(rows.map(row => row[0])).toEqual(Object.keys(ids))
     for (const row of rows) {
       const v = variant(ids[row[0]])
-      expectNear(`${row[0]} 年化`, num(row[1]), v.cagr * 100, tol(0.005, 0.5))
-      expectNear(`${row[0]} 波动`, num(row[2]), v.vol * 100, tol(0.005, 0.5))
-      expectNear(`${row[0]} 最大回撤`, num(row[3]), v.maxDd * 100, tol(0.005, 8))
-      expectNear(`${row[0]} 夏普`, num(row[4]), v.sharpe, tol(0.005, 0.1))
-      expectNear(`${row[0]} 平均仓位`, num(row[5]), v.avgEquity * 100, tol(0.05, 3))
-      expectNear(`${row[0]} 年均换档`, num(row[6]), v.switchesPerYear, tol(0.05, 0.5))
+      expectNear(`${row[0]} 年化`, num(row[1]), v.cagr * 100, tol(0.01, 0.5))
+      expectNear(`${row[0]} 波动`, num(row[2]), v.vol * 100, tol(0.01, 0.5))
+      expectNear(`${row[0]} 最大回撤`, num(row[3]), v.maxDd * 100, tol(0.01, 8))
+      expectNear(`${row[0]} 夏普`, num(row[4]), v.sharpe, tol(0.01, 0.1))
+      expectNear(`${row[0]} 平均仓位`, num(row[5]), v.avgEquity * 100, tol(0.1, 3))
+      expectNear(`${row[0]} 年均换档`, num(row[6]), v.switchesPerYear, tol(0.1, 0.5))
     }
   })
 
@@ -137,10 +138,10 @@ describe('现行版本的回测数字与数据一致', () => {
     if (!text || text.type !== 'p') throw new Error('缺少成本段落')
     const [switches, turnover, , drag1, , drag3] = (text.text.replace(/−/g, '-').match(/\d+(\.\d+)?/g) ?? []).map(Number)
     const { costs } = macro.backtest
-    expectNear('年均换档', switches, variant('full').switchesPerYear, tol(0.05, 0.5))
-    expectNear('年换手', turnover, costs.turnoverPerYear * 100, tol(0.5, 10))
-    expectNear('单边 0.10% 的拖累', drag1, costs.rows.find(r => r.cost === 0.001)!.drag * 100, tol(0.005, 0.05))
-    expectNear('单边 0.30% 的拖累', drag3, costs.rows.find(r => r.cost === 0.003)!.drag * 100, tol(0.005, 0.1))
+    expectNear('年均换档', switches, variant('full').switchesPerYear, tol(0.1, 0.5))
+    expectNear('年换手', turnover, costs.turnoverPerYear * 100, tol(1, 10))
+    expectNear('单边 0.10% 的拖累', drag1, costs.rows.find(r => r.cost === 0.001)!.drag * 100, tol(0.01, 0.05))
+    expectNear('单边 0.30% 的拖累', drag3, costs.rows.find(r => r.cost === 0.003)!.drag * 100, tol(0.01, 0.1))
   })
 
   it('统计检验表与 macro-significance 研究结果一致', () => {
