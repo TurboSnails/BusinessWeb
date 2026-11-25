@@ -1,11 +1,16 @@
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import data from '../features/strategy-lab/data/late-cycle.json'
 import daily from '../features/strategy-lab/data/daily-execution.json'
+import vt from '../features/strategy-lab/data/vol-target.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { STRATEGY_LAB_LEAD } from './StrategyLab'
+
+vi.mock('../features/combined-strategy/load', () => ({
+  useCombinedStrategy: vi.fn(() => ({ status: 'ready', data: { current: { instruction: '股票仓位保持在你上限的 85%，本月不用调。' } } })),
+}))
 
 function renderPage(): void {
   render(
@@ -49,11 +54,28 @@ describe('研究中页签', () => {
   it('按日执行研究：研究列表、三个写法的预注册结论', () => {
     renderPage()
     const index = screen.getByRole('navigation', { name: '研究列表' })
-    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-daily-execution', '#lab-late-cycle'])
+    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-v01', '#lab-vol-target', '#lab-daily-execution', '#lab-late-cycle'])
     expect(screen.getByTestId('lab-daily-answer').textContent).toContain(daily.answer)
     const table = screen.getByTestId('lab-daily-table')
     for (const id of ['D1', 'D2', 'D3'] as const) expect(table.textContent).toContain(daily.verdict[id])
     expect(within(table).getAllByRole('row')).toHaveLength(5)
+  })
+
+  it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
+    renderPage()
+    expect(screen.getByTestId('lab-v01-us-now').textContent).toBe('股票仓位保持在你上限的 85%，本月不用调。')
+    expect(await screen.findByText('读数暂时加载不了')).toBeTruthy()
+    expect(within(screen.getByTestId('lab-v01')).getByRole('link', { name: 'ETF 择时观察（逐只信号）' }).getAttribute('href')).toBe('/lab/etf-timing')
+    vi.unstubAllGlobals()
+  })
+
+  it('波动率目标：三个写法的结论、同等仓位对照与当前读数', () => {
+    renderPage()
+    const table = screen.getByTestId('lab-vt-table')
+    for (const id of ['VT1', 'VT2', 'VT3'] as const) expect(table.textContent).toContain(vt.verdict[id])
+    expect(within(screen.getByTestId('lab-vt-events')).getAllByRole('row')).toHaveLength(9)
+    expect(screen.getByTestId('lab-vt-now').textContent).toContain(vt.sigmaNow.k.toFixed(2))
   })
 
   it('百分比用「−」号', () => {
