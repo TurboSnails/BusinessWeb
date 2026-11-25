@@ -286,18 +286,20 @@ describe('MacroPosture 综合指标视图', () => {
     expect(within(strip).getByText('偏进攻').closest('li')?.getAttribute('aria-current')).toBe('true')
   })
 
-  it('自设上限换算：默认 100 → 现在约 85%，改写后进 localStorage', () => {
+  it('自设上限换算：默认建议值 80 → 现在约 68%，改写后进 localStorage', () => {
     const store: Record<string, string> = {}
     const getSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(key => store[key] ?? null)
     const setSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key, value) => {
       store[key] = String(value)
     })
     renderPage()
-    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 85%')
-    const input = screen.getByLabelText('你的股票仓位上限') as HTMLInputElement
-    fireEvent.change(input, { target: { value: '80' } })
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 68%')
-    expect(store['mp-equity-cap']).toBe('80')
+    expect(screen.getByTestId('mp-equity-cap-recommend').textContent).toContain('这是建议值')
+    const input = screen.getByLabelText('你的股票仓位上限') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '100' } })
+    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 85%')
+    expect(screen.getByTestId('mp-equity-cap-recommend').textContent).toContain('建议 80%')
+    expect(store['mp-equity-cap']).toBe('100')
     getSpy.mockRestore()
     setSpy.mockRestore()
   })
@@ -323,7 +325,7 @@ describe('MacroPosture 综合指标视图', () => {
     setSpy.mockRestore()
   })
 
-  it('localStorage 读失败时上限回退 100 且不抛错', () => {
+  it('localStorage 读失败时上限回退建议值 80 且不抛错', () => {
     const getSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('denied')
     })
@@ -331,7 +333,7 @@ describe('MacroPosture 综合指标视图', () => {
       throw new Error('denied')
     })
     expect(() => renderPage()).not.toThrow()
-    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 85%')
+    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 68%')
     fireEvent.change(screen.getByLabelText('你的股票仓位上限'), { target: { value: '50' } })
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toBe('现在约 43%')
     getSpy.mockRestore()
