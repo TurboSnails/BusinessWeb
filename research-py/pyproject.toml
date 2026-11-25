@@ -1,0 +1,19 @@
+[project]
+name = "businessweb-research"
+version = "0.1.0"
+description = "第二套回测引擎与多资产研究（只做研究计算，不进网站构建）"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "numpy>=2.1,<3",
+  "pandas>=2.2,<3",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3,<9"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

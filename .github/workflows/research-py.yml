@@ -1,0 +1,34 @@
+name: Research engine reproduction (research-py)
+
+# 第二套回测引擎验收：Python 独立实现须逐层复现 JS 研究引擎的现行 v2.2 E1 结果。
+# 只在引擎、对照文件或冻结输入改动时运行；日线缓存每天追加，不触发本工作流。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'research-py/**'
+      - '.github/workflows/research-py.yml'
+      - 'docs/research/macro-significance-2026-11-25/inputs.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: research-py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: python -m pip install --quiet 'uv==0.12.13'
+      - name: Install locked dependencies
+        run: uv sync --frozen
+      - name: Reproduce E1 baseline
+        run: uv run pytest -q

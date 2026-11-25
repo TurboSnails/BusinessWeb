@@ -1,0 +1,23 @@
+{
+  "note": "由 export_fixture.mjs 用 JS 研究引擎导出；Python 引擎须独立复现，不得读取 daily/periods CSV 来计算。",
+  "inputs": {
+    "tiers": {
+      "file": "docs/research/macro-significance-2026-11-25/inputs.json",
+      "sha256": "01bb2d63b8262da75d33b167bd664f339646cef0e1e1b08b9304a65f69d072cf"
+    },
+    "daily": {
+      "file": "data-raw/macro-posture-daily/spx-daily.json",
+      "until": "2026-10-31",
+      "contentSha256": "a03578ea6b7bb192d6af4296faf1d0eae471e6f29b58c459924eab2deebd7a13"
+    }
+  },
+  "summary": {
+    "periods": 644,
+    "navStart": "1973-02-05",
+    "navEnd": "2026-10-05",
+    "sharpe": 0.5928767239166122,
+    "sharpeNet": 0.5857669304715881,
+    "cagr": 0.10318273229590025,
+    "dailyMaxDd": -0.3297512229104327
+  }
+}
