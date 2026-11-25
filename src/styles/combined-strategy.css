@@ -506,3 +506,327 @@ html.dark .cs-page {
 .cs-spec-entry__desc { font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary); }
 .cs-spec-entry__cta { margin-top: 2px; font-size: 0.9rem; font-weight: 600; color: var(--accent-ink, var(--accent, #3b6d11)); }
 .cs-footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===== 体验优化（2026-11-25）：结论卡在首屏、依据改卡片、矩阵改切换 ===== */
+.cs-page { --cs-card-bg: var(--bg-card, #fff); --cs-line: var(--border-subtle, #e5e5e0); }
+.cs-head__lead { margin-bottom: 8px; font-size: 0.98rem; }
+
+/* 说明书入口：一行紧凑卡片 */
+.cs-spec-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  max-width: none;
+  border-left-width: 3px;
+}
+.cs-spec-entry__title { font-size: 0.95rem; flex: 1 1 16rem; }
+.cs-spec-entry__cta { margin: 0; font-size: 0.88rem; }
+.cs-toc { margin-bottom: 16px; }
+
+/* 结论卡 */
+.cs-hero {
+  --cs-tone: var(--accent, #3b6d11);
+  position: relative;
+  margin: 0 0 32px;
+  padding: 18px 20px 16px;
+  border: 1px solid color-mix(in srgb, var(--cs-tone) 30%, var(--cs-line));
+  border-top: 4px solid var(--cs-tone);
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--cs-tone) 4%, var(--cs-card-bg));
+}
+.cs-hero[data-tier='offense'] { --cs-tone: var(--cs-tier-offense); }
+.cs-hero[data-tier='lean-offense'] { --cs-tone: var(--cs-tier-lean-offense); }
+.cs-hero[data-tier='neutral'] { --cs-tone: var(--cs-tier-neutral); }
+.cs-hero[data-tier='lean-defense'] { --cs-tone: var(--cs-tier-lean-defense); }
+.cs-hero[data-tier='defense'] { --cs-tone: var(--cs-tier-defense); }
+.cs-hero__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+}
+.cs-hero__eyebrow {
+  margin: 0;
+  font: 600 0.95rem / 1.4 var(--font-sans, inherit);
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+.cs-hero__chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.cs-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--cs-line);
+  background: var(--cs-card-bg);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.cs-chip--tier {
+  border-color: transparent;
+  background: var(--cs-tone);
+  color: #fff;
+  font-weight: 650;
+}
+.cs-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-areas: 'main cap' 'watch cap';
+  grid-template-rows: auto 1fr;
+  gap: 12px 28px;
+  align-items: start;
+}
+.cs-hero__main { grid-area: main; min-width: 0; }
+.cs-hero__grid > .cs-cap { grid-area: cap; }
+.cs-hero__grid > .cs-watch { grid-area: watch; }
+.cs-hero .cs-now__instruction { margin: 0 0 10px; max-width: none; }
+.cs-hero .cs-now__scope { margin: 0 0 12px; }
+
+.cs-watch {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--cs-line);
+  background: var(--cs-card-bg);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.cs-watch.is-close {
+  border-color: color-mix(in srgb, var(--cs-tier-lean-defense) 45%, var(--cs-line));
+  background: color-mix(in srgb, var(--cs-tier-lean-defense) 8%, var(--cs-card-bg));
+}
+.cs-watch__label {
+  display: inline-block;
+  margin-right: 8px;
+  color: var(--text-primary);
+}
+.cs-watch a, .cs-cap__why a {
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+/* 换算卡 */
+.cs-page .cs-cap {
+  display: block;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--cs-line);
+  background: var(--cs-card-bg);
+}
+.cs-cap__kicker { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+.cs-cap__value {
+  margin: 2px 0 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  color: var(--cs-tone);
+  font-variant-numeric: tabular-nums;
+}
+.cs-cap__num { font-size: clamp(2.6rem, 6vw, 3.2rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.cs-cap__unit { font-size: 1.4rem; font-weight: 650; }
+.cs-cap__na { font-size: 1rem; color: var(--text-secondary); }
+.cs-cap__formula {
+  margin: 0 0 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.cs-cap__field { display: inline-flex; align-items: center; gap: 4px; }
+.cs-page .cs-cap__field input {
+  width: 4.2rem;
+  min-height: 40px;
+  padding: 4px 8px;
+  font-size: 1rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 6px;
+  background: var(--bg-page, #fff);
+  color: var(--text-primary);
+}
+.cs-cap__def { margin: 0 0 6px; font-size: 0.8rem; line-height: 1.55; color: var(--text-tertiary, var(--text-secondary)); }
+.cs-cap__why { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); }
+.cs-cap__why summary {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--accent-ink, var(--text-primary));
+}
+.cs-cap__why p { margin: 4px 0 6px; }
+.cs-cap__reset {
+  min-height: 32px;
+  padding: 2px 10px;
+  border: 1px solid var(--cs-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* 三件事：卡片 */
+.cs-hero .cs-now__steps-title { margin: 18px 0 8px; font-size: 0.95rem; color: var(--text-secondary); font-weight: 600; }
+.cs-hero .cs-now__steps {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.cs-hero .cs-now__steps li {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--cs-line);
+  background: var(--cs-card-bg);
+}
+.cs-now__step-no {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cs-tone) 16%, transparent);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+.cs-hero .cs-now__step-title { margin-right: 0.3em; }
+.cs-hero .cs-now__step-text { display: block; margin-top: 4px; color: var(--text-secondary); }
+.cs-hero .cs-now__dates { margin: 6px 0 0; font-size: 0.8rem; color: var(--text-tertiary, var(--text-secondary)); }
+.cs-now__dates-label { margin-right: 8px; font-weight: 600; }
+
+/* 位置：三张依据卡 */
+.cs-position__cell {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--accent, #3b6d11);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 5%, transparent);
+  border-radius: 0 8px 8px 0;
+}
+.cs-position__name { font-size: 1.25rem; }
+.cs-position__aside { margin: 0; }
+.cs-position__rows {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.cs-position__row {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--cs-line);
+  border-radius: 10px;
+  background: var(--cs-card-bg);
+}
+.cs-position__row-head { flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 8px; }
+.cs-position__row-head strong { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.03em; }
+.cs-position__conclusion { font-size: 1.05rem; }
+.cs-position__link { margin-top: auto; padding-top: 4px; }
+
+/* 为什么：两列卡片 */
+.cs-why__list {
+  max-width: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.cs-why__item {
+  padding: 14px 16px;
+  border: 1px solid var(--cs-line);
+  border-radius: 10px;
+  background: var(--cs-card-bg);
+}
+.cs-why__evidence {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--cs-line);
+}
+
+/* 什么时候动：降 / 升并排 */
+.cs-triggers__pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.cs-triggers__block--down,
+.cs-triggers__block--up,
+.cs-triggers__block--nearest {
+  margin: 0;
+  max-width: none;
+  padding: 14px 16px;
+  border: 1px solid var(--cs-line);
+  border-radius: 10px;
+  background: var(--cs-card-bg);
+}
+.cs-triggers__block--down { border-top: 3px solid var(--cs-tier-lean-defense); }
+.cs-triggers__block--up { border-top: 3px solid var(--cs-tier-offense); }
+.cs-triggers__block--nearest { margin-bottom: 12px; }
+.cs-triggers__block .cs-triggers__tactical {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cs-tier-lean-defense) 8%, transparent);
+  color: var(--text-primary);
+}
+.cs-triggers__note { max-width: none; }
+
+/* 九种状态：区间切换 */
+.cs-seg {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+}
+.cs-seg__btn {
+  min-height: 36px;
+  padding: 4px 14px;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: var(--cs-card-bg);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+.cs-seg__btn[aria-pressed='true'] {
+  border-color: var(--accent, #3b6d11);
+  background: color-mix(in srgb, var(--accent, #3b6d11) 12%, var(--cs-card-bg));
+  color: var(--text-primary);
+  font-weight: 650;
+}
+.cs-seg__btn:focus-visible { outline: 2px solid var(--accent, #3b6d11); outline-offset: 2px; }
+.cs-seg__hint { flex: 1 1 100%; margin-top: 4px; font-size: 0.8rem; color: var(--text-tertiary, var(--text-secondary)); }
+.cs-matrix__table td.is-current { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent, #3b6d11) 55%, transparent); }
+
+@media (max-width: 860px) {
+  .cs-why__list { grid-template-columns: minmax(0, 1fr); }
+  .cs-hero__grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'main' 'cap' 'watch'; grid-template-rows: auto; }
+  .cs-hero .cs-now__steps { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .cs-hero { padding: 14px 14px 12px; }
+  .cs-why__list, .cs-triggers__pair, .cs-position__rows { grid-template-columns: minmax(0, 1fr); }
+  .cs-head__lead { font-size: 0.92rem; line-height: 1.65; }
+}
+[data-theme='dark'] .cs-chip--tier,
+html.dark .cs-chip--tier { color: #12201e; }
+.cs-body > section[id] { scroll-margin-top: 128px; }

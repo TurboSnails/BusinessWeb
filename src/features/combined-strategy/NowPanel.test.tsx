@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import NowPanel from './NowPanel'
@@ -25,6 +25,21 @@ describe('NowPanel', () => {
     expect(screen.getByTestId('cs-dates').textContent).toContain('宏观攻守')
     expect(screen.queryByTestId('cs-macro-chip')).toBeNull()
     expect(screen.queryByTestId('cs-now-cell')).toBeNull()
+  })
+
+  it('换算卡：大号显示上限 × 档位，改上限即时更新；月底提醒可选', () => {
+    localStorage.removeItem('mp-equity-cap')
+    wrap(<NowPanel data={combinedStrategyFixture()} watch={{ text: '11 月剩下 3 个交易日，标普均价如果低于 6,861 点，月底降一档到中性（上限的 70%）。', gap: -0.047, close: false }} />)
+    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('68')
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '100' } })
+    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('85')
+    expect(screen.getByRole('button', { name: '改回 80%' })).toBeTruthy()
+    expect(screen.getByTestId('cs-now-watch').textContent).toContain('月底前留意')
+    expect(screen.getByTestId('cs-now-tier').textContent).toBe('偏进攻 · 85%')
+    localStorage.removeItem('mp-equity-cap')
+    cleanup()
+    wrap(<NowPanel data={combinedStrategyFixture()} />)
+    expect(screen.queryByTestId('cs-now-watch')).toBeNull()
   })
 
   it('读数缺失时仍显示 instruction 与 steps', () => {

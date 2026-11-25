@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-page-ux-2026-11-25',
+    date: '2026-11-25',
+    title: '综合策略页改版：结论和你的仓位放在首屏',
+    description: '打开综合策略页，第一屏就是结论卡：本月怎么做、按你的上限换算后的美股仓位（大号数字，改上限即时更新），以及「月底前留意」——本月剩下几个交易日、标普均价低于多少点月底就会降一档。三件事改为并排卡片；所处位置、为什么、什么时候动改成卡片排版；九种状态的全样本与 2000 年以后改为切换查看，不再上下两张大表。规则和数字都没有变。',
+    href: '/invest/strategy',
+  },
+  {
     id: 'equity-cap-default-80',
     date: '2026-11-25',
     title: '「你的股票仓位上限」默认改为建议值 80%',

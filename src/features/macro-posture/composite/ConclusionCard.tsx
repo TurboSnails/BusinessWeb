@@ -14,7 +14,7 @@ const EQUITY_CAP_KEY = 'mp-equity-cap'
 /** 建议上限（2026-11-25 起，以降低波动为目标；依据见说明书 v1.1.0 第二章与「研究中」页签）。用户自己设过的值优先。 */
 export const RECOMMENDED_EQUITY_CAP = 80
 
-function readEquityCap(): number {
+export function readEquityCap(): number {
   try {
     const raw = localStorage.getItem(EQUITY_CAP_KEY)
     if (raw == null) return RECOMMENDED_EQUITY_CAP
@@ -26,7 +26,7 @@ function readEquityCap(): number {
   }
 }
 
-function writeEquityCap(value: number): void {
+export function writeEquityCap(value: number): void {
   try {
     localStorage.setItem(EQUITY_CAP_KEY, String(value))
   } catch {

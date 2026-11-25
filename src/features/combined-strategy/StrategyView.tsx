@@ -7,9 +7,14 @@ import ResearchPanel from './ResearchPanel'
 import RulesPanel from './RulesPanel'
 import TriggersPanel from './TriggersPanel'
 import WhyPanel from './WhyPanel'
+import { useCompositePosture } from '../macro-posture/composite/load'
+import { tacticalWatch } from './watch'
 import type { CombinedStrategyState } from './load'
 
 export default function StrategyView({ state }: { state: CombinedStrategyState }): JSX.Element {
+  const composite = useCompositePosture()
+  const watch = tacticalWatch(composite.status === 'ready' ? composite.data : null)
+
   if (state.status === 'loading') {
     return <p className="cs-status" role="status">综合策略加载中…</p>
   }
@@ -26,7 +31,7 @@ export default function StrategyView({ state }: { state: CombinedStrategyState }
   return (
     <div className="cs-body">
       <AnchorNav />
-      <NowPanel data={data} />
+      <NowPanel data={data} watch={watch} />
       <PositionPanel data={data} />
       <WhyPanel data={data} />
       <TriggersPanel />

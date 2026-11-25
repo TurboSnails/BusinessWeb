@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TableWrap } from '../../components/ui'
 import {
   HEAT_LABEL,
@@ -26,16 +26,16 @@ function CellBody({
   if (stats.months === 0) {
     return (
       <div className="cs-matrix__stats">
-        {mode === 'all' && cell?.name ? (
+        {cell?.name ? (
           <strong className="cs-matrix__name" data-testid="cs-matrix-name">{cell.name}</strong>
         ) : null}
-        <span className="cs-muted">{mode === 'all' ? '没有出现过' : '—'}</span>
+        <span className="cs-muted">{mode === 'all' ? '没有出现过' : '— 没有出现过'}</span>
       </div>
     )
   }
   return (
     <div className="cs-matrix__stats">
-      {mode === 'all' && cell?.name ? (
+      {cell?.name ? (
         <strong className="cs-matrix__name" data-testid="cs-matrix-name">{cell.name}</strong>
       ) : null}
       <span>{stats.months} 个月</span>
@@ -123,6 +123,7 @@ export default function MatrixPanel({ data }: { data: CombinedStrategyFile }): J
     return map
   }, [data.matrix])
 
+  const [mode, setMode] = useState<'all' | 'since2000'>('all')
   const currentKey = data.current.macroSide && data.current.heat
     ? cellKey(data.current.macroSide, data.current.heat)
     : null
@@ -133,27 +134,44 @@ export default function MatrixPanel({ data }: { data: CombinedStrategyFile }): J
       <p className="cs-lead" data-testid="cs-matrix-lead">
         把每个月按宏观档位和雷达热度分成九格，看之后 12 个月标普的表现。这是历史统计，不是交易规则；仓位仍按宏观档位。
       </p>
-      <p className="cs-muted">
-        行首说明：进攻侧 = 进攻、偏进攻；防守侧 = 偏防守、防守。
-      </p>
+      <div className="cs-seg" role="group" aria-label="统计区间">
+        <button
+          type="button"
+          className="cs-seg__btn"
+          aria-pressed={mode === 'all'}
+          onClick={() => setMode('all')}
+        >
+          全样本（1973 年起）
+        </button>
+        <button
+          type="button"
+          className="cs-seg__btn"
+          aria-pressed={mode === 'since2000'}
+          onClick={() => setMode('since2000')}
+        >
+          2000 年以后
+        </button>
+        <span className="cs-seg__hint">进攻侧 = 进攻、偏进攻；防守侧 = 偏防守、防守。高亮格是现在所处的状态。</span>
+      </div>
 
-      <h3 className="cs-subhead">全样本（1973 年起）</h3>
-      <MatrixTable
-        byKey={byKey}
-        currentKey={currentKey}
-        mode="all"
-        caption="全样本状态矩阵"
-        testId="cs-matrix-all"
-      />
-
-      <h3 className="cs-subhead">2000 年以后</h3>
-      <MatrixTable
-        byKey={byKey}
-        currentKey={currentKey}
-        mode="since2000"
-        caption="2000 年以后状态矩阵"
-        testId="cs-matrix-2000"
-      />
+      <div hidden={mode !== 'all'}>
+        <MatrixTable
+          byKey={byKey}
+          currentKey={currentKey}
+          mode="all"
+          caption="全样本状态矩阵"
+          testId="cs-matrix-all"
+        />
+      </div>
+      <div hidden={mode !== 'since2000'}>
+        <MatrixTable
+          byKey={byKey}
+          currentKey={currentKey}
+          mode="since2000"
+          caption="2000 年以后状态矩阵"
+          testId="cs-matrix-2000"
+        />
+      </div>
     </section>
   )
 }
