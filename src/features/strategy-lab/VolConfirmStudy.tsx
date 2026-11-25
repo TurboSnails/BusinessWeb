@@ -27,6 +27,15 @@ export default function VolConfirmStudy(): JSX.Element {
         </p>
       </div>
 
+      <div className="ss-cover lab-answer" data-testid="lab-decisions">
+        <p className="ss-cover__kicker">三项决定（2026-11-25，用户授权代为决定）</p>
+        <ol className="ss-list">
+          <li><strong>「降低波动」以深度回撤为主</strong>，日常波动为辅。用户最初担心的是高位回落；日常波动已能靠上限机械压低。后续多资产检验以尾部（大跌时的损失）为主要判定维度。</li>
+          <li><strong>美股上限取打算投入美股资金的 80%</strong>，其余放现金或短期国债。波动约 11% → 9%，历史按日最大回撤 −33% → −27%（较差情形约 −39% → −32%），年化少约 1 个百分点，夏普不变。已写入策略说明书 v1.1.0 第二章；能承受更大波动可以调高。</li>
+          <li><strong>按「能持有债券和黄金」继续研究</strong>：美国与 A 股都有现成的国债 ETF、黄金 ETF。研究照常推进，实际是否买入由你自己决定。</li>
+        </ol>
+      </div>
+
       <h3 className="cs-subhead">确认检验怎么做（预注册，规则一个参数都没改）</h3>
       <p className="ss-p">
         只用上一项研究没用过的数据：美国 1959–1972 年（叠加当时的宏观档位）和 9 个海外指数（恒定 70% 仓位）。对照是「同样平均仓位、但不按波动调整」的版本。每个市场要同时做到三条才算成立：年化波动低 10% 以上、按日最大回撤浅 3 个百分点以上、扣成本夏普不低于对照 0.05 以上。事先写定：美国留出成立且海外至少 7 个成立才算「可靠」。
@@ -74,6 +83,7 @@ export default function VolConfirmStudy(): JSX.Element {
               <th scope="col" className="num">年化</th>
               <th scope="col" className="num">年化波动</th>
               <th scope="col" className="num">按日最大回撤</th>
+              <th scope="col" className="num">回撤较差 5% 情形</th>
               <th scope="col" className="num">扣成本夏普</th>
               <th scope="col" className="num">1959–1972 波动 / 回撤</th>
             </tr>
@@ -85,6 +95,7 @@ export default function VolConfirmStudy(): JSX.Element {
                 <td className="num">{pct(cap[k].cagr)}</td>
                 <td className="num">{pct(cap[k].vol)}</td>
                 <td className="num">{pct(cap[k].dailyMaxDd)}</td>
+                <td className="num">{pct(data.capIntervals[k].dailyMaxDd.p5)}</td>
                 <td className="num">{num(cap[k].sharpeNet)}</td>
                 <td className="num">{pct(cap59[k].vol)} / {pct(cap59[k].dailyMaxDd)}</td>
               </tr>
@@ -93,6 +104,7 @@ export default function VolConfirmStudy(): JSX.Element {
         </table>
       </TableWrap>
       <ul className="ss-list">
+        <li>「回撤较差 5% 情形」：把 1973 年以来的日收益按半年一块重新抽样 2,000 次，较差的 5% 路径里的最大回撤。历史只有一条路径，未来的最大回撤可能比表里的历史数字更深。</li>
         <li>调低上限会让波动和回撤按比例变小，夏普几乎不变，在 1973 年以后和 1959–1972 年都成立，不依赖任何择时判断，所以最可靠。代价也确定：收益按比例变少。</li>
         <li>在 1959–1972 年，上限 80% 的波动（{pct(cap59['0.8'].vol)}）和回撤（{pct(cap59['0.8'].dailyMaxDd)}）已经和波动率目标一样或更好。</li>
         <li>怎么用：宏观攻守的档位仓位乘你的上限。例如上限 80%、现在偏进攻 85%，股票占总资产约 68%。</li>

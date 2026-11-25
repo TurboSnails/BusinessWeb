@@ -5,6 +5,29 @@ import { asEtfTiming, type EtfTiming } from '../etf-timing/model'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 const ETF_URL = `${BASE.endsWith('/') ? BASE : `${BASE}/`}data/etf-timing.json`
+const SHADOW_URL = `${BASE.endsWith('/') ? BASE : `${BASE}/`}data/vol-target-shadow.json`
+
+type Shadow = { current: { date: string; sigma: number; sigmaStar: number; k: number; equityShare: number | null } | null; rows: { month: string }[] }
+
+function VolShadowNow(): JSX.Element | null {
+  const [data, setData] = useState<Shadow | null>(null)
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch(SHADOW_URL, { cache: 'no-cache', signal: controller.signal })
+      .then(r => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((body: Shadow) => { if (body && 'current' in body) setData(body) })
+      .catch(() => {})
+    return () => controller.abort()
+  }, [])
+  const c = data?.current
+  if (!c) return null
+  const p = (x: number) => `${Math.round(x * 100)}%`
+  return (
+    <p className="lab-v01-card__now" data-testid="lab-v01-vt-shadow">
+      <strong>波动率目标影子读数（只记录、不操作）：</strong>截至 {c.date}，近 20 日波动 {p(c.sigma)}，1950 年以来中位数 {p(c.sigmaStar)}，缩放系数 {c.k.toFixed(2)}{c.equityShare != null ? `，假想仓位为上限的 ${p(c.equityShare)}` : ''}。每月月末冻结一行（已冻结 {data.rows.length} 个月），用于前推检验。
+    </p>
+  )
+}
 
 type EtfLoad = { state: 'loading' } | { state: 'error' } | { state: 'ok'; data: EtfTiming }
 
@@ -63,9 +86,10 @@ export default function EffectiveStrategies(): JSX.Element {
             <li>节奏：每月最后一个交易日定档，次月第 3 个交易日前调到位；月中每天的日度档位只看不动。</li>
             <li>证据：按真实成交价，夏普 0.59（恒定七成 0.46），按日最大回撤 −33%（恒定七成 −41%）；1,000 组相邻参数全部优于恒定七成。</li>
             <li>短板：对偏热高位开始的急跌基本无效；1959–1972 年输给恒定七成；相对恒定七成的优势统计上处于边缘。</li>
-            <li>想降低波动：把自己的股票上限调低最可靠（上限 80% 时波动约 11% → 9%，按日最大回撤约 −33% → −27%，年化少约 1 个百分点）。波动率目标只是部分成立，没有纳入（见下）。</li>
+            <li>上限（2026-11-25 决定）：取打算投入美股资金的 80%，其余放现金或短期国债。波动约 11% → 9%，按日最大回撤约 −33% → −27%，年化少约 1 个百分点，夏普不变。波动率目标只是部分成立，没有纳入，只做影子记录（见下）。</li>
           </ul>
           <p className="lab-v01-card__now"><strong>现在：</strong><UsNow /></p>
+          <VolShadowNow />
           <p className="lab-v01-card__links">
             <Link to="/invest/strategy">综合策略</Link> · <Link to="/invest/strategy/spec">策略说明书</Link>
           </p>

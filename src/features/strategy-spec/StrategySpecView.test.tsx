@@ -13,7 +13,7 @@ const base = STRATEGY_SPECS[0]
 /** 测试用的假想新版本：改一章、加一章、删一章 */
 const next: StrategySpec = {
   ...base,
-  version: '1.1.0',
+  version: '9.9.0',
   date: '2027-01-01',
   changes: ['测试：改执行节奏'],
   sections: [
@@ -66,7 +66,7 @@ describe('StrategySpecView', () => {
   it('有两个版本时可以对比：显示差异章节与改动说明，相同章节默认收起', () => {
     renderAt('/invest/strategy/spec', specs)
     fireEvent.click(screen.getByTestId('ss-compare-start'))
-    expect(screen.getByTestId('ss-compare-summary').textContent).toBe(`v${base.version} → v1.1.0：${base.sections.length + 1} 章里有 3 章不同。`)
+    expect(screen.getByTestId('ss-compare-summary').textContent).toBe(`v${base.version} → v9.9.0：${base.sections.length + 1} 章里有 3 章不同。`)
     const changed = document.querySelector('.ss-diff[data-status="changed"]') as HTMLDetailsElement
     expect(changed.open).toBe(true)
     expect(changed.textContent).toContain('分两笔调仓。')
@@ -80,8 +80,8 @@ describe('StrategySpecView', () => {
     expect(screen.getByTestId('ss-archived').textContent).toContain('现行版本是')
     cleanup()
     renderAt('/invest/strategy/spec?v=3.0.0', specs)
-    expect(screen.getByTestId('ss-missing').textContent).toContain('v1.1.0')
-    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.1.0')
+    expect(screen.getByTestId('ss-missing').textContent).toContain('v9.9.0')
+    expect(screen.getByTestId('ss-cover').textContent).toContain('v9.9.0')
   })
 
   it('真实版本：v1.0.1 可与已归档的 v1.0.0 逐章对比', () => {
@@ -120,12 +120,19 @@ describe('StrategySpecView', () => {
     expect(changed).toEqual(['八、数据口径与可得时点', '十一、执行', '十三、回测证据'])
   })
 
-  it('真实版本：现行 v1.0.7，「对比最近两个版本」是概要、回测证据、对照方案和已知局限四章', () => {
-    renderAt('/invest/strategy/spec')
-    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.0.7')
-    fireEvent.click(screen.getByTestId('ss-compare-start'))
+  it('真实版本：v1.0.7 相对 v1.0.6 是概要、回测证据、对照方案和已知局限四章', () => {
+    renderAt('/invest/strategy/spec?compare=1.0.6..1.0.7')
     expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.0\.6 → v1\.0\.7：16 章里有 4 章不同。$/)
     const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
     expect(changed).toEqual(['一、概要', '十三、回测证据', '十四、对照方案与已检验但未采用的改动', '十五、已知局限'])
+  })
+
+  it('真实版本：现行 v1.1.0，「对比最近两个版本」是适用范围、对照方案和已知局限三章', () => {
+    renderAt('/invest/strategy/spec')
+    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.1.0')
+    fireEvent.click(screen.getByTestId('ss-compare-start'))
+    expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.0\.7 → v1\.1\.0：16 章里有 3 章不同。$/)
+    const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
+    expect(changed).toEqual(['二、适用范围与前提', '十四、对照方案与已检验但未采用的改动', '十五、已知局限'])
   })
 })

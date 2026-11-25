@@ -3,6 +3,7 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "redirects": [
     {
       "source": "/invest/ai-tools",
