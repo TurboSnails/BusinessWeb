@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Page } from '../components/ui'
 import DailyExecutionStudy from '../features/strategy-lab/DailyExecutionStudy'
 import EffectiveStrategies from '../features/strategy-lab/EffectiveStrategies'
+import EtfVolumeStudy from '../features/strategy-lab/EtfVolumeStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
 import LateCycleStudy from '../features/strategy-lab/LateCycleStudy'
 import TrioNav from '../features/combined-strategy/TrioNav'
@@ -25,12 +26,14 @@ export default function StrategyLab(): JSX.Element {
         <nav className="lab-index" aria-label="研究列表">
           <ol>
             <li><a href="#lab-v01">有效策略初版：一条按月、一条按日</a><span>美股宏观攻守（现行）+ A 股 ETF 日线择时（影子运行）</span></li>
+            <li><a href="#lab-etf-volume">A 股 ETF 择时加成交量</a><span>三种成交量条件都没有帮助</span></li>
             <li><a href="#lab-vol-target">波动率目标：市场越乱，仓位越低</a><span>回撤明显更浅，但按事先门槛差一点不通过</span></li>
             <li><a href="#lab-daily-execution">宏观攻守能不能按日执行</a><span>不通过，维持按月</span></li>
             <li><a href="#lab-late-cycle">牛市后段到回调：策略做了什么，月中加刹车有没有用</a><span>只对宏观先转差的下跌有用；刹车不通过</span></li>
           </ol>
         </nav>
         <EffectiveStrategies />
+        <EtfVolumeStudy />
         <VolTargetStudy />
         <DailyExecutionStudy />
         <LateCycleStudy />

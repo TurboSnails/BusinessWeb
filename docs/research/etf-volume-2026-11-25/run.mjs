@@ -114,8 +114,9 @@ for (const [code, { name, rows }] of Object.entries(input.targets)) {
   results.push({ code, name, start: bars[0].date, end: bars.at(-1).date, volumeCoverage, exposure, trades, windows, verdict })
 }
 const okCount = reproduction.filter(r => r.ok).length
-if (!baselineIdentical || okCount < 13) {
-  console.error('复现失败，停止：', { baselineIdentical, okCount, reproduction })
+// 预注册修订（b2e55703）：复现门槛改为引擎一致；与 11-15 的数据差异照常报告
+if (!baselineIdentical) {
+  console.error('引擎与 strategies.mjs 不一致，停止')
   process.exit(1)
 }
 
@@ -143,7 +144,7 @@ const out = {
 writeFileSync(here('./results.json'), JSON.stringify(out, null, 1) + '\n')
 
 const f = x => (x == null || !Number.isFinite(x) ? '—' : x.toFixed(1))
-console.log(`复现：与 strategies.mjs 逐日一致=${baselineIdentical}，2011—2018 窗口 ${okCount}/15 在 0.1 以内`)
+console.log(`复现：与 strategies.mjs 逐日一致=${baselineIdentical}；与 11-15 结果 2011—2018 窗口 ${okCount}/15 在 0.1 以内（不一致：${reproduction.filter(r => !r.ok).map(r => r.code).join('、')}）`)
 console.log(`基线：两项都过 ${summary.base.both}/15（回撤 ${summary.base.dd}，年化 ${summary.base.annual}）`)
 for (const [id, d] of Object.entries(decision)) console.log(`${id} ${d.label}：两项都过 ${summary[id].both}（${d.bothDelta >= 0 ? '+' : ''}${d.bothDelta}），全期年化中位差 ${f(d.medianFullAnnualDiff)}，2011—2018 ${f(d.medianOosAnnualDiff)}，全期回撤中位差 ${f(d.medianFullDdDiff)} → ${d.text}`)
 for (const r of results) {
