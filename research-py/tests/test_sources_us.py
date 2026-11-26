@@ -365,3 +365,13 @@ def test_sec_company_tickers_parse():
     df = sec.parse_company_tickers({"0": {"cik_str": 320193, "ticker": "aapl", "title": "Apple Inc."}}, "2026-11-26")
     assert df.iloc[0].to_dict() == {"cik": 320193, "ticker": "AAPL", "title": "Apple Inc.",
                                     "mapping_as_of": "2026-11-26"}
+
+
+def test_sec_extract_facts_tolerates_bad_dates():
+    facts = {"cik": 1, "facts": {"us-gaap": {"Assets": {"units": {"USD": [
+        {"end": "2020-12-31", "val": 10, "accn": "a1", "form": "10-K", "filed": "2021-02-20"},
+        {"end": "0202-02-01", "val": 11, "accn": "a2", "form": "10-K", "filed": "2021-02-20"},
+        {"end": "2021-12-31", "val": 12, "accn": "a3", "form": "10-K", "filed": "bad"},
+    ]}}}}}
+    df = sec.extract_facts(facts, [("us-gaap", "Assets")])
+    assert list(df["val"]) == [10]

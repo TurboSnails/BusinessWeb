@@ -186,7 +186,11 @@ def extract_facts(facts: dict, concepts: list[tuple[str, str]] | None = None,
             "filed"]
     df = pd.DataFrame(rows, columns=cols)
     for c in ("start", "end", "filed"):
-        df[c] = pd.to_datetime(df[c])
+        # 申报方偶有笔误（如 '0202-02-01'），越界或格式错误记为 NaT
+        df[c] = pd.to_datetime(df[c], format="ISO8601", errors="coerce")
+    df = df[df["filed"].notna() & (df["end"].notna())].copy() if len(df) else df
+    if len(df):
+        df = df[(df["end"] >= "1990-01-01") & (df["end"] <= df["filed"] + pd.Timedelta(days=400))]
     df["val"] = pd.to_numeric(df["val"], errors="coerce")
     df["period_days"] = (df["end"] - df["start"]).dt.days + 1
     df["is_amendment"] = df["form"].fillna("").str.endswith("/A")
@@ -338,19 +342,25 @@ def build_pit_bulk(ciks: set[int] | None = None, concepts: list[tuple[str, str]]
     d = store.market_dir(MARKET) / "pit"
     d.mkdir(parents=True, exist_ok=True)
     done = empty = 0
+    errors: list[tuple[int, str]] = []
     for name in z.namelist():
         if not (name.startswith("CIK") and name.endswith(".json")):
             continue
         cik = int(name[3:13])
         if ciks is not None and cik not in ciks:
             continue
-        v = vintages(extract_facts(json.loads(z.read(name)), concepts, None))
+        try:
+            v = vintages(extract_facts(json.loads(z.read(name)), concepts, None))
+        except Exception as e:  # 单家公司数据异常不影响其他公司
+            errors.append((cik, f"{type(e).__name__}: {e}"[:200]))
+            continue
         if v.empty:
             empty += 1
             continue
         v.to_parquet(d / f"CIK{cik:010d}.parquet", index=False)
         done += 1
-    return {"written": done, "empty": empty, "requested": None if ciks is None else len(ciks)}
+    return {"written": done, "empty": empty, "errors": len(errors), "error_examples": errors[:5],
+            "requested": None if ciks is None else len(ciks)}
 
 
 def universe_ciks() -> set[int]:
