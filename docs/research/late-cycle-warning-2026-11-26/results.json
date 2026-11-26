@@ -7,16 +7,16 @@
       "sha256": "01bb2d63b8262da75d33b167bd664f339646cef0e1e1b08b9304a65f69d072cf"
     },
     "daily": {
-      "file": "../../../data-raw/macro-posture-daily/spx-daily.json",
+      "file": "./inputs/spx-daily.json",
       "sha256": "2275fdb648465c9ff5610da6ffac9e97b3787fa3291e15bd319860f9992ed3e7"
     },
     "combined": {
-      "file": "../../../public/data/combined-strategy.json",
-      "sha256": "8945b608d6a9bc027db4b061c5e430a775232027ba7a60bd4d290c3b38dc8e40"
+      "file": "./inputs/heat.json",
+      "sha256": "b5433c7f3267ba0308ca7a6ea98ea369cf280a67d92d30bd679d953ac2331a22"
     },
     "macro": {
-      "file": "../../../public/data/macro-posture.json",
-      "sha256": "ea813480cc998c97a78fcc69e13c9c7aaec8020d8fa9a1ee3e61286e84568150"
+      "file": "./inputs/recession.json",
+      "sha256": "015f075254148e0175cc2d7e799b634671f45109c1d3a5371e78a4c98df20bc3"
     },
     "e1": {
       "file": "../month-end-close-2026-11-25/results.json",
@@ -27,11 +27,11 @@
       "sha256": "db8cf5762ec840fca1e5aee6cd1bb0620adf2936c0eedd6a5a4c6d3546c2ee0d"
     },
     "vix": {
-      "file": "../../../data-raw/market-radar/VIX.json",
+      "file": "./inputs/vix.json",
       "sha256": "a6cbb056c4e2464fb0918436c5d560e27c8edbc3ffce8b79134dea2c50c1f946"
     },
     "industryTrend": {
-      "file": "../../../data-raw/market-radar/industry-trend.json",
+      "file": "./inputs/industry-trend.json",
       "sha256": "85409e8d1c0b76a9dd6eb0026fe5376120aee553013758d88e02038506474144"
     },
     "industry": {
@@ -3111,6 +3111,14 @@
         "pre": 0.8333333333333334,
         "post": 2.1666666666666665
       }
-    ]
+    ],
+    "fairReference": {
+      "ghPreMonths": 52,
+      "ghPreMean": 0.9230769230769231,
+      "ghOtherMonths": 140,
+      "ghOtherMean": 1.1357142857142857,
+      "ghPreMeanNoC5": 0.8461538461538461,
+      "ghOtherMeanNoC5": 0.9
+    }
   }
 }

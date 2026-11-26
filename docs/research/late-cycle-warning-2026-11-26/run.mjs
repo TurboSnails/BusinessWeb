@@ -8,13 +8,13 @@ import { fileURLToPath } from 'node:url'
 const here = p => fileURLToPath(new URL(p, import.meta.url))
 const FILES = {
   tiers: '../macro-significance-2026-11-25/inputs.json',
-  daily: '../../../data-raw/macro-posture-daily/spx-daily.json',
-  combined: '../../../public/data/combined-strategy.json',
-  macro: '../../../public/data/macro-posture.json',
+  daily: './inputs/spx-daily.json',
+  combined: './inputs/heat.json',
+  macro: './inputs/recession.json',
   e1: '../month-end-close-2026-11-25/results.json',
   baa: './inputs-baa.json',
-  vix: '../../../data-raw/market-radar/VIX.json',
-  industryTrend: '../../../data-raw/market-radar/industry-trend.json',
+  vix: './inputs/vix.json',
+  industryTrend: './inputs/industry-trend.json',
   industry: '../trend-overlay-2026-11-25/inputs-industry.json',
 }
 const raw = Object.fromEntries(Object.entries(FILES).map(([k, p]) => [k, readFileSync(here(p), 'utf8')]))
@@ -361,3 +361,14 @@ console.log('\n高点前 6 个月 / 高点起 6 个月 平均裂缝数：', preP
 console.log('全部月份平均裂缝数', mean(sigMonths.map(d => sig.get(d).n)).toFixed(2), '中位：高点前', median(prePost.map(x => x.pre)).toFixed(2), '高点后', median(prePost.map(x => x.post)).toFixed(2))
 results.explore = { prePost }
 writeFileSync(here('./results.json'), JSON.stringify(results, null, 2) + '\n')
+
+// 评审（Claude 1.3）建议的公平参照组：G 且 H、且不在任何回调高点前 6 个月内的月份
+{
+  const prePeak = new Set(); for (const e of events) { const pm = e.peak.slice(0, 7); for (let k = 1; k <= 6; k += 1) prePeak.add(monthAfter(pm, -k)) }
+  const gh = sigMonths.filter(d => sig.get(d).G && sig.get(d).H)
+  const ghPre = gh.filter(d => prePeak.has(d)); const ghOther = gh.filter(d => !prePeak.has(d))
+  const m = (ms, key = 'n') => mean(ms.map(d => sig.get(d)[key]))
+  console.log(`G 且 H：高点前 6 个月内 ${ghPre.length} 个月，平均裂缝 ${m(ghPre).toFixed(2)}（不含 C5：${mean(ghPre.map(d => sig.get(d).nA)).toFixed(2)}）；其余 ${ghOther.length} 个月 ${m(ghOther).toFixed(2)}（不含 C5：${mean(ghOther.map(d => sig.get(d).nA)).toFixed(2)}）`)
+  results.explore.fairReference = { ghPreMonths: ghPre.length, ghPreMean: m(ghPre), ghOtherMonths: ghOther.length, ghOtherMean: m(ghOther), ghPreMeanNoC5: mean(ghPre.map(d => sig.get(d).nA)), ghOtherMeanNoC5: mean(ghOther.map(d => sig.get(d).nA)) }
+  writeFileSync(here('./results.json'), JSON.stringify(results, null, 2) + '\n')
+}
