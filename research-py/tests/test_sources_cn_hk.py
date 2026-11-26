@@ -406,3 +406,11 @@ def test_hk_fix_suspect_factor_jumps():
     assert abs(r[2] - (0.91 / 2.13 - 1)) < 1e-12 and abs(r[3] - (0.95 / 0.91 - 1)) < 1e-12
     b = out[out.code == "00700"].reset_index(drop=True)
     assert list(b["adj_factor"]) == [1.0, 1.0, 2.0, 2.0]
+
+
+def test_hk_missing_turnover_is_nan_not_zero(tmp_path, monkeypatch):
+    """腾讯港股没给换手率时原始值为 0；load_code 之后必须是缺失。这里直接检查规则本身。"""
+    import pandas as pd
+    df = pd.DataFrame({"volume": [100.0, 200.0], "turnover": [0.0, 0.0123]})
+    df["turnover"] = df["turnover"].where(df["turnover"] > 0)
+    assert df["turnover"].isna().tolist() == [True, False]

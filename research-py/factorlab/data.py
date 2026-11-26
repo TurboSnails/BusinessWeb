@@ -25,6 +25,22 @@ from .guard import Lockbox, TrialLedger, UnsealToken, split_codes, truncate_pane
 
 DERIVED = {"open_adj": ("open", "close", "close_adj")}
 
+# 不在日线 prices.parquet 里、按可见范围现算的字段：market → 模块（须有 PROVIDES、NEEDS、available()、
+# snapshot()、panel_fields(fields, panel, end_ex, hidden)）。美股：SEC 点时基本面与「股本 × 不复权价」市值
+# （prices.parquet 的 mcap_float / mcap_total / turnover 全空，改由这里提供），见 fundamentals_us.py。
+EXTRA_PROVIDERS = {"us": "factorlab.fundamentals_us"}
+
+
+def extra_provider(market: str):
+    """该市场的额外字段提供方；没有配置或数据未构建（例如测试用的临时数据目录）时为 None。"""
+    name = EXTRA_PROVIDERS.get(market)
+    if not name:
+        return None
+    import importlib
+
+    mod = importlib.import_module(name)
+    return mod if mod.available() else None
+
 
 def add_open_adj(panel: dict) -> dict:
     """open_adj = open × close_adj / close（复权因子 = close_adj / close）。缺字段时不加。"""
@@ -126,12 +142,22 @@ def load_market(market: str, fields, mode: str = "explore", token: UnsealToken |
         cut = store.lockbox_start(market)
         if cut is not None:
             end_ex = cut if end_ex is None else min(end_ex, cut)
+    prov = extra_provider(market)
+    extra = sorted(f for f in fields if prov is not None and f in prov.PROVIDES)
     raw = set()
     for f in fields:
-        raw |= set(DERIVED.get(f, (f,)))
-    panel = store.load_panel(market, sorted(raw), start=start,
+        if f not in extra:
+            raw |= set(DERIVED.get(f, (f,)))
+    helper = set(prov.NEEDS) - raw if extra else set()
+    panel = store.load_panel(market, sorted(raw | helper), start=start,
                              end=None if end_ex is None else end_ex - pd.Timedelta(days=1), raw=True)
-    panel = add_open_adj(restrict_codes(truncate_panel(panel, end_ex, hidden), mode, lb.explore_frac))
+    panel = restrict_codes(truncate_panel(panel, end_ex, hidden), mode, lb.explore_frac)
+    if extra:
+        # 提供方只拿到已截断的面板，并自行删掉生效日不早于 end_ex（或落在 hidden）的财报事件
+        got = prov.panel_fields(extra, panel, end_ex, hidden)
+        panel = {k: v for k, v in panel.items() if k not in helper}
+        panel.update(truncate_panel(got, end_ex, hidden))
+    panel = add_open_adj(panel)
     try:
         sec = store.read_securities(market)
     except FileNotFoundError:
@@ -142,4 +168,7 @@ def load_market(market: str, fields, mode: str = "explore", token: UnsealToken |
                                       "batch_id": getattr(token, "batch_id", None), "prereg": prereg,
                                       "visible_end": None if end_ex is None else str(end_ex.date()),
                                       "hidden": None if hidden is None else [str(d.date()) for d in hidden]})
-    return MarketData(panel, sec, snapshot_hash(market), end_ex, hidden)
+    snap = snapshot_hash(market)
+    if extra:
+        snap = f"{snap}+{prov.snapshot()}"
+    return MarketData(panel, sec, snap, end_ex, hidden)

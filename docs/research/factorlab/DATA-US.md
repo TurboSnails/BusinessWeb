@@ -212,3 +212,27 @@ uv run python -m factorlab.sources.sec facts --cik <CIK>
 ```bash
 cd research-py && uv run pytest -q tests/test_sources_us.py    # 16 个离线测试：KF 解析、Yahoo 拆股还原、符号目录过滤、SEC 点时
 ```
+
+## 八、点时基本面面板与市值（2026-11-27，R1 用）
+
+代码 `research-py/factorlab/fundamentals_us.py`，因子 `factorlab/factors/fundamental.py`，测试 `tests/test_factorlab_fundamental.py`（10 个，含无前视、TTM 数值、负账面权益、拆股、量纲笔误、锁箱截断）。
+
+**两步**：`uv run python -m factorlab.fundamentals_us build` 把 5,027 个 vintage 表变成「知识时点」事件表 `factor-data/us_sec/derived/events.parquet`（每家公司在任一所需科目的生效日上算一行状态，只用生效日 ≤ 该日的数值；约 18.9 万行，单进程约 1 分钟）。评估时 `data.load_market("us", …)` 经 `data.EXTRA_PROVIDERS` 调 `fundamentals_us.panel_fields`：先按 `data.window()`（即 `guard.Lockbox`）给出的可见上界删掉生效日不早于上界、或落在被删区间的事件，再在面板的每个月末交易日取最新状态。**不写进 prices.parquet**：prices 里的 `mcap_float / mcap_total / turnover` 仍是空，美股的这三个字段改由这里现算（月末行；turnover 为日度），数据快照哈希 = prices MANIFEST 哈希 + 事件表 MANIFEST 哈希。
+
+**字段**（陈旧度：所用期末日早于月末超过 15 个月即为空）：
+
+| 字段 | 口径 |
+|---|---|
+| `mcap_total` = `mcap_float` | 股本 × 当日不复权收盘。股本优先 dei 封面股数，缺失或比 us-gaap 晚一年以上用 CommonStockSharesOutstanding；拆股按 actions.parquet 调整到当日（dei 从封面日起算，us-gaap 从申报日起算；拆股落在两者之间时取与上一个通过值更接近的口径）。只有总股本，没有流通股本，两列相同 |
+| `fund_be` | StockholdersEquity（不含少数股东权益，没有加递延税、减优先股） |
+| `fund_ni_ttm` / `fund_cfo_ttm` / `fund_gp_ttm` | 最近 12 个月 = 最新年报 + 本年累计 − 上年同期；退而用连续 4 个单季、再退而用最新年报。真实数据抽 25 家 164 个时点，与 `sec.quarterize` 单季还原后 4 季相加完全一致 |
+| `fund_assets` / `fund_assets_lag` | 最新总资产；同一快照里期末早 330–400 天的总资产 |
+| `fund_accruals` | (NI_TTM − CFO_TTM) / 平均总资产，三者期末相差 > 10 天为空 |
+| `fund_net_issuance` | log(拆股调整后股本 / 12 个月前月末已知的股本，调整到同一口径) |
+| `turnover`（日度） | 成交量 / 当日已知的拆股调整后股本 |
+
+**股本清洗**（都只用当时可得的信息）：① 最新股数来自 20-F 的不用（外国私人发行人，美国上市的多是 ADR，1 份 ADR ≠ 1 股；TM、TSM 原先算出 2 万亿美元级市值）；② 用事件日之前 63 日成交量中位数 ÷ 股本得日换手，不在 [0.002%, 25%] 的视为量纲笔误（实测 AEP 2010 年 3 份 10-Q 封面股数 ×10⁶、HL 2023-08 ×10³、EEFT 2021-02 ×10⁹）；③ 与上一个通过值相差 10^2.5 倍以上的同样剔除；被剔除时沿用上一个通过值（陈旧度照查）。清洗后探索区月末市值前 500 合计：2020-12 为 31.5 万亿美元、2023-09 为 35.6 万亿（同期标普 500 约 33、37 万亿）；AAPL、TSLA、NVDA、AMZN、GOOGL、NFLX 的拆股月份市值连续。
+
+**覆盖**（2012 年以后每月平均有值的代码数）：市值约 2,280、BE 2,550、NI_TTM 2,380、CFO_TTM 2,180、毛利 1,170（只用 GrossProfit 科目，约一半公司不报）、应计 1,860、净发行 2,080。市值在候选股票里的覆盖率 2010-08 才过 50%（XBRL 第二批），此前美股股票池仍按成交额排序；基本面字段在前 500 股票池的覆盖率 2011-08 起全部 ≥ 70%，R1 的基本面评估从 2011-08 起算。
+
+**局限**：代码 → CIK 用当前 company_tickers 快照，同一 CIK 多个代码只给排第一的（43 家多类股公司的次要类别没有市值，不进股票池）；控股公司重组换 CIK 的（如 Google 2015 年改为 Alphabet）旧 CIK 的财报对不上，GOOGL 2016-02 以前没有市值；Yahoo 价格历史若接了旧公司的代码会错配，无法从免费数据核实；BE 没有做 Fama–French 的调整。

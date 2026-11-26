@@ -248,7 +248,9 @@ def load_code(code: str, start: str | None = None) -> pd.DataFrame:
     raw = fix_volume_unit(raw, code)
     df = adjust_from_factor(raw, additive_to_multiplicative(raw, parse_sina_hk_hfq(ps.read_text())))
     df = df[df["volume"] > 0].reset_index(drop=True)
-    if df["turnover"].fillna(0).gt(0).any():
+    # 有成交时换手率不可能为 0：腾讯没给换手率时存的是 0（2022 年以前多数如此），一律改成缺失
+    df["turnover"] = df["turnover"].where(df["turnover"] > 0)
+    if df["turnover"].notna().any():
         df["float_shares"] = float_shares_estimate(df)
         df["mcap_float"] = df["float_shares"] * df["close"]
     else:
@@ -321,7 +323,7 @@ def build_hk(start: str = "2005-01-01", codes: list[str] | None = None) -> dict:
         "（细价股多次合股 / 供股时换算可能失真，见审计的极端收益清单）。",
         "合股 / 供股：依赖新浪复权记录；审计列出 |日收益| > 50% 的记录需人工核对；股价 < 1 港元时最小价位导致价差常 > 1%。",
         f"复权因子清洗：因子单日跳变 > {FACTOR_JUMP:g} 倍且复权日收益 |r| > {ADJ_RET_LIMIT:.0%} 的 {n_fixed} 天视为因子错误，当天按不复权价计收益、之后因子整体平移（fix_suspect_factor_jumps）。",
-        "volume 单位：股；turnover：小数；mcap_float 用 Σ成交量 ÷ Σ换手率 的阶梯估计 × 收盘（换手率缺失则 NaN；腾讯港股换手率多数只从 2022 年后才有）；mcap_total 为 NaN。",
+        "volume 单位：股；turnover：小数；mcap_float 用 Σ成交量 ÷ Σ换手率 的阶梯估计 × 收盘（换手率缺失则 NaN；腾讯港股换手率多数只从 2022 年后才有，缺失时 turnover 记为空值，不是 0）；mcap_total 为 NaN。",
         "港股无涨跌停 → limit_up / limit_down 为 NA；成交量为 0 的行（无成交 / 停牌）已删除，is_suspended 恒为 False。",
     ]
     m = Manifest(market=MARKET, source=SOURCE, survivorship="B",
