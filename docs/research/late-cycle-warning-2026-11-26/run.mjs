@@ -161,7 +161,10 @@ function cracks(t) {
   const dRel = cum3(t, DEF); const all = cum3(t)
   c.C4 = dRel == null || all == null ? null : dRel - all >= 0.03
   const c6 = lastClose.get(monthAfter(t, -6)); c.C5 = c6 == null ? null : close / c6 - 1 <= 0.02
-  return { c, n: Object.values(c).filter(x => x === true).length, missing: Object.values(c).filter(x => x == null).length, baa, vol: v }
+  const c2m = lastClose.get(monthAfter(t, -2)); const C5b = c2m == null ? null : close / c2m - 1 <= 0
+  const cnt = ids => ids.filter(id => (id === 'C5b' ? C5b : c[id]) === true).length
+  // L-024 变体：nA = C1–C4；nB = C1–C4 + C5′（2 个月没增速）
+  return { c, C5b, n: cnt(['C1', 'C2', 'C3', 'C4', 'C5']), nA: cnt(['C1', 'C2', 'C3', 'C4']), nB: cnt(['C1', 'C2', 'C3', 'C4', 'C5b']), missing: Object.values(c).filter(x => x == null).length, baa, vol: v }
 }
 const macroOk = tier => ['offense', 'lean-offense', 'neutral'].includes(tier)
 const sig = new Map(input.tiers.map(([d, tier]) => {
@@ -177,6 +180,8 @@ const CANDIDATES = {
   X2: { label: '探索：过热 + 裂缝 ≥ 2', cond: s => W(s, 2) },
   X4: { label: '探索：过热 + 裂缝 ≥ 4', cond: s => W(s, 4) },
   ...Object.fromEntries(['C1', 'C2', 'C3', 'C4', 'C5'].map(id => [`S${id}`, { label: `探索：过热 + 单项 ${id}`, cond: s => s.G && s.H && s.c[id] === true }])),
+  VA: { label: 'L-024 A 去掉 C5', cond: s => s.G && s.H && s.nA >= 3 },
+  VB: { label: 'L-024 B 2 个月没增速', cond: s => s.G && s.H && s.nB >= 3 },
 }
 const STRATS = {
   base: { label: 'v2.2 基线', tierFn: p => p.tier },
@@ -263,14 +268,15 @@ const events = episodes.filter(e => dates[e.troughIdx] >= navStart && dates[e.pe
   }))
   let firstW = null
   for (let k = 6; k >= 1; k -= 1) { const m = monthAfter(peakMonth, -k); if (m >= FIRST && sig.get(m) && W(sig.get(m))) { firstW = k; break } }
-  return { peak, trough, depth: closes[e.troughIdx] / closes[e.peakIdx] - 1, signalMonth, tier: s.tier, heat: s.heat, GH: s.G && s.H, cracksAtSignal: s.n, warnLeadMonths: firstW, spxLoss, spxGain, by }
+  const lead = cond => { for (let k = 6; k >= 1; k -= 1) { const m = monthAfter(peakMonth, -k); if (m >= FIRST && sig.get(m) && cond(sig.get(m))) return k } return null }
+  return { peak, trough, depth: closes[e.troughIdx] / closes[e.peakIdx] - 1, signalMonth, tier: s.tier, heat: s.heat, GH: s.G && s.H, cracksAtSignal: s.n, warnLeadMonths: firstW, leadA: lead(CANDIDATES.VA.cond), leadB: lead(CANDIDATES.VB.cond), spxLoss, spxGain, by }
 })
 const medianOf = (xs, id, key) => median(xs.map(e => e.by[id][key]).filter(x => x != null))
 const ghEvents = events.filter(e => e.GH)
 
 // ---------- 判定 ----------
 const gate = {}
-for (const id of confirmIds) {
+for (const id of [...confirmIds, 'VA', 'VB']) {
   const t = train[id], tb = train.base, v = valid[id], vb = valid.base, f = full[id].stats, fb = full.base.stats
   const g1 = t.sharpe >= tb.sharpe - 0.01 && (t.sharpe >= tb.sharpe + 0.02 || t.dailyMaxDd >= tb.dailyMaxDd + 0.02) && t.dailyMaxDd >= tb.dailyMaxDd - 0.01
   const g2 = v.sharpe >= vb.sharpe - 0.01 && v.dailyMaxDd >= vb.dailyMaxDd - 0.01
@@ -280,7 +286,8 @@ for (const id of confirmIds) {
   const g4 = downCut >= 0.10 && upCut <= downCut
   gate[id] = { g1, g2, g3, g4, pass: g1 && g2 && g3 && g4, trainSharpeDiff: t.sharpe - tb.sharpe, trainDdDiff: t.dailyMaxDd - tb.dailyMaxDd, validSharpeDiff: v.sharpe - vb.sharpe, validDdDiff: v.dailyMaxDd - vb.dailyMaxDd, cagrNetDiff: f.cagrNet - fb.cagrNet, downCut, upCut }
 }
-const passers = confirmIds.filter(id => gate[id].pass).sort((a, b) => train[b].sharpe - train[a].sharpe)
+const passers = confirmIds.filter(id => CANDIDATES[id].confirm).filter(id => gate[id].pass).sort((a, b) => train[b].sharpe - train[a].sharpe)
+const gateVariant = id => gate[id]
 
 // ---------- 描述统计 ----------
 const sigMonths = [...sig.keys()].filter(d => d >= FIRST && d <= LAST)
@@ -321,7 +328,7 @@ console.log(`复现通过；净值 ${navStart} 至 ${navEnd}；缺冷热 ${missi
 for (const id of Object.keys(STRATS)) { const f = full[id].stats, t = train[id], v = valid[id]
   console.log(`${id.padEnd(8)} ${(STRATS[id].label ?? '').padEnd(16)} 全 夏普 ${f.sharpe.toFixed(3)} 扣费 ${f.sharpeNet.toFixed(3)} 年化 ${pct(f.cagr)} 扣费 ${pct(f.cagrNet)} 日回撤 ${pct(f.dailyMaxDd)} 仓位 ${pct(f.avgEquity)} 降档月 ${f.onMonths ?? '-'} | 训 ${t.sharpe.toFixed(3)} ${pct(t.dailyMaxDd)} | 验 ${v.sharpe.toFixed(3)} ${pct(v.dailyMaxDd)}`) }
 for (const id of Object.keys(CANDIDATES)) console.log(`${id}: 夏普差 ${boot[id].point.toFixed(3)} [${boot[id].low.toFixed(3)}, ${boot[id].high.toFixed(3)}] p ${boot[id].p.toFixed(2)}${boot[id].holm != null ? ' Holm ' + boot[id].holm.toFixed(2) : ''}`)
-for (const id of confirmIds) console.log(id, JSON.stringify(gate[id], (k, v) => typeof v === 'number' ? +v.toFixed(4) : v))
+for (const id of [...confirmIds, 'VA', 'VB']) console.log(id, JSON.stringify(gate[id], (k, v) => typeof v === 'number' ? +v.toFixed(4) : v))
 console.log('通过：', passers.length ? passers : '无')
 console.log('\n回调事件（高点 / 跌幅 / 信号月档位 冷热 / 裂缝数 / 预警提前月 / 下跌参与度 base W1 W2）')
 for (const e of events) console.log(`${e.peak} ${pct(e.depth).padStart(7)} ${e.tier.padEnd(12)} ${String(e.heat).padEnd(4)} 裂缝 ${e.cracksAtSignal} 预警 ${e.warnLeadMonths ?? '—'} | ${e.by.base.down.toFixed(2)} ${e.by.W1.down.toFixed(2)} ${e.by.W2.down.toFixed(2)} | 反弹 ${e.by.base.up?.toFixed(2)} ${e.by.W1.up?.toFixed(2)} ${e.by.W2.up?.toFixed(2)}`)
@@ -334,7 +341,17 @@ console.log('最近读数：', JSON.stringify(current))
 console.log("2019-12..2020-03", ["2019-12","2020-01","2020-02","2020-03"].map(d => d + JSON.stringify({ ...sig.get(d), c: sig.get(d).c })).join("\n"))
 
 // 事后探索（不作判定依据）：每次回调，高点前 6 个信号月与高点后 6 个信号月的平均裂缝数
-const avgCracks = ms => { const xs = ms.filter(m => sig.has(m)).map(m => sig.get(m).n); return xs.length ? mean(xs) : null }
+const avgCracks = (ms, key = 'n') => { const xs = ms.filter(m => sig.has(m)).map(m => sig.get(m)[key]); return xs.length ? mean(xs) : null }
+for (const key of ['nA', 'nB']) {
+  const pp = events.map(e => { const pm = e.peak.slice(0, 7); return { pre: avgCracks([6, 5, 4, 3, 2, 1].map(k => monthAfter(pm, -k)), key), post: avgCracks([0, 1, 2, 3, 4, 5].map(k => monthAfter(pm, k)), key) } })
+  console.log(`${key}：全期平均 ${mean(sigMonths.map(d => sig.get(d)[key])).toFixed(2)}，高点前中位 ${median(pp.map(x => x.pre).filter(x => x != null)).toFixed(2)}，高点后中位 ${median(pp.map(x => x.post)).toFixed(2)}`)
+}
+for (const id of ['VA', 'VB']) {
+  const ms = sigMonths.filter(d => CANDIDATES[id].cond(sig.get(d)))
+  const fl = ms.map(fall10).filter(x => x != null); const fw = ms.map(fwd12).filter(x => x != null)
+  console.log(`${id} 预警月 ${ms.length}：之后12月内跌≥10% ${(fl.filter(Boolean).length / fl.length * 100).toFixed(1)}%，之后12月均值 ${(mean(fw) * 100).toFixed(1)}%，命中（高点前6个月内亮过）${events.filter(e => (id === 'VA' ? e.leadA : e.leadB) != null).map(e => e.peak.slice(0, 7) + '提前' + (id === 'VA' ? e.leadA : e.leadB)).join(' ') || '无'}`)
+  console.log(`  月份：${ms.join(' ')}`)
+}
 const prePost = events.map(e => { const pm = e.peak.slice(0, 7); return { peak: e.peak, pre: avgCracks([6, 5, 4, 3, 2, 1].map(k => monthAfter(pm, -k))), post: avgCracks([0, 1, 2, 3, 4, 5].map(k => monthAfter(pm, k))) } })
 console.log('\n高点前 6 个月 / 高点起 6 个月 平均裂缝数：', prePost.map(x => `${x.peak.slice(0, 7)} ${x.pre?.toFixed(1)}→${x.post?.toFixed(1)}`).join('  '))
 console.log('全部月份平均裂缝数', mean(sigMonths.map(d => sig.get(d).n)).toFixed(2), '中位：高点前', median(prePost.map(x => x.pre)).toFixed(2), '高点后', median(prePost.map(x => x.post)).toFixed(2))
