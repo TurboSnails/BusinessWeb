@@ -1,0 +1,206 @@
+# 完整性核对（基准日历：data-raw/macro-posture-daily/spx-daily.json，1950-01-03 → 2026-11-24，19347 天）
+
+## PPUT
+rows=10176  1986-06-30 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=5  by_year={'1991': np.int64(1), '1997': np.int64(1), '2018': np.int64(1), '2019': np.int64(1), '2020': np.int64(1)}
+  sample=['1991-03-01', '1997-01-31', '2018-12-03', '2019-07-05', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## PPUT3M
+rows=5708  2004-03-19 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=1  by_year={'2021': np.int64(1)}
+  sample=['2021-03-17']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## CLLZ
+rows=10182  1986-06-20 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=2  sample=[('1986-06-20', 7), ('1991-02-11', 3)]
+spx_days_missing_in_index=5  by_year={'1991': np.int64(1), '1997': np.int64(1), '2018': np.int64(1), '2019': np.int64(1), '2020': np.int64(1)}
+  sample=['1991-03-01', '1997-01-31', '2018-12-03', '2019-07-05', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=1
+   1987-10-19 spx_same_day_|move|>5%=True no_gap
+
+## CLL
+rows=4551  2008-08-26 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=2  sample=[('2019-01-03', 6), ('2019-01-11', 6)]
+spx_days_missing_in_index=44  by_year={'2008': np.int64(7), '2009': np.int64(2), '2012': np.int64(3), '2013': np.int64(21), '2014': np.int64(8), '2016': np.int64(1), '2018': np.int64(1), '2020': np.int64(1)}
+  sample=['2008-09-22', '2008-11-21', '2008-11-24', '2008-11-25', '2008-11-26', '2008-11-28', '2008-12-19', '2009-01-16'] …
+index_days_not_in_spx=3  sample=['2018-11-22', '2018-12-25', '2019-12-25']
+gaps>7_calendar_days=2  sample=[('2008-11-20', '2008-12-01', 11), ('2013-06-21', '2013-07-02', 11)]
+daily_|change|>15%=1
+   2009-10-16 spx_same_day_|move|>5%=False no_gap
+
+## CLL_legacy
+rows=8576  1986-06-30 → 2020-07-10  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=2  by_year={'1991': np.int64(1), '1997': np.int64(1)}
+  sample=['1991-03-01', '1997-01-31']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## CLL3M
+rows=5708  2004-03-19 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=1  by_year={'2021': np.int64(1)}
+  sample=['2021-03-17']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## CLL1M
+rows=5708  2004-03-19 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=2  sample=[('2015-02-12', 3), ('2017-05-26', 3)]
+spx_days_missing_in_index=1  by_year={'2021': np.int64(1)}
+  sample=['2021-03-17']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## VXTH
+rows=5194  2006-03-31 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=2  sample=[('2011-11-10', 3), ('2019-02-07', 3)]
+spx_days_missing_in_index=3  by_year={'2018': np.int64(1), '2019': np.int64(1), '2020': np.int64(1)}
+  sample=['2018-12-03', '2019-07-05', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## PUT
+rows=5014  1991-03-04 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=3985  by_year={'1991': np.int64(209), '1992': np.int64(254), '1993': np.int64(253), '1994': np.int64(251), '1995': np.int64(252), '1996': np.int64(254), '1997': np.int64(251), '1998': np.int64(252), '1999': np.int64(252), '2000': np.int64(252), '2001': np.int64(247), '2002': np.int64(252), '2003': np.int64(252), '2004': np.int64(251), '2005': np.int64(252), '2006': np.int64(251)}
+  sample=['1991-03-05', '1991-03-06', '1991-03-07', '1991-03-08', '1991-03-11', '1991-03-12', '1991-03-13', '1991-03-14'] …
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=7  sample=[('1991-03-04', '1991-08-07', 156), ('1991-08-07', '1994-09-27', 1147), ('1994-09-27', '1997-02-03', 860), ('1997-02-03', '1997-11-18', 288), ('1997-11-18', '2001-01-12', 1151), ('2001-01-12', '2004-03-16', 1159), ('2004-03-16', '2007-01-03', 1023)]
+daily_|change|>15%=5
+   1994-09-27 spx_same_day_|move|>5%=False after_gap_days=1147
+   1997-02-03 spx_same_day_|move|>5%=False after_gap_days=860
+   1997-11-18 spx_same_day_|move|>5%=False after_gap_days=288
+   2001-01-12 spx_same_day_|move|>5%=False after_gap_days=1151
+   2007-01-03 spx_same_day_|move|>5%=False after_gap_days=1023
+
+## BXM
+rows=6208  2002-03-22 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=3  by_year={'2018': np.int64(1), '2019': np.int64(1), '2020': np.int64(1)}
+  sample=['2018-12-03', '2019-07-05', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## SPRO
+rows=5264  2005-12-21 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=1  sample=[('2015-08-24', 3)]
+spx_days_missing_in_index=1  by_year={'2019': np.int64(1)}
+  sample=['2019-07-05']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## SPROME
+rows=5256  2005-12-30 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=3  by_year={'2010': np.int64(1), '2020': np.int64(2)}
+  sample=['2010-12-31', '2020-05-27', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## SPRF
+rows=5009  2006-12-29 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=1  by_year={'2020': np.int64(1)}
+  sample=['2020-10-16']
+index_days_not_in_spx=2  sample=['2021-04-02', '2021-12-24']
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## BFLY
+rows=10182  1986-06-20 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=1  sample=[('1986-06-20', 7)]
+spx_days_missing_in_index=5  by_year={'1991': np.int64(1), '1997': np.int64(1), '2018': np.int64(1), '2019': np.int64(1), '2020': np.int64(1)}
+  sample=['1991-03-01', '1997-01-31', '2018-12-03', '2019-07-05', '2020-10-16']
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+## spx_cboe
+rows=13085  1975-01-02 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=1  sample=[('1979-08-28', 3)]
+spx_days_missing_in_index=1  by_year={'1999': np.int64(1)}
+  sample=['1999-12-31']
+index_days_not_in_spx=1  sample=['1985-09-27']
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=1
+   1987-10-19 spx_same_day_|move|>5%=True no_gap
+
+## sp500tr_yahoo
+rows=9799  1988-01-04 → 2026-11-25  duplicates=0  nonpositive_or_nan=0
+flat_runs(>=3 identical closes)=0  sample=[]
+spx_days_missing_in_index=0
+index_days_not_in_spx=0  sample=[]
+gaps>7_calendar_days=0  sample=[]
+daily_|change|>15%=0
+
+# 水平一致性
+CLL 旧站快照 vs 现行 CLL_History: common_days=2946  max_rel_level_diff=2.50e-01  days_rel_diff>1e-4=953
+  first_mismatch_dates= ['2008-08-26', '2008-08-27', '2008-08-28', '2008-08-29', '2008-09-02', '2008-09-03', '2008-09-04', '2008-09-05']
+CBOE SPX_History vs 仓库标普(Yahoo): common_days=13083  max_rel_level_diff=2.38e-02  days_rel_diff>1e-4=51
+  first_mismatch_dates= ['1981-07-21', '1983-02-11', '1983-06-30', '1983-07-01', '1983-07-26', '1983-11-01', '1983-12-22', '1986-09-30']
+  同上，仅 1986-06-20 起: common_days=10185  max_rel_level_diff=2.38e-02  days_rel_diff>1e-4=44
+  first_mismatch_dates= ['1986-09-30', '1987-07-01', '1988-04-13', '1988-04-25', '1988-08-25', '1990-03-22', '1990-08-13', '1990-09-24']
+CLL 旧站快照 vs 现行 CLL_History（逐日变动）: days=2945  |Δ差|<1bp 占比=75.6%  |Δ差|>10bp 天数=208  水平比值范围=[0.750, 1.051]（恒定=仅重定基，漂移=历史被改算）
+  |Δ差|>10bp 按年={'2008': np.int64(44), '2009': np.int64(24), '2012': np.int64(3), '2013': np.int64(11), '2014': np.int64(14), '2015': np.int64(32), '2016': np.int64(27), '2017': np.int64(20), '2018': np.int64(15), '2019': np.int64(13), '2020': np.int64(5)}
+
+# 股息口径 A：5 日块回归（主核对；总收益基准 = S&P 500 TR via Yahoo ^SP500TR）
+PPUT                         1988–2015 blocks= 1104  b= 1.19±0.51  残差MAD 强制b=0: 30.35bp / b=1: 30.06bp  → 含息(总收益)（2σ）
+PPUT                         2015–2026 blocks=  452  b= 2.30±1.42  残差MAD 强制b=0: 29.35bp / b=1: 29.26bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+PPUT                         1988–2026 blocks= 1560  b= 1.14±0.47  残差MAD 强制b=0: 30.17bp / b=1: 29.99bp  → 含息(总收益)（2σ）
+CLLZ                         1988–2015 blocks= 1104  b= 0.78±0.33  残差MAD 强制b=0: 20.17bp / b=1: 20.01bp  → 含息(总收益)（2σ）
+CLLZ                         2015–2026 blocks=  452  b= 2.39±1.03  残差MAD 强制b=0: 19.51bp / b=1: 19.25bp  → 含息(总收益)（2σ）
+CLLZ                         1988–2026 blocks= 1560  b= 0.96±0.31  残差MAD 强制b=0: 19.98bp / b=1: 19.75bp  → 含息(总收益)（2σ）
+对照+ CLL_legacy(文档=总收益)       1988–2015 blocks= 1104  b= 1.07±0.54  残差MAD 强制b=0: 35.80bp / b=1: 35.67bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ CLL_legacy(文档=总收益)       2015–2026 blocks=  196  b= 3.70±2.16  残差MAD 强制b=0: 40.36bp / b=1: 40.17bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ CLL_legacy(文档=总收益)       1988–2026 blocks= 1304  b= 1.23±0.54  残差MAD 强制b=0: 36.85bp / b=1: 36.73bp  → 含息(总收益)（2σ）
+对照+ CLL(文档=总收益)              1988–2015 blocks=  270  b= 3.47±2.53  残差MAD 强制b=0: 64.61bp / b=1: 64.47bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ CLL(文档=总收益)              2015–2026 blocks=  452  b= 0.87±2.25  残差MAD 强制b=0: 42.27bp / b=1: 42.15bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ CLL(文档=总收益)              1988–2026 blocks=  726  b= 0.76±1.66  残差MAD 强制b=0: 53.26bp / b=1: 53.17bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ BXM(文档=总收益)              1988–2015 blocks=  532  b= 3.20±1.23  残差MAD 强制b=0: 38.26bp / b=1: 38.17bp  → 含息(总收益)（2σ）
+对照+ BXM(文档=总收益)              2015–2026 blocks=  452  b= 2.68±1.61  残差MAD 强制b=0: 36.52bp / b=1: 36.39bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照+ BXM(文档=总收益)              1988–2026 blocks=  988  b= 3.49±0.96  残差MAD 强制b=0: 37.73bp / b=1: 37.58bp  → 两者都拒绝（2σ）
+VXTH                         1988–2015 blocks=  371  b=-0.14±2.18  残差MAD 强制b=0: 44.96bp / b=1: 45.04bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+VXTH                         2015–2026 blocks=  452  b= 3.70±3.29  残差MAD 强制b=0: 47.00bp / b=1: 46.94bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+VXTH                         1988–2026 blocks=  827  b= 0.77±1.89  残差MAD 强制b=0: 45.34bp / b=1: 45.38bp  → 功效不足（0 与 1 都不能拒绝）（2σ）
+对照− spx_cboe(价格指数)           1988–2015 blocks= 1104  b= 0.03±0.10  残差MAD 强制b=0:  0.61bp / b=1:  2.70bp  → 价格（2σ）
+对照− spx_cboe(价格指数)           2015–2026 blocks=  452  b=-0.00±0.00  残差MAD 强制b=0:  0.00bp / b=1:  1.39bp  → 价格（2σ）
+对照− spx_cboe(价格指数)           1988–2026 blocks= 1560  b= 0.02±0.08  残差MAD 强制b=0:  0.44bp / b=1:  2.38bp  → 价格（2σ）
+
+# 股息口径 A'：逐日、精确到除息当天的回归（对入账日错位敏感，仅作时序诊断）
+PPUT: days=4118  b=0.50±0.07  → 不确定（功效不足或两者都拒绝）
+CLLZ: days=559  b=1.02±0.15  → 含息(总收益)
+CLLZ(无 band): days=7448  b=0.68±0.16  → 含息(总收益)
+PPUT3M: days=2490  b=0.36±0.24  → 不确定（功效不足或两者都拒绝）
+VXTH: days=3940  b=0.80±0.65  → 不确定（功效不足或两者都拒绝）
+对照+ CLL_legacy(文档=总收益): days=4606  b=0.47±0.12  → 不确定（功效不足或两者都拒绝）
+对照+ BXM(文档=总收益): days=4709  b=0.82±0.35  → 不确定（功效不足或两者都拒绝）
+对照− spx_cboe(价格指数): days=7454  b=0.03±0.03  → 价格
+参考 SPRO(纯期权,理论价): days=3990  b=0.65±0.29  → 不确定（功效不足或两者都拒绝）
+
+# 股息口径 B：按任务原设的区间法（换仓周期后半段 vs 月股息分摊；功效不足，仅留档）
+PPUT: windows=74  MAD(vs 价格)=7.0bp  MAD(vs 总收益)=8.2bp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=-0.08（≈1 为含息，≈0 为价格）
+PPUT [1986–1999]: windows=17  MAD(vs 价格)=8.1bp  MAD(vs 总收益)=7.6bp  → 更接近总收益；(指数−价格) 对 分摊股息 的回归斜率=0.78（≈1 为含息，≈0 为价格）
+PPUT [2000–2026]: windows=57  MAD(vs 价格)=6.7bp  MAD(vs 总收益)=8.4bp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=-0.90（≈1 为含息，≈0 为价格）
+CLLZ: windows=0  MAD(vs 价格)=nanbp  MAD(vs 总收益)=nanbp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=nan（≈1 为含息，≈0 为价格）
+CLLZ [1986–1999]: windows=0  MAD(vs 价格)=nanbp  MAD(vs 总收益)=nanbp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=nan（≈1 为含息，≈0 为价格）
+CLLZ [2000–2026]: windows=0  MAD(vs 价格)=nanbp  MAD(vs 总收益)=nanbp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=nan（≈1 为含息，≈0 为价格）
+CLL_legacy(对照,文档=总收益): windows=17  MAD(vs 价格)=11.1bp  MAD(vs 总收益)=12.1bp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=-1.49（≈1 为含息，≈0 为价格）
+spx_cboe(对照,价格指数): windows=74  MAD(vs 价格)=0.0bp  MAD(vs 总收益)=7.3bp  → 更接近价格收益；(指数−价格) 对 分摊股息 的回归斜率=0.00（≈1 为含息，≈0 为价格）

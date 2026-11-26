@@ -1,0 +1,17 @@
+file,url,downloaded_utc,sha256,first_date,last_date,rows
+PPUT_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/PPUT_History.csv,2026-11-26T05:23:33Z,6663cd7f9027fc0409ce383023e5a005838c7d01016391d9ba3faa607cb30f99,1986-06-30,2026-11-25,10176
+PPUT3M_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/PPUT3M_History.csv,2026-11-26T05:23:34Z,cf73d90181eb916b43b67f75147c5d4c9c53be7f3c736938e8803c0aacc23dd6,2004-03-19,2026-11-25,5708
+CLLZ_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/CLLZ_History.csv,2026-11-26T05:23:35Z,27acce9183791687e756aa7ef77d2f8dd736332c6b5b78cb1b8fb46b1f9a1a55,1986-06-20,2026-11-25,10182
+CLL_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/CLL_History.csv,2026-11-26T05:23:35Z,65220ab430e98386f948c47a5278f2e6e53cec39585ef749bb542333bd7bdc13,2008-08-26,2026-11-25,4551
+CLL3M_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/CLL3M_History.csv,2026-11-26T05:23:36Z,24c3353b278e83b6dd69ccdb5ab8f2018da9f8f6b2e221147c3e1c2e2022f99f,2004-03-19,2026-11-25,5708
+CLL1M_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/CLL1M_History.csv,2026-11-26T05:23:37Z,49983b2c9ea9893d0e379cbcfbca4b180ec46555b9e32384fbc5aac37031dbc6,2004-03-19,2026-11-25,5708
+VXTH_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/VXTH_History.csv,2026-11-26T05:23:38Z,6df49aaee03a6b558061983af36648969938a337be640e30cb5ba92351165002,2006-03-31,2026-11-25,5194
+PUT_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/PUT_History.csv,2026-11-26T05:23:38Z,dd994924f80631f5396f0ef6131343432fc6af42b524467284406732e9716159,1991-03-04,2026-11-25,5014
+BXM_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/BXM_History.csv,2026-11-26T05:23:39Z,c3d8297fb73ac1917d95a3aa2db89a04a68c47117e3aedecd78a224f4223d586,2002-03-22,2026-11-25,6208
+SPRO_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/SPRO_History.csv,2026-11-26T05:23:40Z,e2d319261fbbfee7cd90a5b18d9046495ffe14c9e83d316beb51b1c421e64815,2005-12-21,2026-11-25,5264
+SPROME_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/SPROME_History.csv,2026-11-26T05:23:41Z,ab4ac641039858aa706b0816e3071c318f00e9f366d72394978016976c8812d5,2005-12-30,2026-11-25,5256
+SPRF_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/SPRF_History.csv,2026-11-26T05:23:42Z,bb53219d94b531042dbb891c5bd9540b98af0f6389b70daf1151c5147c2a9cfb,2006-12-29,2026-11-25,5009
+BFLY_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/BFLY_History.csv,2026-11-26T05:23:42Z,cbb8829afdb4f84a58d10eba83f7b49e1fd297ed4e4a686eab62745fa3cd08ae,1986-06-20,2026-11-25,10182
+SPX_History.csv,https://cdn.cboe.com/api/global/us_indices/daily_prices/SPX_History.csv,2026-11-26T05:23:43Z,b2c7ec7de0b6e2f6668a03124d7389cbd9810f09bc51379a7d28566613d973f9,1975-01-02,2026-11-25,13085
+CLL_legacy_wayback20200711.csv,http://web.archive.org/web/20200711183111id_/http://www.cboe.com:80/publish/scheduledtask/mktdata/datahouse/clldailyhistory.csv,2026-11-26T05:23:45Z,b5e871edbcafd347bc6e8545f75ff996748672e88a350303b0f6cacea52dd816,1986-06-30,2020-07-10,8576
+SP500TR_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/%5ESP500TR?period1=500000000&period2=1800000000&interval=1d,2026-11-26T05:23:46Z,43ee7aa18bb48f3c02fd9e38c98a1240b4082d104b958f503a1b3678e84986ef,1988-01-04,2026-11-25,9799
