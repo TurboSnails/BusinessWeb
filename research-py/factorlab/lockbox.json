@@ -1,0 +1,12 @@
+{
+  "note": "锁箱固定区间（每个市场一套）：start 起至 end 止全部证券不可见；end 之后为前推记录区。探索区 = start 以前，按 sha256(code) 分 70% 探索 / 30% 截面验证。见 docs/research/factorlab/DESIGN.md 第四节。改动本文件须单独提交并在 LEDGER 说明。",
+  "embargo_months": 1,
+  "budget_candidates": 24,
+  "explore_frac": 0.7,
+  "markets": {
+    "cn": {"start": "2023-11-01", "end": "2026-11-30"},
+    "hk": {"start": "2023-11-01", "end": "2026-11-30"},
+    "us": {"start": "2023-11-01", "end": "2026-11-30"},
+    "us_kf": {"start": "2023-11-01", "end": "2026-11-30"}
+  }
+}

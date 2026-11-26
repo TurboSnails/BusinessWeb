@@ -10,6 +10,9 @@ dependencies = [
   "scipy>=1.14,<2",
   "arch>=7.2,<9",
   "statsmodels>=0.14,<1",
+  "akshare>=1.20.70",
+  "pyarrow>=26.0.1",
+  "requests>=2.34.2",
 ]
 
 [dependency-groups]

@@ -62,3 +62,22 @@ uv run python -m data.checks      # 与第二来源核对，写 data/CHECKS.md
 
 - 多资产检验（路线图第 4 阶段）在 `engines/` 下加新模块，沿用 `simulate` 的口径；新研究先在 `docs/research/<主题>-<日期>/` 写预注册，再在这里实现。
 - 组合权重库（Riskfolio-Lib 或 PyPortfolioOpt）只在确有需要时加入，并在这里写明许可证；回测净值一律走本引擎，不用库自带的回测。
+
+## 因子研究基建 factorlab（2026-11-26 起）
+
+长期因子挖掘与回测用，覆盖 A 股（cn）、港股（hk）、美股（us）与 Ken French 组合（us_kf）。设计与护栏见 `docs/research/factorlab/DESIGN.md`，数据说明见同目录 `DATA-CN-HK.md`、`DATA-US.md`。
+
+```bash
+cd research-py
+uv run python -m factorlab.sources.kf fetch && uv run python -m factorlab.sources.kf build     # Ken French 组合（约 2 分钟）
+uv run python -m factorlab.sources.cn fetch --rps 1 && uv run python -m factorlab.sources.cn build   # A 股全量（约 3–5 小时，分批）
+uv run python -m factorlab.sources.hk fetch --rps 1 && uv run python -m factorlab.sources.hk build
+uv run python -m factorlab.sources.us fetch && uv run python -m factorlab.sources.us build     # 美股个股（等级 B，约 2 小时）
+uv run python -m factorlab.cli list-factors
+uv run python -m factorlab.cli eval --market cn --factor mom_12_1      # 自动记入 factor-ledger/cn.jsonl
+uv run python -m factorlab.cli ledger --market cn
+```
+
+- 数据在 `research-py/factor-data/`（不进 git）；试验登记簿 `research-py/factor-ledger/`（进 git）。
+- 锁箱 2023-11-01 至 2026-11-30 在数据层强制：`store.read_prices` / `load_panel` 默认就截掉锁箱，解封只能走 `factorlab.cli unseal`（按季度批次、终身 24 个候选）。
+- SEC 财报需要先设环境变量 `SEC_USER_AGENT`（你自己的联系方式，代码里不写任何个人信息）。
