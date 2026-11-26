@@ -1,0 +1,5 @@
+file,url,downloaded_utc,sha256,bytes
+RUT_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/%5ERUT?period1=0&period2=1800000000&interval=1d,2026-11-26T08:14:16Z,59bb04f2c9b241f45b8eb19351ef8c6c901781120e7d365f67ee476a5e85d5d0,1080177
+HSI_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?period1=0&period2=1800000000&interval=1d,2026-11-26T08:14:17Z,60451b366964635fdf783069d07e871f47ae1f4a8aa04e67722209c30a380fbc,913038
+SSEC_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/000001.SS?period1=0&period2=1800000000&interval=1d,2026-11-26T08:14:18Z,5bda52d0022700a69c4c6352f66dcbb7c0797744da90f52a5df5d45bb4f8c34a,741602
+49_Industry_Portfolios_CSV.zip（复用 L-032）,docs/research/nasdaq-semis-heat-2026-11-26/inputs/raw/49_Industry_Portfolios_CSV.zip,2026-11-26（L-032 下载）,d1a3b0b9896e1e633ed2aa85e24ca144d7998f8ab2ff344e2379383ebeb7b836,489861
