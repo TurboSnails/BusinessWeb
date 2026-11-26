@@ -711,7 +711,7 @@ test('季度序列：FRED 季初标注落到季末；月度序列落到月末', 
   assert.equal(current.hfEquityLs.at(-1).observedOn, '2026-06-30')
 })
 
-test('55 项指标 source 都是可打开的 https 网址', () => {
+test('56 项指标 source 都是可打开的 https 网址', () => {
   const date = '2026-11-24'
   const indicators = buildIndicators({}, {
     netLiquidity: 'https://fred.stlouisfed.org/series/WALCL',
@@ -747,6 +747,7 @@ test('55 项指标 source 都是可打开的 https 网址', () => {
     trend200: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     drawdown: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     vix: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv',
+    vixTrend: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv',
     vixTerm: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX3M_History.csv',
     realizedVol: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     vvix: 'https://cdn.cboe.com/api/global/us_indices/daily_prices/VVIX_History.csv',
@@ -770,7 +771,7 @@ test('55 项指标 source 都是可打开的 https 网址', () => {
     forwardEps: 'https://example.com/fpe',
     profitGdp: 'https://fred.stlouisfed.org/series/CP',
   }, date)
-  assert.equal(indicators.length, 55)
+  assert.equal(indicators.length, 56)
   for (const row of indicators) {
     assert.match(row.source, /^https:\/\/\S+$/, row.id)
     assert.equal(row.source.includes('÷'), false, row.id)
@@ -857,4 +858,17 @@ test('量比早年低于 0.3 的错值按阈值剔除（含 1997-12-26、2003-12
   assert.equal(kept.some(([d]) => d === '1997-12-26'), false)
   assert.equal(kept.some(([d]) => d === '2003-12-26'), false)
   assert.equal(kept.length, 3)
+})
+
+test('VIX 变化趋势：近 21 日均值相对之前 126 日均值', async () => {
+  const { vixTrend } = await import('./lib/market-radar/sources.mjs')
+  const day = i => new Date(Date.UTC(2026, 0, 1) + i * 864e5).toISOString().slice(0, 10)
+  const daily = Array.from({ length: 147 }, (_, i) => [day(i), i < 126 ? 20 : 25])
+  const rows = vixTrend(daily)
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].observedOn, day(146))
+  assert.equal(rows[0].value, 25)
+  assert.equal(rows[0].recent, 25)
+  assert.equal(rows[0].base, 20)
+  assert.equal(vixTrend(daily.slice(1)).length, 0)
 })

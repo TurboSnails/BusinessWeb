@@ -606,6 +606,23 @@ export function changeOverDays(rows = [], days = 91, slack = 5) {
   })
 }
 
+/**
+ * VIX 变化趋势（%）：近 recent 个交易日均值 ÷ 之前 base 个交易日均值 − 1。
+ * 对应第四轮研究（L-022）里「当月均值 ÷ 前 6 个月均值 − 1」的日频写法。
+ */
+export function vixTrend(daily = [], recent = 21, base = 126) {
+  const rows = daily.filter(([, v]) => Number.isFinite(v) && v > 0)
+  const out = []
+  for (let i = recent + base - 1; i < rows.length; i++) {
+    let r = 0, b = 0
+    for (let k = i - recent + 1; k <= i; k++) r += rows[k][1]
+    for (let k = i - recent - base + 1; k <= i - recent; k++) b += rows[k][1]
+    const recentMean = r / recent, baseMean = b / base
+    out.push({ observedOn: rows[i][0], availableOn: rows[i][0], value: clean((recentMean / baseMean - 1) * 100), recent: clean(recentMean), base: clean(baseMean) })
+  }
+  return out
+}
+
 /** 标普相对 200 日均线（%）、距 52 周高点回撤（%）、20 日已实现波动率（%）。 */
 export function spxTrendVol(dailyRows = []) {
   const closes = dailyRows.filter(([, close]) => close > 0).map(([d, close]) => [d, close])
@@ -890,6 +907,7 @@ export function buildRadarSeries({
     // 月度序列观测日落到当月月末
     marginGdp: marketSeries(macroLong(macroUs.marginGdp, today).map(([d, value]) => [monthEnd(d), value]), 0, true),
     vix: marketSeries(rows('vixDaily'), 0, true),
+    vixTrend: vixTrend(rows('vixDaily')),
     trend200: spxSeries.trend200,
     drawdown: spxSeries.drawdown,
     realizedVol: spxSeries.realizedVol,
@@ -926,6 +944,7 @@ export function buildRadarSeries({
     marginGdp: 'https://www.finra.org/rules-guidance/key-topics/margin-accounts/margin-statistics',
     // macro-posture-daily 标普收盘：站内 Yahoo 优先、FRED 补充
     vix: sources.vixDaily,
+    vixTrend: sources.vixDaily,
     trend200: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     drawdown: 'https://finance.yahoo.com/quote/%5EGSPC/history/',
     realizedVol: 'https://finance.yahoo.com/quote/%5EGSPC/history/',

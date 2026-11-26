@@ -324,6 +324,17 @@ const DEFINITIONS = {
       { value: 30, label: '参考 30', kind: 'reference' },
     ],
   },
+  vixTrend: {
+    dimension: 'trading', group: '趋势与波动', core: true,
+    label: 'VIX 变化趋势', frequency: 'daily', direction: 'cold', unit: '%',
+    valueText: p => signed(p.value, percent),
+    display: p => `VIX 近 21 个交易日均值 ${pts(p.recent)}，比之前 126 个交易日均值 ${pts(p.base)}${p.value >= 0 ? '高' : '低'} ${percent(Math.abs(p.value))}。`,
+    rule: `VIX 近 21 个交易日均值相对之前 126 个交易日（约 6 个月）均值的变化，1990 年起。看的是波动在升还是在降，不是 VIX 高低。2026 年 11 月 26 日检验过两种计分写法（并入流动性维度；企业债利差走阔时按它判断修复），验证期都比现行规则差，未采用（登记 L-022）。历史上企业债利差走阔且 VIX 明显上升的月份，之后 12 个月标普多数上涨，这是事后观察，不作信号。${displayOnly}`,
+    thresholds: [
+      { value: 20, label: '明显上升 +20%', kind: 'reference' },
+      { value: -15, label: '明显回落 −15%', kind: 'reference' },
+    ],
+  },
   vixTerm: {
     dimension: 'trading', group: '趋势与波动', core: true,
     label: 'VIX 期限结构', frequency: 'daily', direction: 'cold', unit: '倍',
