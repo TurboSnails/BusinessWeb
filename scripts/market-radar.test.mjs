@@ -711,7 +711,7 @@ test('季度序列：FRED 季初标注落到季末；月度序列落到月末', 
   assert.equal(current.hfEquityLs.at(-1).observedOn, '2026-06-30')
 })
 
-test('56 项指标 source 都是可打开的 https 网址', () => {
+test('60 项指标 source 都是可打开的 https 网址', () => {
   const date = '2026-11-24'
   const indicators = buildIndicators({}, {
     netLiquidity: 'https://fred.stlouisfed.org/series/WALCL',
@@ -770,8 +770,12 @@ test('56 项指标 source 都是可打开的 https 网址', () => {
     epsYoy: 'https://shillerdata.com/',
     forwardEps: 'https://example.com/fpe',
     profitGdp: 'https://fred.stlouisfed.org/series/CP',
+    nasdaqGap: 'https://finance.yahoo.com/quote/%5EIXIC/history/',
+    soxGap: 'https://finance.yahoo.com/quote/%5ESOX/history/',
+    techShare: 'https://mba.tuck.dartmouth.edu/x',
+    chipsShare: 'https://mba.tuck.dartmouth.edu/x',
   }, date)
-  assert.equal(indicators.length, 56)
+  assert.equal(indicators.length, 60)
   for (const row of indicators) {
     assert.match(row.source, /^https:\/\/\S+$/, row.id)
     assert.equal(row.source.includes('÷'), false, row.id)
@@ -871,4 +875,16 @@ test('VIX 变化趋势：近 21 日均值相对之前 126 日均值', async () =
   assert.equal(rows[0].recent, 25)
   assert.equal(rows[0].base, 20)
   assert.equal(vixTrend(daily.slice(1)).length, 0)
+})
+
+test('Ken French 行业市值占比：公司数 × 平均规模，第 t 行记为 t−1 月末', async () => {
+  const { parseFrenchShares } = await import('./lib/market-radar/sources.mjs')
+  const names = Array.from({ length: 49 }, (_, i) => ['Hardw', 'Softw', 'Chips'][i] ?? `I${i}`)
+  const row = (ym, vals) => [ym, ...vals].join(',')
+  const firms = Array.from({ length: 49 }, (_, i) => (i < 3 ? 1 : i === 3 ? 7 : 0))
+  const sizes = Array.from({ length: 49 }, (_, i) => (i < 3 ? 10 : i === 3 ? 10 : -99.99))
+  const csv = ['Number of Firms in Portfolios', ',' + names.join(','), row('202609', firms), '',
+    'Average Firm Size', ',' + names.join(','), row('202609', sizes)].join('\n')
+  // 科技 3 家 × 10 = 30，总市值 100：30%；Chips 10%
+  assert.deepEqual(parseFrenchShares(csv), [['2026-08-31', 30, 10]])
 })

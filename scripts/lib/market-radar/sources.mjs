@@ -72,6 +72,12 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
     sources[id] = await refresh(id, url, body => parseYahooFuturesClose(JSON.parse(body), symbol, new Date(), digits).history,
       { 'User-Agent': 'Mozilla/5.0' }).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
   }
+  // 纳指、费城半导体日收盘，只展示（L-032）：Yahoo 全历史；首次下载失败且没有缓存时跳过。
+  for (const [id, symbol] of [['ixic', '^IXIC'], ['sox', '^SOX']]) {
+    const url = YAHOO_CHART + encodeURIComponent(symbol) + '?period1=0&period2=9999999999&interval=1d'
+    sources[id] = await refresh(id, url, body => parseYahooFuturesClose(JSON.parse(body), symbol, new Date(), 2).history,
+      { 'User-Agent': 'Mozilla/5.0' }).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
+  }
   // 2000 年以前的月度金银比来自世界银行 Pink Sheet，一次性回补（scripts/gold-silver-history.mjs），不再变动。
   sources.goldSilverEarly = readJson(join(cache, 'gold-silver-worldbank.json'), [])
   if (!sources.goldSilverEarly.length) warn('gold-silver-worldbank.json 缺失，金银比只有 2000 年起的历史')
@@ -80,6 +86,7 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
     sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
   }
   sources.industryTrend = await refreshIndustryTrend({ cache, fetcher, warn })
+  sources.industryShare = readJson(join(cache, 'industry-share.json'), [])
   // 49 行业日频宽度只展示；首次下载失败且没有缓存时跳过。
   sources.industryDaily = await refreshIndustryDaily({ cache, fetcher, warn })
     .catch(error => { warn(`industry-daily-breadth 暂缺：${error.message}`); return [] })
@@ -167,6 +174,45 @@ export function buildIndustryTrend(rows) {
   return output
 }
 
+const TECH_INDUSTRIES = ['Hardw', 'Softw', 'Chips']
+
+/**
+ * Ken French 49 行业的市值占比：行业市值 = 公司数 × 平均规模（第 t 行是 t 月初、即 t−1 月末的值）。
+ * 返回 [t−1 月末日期, 科技（Hardw + Softw + Chips）占比 %, Chips（电子设备，含半导体）占比 %]。
+ */
+export function parseFrenchShares(csv) {
+  const lines = csv?.split(/\r?\n/) ?? []
+  const section = title => {
+    const start = lines.findIndex(line => line.trim() === title)
+    if (start < 0) throw new Error(`Ken French 缺少「${title}」表`)
+    const header = lines[start + 1].split(',').slice(1).map(h => h.trim())
+    if (header.length !== 49) throw new Error(`Ken French「${title}」行业列数异常`)
+    const rows = new Map()
+    for (const line of lines.slice(start + 2)) {
+      const [ym, ...cells] = line.split(',')
+      if (!/^\d{6}$/.test(ym?.trim() ?? '')) break
+      rows.set(ym.trim(), cells.map(Number))
+    }
+    return { header, rows }
+  }
+  const firms = section('Number of Firms in Portfolios')
+  const size = section('Average Firm Size')
+  const index = name => firms.header.indexOf(name)
+  if (TECH_INDUSTRIES.some(name => index(name) < 0)) throw new Error('Ken French 缺少科技行业列')
+  const out = []
+  for (const [ym, counts] of firms.rows) {
+    const sizes = size.rows.get(ym)
+    if (!sizes) continue
+    const caps = counts.map((n, i) => (n > 0 && sizes[i] > 0 ? n * sizes[i] : 0))
+    const total = caps.reduce((sum, v) => sum + v, 0)
+    if (!(total > 0)) continue
+    const observedOn = monthEnd(`${ym.slice(0, 4)}-${ym.slice(4)}`, -1)
+    const tech = TECH_INDUSTRIES.reduce((sum, name) => sum + caps[index(name)], 0)
+    out.push([observedOn, clean(tech / total * 100), clean(caps[index('Chips')] / total * 100)])
+  }
+  return out
+}
+
 async function refreshIndustryTrend({ cache, fetcher, warn }) {
   const path = join(cache, 'industry-trend.json')
   const previous = readJson(path, [])
@@ -180,6 +226,8 @@ async function refreshIndustryTrend({ cache, fetcher, warn }) {
     writeJsonIfChanged(path, rows)
     // 49 行业市值加权月收益（%），供牛市后期预警影子读数的防守轮动项使用（scripts/late-cycle-shadow.mjs）
     writeJsonIfChanged(join(cache, 'industry-returns.json'), monthly.filter(([d]) => d >= '2000-01-01'))
+    // 科技与电子设备的市值占比，只展示（L-032）
+    try { writeJsonIfChanged(join(cache, 'industry-share.json'), parseFrenchShares(csv)) } catch (error) { warn(`industry-share 未更新：${error.message}`) }
     return rows
   } catch (error) {
     if (!previous.length) throw new Error(`industry-trend 下载失败且没有缓存：${error.message}`, { cause: error })
@@ -894,6 +942,10 @@ export function buildRadarSeries({
     advDec: advanceDecline((breadth?.advDec ?? []).filter(([d]) => d <= today)),
     above50: marketSeries(normalize([[breadth?.date, breadth?.above50]], today), 0, true),
     equalWeight: equalWeightSpread(indexes.rsp?.monthly, indexes.spx?.monthly).filter(row => row.observedOn <= today),
+    nasdaqGap: spxTrendVol((fetched.ixic ?? []).filter(([d]) => d <= today)).trend200,
+    soxGap: spxTrendVol((fetched.sox ?? []).filter(([d]) => d <= today)).trend200,
+    techShare: marketSeries((fetched.industryShare ?? []).map(([d, value]) => [d, value]), 0, true),
+    chipsShare: marketSeries((fetched.industryShare ?? []).map(([d, , value]) => [d, value]), 0, true),
     forwardEps: forwardEpsChange(rows('spxFactSetFpe'), spxDaily.filter(([d]) => d <= today)),
     // 18 项新增（只展示）
     nfci: marketSeries(macroLong(macroUs.nfci, today), 0, true),
@@ -935,6 +987,10 @@ export function buildRadarSeries({
     industry200: FRENCH_INDUSTRIES_DAILY, industryNetHighs: FRENCH_INDUSTRIES_DAILY, industryAdvDec: FRENCH_INDUSTRIES_DAILY,
     sectorBreadth: breadth?.source, netHighs: breadth?.source, advDec: breadth?.source, above50: breadth?.source,
     equalWeight: 'https://finance.yahoo.com/quote/%5ESPXEW/history/',
+    nasdaqGap: 'https://finance.yahoo.com/quote/%5EIXIC/history/',
+    soxGap: 'https://finance.yahoo.com/quote/%5ESOX/history/',
+    techShare: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
+    chipsShare: 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',
     vixTerm: CBOE + 'VIX3M_History.csv', impliedCorr: CBOE + 'COR1M_History.csv', gex: 'https://squeezemetrics.com/monitor/dix', breadth200: breadth?.source,
     epsYoy: 'https://shillerdata.com/', forwardEps: sources.spxForwardEpsChange,
     nfci: FRED_SERIES + 'NFCI', ofrCredit: OFR_FSI, realYield: FRED_SERIES + 'DFII10',

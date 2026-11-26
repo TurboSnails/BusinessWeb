@@ -139,7 +139,7 @@ function compareCand(extra, start, historyYears) {
   else if (dS[0] > 0 || dS[1] > 0) verdict = '观察'
   else verdict = '不采用'
   const baseByD = new Map(baseRows.map(r => [r.d, r.tier]))
-  const changed = cand.filter(r => baseByD.has(r.d) && r.tier !== baseByD.get(r.d)).length
+  const changed = cand.filter(r => r.ret >= h1[0] && baseByD.has(r.d) && r.tier !== baseByD.get(r.d)).length // 只数评估区间（第二实现指出）
   return { halves: [h1, h2], base: [b1, b2], cand: [c1, c2], dSharpe: dS, dMaxDd: dDd, full: { base: fb, cand: fc }, checks: { both, minImp, ddOk, cagrOk, longEnough }, changedMonths: changed, verdict }
 }
 

@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'radar-tech-heat-liquidity',
+    date: '2026-11-26',
+    title: '市场雷达加了纳指、半导体四项读数；流动性检验结果',
+    description: '按建议把纳斯达克与半导体的「超配」加进市场雷达的「科技与半导体」一组：纳指、费城半导体相对 200 日均线的偏离，科技股、电子设备占美股市值的比例。四种口径都先做了预注册检验：过热或拥挤的时候，它们之后一年并没有更差，回撤也没有更深，所以只展示、不计分。另外检验了把实际 M2、美联储净流动性加进宏观攻守：规则反而变差，不采用；政策流动性（利率路径、实际利率、利差、金融条件）本来就在规则里。说明书升到 v1.2.5。',
+    href: '/invest/strategy-lab?tab=late#lab-nasdaq-semis',
+  },
+  {
     id: 'strategy-lab-trend-14',
     date: '2026-11-26',
     title: '十个月均线在 14 个国家的检验：有用，但作用很小',

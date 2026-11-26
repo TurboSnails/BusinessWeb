@@ -8,6 +8,7 @@ import DefensiveTrendStudy from '../features/strategy-lab/DefensiveTrendStudy'
 import DruckenmillerNote from '../features/strategy-lab/DruckenmillerNote'
 import EffectiveStrategies from '../features/strategy-lab/EffectiveStrategies'
 import EtfVolumeStudy from '../features/strategy-lab/EtfVolumeStudy'
+import { LiquidityStudy, NasdaqSemisHeatStudy } from '../features/strategy-lab/HeatLiquidityStudies'
 import LateCycleStudy from '../features/strategy-lab/LateCycleStudy'
 import LateWarningStudy from '../features/strategy-lab/LateWarningStudy'
 import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
@@ -44,6 +45,8 @@ export interface LabStudy {
 /** 全部研究，按页签分组；同一页签内的顺序就是页面上的顺序 */
 export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-overfit-audit', tab: 'audit', title: '现行规则的过拟合审计', date: '2026-11-26', status: 'note', statusText: '审计', summary: '算上试过的 86 种写法，不能排除优势来自挑选；参数过拟合风险高；整类宏观写法仍有显著好于恒定仓位的。规则不变，预期打折。', Component: OverfitAuditStudy },
+  { id: 'lab-nasdaq-semis', tab: 'late', title: '纳斯达克与半导体的超配 / 过热读数', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '纳指、半导体过热或拥挤之后一年并没有更差；四种口径都没有预测力，作为展示指标加入雷达。', Component: NasdaqSemisHeatStudy },
+  { id: 'lab-liquidity', tab: 'late', title: '流动性能不能加进宏观攻守', date: '2026-11-26', status: 'fail', statusText: '不采用', summary: '政策流动性已在规则里；再加实际 M2 或美联储净流动性，规则反而变差。', Component: LiquidityStudy },
   { id: 'lab-late-warning', tab: 'late', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
   { id: 'lab-defensive-tilt', tab: 'late', title: '股票部分长期防守倾斜', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子运行', summary: '1934–1972 年通过，但同等波动下大跌并没有少跌，好处是效率；ETF 影子运行 12 个月。', Component: DefensiveTiltStudy },
   { id: 'lab-radar-vix', tab: 'late', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },

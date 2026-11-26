@@ -12,6 +12,7 @@ import audit from '../features/strategy-lab/data/overfit-audit.json'
 import hedge from '../features/strategy-lab/data/option-hedge.json'
 import deftrend from '../features/strategy-lab/data/defensive-trend.json'
 import trend14 from '../features/strategy-lab/data/trend-14.json'
+import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -192,6 +193,14 @@ describe('研究中页签', () => {
     renderPage(at('trend'))
     expect(within(screen.getByTestId('lab-trend14-countries')).getAllByRole('row')).toHaveLength(trend14.perCountry.length + 1)
     expect(screen.getByTestId('lab-trend14-main').textContent).toContain(trend14.C1.verdict)
+  })
+
+  it('纳指与半导体超配、流动性两项：表格逐行，判定来自研究结果', () => {
+    renderPage(at('late'))
+    expect(within(screen.getByTestId('lab-heat-table')).getAllByRole('row')).toHaveLength(5)
+    expect(screen.getByTestId('lab-heat-table').textContent).toContain(heatLiq.heat.N1.verdict)
+    expect(within(screen.getByTestId('lab-liquidity-table')).getAllByRole('row')).toHaveLength(3)
+    expect(screen.getByTestId('lab-liquidity-table').textContent).toContain(heatLiq.liquidity.Q1.verdict)
   })
 
   it('百分比用「−」号', () => {
