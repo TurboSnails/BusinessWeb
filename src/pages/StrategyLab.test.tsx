@@ -14,6 +14,7 @@ import deftrend from '../features/strategy-lab/data/defensive-trend.json'
 import trend14 from '../features/strategy-lab/data/trend-14.json'
 import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
+import tm from '../features/strategy-lab/data/trend-momentum.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -211,6 +212,14 @@ describe('研究中页签', () => {
     expect(table.textContent).toContain(rotHeat.momentum.C1.verdict)
     expect(table.textContent).toContain(rotHeat.momentum.C2.verdict)
     expect(within(screen.getByTestId('lab-momentum-vsus')).getAllByRole('row')).toHaveLength(5)
+  })
+
+  it('多资产趋势 + 动量：两个写法与大熊市逐行，判定来自研究结果', () => {
+    renderPage(at('rotate'))
+    const table = screen.getByTestId('lab-tm-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(3)
+    expect(table.textContent).toContain(tm.main.T1.verdict)
+    expect(within(screen.getByTestId('lab-tm-bears')).getAllByRole('row')).toHaveLength(tm.bears.length + 1)
   })
 
   it('更多过热读数：五个指标逐行，49 行业面板判定来自研究结果', () => {

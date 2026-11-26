@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-trend-momentum',
+    date: '2026-11-26',
+    title: '趋势 + 动量轮动（股、债、金）：接近成立，但还不稳',
+    description: '按建议检验了「趋势 + 动量」：在美股、海外股、国债、黄金四类里，每月持有动量最强的两类、破十个月均线就换现金；另一个写法是四类各自按均线进出。1978–2025 年两个写法都比四类固定各持 25% 好，时机统计上显著，2000–02、2008 年的大熊市里甚至还在赚钱。但「趋势 + 动量」晚一个月执行就变得比固定持有差，「只看趋势」2010 年以后一直落后，按事先的规则判「不稳定」，所以没有单独开页签，结果放在「研究中」的「轮动」页签，方案不变。',
+    href: '/invest/strategy-lab?tab=rotate#lab-trend-momentum',
+  },
+  {
     id: 'strategy-lab-country-rotation',
     date: '2026-11-26',
     title: '在美国和海外之间轮动有没有用？雷达再加五项读数',
