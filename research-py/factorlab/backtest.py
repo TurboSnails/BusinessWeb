@@ -372,8 +372,9 @@ def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame
                 cost += c
                 weights[days[i]] = pd.Series(w, index=codes)[w > 0]
                 aum = capital * nav if capital is not None else capacity_aum
-                held = w > 0
-                cap_ratios.extend((w[held] * aum / adv_row(i)[held]).tolist())
+                adv = adv_row(i)
+                held = (w > 0) & (adv > 0)  # 成交额为 0（停牌或无成交）的持仓不计入容量比例，避免除以零
+                cap_ratios.extend((w[held] * aum / adv[held]).tolist())
 
         if execution == "open":
             execute()
