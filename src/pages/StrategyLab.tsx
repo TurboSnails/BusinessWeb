@@ -4,6 +4,7 @@ import { Page } from '../components/ui'
 import { PageTabs } from '../components/ui/PageTabs'
 import DailyExecutionStudy from '../features/strategy-lab/DailyExecutionStudy'
 import DefensiveTiltStudy from '../features/strategy-lab/DefensiveTiltStudy'
+import DefensiveTrendStudy from '../features/strategy-lab/DefensiveTrendStudy'
 import DruckenmillerNote from '../features/strategy-lab/DruckenmillerNote'
 import EffectiveStrategies from '../features/strategy-lab/EffectiveStrategies'
 import EtfVolumeStudy from '../features/strategy-lab/EtfVolumeStudy'
@@ -50,6 +51,7 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-trend', tab: 'trend', title: '趋势防下跌：1872–1934 年确认检验', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '现行十个月均线和破位封顶 50% 在 8 次大跌里都全部少跌，统计上不显著；规则不变，破位封顶进影子记录。', Component: TrendStudy },
   { id: 'lab-late-cycle', tab: 'trend', title: '牛市后段到回调：月中刹车', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '策略只对宏观先转差的下跌有用；4 种按日刹车都不通过。', Component: LateCycleStudy },
   { id: 'lab-daily-execution', tab: 'trend', title: '宏观攻守能不能按日执行', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '按日执行更差，维持按月。', Component: DailyExecutionStudy },
+  { id: 'lab-defensive-trend', tab: 'vol', title: '防守部分放趋势过滤的债券（14 国）', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '债券趋势择时有价值（14 国全改善、安慰剂 p 0.006），但利率上行期仍比现金每年少 1.4 个百分点；防守部分继续放现金。', Component: DefensiveTrendStudy },
   { id: 'lab-vol-confirm', tab: 'vol', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
   { id: 'lab-multi-asset', tab: 'vol', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },

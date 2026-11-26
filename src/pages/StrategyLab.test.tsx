@@ -10,6 +10,7 @@ import confirm from '../features/strategy-lab/data/vol-confirm.json'
 import multi from '../features/strategy-lab/data/multi-asset.json'
 import audit from '../features/strategy-lab/data/overfit-audit.json'
 import hedge from '../features/strategy-lab/data/option-hedge.json'
+import deftrend from '../features/strategy-lab/data/defensive-trend.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -176,6 +177,14 @@ describe('研究中页签', () => {
     expect(main.textContent).toContain(hedge.confirm.PPUT.verdict)
     expect(main.textContent).toContain(hedge.confirm.CLLZ.verdict)
     expect(within(screen.getByTestId('lab-hedge-explore')).getAllByRole('row')).toHaveLength(Object.keys(hedge.explore).length + 1)
+  })
+
+  it('防守部分趋势债券：14 国逐行，判定与研究结果一致', () => {
+    renderPage(at('vol'))
+    expect(within(screen.getByTestId('lab-deftrend-countries')).getAllByRole('row')).toHaveLength(deftrend.perCountry.length + 1)
+    const main = screen.getByTestId('lab-deftrend-main')
+    expect(main.textContent).toContain(deftrend.C1.verdict)
+    expect(main.textContent).toContain(deftrend.C2.verdict)
   })
 
   it('百分比用「−」号', () => {

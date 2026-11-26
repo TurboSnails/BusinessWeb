@@ -259,7 +259,12 @@ def main() -> None:
     common = max(per[c]["from"] for c in LONG7)
     for cand in ("C1", "C2"):
         rep["long7"][cand] = pooled([dS(frames[c].loc[frames[c].index >= common], frames[c].loc[frames[c].index >= common, cand].to_numpy()) for c in LONG7])
-        rep["long7"][cand + "rising"] = pooled([per[c][cand]["rising"] for c in LONG7])
+        rising7 = []
+        for c in LONG7:
+            f = frames[c]
+            mask = rising_mask(load(c), f, True).to_numpy() & (f.index >= common)
+            rising7.append(float((f[cand].to_numpy() - f["D0"].to_numpy())[mask].mean() * 12) if mask.sum() >= 12 else None)
+        rep["long7"][cand + "rising"] = pooled(rising7)  # 第二实现指出：按共同起点截取
     rep["long7"]["from"] = common
     rep["noSwitzerland"] = {cand: pooled([per[c][cand]["dS"] for c in countries if c != "Switzerland"]) for cand in ("C1", "C2")}
     sw = frames["Switzerland"].loc[frames["Switzerland"].index >= "1999-08"]

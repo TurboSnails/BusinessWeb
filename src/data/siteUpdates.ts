@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-defensive-trend',
+    date: '2026-11-26',
+    title: '防守部分要不要放债券？14 个国家的检验',
+    description: '「低频量化」里证据最充分的办法之一是趋势跟踪。这次把它用在防守部分：平时放 10 年期国债，债券跌破十个月均线就换现金。用本项目从没用过的 14 个发达国家股债数据（1975–2025）检验：14 国全部比放现金好，择时价值统计上显著；但利率上行时，组合每年仍比现金少约 1.4 个百分点（一直放债券少 3.2），没过事先定的门槛。趋势规则能让加息期少亏一半多，但躲不开。所以防守部分继续放现金或 1 年以内的短期国债。说明书升到 v1.2.3。',
+    href: '/invest/strategy-lab?tab=vol#lab-defensive-trend',
+  },
+  {
     id: 'strategy-lab-audit-options',
     date: '2026-11-26',
     title: '两项新研究：现行规则有多可信，期权保护值不值',
