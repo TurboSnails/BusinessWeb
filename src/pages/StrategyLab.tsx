@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react'
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Page } from '../components/ui'
 import { PageTabs } from '../components/ui/PageTabs'
 import DailyExecutionStudy from '../features/strategy-lab/DailyExecutionStudy'
-import DefensiveTiltStudy from '../features/strategy-lab/DefensiveTiltStudy'
 import DefensiveTrendStudy from '../features/strategy-lab/DefensiveTrendStudy'
 import DruckenmillerNote from '../features/strategy-lab/DruckenmillerNote'
 import EffectiveStrategies from '../features/strategy-lab/EffectiveStrategies'
@@ -15,7 +14,6 @@ import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
 import OptionHedgeStudy from '../features/strategy-lab/OptionHedgeStudy'
 import OverfitAuditStudy from '../features/strategy-lab/OverfitAuditStudy'
 import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
-import SectorRotationStudy from '../features/strategy-lab/SectorRotationStudy'
 import { CountryMomentumStudy, HeatMoreStudy } from '../features/strategy-lab/RotationHeatStudies'
 import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendMomentumStudy from '../features/strategy-lab/TrendMomentumStudy'
@@ -29,9 +27,15 @@ import '../styles/strategy-lab.css'
 import '../styles/strategy-lab-tabs.css'
 
 export const STRATEGY_LAB_LEAD =
-  '还没写进正式规则的研究放在这里：结论不确定、没通过检验、或只在影子跟踪的内容。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
+  '还没通过检验的研究放在这里：结论不确定、没通过、或部分成立的内容；通过检验的策略单独放在「通过检验」页。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
 
-export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'sector' | 'cn'
+/** 已移到「通过检验」页的研究：旧链接（锚点或 ?tab=sector）跳过去 */
+const MOVED: Record<string, string> = {
+  'lab-sector-rotation': '/invest/verified',
+  'lab-defensive-tilt': '/invest/verified?tab=tilt',
+}
+
+export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'cn'
 type Status = 'pass' | 'partial' | 'fail' | 'note'
 
 export interface LabStudy {
@@ -52,7 +56,6 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-nasdaq-semis', tab: 'late', title: '纳斯达克与半导体的超配 / 过热读数', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '纳指、半导体过热或拥挤之后一年并没有更差；四种口径都没有预测力，作为展示指标加入雷达。', Component: NasdaqSemisHeatStudy },
   { id: 'lab-liquidity', tab: 'late', title: '流动性能不能加进宏观攻守', date: '2026-11-26', status: 'fail', statusText: '不采用', summary: '政策流动性已在规则里；再加实际 M2 或美联储净流动性，规则反而变差。', Component: LiquidityStudy },
   { id: 'lab-late-warning', tab: 'late', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
-  { id: 'lab-defensive-tilt', tab: 'late', title: '股票部分长期防守倾斜', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子运行', summary: '1934–1972 年通过，但同等波动下大跌并没有少跌，好处是效率；ETF 影子运行 12 个月。', Component: DefensiveTiltStudy },
   { id: 'lab-radar-vix', tab: 'late', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },
   { id: 'lab-druckenmiller', tab: 'late', title: '德鲁肯米勒「逃顶」核查', date: '2026-11-26', status: 'note', statusText: '核查', summary: '只对了一半：公开说不做多股票时，标普已从高点回落约 6%。', Component: DruckenmillerNote },
   { id: 'lab-trend-14', tab: 'trend', title: '十个月均线：14 国确认检验', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '14 国全部少跌、时机显著，但只少跌约 3.5%，全周期一半赚一半亏，晚一个月执行就亏；退路改为只保留上限。', Component: Trend14Study },
@@ -64,14 +67,13 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-vol-confirm', tab: 'vol', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
   { id: 'lab-multi-asset', tab: 'vol', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
-  { id: 'lab-sector-rotation', tab: 'sector', title: '美股板块轮动：每月持有最强的 3 个板块', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子记录', summary: '1927–2026 年对等权、对大盘都更好，板块 ETF 也确认；但 2011 年后已跑不赢大盘，国内难以照做。仓位不变，影子记录 12 个月。', Component: SectorRotationStudy },
   { id: 'lab-trend-momentum', tab: 'rotate', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
   { id: 'lab-country-momentum', tab: 'rotate', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
   { id: 'lab-etf-volume', tab: 'cn', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
-const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', sector: '板块轮动', cn: 'A 股 ETF' }
-const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'sector', 'cn']
+const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', cn: 'A 股 ETF' }
+const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'cn']
 const isTab = (v: string | null): v is LabTab => v != null && (TAB_ORDER as string[]).includes(v)
 const studyTab = (id: string): LabTab | null => (id === 'lab-v01' ? 'overview' : LAB_STUDIES.find(s => s.id === id)?.tab ?? null)
 
@@ -117,8 +119,11 @@ export default function StrategyLab(): JSX.Element {
     return () => cancelAnimationFrame(frame)
   }, [tab, hashId])
 
+  const moved = MOVED[hashId] ?? (paramTab === 'sector' ? MOVED['lab-sector-rotation'] : null)
   const inTab = LAB_STUDIES.filter(s => s.tab === tab)
   const latest = [...LAB_STUDIES].sort((a, b) => b.date.localeCompare(a.date))
+
+  if (moved) return <Navigate to={moved} replace />
 
   return (
     <Page className="cs-page ss-page lab-page">
@@ -170,7 +175,7 @@ export default function StrategyLab(): JSX.Element {
 
       <footer className="cs-footer" role="note">
         <p>
-          每项研究先写预注册、再计算；通过门槛也只进入影子跟踪，写入正式规则要另行检验。
+          每项研究先写预注册、再计算；通过门槛的移到「通过检验」页，也只进入影子跟踪，写入正式规则要另行检验。
           {' '}<Link to="/invest/strategy/spec">策略说明书</Link>
         </p>
         <p>历史统计，不构成买卖建议。</p>
