@@ -384,3 +384,25 @@ def test_fix_volume_unit():
     assert out["volume"].iloc[0] == pytest.approx(1e5)
     ok = pd.DataFrame({"volume": [1e5] * 6, "close": [10.0] * 6, "amount": [1e6] * 6})
     assert cn.fix_volume_unit(ok)["volume"].iloc[0] == pytest.approx(1e5)
+
+
+def test_hk_fix_suspect_factor_jumps():
+    import pandas as pd
+    from factorlab.sources.hk import fix_suspect_factor_jumps
+    df = pd.DataFrame({
+        "date": pd.to_datetime(["2011-04-13", "2011-04-14", "2011-04-15", "2011-04-18"] * 2),
+        "code": ["00767"] * 4 + ["00700"] * 4,
+        "open": [2.1, 2.1, 0.9, 0.95, 100, 101, 50, 51],
+        "close": [2.1, 2.13, 0.91, 0.95, 100, 102, 51, 52],
+        # 00767：因子跳 15 倍（错误）；00700：1 拆 2，因子翻倍、复权收益正常（不改）
+        "adj_factor": [1.0, 1.0, 15.0, 15.0, 1.0, 1.0, 2.0, 2.0],
+    })
+    df["close_adj"] = df["close"] * df["adj_factor"]
+    df["open_adj"] = df["open"] * df["adj_factor"]
+    out, n = fix_suspect_factor_jumps(df)
+    assert n == 1
+    a = out[out.code == "00767"].reset_index(drop=True)
+    r = a["close_adj"].pct_change()
+    assert abs(r[2] - (0.91 / 2.13 - 1)) < 1e-12 and abs(r[3] - (0.95 / 0.91 - 1)) < 1e-12
+    b = out[out.code == "00700"].reset_index(drop=True)
+    assert list(b["adj_factor"]) == [1.0, 1.0, 2.0, 2.0]

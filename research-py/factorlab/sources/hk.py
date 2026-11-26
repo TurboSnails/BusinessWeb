@@ -268,6 +268,36 @@ def load_code(code: str, start: str | None = None) -> pd.DataFrame:
 PRICE_EXTRA = ["open_adj", "adj_factor", "pct_chg", "float_shares", "src"]
 
 
+FACTOR_JUMP = 3.0      # 复权因子单日变化超过 3 倍（或低于 1/3）
+ADJ_RET_LIMIT = 1.0    # 且复权日收益绝对值超过 100%
+
+
+def fix_suspect_factor_jumps(prices: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """清洗新浪复权因子的明显错误：因子单日跳变 > 3 倍且复权收益 |r| > 100% 的日子，视为因子错误，
+    当天复权收益改按不复权价计算（因子沿用前一日），之后的因子按同一比例整体平移。返回 (新表, 修正天数)。
+    例：00767 2011-04-15 收盘 2.13 → 0.91，因子跳约 15 倍，复权收益却是 +522%。"""
+    df = prices.sort_values(["code", "date"]).reset_index(drop=True)
+    f = df["adj_factor"].to_numpy(float)
+    c = df["close"].to_numpy(float)
+    code = df["code"].to_numpy()
+    same = np.r_[False, code[1:] == code[:-1]]
+    ratio = np.ones(len(df))
+    ratio[1:] = np.where(same[1:], f[1:] / f[:-1], 1.0)
+    adj_ret = np.full(len(df), np.nan)
+    adj_ret[1:] = np.where(same[1:], (c[1:] * f[1:]) / (c[:-1] * f[:-1]) - 1, np.nan)
+    bad = same & ((ratio > FACTOR_JUMP) | (ratio < 1 / FACTOR_JUMP)) & (np.abs(adj_ret) > ADJ_RET_LIMIT)
+    if not bad.any():
+        return prices, 0
+    # 每个坏点：把该日起本股票之后的因子都除以该日的跳变比例（等于当天因子不变）
+    corr = np.where(bad, ratio, 1.0)
+    df["_corr"] = corr
+    df["_cum"] = df.groupby("code")["_corr"].cumprod()
+    df["adj_factor"] = df["adj_factor"] / df["_cum"]
+    df["close_adj"] = df["close"] * df["adj_factor"]
+    df["open_adj"] = df["open"] * df["adj_factor"]
+    return df.drop(columns=["_corr", "_cum"]), int(bad.sum())
+
+
 def build_hk(start: str = "2005-01-01", codes: list[str] | None = None) -> dict:
     sec = security_master()
     if codes is None:
@@ -275,6 +305,7 @@ def build_hk(start: str = "2005-01-01", codes: list[str] | None = None) -> dict:
         codes = json.loads(sel.read_text()) if sel.exists() else sec["code"].tolist()
     frames = [df for c in codes if not (df := load_code(c, start)).empty]
     prices = pd.concat(frames, ignore_index=True)[list(PRICES_COLUMNS) + PRICE_EXTRA]
+    prices, n_fixed = fix_suspect_factor_jumps(prices)
     sec_out = sec[sec["code"].isin(set(codes))].copy()
     first = prices.groupby("code")["date"].min()
     sec_out["list_date"] = sec_out["list_date"].fillna(sec_out["code"].map(first))
@@ -289,6 +320,7 @@ def build_hk(start: str = "2005-01-01", codes: list[str] | None = None) -> dict:
         "已按除权前一日收盘换算成可连乘的乘法因子 adj_factor；close_adj = close × adj_factor，open_adj = open × adj_factor"
         "（细价股多次合股 / 供股时换算可能失真，见审计的极端收益清单）。",
         "合股 / 供股：依赖新浪复权记录；审计列出 |日收益| > 50% 的记录需人工核对；股价 < 1 港元时最小价位导致价差常 > 1%。",
+        f"复权因子清洗：因子单日跳变 > {FACTOR_JUMP:g} 倍且复权日收益 |r| > {ADJ_RET_LIMIT:.0%} 的 {n_fixed} 天视为因子错误，当天按不复权价计收益、之后因子整体平移（fix_suspect_factor_jumps）。",
         "volume 单位：股；turnover：小数；mcap_float 用 Σ成交量 ÷ Σ换手率 的阶梯估计 × 收盘（换手率缺失则 NaN；腾讯港股换手率多数只从 2022 年后才有）；mcap_total 为 NaN。",
         "港股无涨跌停 → limit_up / limit_down 为 NA；成交量为 0 的行（无成交 / 停牌）已删除，is_suspended 恒为 False。",
     ]
