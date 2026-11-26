@@ -196,7 +196,7 @@ def main() -> None:
     block = max(block_pw, BLOCK_FLOOR)
 
     # T1
-    p_idx = [i for i, c in enumerate(ids) if fam[c] == "P"]
+    p_idx = [k0] + [i for i, c in enumerate(ids) if fam[c] == "P"]  # 去重后的 P 族 1,054 个：P0000 与 S0 相同，以 S0 代表
     ir_p = D[:, p_idx].mean(0) / D[:, p_idx].std(0, ddof=1)
     ir0, g3, g4 = moments(D[:, k0])
     star86 = expected_max_ir(N_MAIN, T)
