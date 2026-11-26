@@ -210,7 +210,7 @@ const DEFINITIONS = {
     label: '融资余额 ÷ GDP', frequency: 'monthly', direction: 'hot', unit: '%',
     valueText: p => percent(p.value),
     display: p => `融资余额占 GDP 的 ${percent(p.value)}。`,
-    rule: `FINRA 客户保证金借方余额 ÷ 名义 GDP，1997 年起，按月更新（最近一期 GDP 未公布时沿用上一季）。比值越高，场内杠杆相对经济体量越大。${displayOnly}`,
+    rule: `FINRA 客户保证金借方余额 ÷ 名义 GDP，按月更新（最近一期 GDP 未公布时沿用上一季）。1997 年以前用美联储资金流量表的券商应收客户款项（保证金贷款等）代用，按 1997 年两者的比值缩放，1947 年起（1952 年前为年度、之后为季度）。比值越高，场内杠杆相对经济体量越大。${displayOnly}`,
     staleDays: 75,
   },
   cftcAsset: {
@@ -288,7 +288,7 @@ const DEFINITIONS = {
     label: 'Put/Call 成交量比', frequency: 'monthly', direction: 'cold', unit: '',
     valueText: p => formatReading(p.value, '', 2),
     display: p => `Cboe 全产品 Put/Call 成交量比为 ${formatReading(p.value, '', 2)}。`,
-    rule: `Cboe 全部期权产品的看跌成交量 ÷ 看涨成交量，2006 年 11 月起；历史用月度样本（2019 年 10 月以后是每月末的日读数），最新为当日读数。比值高表示买保护的人多，情绪偏谨慎。${displayOnly}`,
+    rule: `Cboe 全部期权产品的看跌成交量 ÷ 看涨成交量，1995 年 9 月起（2006 年 10 月以前取 Cboe 早期存档的月末读数）；历史用月度样本（2019 年 10 月以后是每月末的日读数），最新为当日读数。比值高表示买保护的人多，情绪偏谨慎。${displayOnly}`,
     thresholds: [{ value: 1, label: '参考线 1.0', kind: 'reference' }],
   },
   skew: {
@@ -512,7 +512,7 @@ const DEFINITIONS = {
     label: '企业利润 ÷ GDP', frequency: 'quarterly', direction: 'hot', unit: '%',
     valueText: p => percent(p.value),
     display: p => `企业利润占 GDP 的 ${percent(p.value)}。`,
-    rule: `税后企业利润（国民收入账户）÷ 名义 GDP，1990 年起，按季更新，季末后约三个月可得。比值越高，利润率越处于高位。${displayOnly}`,
+    rule: `税后企业利润（国民收入账户）÷ 名义 GDP，1947 年起，按季更新，季末后约三个月可得。比值越高，利润率越处于高位。${displayOnly}`,
   },
 }
 

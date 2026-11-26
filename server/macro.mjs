@@ -148,6 +148,36 @@ export function parseCboeRatioCsv(text) {
   return [...rows.values()].sort((a, b) => a[0].localeCompare(b[0]))
 }
 
+/**
+ * Cboe 早期存档（全产品 Put/Call）：
+ * - pcratioarchive.csv：DATE,TOTAL VOLUME P/C RATIO,…（1995-09 至 2003-12，只有比率）；
+ * - totalpcarchive.csv：Trade_date,Call,Put,Total,P/C Ratio（2003-10 至 2012-06，比率与成交量交叉校验）。
+ * 其他格式返回空数组。
+ */
+export function parseCboeArchiveCsv(text) {
+  const rows = new Map()
+  const lines = text.split(/\r?\n/)
+  if (lines.some(line => /^DATE\s*,\s*TOTAL VOLUME P\/C RATIO/i.test(line))) {
+    for (const line of lines) {
+      const m = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*,\s*([0-9.]+)\s*(,|$)/.exec(line)
+      if (!m) continue
+      const date = `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`
+      const value = Number(m[4])
+      if (isCalendarDate(date) && Number.isFinite(value) && value > 0 && value < 10) rows.set(date, [date, value])
+    }
+  } else if (lines.some(line => /^Trade_date\s*,\s*Call\s*,\s*Put\s*,\s*Total\s*,\s*P\/C Ratio/i.test(line))) {
+    for (const line of lines) {
+      const m = /^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([0-9.]+)\s*$/.exec(line)
+      if (!m) continue
+      const date = `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`
+      const call = Number(m[4]), put = Number(m[5]), total = Number(m[6]), value = Number(m[7])
+      if (!isCalendarDate(date) || call <= 0 || put < 0 || total !== call + put || Math.abs(value - put / call) > 0.011) continue
+      rows.set(date, [date, value])
+    }
+  }
+  return [...rows.values()].sort((a, b) => a[0].localeCompare(b[0]))
+}
+
 /** Cboe 历史日页面的 RSC 数据；非交易日没有比率时返回 null。 */
 export function parseCboeDaily(html) {
   const match = re => html.match(re)?.[1]
@@ -172,7 +202,7 @@ export function packPutCall(rows) {
   for (const [date, value] of rows) if (isCalendarDate(date) && Number.isFinite(value) && value >= 0) unique.set(date, [date, value])
   const points = [...unique.values()].sort((a, b) => a[0].localeCompare(b[0]))
   if (!points.length) throw new Error('Cboe: 无有效 Put/Call 数据')
-  return packLong(points, { source: 'Cboe Volume and Put/Call Ratio', unit: '', note: 'Cboe 全产品期权成交量 Put÷Call；2006–2019 为官方 CSV，2019-10 起为每月末可得交易日抽样（非月均）；最新值为每日读数' })
+  return packLong(points, { source: 'Cboe Volume and Put/Call Ratio', unit: '', note: 'Cboe 全产品期权成交量 Put÷Call；1995-09 至 2006-10 为 Cboe 早期存档（月末交易日），2006–2019 为官方 CSV，2019-10 起为每月末可得交易日抽样（非月均）；最新值为每日读数' })
 }
 
 async function buildCboePutCall(previousRows = []) {

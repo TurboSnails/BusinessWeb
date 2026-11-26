@@ -46,6 +46,33 @@ const FRED_LONG = {
   saving: { id: 'PSAVERT', frequency: 'monthly' },
 }
 
+const FINRA_START = '1997-01'
+const QUARTER_END = { '01': ['03', '31'], '04': ['06', '30'], '07': ['09', '30'], '10': ['12', '31'] }
+
+/**
+ * 融资余额 ÷ GDP 的早期历史：FINRA 统计从 1997-01 起；之前用美联储资金流量表 Z.1
+ * 「券商应收客户款项（保证金贷款等）」BOGZ1FL663067003Q（季度，1945 起）÷ GDP，
+ * 按 1997 年四个季末两者比值的平均数缩放后接在 FINRA 序列前面（1997–2005 年两者相差在一成以内；
+ * 2010 年后 FINRA 口径变宽，两者差到约 2 倍，所以只用于 1997 年以前）。早期为季度点。
+ */
+export function spliceEarlyMarginGdp(finraLong, receivables, gdp) {
+  const finra = finraLong.filter(([date]) => date.slice(0, 7) >= FINRA_START)
+  const sortedGdp = [...gdp].sort(([a], [b]) => a.localeCompare(b))
+  const gdpAt = month => [...sortedGdp].reverse().find(([d]) => d.slice(0, 7) <= month)?.[1]
+  const early = receivables.flatMap(([date, value]) => {
+    const [year, month] = date.split('-')
+    const end = QUARTER_END[month]
+    const g = end && gdpAt(`${year}-${end[0]}`)
+    return g ? [[`${year}-${end[0]}-${end[1]}`, (value / 1000) / g * 100]] : []
+  })
+  const byMonth = new Map(finra.map(([date, value]) => [date.slice(0, 7), value]))
+  const overlap = early.filter(([date]) => date.startsWith(FINRA_START.slice(0, 4)) && byMonth.has(date.slice(0, 7)))
+  if (overlap.length < 2) throw new Error('融资余额早期拼接：1997 年重叠季末不足')
+  const scale = overlap.reduce((sum, [date, value]) => sum + byMonth.get(date.slice(0, 7)) / value, 0) / overlap.length
+  const before = early.filter(([date]) => date.slice(0, 7) < FINRA_START).map(([date, value]) => [date, round(value * scale, 2)])
+  return [...before, ...finra]
+}
+
 /** 只更新长历史；最近读数和迷你图仍由原有快照生成。 */
 export async function refreshUsLong(us, previous = us, { fetchRows = fetchFredRows, readSpx = readSpxRows } = {}) {
   const fixed = Object.fromEntries(Object.entries(FRED_LONG).map(([key, { id, frequency, convert }]) => [key, {
@@ -64,6 +91,10 @@ export async function refreshUsLong(us, previous = us, { fetchRows = fetchFredRo
     realRate: { frequency: 'monthly', build: async () => {
       const [funds, inflation] = await Promise.all([fetchRows('FEDFUNDS'), corePce()])
       return subtract(funds, inflation)
+    } },
+    marginGdp: { frequency: 'monthly', build: async () => {
+      const [receivables, gdp] = await Promise.all([fetchRows('BOGZ1FL663067003Q'), fetchRows('GDP')])
+      return spliceEarlyMarginGdp(us.series.marginGdp?.long ?? [], receivables, gdp)
     } },
     dd: { frequency: 'monthly', build: async () => {
       const [cached, recent] = await Promise.all([readSpx(), fetchRows('SP500')])

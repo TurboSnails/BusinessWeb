@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { drawdown, monthly, parseCsv, subtract, underperformStreak, yoy } from '../server/macro.mjs'
-import { refreshUsLong } from './macro-snapshot.mjs'
+import { refreshUsLong, spliceEarlyMarginGdp } from './macro-snapshot.mjs'
 
 test('解析 FRED CSV，跳过缺失值', () => {
   assert.deepEqual(parseCsv('observation_date,X\n2026-01-01,1.5\n2026-01-02,.\n2026-01-03,2'), [['2026-01-01', 1.5], ['2026-01-03', 2]])
@@ -124,4 +124,13 @@ test('刷新长历史失败或计算无重叠数据时保留旧 long 和本次�
     assert.deepEqual(series, { ...current.series[key], frequency: 'monthly', long: oldLong })
     assert.ok(warnings.some(warning => warning.startsWith(key) && warning.includes('保留旧长历史')))
   }
+})
+
+test('融资余额 ÷ GDP：1997 年以前用 Z.1 券商应收客户款项按 1997 年季末比值缩放后接上', () => {
+  const finra = [['1997-03-31', 1.1], ['1997-06-30', 1.2], ['1997-09-30', 1.3], ['1997-12-31', 1.4], ['1998-01-31', 1.5]]
+  const receivables = [['1996-10-01', 50], ['1997-01-01', 100], ['1997-04-01', 100], ['1997-07-01', 100], ['1997-10-01', 100]]
+  const gdp = [['1996-10-01', 8000], ['1997-01-01', 10000]]
+  // 1997 年季末：Z.1 比值都是 1.0%，FINRA 平均 1.25%，缩放 1.25；1996-12：50/1000/8000×100 = 0.625% × 1.25
+  assert.deepEqual(spliceEarlyMarginGdp(finra, receivables, gdp), [['1996-12-31', 0.78], ...finra])
+  assert.throws(() => spliceEarlyMarginGdp(finra.slice(4), receivables, gdp), /重叠季末不足/)
 })

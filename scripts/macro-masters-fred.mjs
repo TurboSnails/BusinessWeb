@@ -21,7 +21,7 @@ const SERIES = {
   primeRate: { fred: 'MPRIME', name: '美国优惠贷款利率', frequency: 'monthly', start: START_1990 },
   discountRate: { fred: 'DPCREDIT', name: '美联储一级信贷利率', frequency: 'daily' },
   consumerCreditYoy: { fred: 'NONREVSL', name: '美国非循环消费信贷同比', frequency: 'monthly', start: START_1990, transform: yearOverYear },
-  profitGdp: { fred: 'CP ÷ GDP', name: '美国税后企业利润占 GDP', frequency: 'quarterly', start: START_1990, ids: ['CP', 'GDP'], transform: profitToGdp },
+  profitGdp: { fred: 'CP ÷ GDP', name: '美国税后企业利润占 GDP', frequency: 'quarterly', start: '1947-01-01', ids: ['CP', 'GDP'], transform: profitToGdp },
 }
 
 export function parseFredCsv(text) {

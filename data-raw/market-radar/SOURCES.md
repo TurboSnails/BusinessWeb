@@ -49,8 +49,8 @@
 | CFTC 资管机构纳指期货净多（科技股超配的自动口径） | 同上 TFF（合约代码 `20974+`），站内序列 `cftcNdxAsset` | 资管机构净多 ÷ 未平仓合约 | 2010-06 | 自动 |
 | CFTC 杠杆基金标普期货净仓 | 站内 `cftcSpxLev` | 杠杆基金净仓 ÷ 未平仓合约 % | 2010-06 | 自动 |
 | 对冲基金股票多空比 | 站内 `macro-us.json` → `series.hfEquityLs`（OFR Form PF） | 比值 | 2013-03 | 自动 |
-| 融资余额 ÷ GDP | 站内 `macro-us.json` → `series.marginGdp` | % | 1997-01 | 自动 |
-| Put/Call 成交量比 | 站内 `macro-us.json` → `series.putCall` | Cboe 全产品比值 | 2006-11 | 自动 |
+| 融资余额 ÷ GDP | 站内 `macro-us.json` → `series.marginGdp`；1997 年以前用 FRED [BOGZ1FL663067003Q](https://fred.stlouisfed.org/series/BOGZ1FL663067003Q)（Z.1 券商应收客户款项）÷ GDP，按 1997 年季末与 FINRA 的比值缩放（`scripts/macro-snapshot.mjs` 的 `spliceEarlyMarginGdp`） | % | 1947（1997 年前为年度/季度） | 自动 |
+| Put/Call 成交量比 | 站内 `macro-us.json` → `series.putCall`；2006-10 以前为 Cboe 早期存档 [pcratioarchive.csv](https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/pcratioarchive.csv)、[totalpcarchive.csv](https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/totalpcarchive.csv) 的月末读数（`npm run macro:putcall-history -- --prepend-archive`） | Cboe 全产品比值 | 1995-09 | 自动 |
 | Cboe SKEW | 站内 `us-market-data.json` → `skew` | 点 | 日频 | 自动 |
 
 ### 交易结构
@@ -77,7 +77,7 @@
 |---|---|---|---|---|
 | 过去 12 个月每股盈利同比 | [Shiller 数据](https://shillerdata.com/)（`data-raw/sp500-backtest/shiller.csv`）；超出快照的月份用 [Multpl 盈利](https://www.multpl.com/s-p-500-earnings/table/by-month) × FRED [CPIAUCNS](https://fred.stlouisfed.org/series/CPIAUCNS) 补算 | 名义 EPS 同比；**只保留季末月**，季末后第 3 个月末可得 | 1872 | 自动（Shiller 快照需定期更新） |
 | 前瞻每股盈利修正 | 标普收盘（`data-raw/macro-posture-daily/spx-daily.json`）÷ FactSet 前瞻市盈率 | 隐含前瞻 EPS 较约 3 个月前的变化；FactSet 引用发布日前一交易日收盘 | 2017-04 | 跟着前瞻市盈率走，前瞻市盈率手动更新后自动算出 |
-| 企业利润 ÷ GDP | 站内 `macro-masters-fred.json` → `series.profitGdp` | %；可得日按季末后第 3 个月末 | 季频 | 自动 |
+| 企业利润 ÷ GDP | 站内 `macro-masters-fred.json` → `series.profitGdp`（FRED CP ÷ GDP，1947 起） | %；可得日按季末后第 3 个月末 | 季频，1947 | 自动 |
 
 ### 新增缓存文件（2026-11-24）
 
@@ -130,3 +130,11 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 | NAAIM 2026-08-19 之后的读数 | 需要订阅 |
 | 金银比 1960 年以前的月度历史 | NBER 宏观历史库只有 1833–1933 年伦敦银价的年度数据，没有找到免费的月度金银价；1971 年以前金价又是固定价，意义有限 |
 | 前瞻市盈率 2016 年以前的历史 | FactSet 官网和互联网档案馆都没有留存 |
+
+## 已查过、补不了的缺口（2026-11-26）
+
+- 高收益债利差：FRED 上的 ICE BofA 序列受授权限制，只公开最近 3 年，没有免费的长历史替代，保持现状（企业债利差半年变化用穆迪 Baa，1919 年起）。
+- VIX 1990 年以前：只有前身 VXO（标普 100、旧算法，1986 年起），是另一条指数，没有拼接。
+- NYSE 会员券商融资余额（1959–1997 月度）：存档网站暂时打不开；已用 Z.1 季度数据代用（见上）。
+- 成分股宽度类（站上 200 日线比例、新高减新低等）：成分股历史有幸存者偏差，免费来源只能从 2025 年起逐日累积；长历史用 Ken French 49 行业代替（1926 年起）。
+- 基金经理调查（美银）：专有数据，只有当期读数。

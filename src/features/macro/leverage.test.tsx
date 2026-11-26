@@ -7,7 +7,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 // @ts-ignore 纯 JS 模块
-import { computeEquityLongShort, gdpTtm, parseCboeDaily, parseCboeRatioCsv, parseFinraMargin, parseOfrTimeseries, ratioToGdp } from '../../../server/macro.mjs'
+import { computeEquityLongShort, gdpTtm, parseCboeArchiveCsv, parseCboeDaily, parseCboeRatioCsv, parseFinraMargin, parseOfrTimeseries, ratioToGdp } from '../../../server/macro.mjs'
 import Monitor from '../../pages/Monitor'
 import { INDICATORS, percentileOf, toneOf, type MacroSnapshot } from './indicators'
 import { CN_INDICATORS, type CnKey } from './china'
@@ -51,6 +51,14 @@ describe('杠杆数据整理', () => {
     const csv = 'DATE,CALLS,PUTS,TOTAL,P/C Ratio\n1/2/2024,100,65,165,0.65\n1/3/2024,100,65,160,0.65\ninvalid'
     expect(parseCboeRatioCsv(csv)).toEqual([['2024-01-02', 0.65]])
     expect(parseCboeRatioCsv('<html>denied</html>')).toEqual([])
+  })
+
+  it('Cboe 早期存档：只有比率的老格式与带成交量的 2003–2012 格式', () => {
+    const old = 'Cboe PUT/CALL RATIO ARCHIVE,,,,\nDATE,TOTAL VOLUME P/C RATIO,INDEX P/C RATIO,EQUITY P/C RATIO\n9/27/1995,0.79,,,\n2/30/1996,0.5,,\n12/31/2003,1.25,2.96,0.95'
+    expect(parseCboeArchiveCsv(old)).toEqual([['1995-09-27', 0.79], ['2003-12-31', 1.25]])
+    const mid = 'Trade_date,Call,Put,Total,P/C Ratio\n10/17/2003,1152086,733258,1885344,0.64\n10/21/2003,100,65,160,0.65'
+    expect(parseCboeArchiveCsv(mid)).toEqual([['2003-10-17', 0.64]])
+    expect(parseCboeArchiveCsv('DATE,CALLS,PUTS,TOTAL,P/C Ratio\n1/2/2024,100,65,165,0.65')).toEqual([])
   })
 
   it('Cboe 日页面交叉核对成交量；非交易日不伪造观测', () => {
