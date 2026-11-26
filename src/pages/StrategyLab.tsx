@@ -176,7 +176,7 @@ export default function StrategyLab(): JSX.Element {
       <footer className="cs-footer" role="note">
         <p>
           每项研究先写预注册、再计算；通过门槛的移到「通过检验」页，也只进入影子跟踪，写入正式规则要另行检验。
-          {' '}<Link to="/invest/strategy/spec">策略说明书</Link>
+          {' '}<Link to="/invest/strategy/spec">策略说明书</Link>{' · '}<Link to="/invest/factor-lab">因子实验室</Link>
         </p>
         <p>历史统计，不构成买卖建议。</p>
       </footer>

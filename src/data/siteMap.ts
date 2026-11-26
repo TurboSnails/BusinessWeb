@@ -97,6 +97,7 @@ export const INVEST_GROUPS: HubGroup[] = [
       { path: '/invest/top-masters', label: '顶级投资人', short: '六位顶级投资人怎么看周期', desc: '从九位宏观投资人中按可核对的长期业绩选出德鲁肯米勒、索罗斯、邓普顿、都铎·琼斯、达利欧、马克斯六位：各自的业绩与来源、怎么看周期、按其方法现在怎么看，以及普通股票投资者能学什么、不要模仿什么。读数为本站映射，不构成买卖建议' },
       { path: '/invest/ai-token-economics', label: 'AI 降价与利润', short: 'Token 用量、降价与毛利', desc: 'Ramp 企业样本的 Token 用量、支出与价格变化，OpenAI / Anthropic 收入集中度、单位毛利敏感性与跟踪清单；数据整理自 AI 对话，待独立核实' },
       { path: '/invest/fundamental-quant', label: '基本面量化', short: '书籍方法、因子与策略验证', desc: '以《投资策略实战分析》为起点的基本面量化方法库：因子口径、策略草案、林奇分类衔接与 A 股验证路径' },
+      { path: '/invest/factor-lab', label: '因子实验室', short: '三市场因子挖掘与回测', desc: '长期因子挖掘的研究基建：三个市场的数据、引擎校验、试验登记簿与锁箱护栏、每一轮挖掘的进度和候选；通过检验也不自动加入综合策略，不构成买卖建议' },
       { path: '/valuation', label: '估值工作台', short: '自动取财报，六法三情景', desc: '连接本机估值服务，自动采集财报，六方法三情景估值与报告导出' },
       { path: '/dcf', label: 'DCF 计算器', short: '输入股票一键估算', desc: '输入名称或代码自动取财报估算合理价、三情景与买入参考价，可逐项调整假设并保存记录' },
       { path: '/invest/index-valuation', label: '指数估值', short: '各指数估值分位与股债息差', desc: '美股、A 股、港股主要指数离高点多远、价格与市盈率的历史分位、估值热力图，以及沪深300与标普500的股债息差' },

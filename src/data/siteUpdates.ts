@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'factor-lab',
+    date: '2026-11-27',
+    title: '新页面「因子实验室」：A 股、港股、美股的因子挖掘基建',
+    description: '为长期做因子挖掘与回测搭了研究基建，覆盖 A 股（含退市股，及点时 ST、行业、总股本）、港股、美股与 SEC 财报。引擎用经典因子做过校验：美股动量与 Ken French 动量因子相关 0.91，A 股规模与学术界的中国因子相关 0.93。每次评估都自动记账，2023-11 至 2026-11 的数据锁起来，只能按季度批量解封确认，防止反复试到碰巧好看为止。新页面在「投资 → 工具」里，显示数据、校验、试验次数与锁箱预算、每一轮挖掘的进度；通过检验的也不会自动加入综合策略。',
+    href: '/invest/factor-lab',
+  },
+  {
     id: 'strategy-lab-sector-rotation',
     date: '2026-11-26',
     title: '新页面「通过检验」：美股板块轮动通过，开始影子记录',

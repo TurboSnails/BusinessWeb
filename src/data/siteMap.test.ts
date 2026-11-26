@@ -39,7 +39,7 @@ describe('INVEST_GROUPS', () => {
   it('收纳全部旧入口、候选池和 AI 工具，且无重复', () => {
     const all = allLinks.map(l => l.path).sort()
     expect(all).toEqual([
-      '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/invest/my-plan', '/investment-plan-2026',
+      '/invest/comprehensive-valuation', '/invest/ai-token-economics', '/invest/fundamental-quant', '/invest/factor-lab', '/candidates', '/radar', '/watch', '/dcf', '/first-book', '/future-trends', '/grid-trading', '/ai/ai-skills', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/national-team', '/industry-landscape', '/invest/my-plan', '/investment-plan-2026',
       '/investment-strategy', '/investment-targets', '/limit-up-analysis', '/daily-analysis',
       '/mainland-investment-targets',
       '/money-freedom', '/monitor', '/invest/macro-posture', '/invest/market-radar', '/invest/strategy', '/invest/macro-masters', '/invest/top-masters', '/pulse', '/research-notes', '/earnings',
@@ -83,7 +83,7 @@ describe('INVEST_GROUPS', () => {
 
   it('候选池独立一组；工具与参考放三件工具和 ETF 流派地图；AI Skills 在「相关」', () => {
     expect(paths('candidates')).toEqual(['/candidates', '/radar'])
-    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/macro-masters', '/invest/top-masters', '/invest/ai-token-economics', '/invest/fundamental-quant', '/valuation', '/dcf', '/invest/index-valuation', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
+    expect(paths('tools')).toEqual(['/invest/comprehensive-valuation', '/invest/macro-masters', '/invest/top-masters', '/invest/ai-token-economics', '/invest/fundamental-quant', '/invest/factor-lab', '/valuation', '/dcf', '/invest/index-valuation', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
     expect(INVEST_GROUPS.find(g => g.id === 'third-party')!.links.map(l => [l.path, l.label])).toEqual([['/market-mood', '开盘啦'], ['/ths-mood', '同花顺'], ['/jixing', '今天几星']])
     const related = INVEST_GROUPS.find(g => g.id === 'related')!
     expect(related.links.map(l => [l.path, l.label])).toEqual([['/ai/ai-skills', 'AI 投研 Skills']])

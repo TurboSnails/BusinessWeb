@@ -94,7 +94,7 @@ export default function VerifiedStrategies(): JSX.Element {
 
       <footer className="cs-footer" role="note">
         <p>
-          每项都先写预注册、再计算，并有独立第二实现核对；没通过或结论不确定的研究见 <Link to="/invest/strategy-lab">研究中</Link>，现行规则见 <Link to="/invest/strategy/spec">策略说明书</Link>。
+          每项都先写预注册、再计算，并有独立第二实现核对；没通过或结论不确定的研究见 <Link to="/invest/strategy-lab">研究中</Link>，现行规则见 <Link to="/invest/strategy/spec">策略说明书</Link>；多市场因子挖掘见 <Link to="/invest/factor-lab">因子实验室</Link>。
         </p>
         <p>历史统计，不构成买卖建议。</p>
       </footer>

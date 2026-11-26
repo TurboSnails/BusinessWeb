@@ -25,8 +25,8 @@ describe('SectionChrome', () => {
     renderAt('/valuation')
     const tabs = screen.getByRole('navigation', { name: '同组页面' })
     const links = within(tabs).getAllByRole('link')
-    expect(links.map(a => a.textContent)).toEqual(['综合估值', '宏观大师', '顶级投资人', 'AI 降价与利润', '基本面量化', '估值工作台', 'DCF 计算器', '指数估值', '指数全景', '网格交易', '财富自由计算器', 'ETF 流派地图', 'ETF 清单', '研究笔记', '债基研究报告', '博主观点整理'])
-    expect(links[5].getAttribute('aria-current')).toBe('page')
+    expect(links.map(a => a.textContent)).toEqual(['综合估值', '宏观大师', '顶级投资人', 'AI 降价与利润', '基本面量化', '因子实验室', '估值工作台', 'DCF 计算器', '指数估值', '指数全景', '网格交易', '财富自由计算器', 'ETF 流派地图', 'ETF 清单', '研究笔记', '债基研究报告', '博主观点整理'])
+    expect(links[6].getAttribute('aria-current')).toBe('page')
     expect(links[0].getAttribute('aria-current')).toBeNull()
   })
 
