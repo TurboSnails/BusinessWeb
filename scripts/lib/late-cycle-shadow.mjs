@@ -11,6 +11,7 @@ const FREEZE_ANYWAY_AFTER = 3
 export const RULE = 'G 宏观非防守；H 雷达偏热；C1 Baa−Aaa 半年扩大 ≥ 0.10；C2 VIX 当月均值比前 6 个月均值高 ≥ 10%；'
   + 'C3 标普距 12 个月高点 5% 以内且新高行业占比 ≤ 近 12 个可得值最高的一半；C4 防守九行业近 3 个月跑赢 49 行业等权 ≥ 3 个百分点；'
   + 'C5 标普 6 个月涨幅 ≤ 2%；C5′ 2 个月涨幅 ≤ 0。W1 = G 且 H 且 C1–C5 ≥ 3。'
+  + '另记 L-027 C2：月均价低于含当月 10 个月均线时档位最高到偏防守（只记录）。'
 
 const mean = xs => xs.reduce((s, x) => s + x, 0) / xs.length
 const round = (x, digits = 4) => (x == null ? null : Math.round(x * 10 ** digits) / 10 ** digits)
@@ -33,8 +34,9 @@ export function lastByMonth(rows) { const m = new Map(); for (const [d, v] of ro
  * - close：Map(月 → 月末收盘)；当月为最新收盘
  * - highs：Map(月 → 49 行业中处于 12 个月新高的占比 %)
  * - industry：Map(月 → 49 行业月收益 %)
+ * - avgPrice：Map(月 → 标普日收盘月均价)，用于 L-027 C2 破位封顶的影子读数
  */
-export function readingFor(t, { tier, heat, baa, vix, close, highs, industry }) {
+export function readingFor(t, { tier, heat, baa, vix, close, highs, industry, avgPrice }) {
   const missing = []
   const need = (name, v) => { if (v == null || Number.isNaN(v)) missing.push(name); return v ?? null }
   need('档位', tier); need('冷热', heat)
@@ -72,10 +74,20 @@ export function readingFor(t, { tier, heat, baa, vix, close, highs, industry }) 
   const cnt = ids => ids.filter(id => cracks[id] === true).length
   const counts = { n: cnt(['C1', 'C2', 'C3', 'C4', 'C5']), nA: cnt(['C1', 'C2', 'C3', 'C4']), nB: cnt(['C1', 'C2', 'C3', 'C4', 'C5b']), nD: cnt(['C1', 'C2', 'C4', 'C5']), nE: cnt(['C1', 'C2', 'C4']), nF: cnt(['C1', 'C2', 'C4', 'C5b']) }
   const flags = { W1: Boolean(G && H && counts.n >= 3), W2: Boolean(G && counts.n >= 3), B: Boolean(G && H && counts.nB >= 3) }
+  // L-027 C2「破位封顶」（部分成立，只记录）：当月标普月均价低于含当月 10 个月均线时，档位最高到偏防守
+  const avg = Array.from({ length: 10 }, (_, k) => avgPrice?.get(monthAfter(t, -k)))
+  const trendBelow = avg.every(x => x != null) ? avg[0] < mean(avg) : null
+  const TIERS = ['offense', 'lean-offense', 'neutral', 'lean-defense', 'defense']
+  const trendCap = {
+    below: trendBelow,
+    triggerPrice: avg.slice(1).every(x => x != null) ? round(mean(avg.slice(1)), 2) : null,
+    monthAvg: avg[0] != null ? round(avg[0], 2) : null,
+    c2Tier: tier == null || trendBelow == null ? null : trendBelow ? TIERS[Math.max(TIERS.indexOf(tier), 3)] : tier,
+  }
   return {
     month: t, tier: tier ?? null, heat: heat ?? null, G, H,
     values: { baaChange: round(baaChange, 2), volTrend: round(volTrend), nearHigh: round(nearHigh), highsLatest: c3ok ? round(hs[0], 1) : null, highsMax12: c3ok ? round(Math.max(...hs), 1) : null, defRel3m: round(defRel3m), spx6m: round(spx6m), spx2m: round(spx2m) },
-    cracks, counts, flags, missing,
+    cracks, counts, flags, trendCap, missing,
   }
 }
 

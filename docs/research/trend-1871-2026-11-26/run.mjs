@@ -98,7 +98,8 @@ const cashRaw = months.map(t => CP.get(t) / 1200); const cashFloor = months.map(
 for (const [id, low] of Object.entries(CAND)) {
   const w = res[id].w; const s = {}
   for (const [label, cc] of [['现金=原始 CP', cashRaw], ['现金=max(CP−1.5,0)', cashFloor]]) { const mm = metrics({ ...ctx, c: cc }, w, 0.001); s[label] = { L: mm.L, dE: mm.dE, calmVsM: mm.calmVsM, dCER: mm.dCER, wins: mm.wins, posE: mm.posE } }
-  for (const n of [9, 11, 12]) { const ww = targetWeights(months, maRule(low, n), opts); const mm = metrics(ctx, ww, 0.001); s[`均线 ${n} 个月`] = { L: mm.L, dE: mm.dE, calmVsM: mm.calmVsM, wins: mm.wins, posE: mm.posE, switchesPerYear: mm.switchesPerYear } }
+  // 报告项：均线更长时最早几个信号月数据不足，按底仓处理（主判定不受影响）
+  for (const n of [9, 11, 12]) { const ww = targetWeights(months, s0 => { const bb = belowMA(P, s0, n); return bb == null ? W0 : bb ? low : W0 }, opts); const mm = metrics(ctx, ww, 0.001); s[`均线 ${n} 个月`] = { L: mm.L, dE: mm.dE, calmVsM: mm.calmVsM, wins: mm.wins, posE: mm.posE, switchesPerYear: mm.switchesPerYear } }
   // 跳过停市月的 MA10：用 P 去掉 1914-08..11 后最近 10 个交易月
   const skip = new Set(['1914-08', '1914-09', '1914-10', '1914-11'])
   const maSkip = s0 => { const xs = []; let t = s0; while (xs.length < 10) { if (!skip.has(t)) xs.push(P.get(t)); t = mAfter(t, -1) } return P.get(s0) < mean(xs) ? low : W0 }

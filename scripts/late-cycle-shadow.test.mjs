@@ -48,3 +48,17 @@ test('数据不齐不冻结；超过 3 个月仍缺则带缺项冻结；已冻�
   const tampered = { ...again, rows: again.rows.map(r => (r.month === '2026-11' ? { ...r, tier: 'offense' } : r)) }
   assert.deepEqual(frozenViolations(again, tampered), ['2026-11'])
 })
+
+test('L-027 C2 破位封顶：月均价低于含当月 10 个月均线时最高到偏防守', () => {
+  const avgPrice = new Map(Array.from({ length: 10 }, (_, k) => [monthAfter('2026-11', -k), k === 0 ? 90 : 100]))
+  const r = readingFor('2026-11', { tier: 'offense', heat: 'hot', baa: new Map(), vix: new Map(), close: new Map(), highs: new Map(), industry: new Map(), avgPrice })
+  assert.equal(r.trendCap.below, true)
+  assert.equal(r.trendCap.c2Tier, 'lean-defense')
+  assert.equal(r.trendCap.triggerPrice, 100)
+  const up = new Map([...avgPrice].map(([m, v]) => [m, m === '2026-11' ? 110 : v]))
+  const r2 = readingFor('2026-11', { tier: 'lean-offense', heat: 'hot', baa: new Map(), vix: new Map(), close: new Map(), highs: new Map(), industry: new Map(), avgPrice: up })
+  assert.equal(r2.trendCap.below, false)
+  assert.equal(r2.trendCap.c2Tier, 'lean-offense')
+  const def = readingFor('2026-11', { tier: 'defense', heat: 'hot', baa: new Map(), vix: new Map(), close: new Map(), highs: new Map(), industry: new Map(), avgPrice })
+  assert.equal(def.trendCap.c2Tier, 'defense')
+})

@@ -13,10 +13,12 @@ const combined = read('public/data/combined-strategy.json', { timeline: [] })
 const radar = read('public/data/market-radar.json', { indicators: [] })
 const macro = read('public/data/macro-posture.json', {})
 const today = new Date().toISOString().slice(0, 10)
+const spxRows = read('data-raw/macro-posture-daily/spx-daily.json', { rows: [] }).rows
 const series = {
   baa: new Map((radar.indicators.find(x => x.id === 'baaChange')?.history ?? []).map(([d, v]) => [d.slice(0, 7), v])),
   vix: monthlyMean(read('data-raw/market-radar/VIX.json', [])),
-  close: lastByMonth(read('data-raw/macro-posture-daily/spx-daily.json', { rows: [] }).rows),
+  close: lastByMonth(spxRows),
+  avgPrice: monthlyMean(spxRows),
   highs: new Map(read('data-raw/market-radar/industry-trend.json', []).map(([d, , h]) => [d.slice(0, 7), h])),
   industry: new Map(read('data-raw/market-radar/industry-returns.json', []).map(([d, r]) => [d.slice(0, 7), r])),
 }
@@ -30,4 +32,4 @@ if (broken.length) {
 }
 writeFileSync(OUT, JSON.stringify(next, null, 2) + '\n')
 const c = next.current
-console.log(`牛市后期预警影子读数：冻结 ${next.rows.length} 个月；当月 ${c.month} 预估 裂缝 ${c.counts.n}（缺 ${c.missing.join('、') || '无'}），W1 ${c.flags.W1}`)
+console.log(`牛市后期预警影子读数：冻结 ${next.rows.length} 个月；当月 ${c.month} 预估 裂缝 ${c.counts.n}（缺 ${c.missing.join('、') || '无'}），W1 ${c.flags.W1}；破位封顶 ${c.trendCap.below}（触发线 ${c.trendCap.triggerPrice}）`)
