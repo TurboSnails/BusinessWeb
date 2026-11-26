@@ -247,3 +247,24 @@ uv run python -m factorlab.sources.hk audit
    - 股价 < 1 港元时一个最小价位常常超过 1%，价差成本大。
 6. **东方财富路径**：还没有在真实数据上跑过（被封）。另外，东方财富对港股的「昨收」在派息日是否做了除息调整也未核实，所以港股不管日线来自哪里，一律用新浪复权记录。
 7. **特殊交易日**：上市首日、恢复上市首日、股改复牌首日、退市整理期首日没有涨跌幅限制，靠 no_limit_inferred 识别（判定依据是收盘涨跌幅比当日比例大 0.6% 以上）。如果某天没有限制、涨跌幅又恰好没超过比例，仍会按有限制判定，属于小概率误判。
+
+## 十、点时补充：沪市 / 北交所 ST、行业历史、总股本历史（cn_pit，2026-11-27）
+
+代码：`research-py/factorlab/sources/cn_pit.py`，测试：`research-py/tests/test_sources_cn_pit.py`（离线，【待填】项）。全部来自巨潮资讯数据中心 `webapi.cninfo.com.cn`（深交所旗下），审计参考另取上交所股本结构。没有请求东方财富、腾讯、新浪。
+
+### 1. 数据源
+
+| 用途 | 接口 | 请求数 | 覆盖 |
+|---|---|---|---|
+| 上市状态变动（戴帽 / 摘帽 / 披* / 摘* / 暂停 / 恢复 / 退市整理 / 终止） | `stock/p_stock2117`，不带代码时一次返回全市场 | 1 | 13,145 条，1990 年起，沪深北全部代码（含退市股），沪市 ST 类事件 1,556 条（1998 年起） |
+| 行业归属变动（证监会 2001 / 2012、中上协、申万旧版 / 2021 版、中证、巨潮、新财富等） | `stock/p_stock2110?scode=` | 1 / 只 | **只有当前上市股**，退市股返回空 |
+| 公司股本变动（总股本、流通股、B / H 股、公告日、变动日、变动原因） | `stock/p_stock2215?scode=` | 1 / 只 | **只有当前上市股**，退市股返回空 |
+| 审计参考：上交所当前股本结构 | `query.sse.com.cn/commonQuery.do?sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GPGK_GBJG_C&COMPANY_CODE=` | 1 / 只（抽 150 只） | 当前值 |
+
+请求约定：
+
+- 巨潮接口要带请求头 `Accept-EncKey`，内容是用 AES-CBC 加密当前 Unix 秒后的 Base64。算法取自 akshare 自带的 `cninfo.js`，用 akshare 的依赖 `py_mini_racer` 计算，不需要新增依赖。GET、POST 都能用。
+- 不带 cookie，UA 只发「Mozilla/5.0」。限速 1 次 / 秒，实测每次约 1.1 秒。
+- 缓存放在 `{root}/cn/raw/pit/`：`p_stock2117_all.json`、`industry/{code}.json`、`shares/{code}.json`、`sse_gbjg/{code}.json`。只缓存 `resultcode == 200` 的响应，重跑同一命令就能续传。
+- 试下载 100 只（90 只当前上市 + 10 只退市），共 201 次请求、3.5 分钟。当前上市股两个接口都有数据；10 只退市股两个接口全部为空。所以全量只请求当前上市股。
+- 数据中心的接口目录（`api-cloud-gateway-manage/apiDoc/apiDocTree`）里还有 `p_stock2109` 证券简称变更（含退市股，逐只请求），本次没有用到。增量接口（`load/p_stock2110_inc` 等）的参数没有试出来。

@@ -352,10 +352,18 @@ def _has_st(name) -> bool:
     return isinstance(name, str) and "ST" in name.upper().replace("Ｓ", "S").replace("Ｔ", "T")
 
 
-def st_flags(code: str, dates: pd.Series, changes: pd.DataFrame | None) -> pd.Series:
-    """点时 ST 标记：深市用交易所简称变更记录重建（变更日当日生效）；沪市 / 北交所无免费点时来源 → NA。"""
+def st_flags(code: str, dates: pd.Series, changes: pd.DataFrame | None, st_pit: dict | None = None) -> pd.Series:
+    """点时 ST 标记：深市用交易所简称变更记录重建（变更日当日生效）；
+    沪市 / 北交所用巨潮上市状态变动表（st_pit = cn_pit.load_st_pit() 的结果，变动日生效），没有时为 NA。"""
     dates = pd.to_datetime(pd.Series(dates)).reset_index(drop=True)
-    if changes is None or exchange_of(code) != "SZSE":
+    if exchange_of(code) != "SZSE":
+        if st_pit is None:
+            return pd.Series(pd.NA, index=dates.index, dtype="boolean")
+        from . import cn_pit
+
+        q = pd.DataFrame({"code": code, "date": dates})
+        return cn_pit.st_flags_pit(q, st_pit["intervals"], st_pit["covered"]).reset_index(drop=True)
+    if changes is None:
         return pd.Series(pd.NA, index=dates.index, dtype="boolean")
     ch = changes[changes["code"] == code]
     if ch.empty:
@@ -606,7 +614,7 @@ def adjust_from_factor(raw: pd.DataFrame, F: np.ndarray) -> pd.DataFrame:
 
 
 def load_code(code: str, sec_row: dict | None, changes: pd.DataFrame | None, start: str | None = None,
-              market: str = MARKET) -> pd.DataFrame:
+              market: str = MARKET, st_pit: dict | None = None) -> pd.DataFrame:
     d = http.raw_dir(market, "kline")
     p0, ps = d / "fqt0" / f"{code}.json", d / "sina_hfq" / f"{code}.js"
     if not p0.exists():
@@ -639,7 +647,7 @@ def load_code(code: str, sec_row: dict | None, changes: pd.DataFrame | None, sta
     first = df["date"].iloc[0]
     is_ipo_start = (list_date is not None and first <= list_date + pd.Timedelta(days=15)) or \
                    (list_date is None and first > pd.Timestamp("2005-01-31"))
-    df["is_st"] = st_flags(code, df["date"], changes)
+    df["is_st"] = st_flags(code, df["date"], changes, st_pit)
     lim = compute_limits(df, board, list_date, df["is_st"], trade_offset=0 if is_ipo_start else 1000)
     df = pd.concat([df, lim], axis=1)
     df["float_shares"] = float_shares_estimate(df)
@@ -658,21 +666,25 @@ PRICE_EXTRA = ["open_adj", "adj_factor", "pct_chg", "ref_close", "limit_ratio", 
 
 
 def build_cn(start: str = "2005-01-01", codes: list[str] | None = None, market: str = MARKET) -> dict:
+    from . import cn_pit
+
     sec = security_master()
     changes = szse_name_changes()
+    st_pit = cn_pit.load_st_pit(market)      # 沪市 / 北交所点时 ST（cn_pit build 之后才有）
     if codes is None:
         sel = http.raw_dir(market) / "selected_codes.json"
         codes = json.loads(sel.read_text()) if sel.exists() else sec["code"].tolist()
     rows = sec.set_index("code").to_dict("index")
     frames = []
     for code in codes:
-        df = load_code(code, rows.get(code), changes, start, market)
+        df = load_code(code, rows.get(code), changes, start, market, st_pit)
         if not df.empty:
             frames.append(df)
     prices = pd.concat(frames, ignore_index=True)
     from ..schema import PRICES_COLUMNS
     keep = list(PRICES_COLUMNS) + PRICE_EXTRA
     prices = prices[keep]
+    prices, pit_rep = cn_pit.add_pit_columns(prices, market)   # mcap_total / total_shares / industry（有点时表时）
     with_bars = set(prices["code"].unique())
     sec_out = sec[sec["code"].isin(set(codes))].copy()
     # 证券表补：东方财富首个 K 线日期作为 list_date 的后备
@@ -712,8 +724,12 @@ def build_cn(start: str = "2005-01-01", codes: list[str] | None = None, market: 
         "涨跌停：基准价 = 昨收（除权日为除权参考价），比例按板块 × 日期（主板 10%、ST 5%（2026-07-06 起主板 ST 10%）、"
         "创业板 2020-08-24 起 20%、科创板 20%、北交所 30%）；上市首日不判，注册制新股前 5 日不设涨跌幅；"
         "收盘涨跌幅超过当日比例 0.6% 以上的日子视为当日无涨跌幅（股改 / 恢复上市 / 退市整理首日等），不判（no_limit_inferred）。"
-        "ST 只有深市能点时重建（交易所简称变更记录，is_st 列），沪市 / 北交所 ST 未知（NA）按非 ST 处理 → 沪市 ST 股 5% 涨跌停会漏判。",
+        "ST：深市按深交所简称变更记录点时重建（is_st 列）；"
+        + ("沪市 / 北交所按巨潮上市状态变动表点时重建（见 [cn_pit] 一行）。" if st_pit is not None else
+           "沪市 / 北交所 ST 未知（NA）按非 ST 处理 → 沪市 ST 股 5% 涨跌停会漏判。"),
     ]
+    if st_pit is not None or pit_rep:
+        notes.append(cn_pit.manifest_note(pit_rep))
     m = Manifest(market=market, source=SOURCE, survivorship=surv,
                  downloaded_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
                  coverage=(str(prices["date"].min().date()), str(prices["date"].max().date())),
