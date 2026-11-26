@@ -139,6 +139,11 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 | 费城半导体相对 200 日均线 | Yahoo ^SOX 日线（缓存 `sox.json`） | 同上 | 1994 | 自动 |
 | 科技股占美股市值 | Ken French 49 行业：Hardw + Softw + Chips 的公司数 × 平均规模 ÷ 全部（缓存 `industry-share.json`） | %，第 t 行为 t−1 月末值 | 1926 | 自动（月度） |
 | 电子设备（含半导体）占美股市值 | 同上，Chips 行业（含通信设备、防务电子，比半导体宽） | % | 1926 | 自动（月度） |
+| 能源占美股市值 | Ken French 49 行业：Oil + Coal（同上缓存 `industry-share.json` 第 4 列） | %，第 t 行为 t−1 月末值 | 1926 | 自动（月度） |
+| 金融占美股市值 | Ken French 49 行业：Banks + Insur + RlEst + Fin（第 5 列） | 同上 | 1926 | 自动（月度） |
+| 罗素 2000 相对 200 日均线 | Yahoo ^RUT 日线（缓存 `rut.json`） | 收盘 ÷ 200 日均值 − 1 | 1987 | 自动 |
+| 恒生指数相对 200 日均线 | Yahoo ^HSI 日线（缓存 `hsi.json`，按香港交易日） | 同上 | 1986 | 自动 |
+| 上证综指相对 200 日均线 | Yahoo 000001.SS 日线（缓存 `ssec.json`，按上海交易日；Yahoo 只有 1997 年以后） | 同上 | 1997 | 自动 |
 
 ## 已查过、补不了的缺口（2026-11-26）
 

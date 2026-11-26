@@ -13,6 +13,7 @@ import hedge from '../features/strategy-lab/data/option-hedge.json'
 import deftrend from '../features/strategy-lab/data/defensive-trend.json'
 import trend14 from '../features/strategy-lab/data/trend-14.json'
 import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
+import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -69,11 +70,11 @@ describe('研究中页签', () => {
     expect(within(table).getAllByRole('row')).toHaveLength(5)
   })
 
-  it('页签：五个分类带研究数；默认总览列出全部研究卡片和有效策略初版', () => {
+  it('页签：六个分类带研究数；默认总览列出全部研究卡片和有效策略初版', () => {
     renderPage()
     const tabs = screen.getAllByRole('tab').map(t => t.textContent)
     const count = (tab: string): number => LAB_STUDIES.filter(x => x.tab === tab).length
-    expect(tabs).toEqual(['总览', `规则可信度 · ${count('audit')}`, `牛市后期 · ${count('late')}`, `防下跌 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `A 股 ETF · ${count('cn')}`])
+    expect(tabs).toEqual(['总览', `规则可信度 · ${count('audit')}`, `牛市后期 · ${count('late')}`, `防下跌 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `轮动 · ${count('rotate')}`, `A 股 ETF · ${count('cn')}`])
     expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
     expect(within(screen.getByTestId('lab-cards')).getAllByRole('button')).toHaveLength(LAB_STUDIES.length)
     expect(screen.getByTestId('lab-v01')).toBeTruthy()
@@ -201,6 +202,23 @@ describe('研究中页签', () => {
     expect(screen.getByTestId('lab-heat-table').textContent).toContain(heatLiq.heat.N1.verdict)
     expect(within(screen.getByTestId('lab-liquidity-table')).getAllByRole('row')).toHaveLength(3)
     expect(screen.getByTestId('lab-liquidity-table').textContent).toContain(heatLiq.liquidity.Q1.verdict)
+  })
+
+  it('跨国动量轮动：两个候选与对只持有美国的比较，判定来自研究结果', () => {
+    renderPage(at('rotate'))
+    const table = screen.getByTestId('lab-momentum-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(3)
+    expect(table.textContent).toContain(rotHeat.momentum.C1.verdict)
+    expect(table.textContent).toContain(rotHeat.momentum.C2.verdict)
+    expect(within(screen.getByTestId('lab-momentum-vsus')).getAllByRole('row')).toHaveLength(5)
+  })
+
+  it('更多过热读数：五个指标逐行，49 行业面板判定来自研究结果', () => {
+    renderPage(at('late'))
+    const table = screen.getByTestId('lab-heat-more-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(6)
+    expect(table.textContent).toContain(rotHeat.heat.A1.verdict)
+    expect(screen.getByTestId('lab-heat-more-p49').textContent).toContain(rotHeat.p49.verdict)
   })
 
   it('百分比用「−」号', () => {

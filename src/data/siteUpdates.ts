@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-country-rotation',
+    date: '2026-11-26',
+    title: '在美国和海外之间轮动有没有用？雷达再加五项读数',
+    description: '检验了散户最常见的低频量化做法之一「跨国动量」：每月看过去一年谁涨得多就持有谁。美国 / 海外二选一，1978–2025 年和各持一半打平；在 14 个发达市场里挑最强的 5 个，2001 年以前有效、之后反而更差；2014 年以后一直只持有美国最好。方案不变，股票部分继续用宽基、不轮动，结果在「研究中」新的「轮动」页签。另外按建议把罗素 2000、恒生、上证相对 200 日均线，以及能源、金融占美股市值加进市场雷达：先做了预注册检验，五项和全部 49 个行业都没有预测力，所以只展示、不计分。',
+    href: '/invest/strategy-lab?tab=rotate#lab-country-momentum',
+  },
+  {
     id: 'radar-tech-heat-liquidity',
     date: '2026-11-26',
     title: '市场雷达加了纳指、半导体四项读数；流动性检验结果',

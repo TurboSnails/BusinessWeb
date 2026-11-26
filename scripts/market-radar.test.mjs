@@ -711,7 +711,7 @@ test('季度序列：FRED 季初标注落到季末；月度序列落到月末', 
   assert.equal(current.hfEquityLs.at(-1).observedOn, '2026-06-30')
 })
 
-test('60 项指标 source 都是可打开的 https 网址', () => {
+test('65 项指标 source 都是可打开的 https 网址', () => {
   const date = '2026-11-24'
   const indicators = buildIndicators({}, {
     netLiquidity: 'https://fred.stlouisfed.org/series/WALCL',
@@ -774,8 +774,13 @@ test('60 项指标 source 都是可打开的 https 网址', () => {
     soxGap: 'https://finance.yahoo.com/quote/%5ESOX/history/',
     techShare: 'https://mba.tuck.dartmouth.edu/x',
     chipsShare: 'https://mba.tuck.dartmouth.edu/x',
+    energyShare: 'https://mba.tuck.dartmouth.edu/x',
+    finShare: 'https://mba.tuck.dartmouth.edu/x',
+    russellGap: 'https://finance.yahoo.com/quote/%5ERUT/history/',
+    hsiGap: 'https://finance.yahoo.com/quote/%5EHSI/history/',
+    sseGap: 'https://finance.yahoo.com/quote/000001.SS/history/',
   }, date)
-  assert.equal(indicators.length, 60)
+  assert.equal(indicators.length, 65)
   for (const row of indicators) {
     assert.match(row.source, /^https:\/\/\S+$/, row.id)
     assert.equal(row.source.includes('÷'), false, row.id)
@@ -879,12 +884,17 @@ test('VIX 变化趋势：近 21 日均值相对之前 126 日均值', async () =
 
 test('Ken French 行业市值占比：公司数 × 平均规模，第 t 行记为 t−1 月末', async () => {
   const { parseFrenchShares } = await import('./lib/market-radar/sources.mjs')
-  const names = Array.from({ length: 49 }, (_, i) => ['Hardw', 'Softw', 'Chips'][i] ?? `I${i}`)
+  const named = ['Hardw', 'Softw', 'Chips', 'Oil', 'Coal', 'Banks', 'Insur', 'RlEst', 'Fin']
+  const names = Array.from({ length: 49 }, (_, i) => named[i] ?? `I${i}`)
   const row = (ym, vals) => [ym, ...vals].join(',')
-  const firms = Array.from({ length: 49 }, (_, i) => (i < 3 ? 1 : i === 3 ? 7 : 0))
-  const sizes = Array.from({ length: 49 }, (_, i) => (i < 3 ? 10 : i === 3 ? 10 : -99.99))
+  // 科技三行业各 1 家 × 10；Oil 1 家 × 5、Coal 1 家 × 5；金融四行业各 1 家 × 2.5；另一行业 4 家 × 10；其余没有公司
+  const firms = Array.from({ length: 49 }, (_, i) => (i < 9 ? 1 : i === 9 ? 4 : 0))
+  const sizes = Array.from({ length: 49 }, (_, i) => (i < 3 ? 10 : i < 5 ? 5 : i < 9 ? 2.5 : i === 9 ? 10 : -99.99))
   const csv = ['Number of Firms in Portfolios', ',' + names.join(','), row('202609', firms), '',
     'Average Firm Size', ',' + names.join(','), row('202609', sizes)].join('\n')
-  // 科技 3 家 × 10 = 30，总市值 100：30%；Chips 10%
-  assert.deepEqual(parseFrenchShares(csv), [['2026-08-31', 30, 10]])
+  // 总市值 30 + 10 + 10 + 40 = 90
+  const pct = v => Math.round(v / 90 * 100 * 1e4) / 1e4
+  const [[date, ...shares]] = parseFrenchShares(csv)
+  assert.equal(date, '2026-08-31')
+  shares.forEach((v, i) => assert.ok(Math.abs(v - pct([30, 10, 10, 10][i])) < 1e-3, `第 ${i} 列 ${v}`))
 })

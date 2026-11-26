@@ -15,6 +15,7 @@ import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
 import OptionHedgeStudy from '../features/strategy-lab/OptionHedgeStudy'
 import OverfitAuditStudy from '../features/strategy-lab/OverfitAuditStudy'
 import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
+import { CountryMomentumStudy, HeatMoreStudy } from '../features/strategy-lab/RotationHeatStudies'
 import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
@@ -28,7 +29,7 @@ import '../styles/strategy-lab-tabs.css'
 export const STRATEGY_LAB_LEAD =
   '还没写进正式规则的研究放在这里：结论不确定、没通过检验、或只在影子跟踪的内容。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
 
-export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'cn'
+export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'cn'
 type Status = 'pass' | 'partial' | 'fail' | 'note'
 
 export interface LabStudy {
@@ -45,6 +46,7 @@ export interface LabStudy {
 /** 全部研究，按页签分组；同一页签内的顺序就是页面上的顺序 */
 export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-overfit-audit', tab: 'audit', title: '现行规则的过拟合审计', date: '2026-11-26', status: 'note', statusText: '审计', summary: '算上试过的 86 种写法，不能排除优势来自挑选；参数过拟合风险高；整类宏观写法仍有显著好于恒定仓位的。规则不变，预期打折。', Component: OverfitAuditStudy },
+  { id: 'lab-heat-more', tab: 'late', title: '更多过热读数：小盘、港股、A 股、能源、金融与 49 个行业', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '罗素 2000、恒生、上证远高于均线，能源、金融占比偏高，之后一年都不更差；49 个行业一起看也不显著。作为展示指标加入雷达。', Component: HeatMoreStudy },
   { id: 'lab-nasdaq-semis', tab: 'late', title: '纳斯达克与半导体的超配 / 过热读数', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '纳指、半导体过热或拥挤之后一年并没有更差；四种口径都没有预测力，作为展示指标加入雷达。', Component: NasdaqSemisHeatStudy },
   { id: 'lab-liquidity', tab: 'late', title: '流动性能不能加进宏观攻守', date: '2026-11-26', status: 'fail', statusText: '不采用', summary: '政策流动性已在规则里；再加实际 M2 或美联储净流动性，规则反而变差。', Component: LiquidityStudy },
   { id: 'lab-late-warning', tab: 'late', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
@@ -60,11 +62,12 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-vol-confirm', tab: 'vol', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
   { id: 'lab-multi-asset', tab: 'vol', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
+  { id: 'lab-country-momentum', tab: 'rotate', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
   { id: 'lab-etf-volume', tab: 'cn', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
-const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', cn: 'A 股 ETF' }
-const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'cn']
+const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', cn: 'A 股 ETF' }
+const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'cn']
 const isTab = (v: string | null): v is LabTab => v != null && (TAB_ORDER as string[]).includes(v)
 const studyTab = (id: string): LabTab | null => (id === 'lab-v01' ? 'overview' : LAB_STUDIES.find(s => s.id === id)?.tab ?? null)
 

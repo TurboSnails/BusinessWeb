@@ -14,7 +14,7 @@ import type { StrategySpec } from '../types'
 export const SPEC_V1_2_5: StrategySpec = {
   version: '1.2.5',
   date: '2026-11-26',
-  status: 'current',
+  status: 'archived',
   title: '综合策略说明书',
   summary: '美股仓位只按宏观攻守的五档定；市场雷达的冷热只决定这个阶段具体怎么做，不改变仓位。',
   components: [
