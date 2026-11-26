@@ -46,8 +46,24 @@ def _f(x, pct=False, nd=3):
     return f"{x * 100:.{max(nd - 2, 1)}f}%" if pct else f"{x:.{nd}f}"
 
 
+EXEC_LABEL = {"open": "次日开盘成交", "close": "当日收盘成交"}
+
+
+def _pct_label(q) -> str:
+    q = float(q) * 100
+    return f"{q:.0f}%" if abs(q - round(q)) < 1e-9 else f"{q:.1f}%"
+
+
 def to_markdown(res: EvalResult) -> str:
+    """中文摘要。措辞按本次口径生成（成交时点、前百分之几、是否用成交额代理市值），不写死。"""
     s, r = res.summary, res.record
+    cfg = r.get("config") or {}
+    n_q = int(cfg.get("n_quantiles") or 5)
+    grp = _pct_label(1 / n_q)                       # 分组口径：前 1/n_q
+    top_bt = _pct_label(cfg.get("top_q", 0.2))      # 回测口径：前 top_q
+    execution = EXEC_LABEL.get(cfg.get("execution"), str(cfg.get("execution")))
+    wa = r.get("weighting_applied") or {}
+    cap_word = "市值加权" if not wa.get("adv_proxy") else f"市值加权（{wa['adv_proxy']} 期缺市值，用成交额中位数代理）"
     lines = [
         f"## 因子 {r.get('factor')}（v{r.get('version')}）· {r.get('market')} · {ZONE_LABEL.get(r.get('mode'), r.get('mode'))}",
         "",
@@ -59,13 +75,14 @@ def to_markdown(res: EvalResult) -> str:
         "| 指标 | 值 |", "|---|---|",
         f"| RankIC 均值 / IR / NW t | {_f(s.get('rank_ic_mean'))} / {_f(s.get('rank_ic_ir'), nd=2)} / {_f(s.get('rank_ic_t_nw'), nd=2)} |",
         f"| IC 均值 / IR | {_f(s.get('ic_mean'))} / {_f(s.get('ic_ir'), nd=2)} |",
-        f"| 前 20% 市值加权 − 股票池市值加权（月均，主口径，未扣成本） | {_f(s.get('tmu_cap_mean'), True, 4)}（NW t {_f(s.get('tmu_cap_t_nw'), nd=2)}） |",
-        f"| 前 20% 等权 − 股票池等权（月均） | {_f(s.get('tmu_ew_mean'), True, 4)} |",
-        f"| 多空（前 − 后，等权，只报告） | {_f(s.get('tmb_ew_mean'), True, 4)} |",
-        f"| 前 20% 名单月换手 | {_f(s.get('top_turnover_mean'), True)} |",
+        f"| 前 {grp} {cap_word} − 全股票池同加权（每期均值，主口径，{execution}，未扣成本） | {_f(s.get('tmu_cap_mean'), True, 4)}（NW t {_f(s.get('tmu_cap_t_nw'), nd=2)}） |",
+        f"| 前 {grp} 等权 − 全股票池等权（每期均值） | {_f(s.get('tmu_ew_mean'), True, 4)} |",
+        f"| 多空（前 {grp} − 后 {grp}，等权，只报告） | {_f(s.get('tmb_ew_mean'), True, 4)} |",
+        f"| 前 {grp} 名单每期换手 | {_f(s.get('top_turnover_mean'), True)} |",
     ]
     if res.backtests:
-        lines += ["", "**回测（扣成本，次日开盘成交）**", "", "| 加权 | 年化 | 夏普 | 最大回撤 | 对股票池年化超额 | 超额 IR | 单次换手 |",
+        lines += ["", f"**回测（前 {top_bt}，扣成本，{execution}）**", "",
+                  "| 加权 | 年化 | 夏普 | 最大回撤 | 对股票池年化超额 | 超额 IR | 单次换手 |",
                   "|---|---|---|---|---|---|---|"]
         for w, b in res.backtests.items():
             t = b["stats"]["top"]
@@ -77,7 +94,7 @@ def to_markdown(res: EvalResult) -> str:
             lines.append(f"\n容量：按 {cap.get('aum'):,.0f} 资金，持仓 / 日均成交额 中位 {_f(cap.get('median'), True)}，"
                          f"95% 分位 {_f(cap.get('p95'), True)}。")
     if res.tiers:
-        lines += ["", "**市值三档**", "", "| 档 | RankIC | 前 20% 等权超额（月） |", "|---|---|---|"]
+        lines += ["", "**市值三档**", "", f"| 档 | RankIC | 前 {grp} 等权超额（每期） |", "|---|---|---|"]
         for k, lab in (("small", "小"), ("mid", "中"), ("large", "大")):
             t = res.tiers.get(k, {})
             lines.append(f"| {lab} | {_f(t.get('rank_ic_mean'))} | {_f(t.get('tmu_ew_mean'), True, 4)} |")

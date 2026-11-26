@@ -9,26 +9,41 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from .universe import bool_values
+
 
 def apply_mask(df: pd.DataFrame, mask: pd.DataFrame | None) -> pd.DataFrame:
     """股票池外的置空。"""
     if mask is None:
         return df
-    return df.where(mask.reindex(index=df.index, columns=df.columns).astype("boolean").fillna(False).astype(bool))
+    return df.where(bool_values(mask.reindex(index=df.index, columns=df.columns)))
 
 
 def winsorize_mad(df: pd.DataFrame, n: float = 5.0, consistent: bool = False) -> pd.DataFrame:
-    """截到 中位数 ± n × MAD。MAD = median(|x - median|)；consistent=True 时乘 1.4826（对正态等于 σ）。"""
+    """截到 中位数 ± n × MAD。MAD = median(|x - median|)；consistent=True 时乘 1.4826（对正态等于 σ）。
+
+    MAD = 0（过半数取同一个值，例如离散 / 稀疏因子）时不能按 MAD 截，否则整行被压成常数、标准化后全空：
+    这种日子改用标准差折算的宽度（n × 0.6745σ，对正态与 n × MAD 相当；consistent=True 时 n × σ）；
+    标准差也为 0 = 整行真的是常数，不截。"""
     med = df.median(axis=1)
     mad = df.sub(med, axis=0).abs().median(axis=1)
+    sd = df.std(axis=1)
     if consistent:
         mad = mad * 1.4826
-    return df.clip(lower=med - n * mad, upper=med + n * mad, axis=0)
+        alt = sd
+    else:
+        alt = sd * 0.6745
+    width = mad.where(mad > 0, alt)
+    width = width.where(width > 0)          # 真常数行（或只有一个值）：不截
+    lower = (med - n * width).fillna(-np.inf)
+    upper = (med + n * width).fillna(np.inf)
+    return df.clip(lower=lower, upper=upper, axis=0)
 
 
 def zscore(df: pd.DataFrame) -> pd.DataFrame:
-    """减截面均值、除截面标准差（ddof=1）；标准差为 0 的日子整行置空。"""
-    sd = df.std(axis=1).replace(0, np.nan)
+    """减截面均值、除截面标准差（ddof=1）；只有整行真的是常数（标准差为 0）或不足两个值时整行置空。"""
+    sd = df.std(axis=1)
+    sd = sd.where(sd > 0)
     return df.sub(df.mean(axis=1), axis=0).div(sd, axis=0)
 
 

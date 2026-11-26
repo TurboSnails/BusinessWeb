@@ -5,7 +5,7 @@
 - https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json   某公司全部 XBRL 事实
 - https://data.sec.gov/submissions/CIK##########.json        申报列表（含 acceptanceDateTime，可选）
 
-User-Agent **只**从环境变量 SEC_USER_AGENT 读取；未设置时本模块的每个联网函数都抛 SecUserAgentMissing，
+User-Agent 只从环境变量 SEC_USER_AGENT 或本机私有文件 research-py/.secrets/sec_user_agent（不进 git，由用户自己写入）读取；未设置时本模块的每个联网函数都抛 SecUserAgentMissing，
 命令行打印设置方法。代码里不写任何个人姓名或邮箱。
 
 点时规则（docs/research/factorlab/DESIGN.md 第三节）：
@@ -74,8 +74,14 @@ class SecUserAgentMissing(RuntimeError):
     pass
 
 
+# 本机私有文件（.gitignore 已排除 .secrets/）：环境变量未设置时从这里读，内容只有一行 User-Agent，由用户自己写入
+UA_FILE = Path(__file__).resolve().parents[2] / ".secrets" / "sec_user_agent"
+
+
 def user_agent() -> str:
     ua = os.environ.get(ENV_UA, "").strip()
+    if not ua and UA_FILE.exists():
+        ua = UA_FILE.read_text(encoding="utf-8").strip()
     if not ua:
         raise SecUserAgentMissing(USAGE)
     return ua

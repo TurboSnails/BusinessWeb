@@ -97,11 +97,12 @@ def read_securities(market: str) -> pd.DataFrame:
     return pd.read_parquet(market_dir(market) / "securities.parquet")
 
 
+# 与 guard.DEFAULT_LOCKBOX 是同一个文件：包内 lockbox.json，不受任何环境变量或测试钩子影响。
 LOCKBOX_FILE = Path(__file__).resolve().parent / "lockbox.json"
 
 
 def lockbox_start(market: str) -> pd.Timestamp | None:
-    """锁箱起点（lockbox.json）；该市场未配置锁箱时为 None。"""
+    """锁箱起点（包内 lockbox.json）；该市场未配置锁箱时为 None。"""
     try:
         cfg = json.loads(LOCKBOX_FILE.read_text(encoding="utf-8"))["markets"]
     except FileNotFoundError:

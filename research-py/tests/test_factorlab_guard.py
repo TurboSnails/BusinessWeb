@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
 from datetime import datetime, timezone
 
 import numpy as np
@@ -11,38 +10,43 @@ import pandas as pd
 import pytest
 from statsmodels.stats.multitest import multipletests
 
+from factorlab import guard
 from factorlab.data import guard_panel
-from factorlab.evaluate import evaluate_factor
+from factorlab.evaluate import candidate_spec, evaluate_factor
 from factorlab.guard import (Lockbox, TrialLedger, benjamini_hochberg, deflated_sharpe, effective_trials,
                              expected_max_sharpe, holm, holm_batch, pbo_cscv, probabilistic_sharpe, unseal)
-from factorlab_synth import market, tmp_ledger  # noqa: F401
+from factorlab_synth import make_prereg_repo, market, tmp_ledger, use_lockbox  # noqa: F401
+
+NAMES = "size mom_12_1 vol_60d rev_1m turnover_20d max_ret_21d"
 
 
 @pytest.fixture
-def lockbox_file(tmp_path, monkeypatch):
+def lockbox_file(tmp_path, tmp_ledger):
     p = tmp_path / "lockbox.json"
     p.write_text(json.dumps({"embargo_months": 1, "budget_candidates": 3, "explore_frac": 0.7,
                              "markets": {"cn": {"start": "2016-01-01", "end": "2017-12-31"}}}))
-    monkeypatch.setenv("FACTORLAB_LOCKBOX", str(p))
+    use_lockbox(p)
     return p
 
 
 @pytest.fixture
 def repo(tmp_path):
     d = tmp_path / "repo"
-    d.mkdir()
-    g = ["git", "-c", "user.email=t@example.com", "-c", "user.name=t"]
-    subprocess.run(["git", "init", "-q"], cwd=d, check=True)
-    hashes = []
-    for i in range(4):
-        subprocess.run([*g, "commit", "-q", "--allow-empty", "-m", f"prereg {i}"], cwd=d, check=True)
-        hashes.append(subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=d, capture_output=True,
-                                     text=True, check=True).stdout.strip())
+    hashes = make_prereg_repo(d, [(f"docs/research/factorlab/PREREG-{i}.md", f"# 预注册 {i}\n候选：{NAMES}\n")
+                                  for i in range(4)])
     return d, hashes
 
 
+def at(monkeypatch, *ymd):
+    monkeypatch.setattr(guard, "_now", lambda: datetime(*ymd, tzinfo=timezone.utc))
+
+
+def cands(*names, **kw):
+    return [candidate_spec("cn", n, **kw) for n in names]
+
+
 def test_default_lockbox_config():
-    lb = Lockbox(path=None)
+    lb = Lockbox()
     for m in ("cn", "hk", "us", "us_kf"):
         assert lb.interval(m) == (pd.Timestamp("2023-11-01"), pd.Timestamp("2026-11-30"))
     assert lb.budget == 24 and lb.explore_frac == 0.7
@@ -66,24 +70,28 @@ def test_lockbox_truncates_panel_and_forward_returns(tmp_ledger, lockbox_file):
         evaluate_factor("cn", "size", panel=panel, securities=sec, mode="forward")
 
 
-def test_unseal_batch_once_logged_and_confirm(tmp_ledger, lockbox_file, repo):
+def test_unseal_batch_once_logged_and_confirm(tmp_ledger, lockbox_file, repo, monkeypatch):
     d, h = repo
     panel, sec = market()
     led = TrialLedger()
-    q1 = datetime(2027, 2, 1, tzinfo=timezone.utc)
+    at(monkeypatch, 2027, 2, 1)
     with pytest.raises(ValueError):
-        unseal("cn", "B1", ["deadbeef"], ["size"], repo=d, now=q1)          # 提交不存在
-    tok = unseal("cn", "B1", [h[0]], ["size", "mom_12_1"], repo=d, now=q1)
+        unseal("cn", "B1", ["deadbeef"], cands("size"), repo=d)          # 提交不存在
+    tok = unseal("cn", "B1", [h[0]], cands("size", "mom_12_1"), repo=d)
+    at(monkeypatch, 2027, 5, 1)
     with pytest.raises(PermissionError):
-        unseal("cn", "B1", [h[1]], ["vol_60d"], repo=d, now=datetime(2027, 5, 1, tzinfo=timezone.utc))  # 批次重复
+        unseal("cn", "B1", [h[1]], cands("vol_60d"), repo=d)              # 批次重复
     with pytest.raises(PermissionError):
-        unseal("cn", "B2", [h[0]], ["vol_60d"], repo=d, now=datetime(2027, 5, 1, tzinfo=timezone.utc))  # 预注册重复
+        unseal("cn", "B2", [h[0]], cands("vol_60d"), repo=d)              # 预注册重复
+    at(monkeypatch, 2027, 3, 1)
     with pytest.raises(PermissionError):
-        unseal("cn", "B2", [h[1]], ["vol_60d"], repo=d, now=datetime(2027, 3, 1, tzinfo=timezone.utc))  # 同一季度
+        unseal("cn", "B2", [h[1]], cands("vol_60d"), repo=d)              # 同一季度
+    at(monkeypatch, 2027, 5, 1)
     with pytest.raises(PermissionError):
-        unseal("cn", "B2", [h[1]], ["a", "b"], repo=d, now=datetime(2027, 5, 1, tzinfo=timezone.utc))   # 超预算（3）
+        unseal("cn", "B2", [h[1]], cands("rev_1m", "turnover_20d"), repo=d)   # 超预算（3）
     rows = json.loads((tmp_ledger / "unseals.json").read_text())
     assert len(rows) == 1 and rows[0]["batch_id"] == "B1" and rows[0]["quarter"] == "2027Q1"
+    assert rows[0]["candidates"][0]["factor"] == "size" and rows[0]["candidates"][0]["config_hash"]
     assert [r["event"] for r in led.read("cn")] == ["unseal"]
 
     res = evaluate_factor("cn", "size", panel=panel, securities=sec, mode="confirm", token=tok)
@@ -98,12 +106,13 @@ def test_unseal_batch_once_logged_and_confirm(tmp_ledger, lockbox_file, repo):
     adj = holm_batch("cn", "B1")
     assert set(adj) == {"size", "mom_12_1"} and all(0 <= v <= 1 for v in adj.values())
     # 第三个候选用完预算后锁箱作废
-    unseal("cn", "B2", [h[1]], ["vol_60d"], repo=d, now=datetime(2027, 5, 1, tzinfo=timezone.utc))
+    unseal("cn", "B2", [h[1]], cands("vol_60d"), repo=d)
     assert Lockbox().is_void("cn")
+    at(monkeypatch, 2027, 8, 1)
     with pytest.raises(PermissionError):
-        unseal("cn", "B3", [h[2]], ["x"], repo=d, now=datetime(2027, 8, 1, tzinfo=timezone.utc))
+        unseal("cn", "B3", [h[2]], cands("max_ret_21d"), repo=d)
     assert sum(r["event"] == "unseal" for r in led.read("cn")) == 2
-    # 前推区：给出存在的预注册才行
+    # 前推区：给出存在、含预注册文件的提交才行
     res_f = evaluate_factor("cn", "size", panel=panel, securities=sec, mode="forward", prereg=h[3], repo=d,
                             run_backtest=False)
     assert pd.Timestamp(res_f.summary["first_period"]) >= pd.Timestamp("2017-12-24")

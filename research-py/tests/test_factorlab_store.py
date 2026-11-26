@@ -13,7 +13,8 @@ from factorlab.cli import main as cli_main
 from factorlab.data import load_market, snapshot_hash
 from factorlab.guard import TrialLedger
 from factorlab.schema import Manifest
-from factorlab_synth import market, tmp_ledger, to_long  # noqa: F401
+from factorlab.guard import split_codes
+from factorlab_synth import make_prereg_repo, market, tmp_ledger, to_long, use_lockbox  # noqa: F401
 
 
 @pytest.fixture
@@ -53,23 +54,31 @@ def test_store_round_trip(data_root):
     assert h and len(h) == 16
 
 
-def test_guarded_loader_truncates_and_adds_open_adj(data_root, tmp_path, monkeypatch):
+def test_guarded_loader_truncates_and_adds_open_adj(data_root, tmp_path):
     lb = tmp_path / "lockbox.json"
     lb.write_text(json.dumps({"markets": {"cn": {"start": "2016-01-01", "end": "2017-12-31"}}}))
-    monkeypatch.setenv("FACTORLAB_LOCKBOX", str(lb))
+    use_lockbox(lb)
     panel, sec = market()
-    _write(panel, sec, list(panel["close_adj"].columns[:40]))
+    codes = list(panel["close_adj"].columns[:40])
+    _write(panel, sec, codes)
     md = load_market("cn", ["close_adj", "open_adj", "mcap_float"])
     assert md.panel["close_adj"].index.max() < pd.Timestamp("2016-01-01")
     assert md.visible_end == pd.Timestamp("2016-01-01")
+    assert set(md.panel["close_adj"].columns) == set(split_codes(codes, "explore"))   # 数据层只给 70%
     oa = md.panel["open_adj"]
     expected = md.panel["open"] * md.panel["close_adj"] / md.panel["close"]
     pd.testing.assert_frame_equal(oa, expected)
     assert md.securities is not None and md.snapshot
     with pytest.raises(PermissionError):
         load_market("cn", ["close_adj"], mode="confirm")
-    full = load_market("cn", ["close_adj"], mode="forward")
-    assert full.panel["close_adj"].index.max() > pd.Timestamp("2018-01-01")
+    with pytest.raises(PermissionError):
+        load_market("cn", ["close_adj"], mode="forward")          # 没有预注册
+    d = tmp_path / "repo"
+    h = make_prereg_repo(d, [("docs/research/PREREG-1.md", "size")])
+    fw = load_market("cn", ["close_adj"], mode="forward", prereg=h[0], repo=d)
+    idx = fw.panel["close_adj"].index
+    assert idx.max() > pd.Timestamp("2018-01-01")
+    assert not ((idx >= pd.Timestamp("2016-01-01")) & (idx <= pd.Timestamp("2017-12-31"))).any()  # 锁箱区间被删
 
 
 def test_cli_eval_and_ledger_from_store(data_root, tmp_ledger, capsys, tmp_path, monkeypatch):

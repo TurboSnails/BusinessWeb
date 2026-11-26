@@ -4,7 +4,12 @@
     python -m factorlab.cli eval --market cn --factor mom_12_1 [--mode explore|validate|confirm --batch B|forward --prereg H]
                                  [--start --end] [--json out.json]
     python -m factorlab.cli ledger --market cn
-    python -m factorlab.cli unseal --market cn --batch 2027Q1-cn --prereg <hash> [--prereg ...] --candidate mom_12_1 [...]
+    python -m factorlab.cli unseal --market cn --batch 2027Q1-cn --prereg <提交哈希> [--prereg ...] --candidate mom_12_1 [...]
+                                   [--execution open|close]
+
+unseal 的候选按默认口径（或 --execution）冻结为（因子名、源码哈希、参数哈希、配置哈希）；之后 eval --mode confirm
+必须用完全相同的口径，每个候选只能确认一次。预注册必须是提交哈希（不接受 HEAD 等符号引用），且该提交里有
+docs/research/ 下文件名含 PREREG、列出全部候选名的文件。非默认口径请在 Python 里用 evaluate.candidate_spec 生成候选。
 """
 
 from __future__ import annotations
@@ -41,6 +46,7 @@ def main(argv=None) -> int:
     u.add_argument("--batch", required=True)
     u.add_argument("--prereg", action="append", required=True)
     u.add_argument("--candidate", action="append", required=True)
+    u.add_argument("--execution", default="open", choices=["open", "close"])
     u.add_argument("--note", default="")
     a = ap.parse_args(argv)
 
@@ -74,8 +80,11 @@ def main(argv=None) -> int:
               f"解封批次 {[u['batch_id'] for u in lb.unseals(a.market)]}")
         return 0
     if a.cmd == "unseal":
-        tok = unseal(a.market, a.batch, a.prereg, a.candidate, note=a.note)
-        print(f"已解封 {tok.market} 批次 {tok.batch_id}：候选 {list(tok.candidates)}；记录在 unseals.json 与登记簿")
+        from .evaluate import candidate_spec
+
+        cands = [candidate_spec(a.market, c, execution=a.execution) for c in a.candidate]
+        tok = unseal(a.market, a.batch, a.prereg, cands, note=a.note)
+        print(f"已解封 {tok.market} 批次 {tok.batch_id}：候选 {list(tok.names)}；记录在 unseals.json 与登记簿")
         return 0
     return 1
 

@@ -97,7 +97,45 @@ def to_long(panel: dict) -> pd.DataFrame:
 
 @pytest.fixture(autouse=True)
 def tmp_ledger(tmp_path, monkeypatch):
-    """每个测试用临时登记簿，绝不写真实的 factor-ledger/。"""
+    """每个测试用临时登记簿（经显式测试钩子 guard.set_test_overrides），绝不写真实的 factor-ledger/。"""
+    from factorlab import guard
+
+    for k in ("FACTORLAB_LEDGER", "FACTORLAB_LOCKBOX"):
+        monkeypatch.delenv(k, raising=False)
     d = tmp_path / "ledger"
-    monkeypatch.setenv("FACTORLAB_LEDGER", str(d))
-    return d
+    guard.set_test_overrides(ledger_root=d)
+    yield d
+    guard.clear_test_overrides()
+
+
+def use_lockbox(path) -> None:
+    """测试用锁箱配置（测试钩子；tmp_ledger 结束时一并清除）。"""
+    from factorlab import guard
+
+    guard.set_test_overrides(lockbox_path=path)
+
+
+GIT = ["git", "-c", "user.email=t@example.com", "-c", "user.name=t", "-c", "commit.gpgsign=false"]
+
+
+def make_prereg_repo(root, commits) -> list[str]:
+    """临时 git 仓库：commits 是 [(文件相对路径或 None, 文件内容)]，每项一个提交；None = 空提交。返回短哈希。"""
+    import subprocess
+    from pathlib import Path
+
+    root = Path(root)
+    root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    hashes = []
+    for i, (rel, text) in enumerate(commits):
+        if rel is None:
+            subprocess.run([*GIT, "commit", "-q", "--allow-empty", "-m", f"c{i}"], cwd=root, check=True)
+        else:
+            p = root / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(text, encoding="utf-8")
+            subprocess.run(["git", "add", rel], cwd=root, check=True)
+            subprocess.run([*GIT, "commit", "-q", "-m", f"prereg {i}"], cwd=root, check=True)
+        hashes.append(subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=root, capture_output=True,
+                                     text=True, check=True).stdout.strip())
+    return hashes

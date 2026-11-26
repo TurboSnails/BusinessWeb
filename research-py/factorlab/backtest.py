@@ -14,14 +14,16 @@
 
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 import numpy as np
 import pandas as pd
 
 from .calendar import trading_days
-from .universe import as_bool
+from .universe import AdvCache, bool_values
 
 TRADING_DAYS = 252
 
@@ -99,6 +101,56 @@ def slippage_model(market: str) -> SlippageModel:
     return DEFAULT_SLIPPAGE.get(market, SlippageModel())
 
 
+# ---------------------------------------------------------------- 选股（评估与回测共用）
+@lru_cache(maxsize=None)
+def _tie_key(code: str) -> float:
+    return int(hashlib.sha256(("tie:" + str(code)).encode()).hexdigest()[:12], 16) / 16 ** 12
+
+
+def tie_keys(codes) -> np.ndarray:
+    """并列时的确定性次序：sha256("tie:" + 代码)，与列顺序无关（也与 70/30 分层的哈希不同）。"""
+    return np.fromiter((_tie_key(str(c)) for c in codes), dtype=float, count=len(codes))
+
+
+def n_select(k: int, top_q: float | None = None, top_n: int | None = None) -> int:
+    """k 只有效股票里选几只：top_n 优先（不超过 k），否则 round_half_up(top_q × k)，至少 1 只。"""
+    if k <= 0:
+        return 0
+    if top_n:
+        return int(min(top_n, k))
+    return int(min(k, max(1, math.floor(k * float(top_q) + 0.5))))
+
+
+def order_desc(values: np.ndarray, keys: np.ndarray) -> np.ndarray:
+    """有效值（有限数）的位置，按值从大到小、并列按 keys 从小到大排序。"""
+    values = np.asarray(values, dtype=float)
+    idx = np.flatnonzero(np.isfinite(values))
+    return idx[np.lexsort((keys[idx], -values[idx]))]
+
+
+def select_top(values: np.ndarray, keys: np.ndarray, top_q: float | None = None,
+               top_n: int | None = None) -> np.ndarray:
+    """选前 top_q（或前 top_n）的布尔掩码；quantile_labels 的最高组与此完全相同（top_q = 1/n_q 时）。"""
+    order = order_desc(values, keys)
+    out = np.zeros(len(values), dtype=bool)
+    out[order[:n_select(len(order), top_q, top_n)]] = True
+    return out
+
+
+def quantile_labels(values: np.ndarray, keys: np.ndarray, n_q: int) -> np.ndarray:
+    """分组标签 1..n_q（n_q = 值最大的一组），无效值为 NaN。从大到小排序后按 n_select(k, j/n_q) 切组，
+    所以最高组 = select_top(top_q=1/n_q)。"""
+    order = order_desc(values, keys)
+    k = len(order)
+    out = np.full(len(values), np.nan)
+    if k == 0:
+        return out
+    bounds = np.array([n_select(k, j / n_q) for j in range(1, n_q)] + [k])
+    pos = np.arange(k)
+    out[order] = n_q - np.searchsorted(bounds, pos, side="right")
+    return out
+
+
 # ---------------------------------------------------------------- 统计
 def perf_stats(r: pd.Series, rf: pd.Series | float | None = None, periods: int = TRADING_DAYS) -> dict:
     """年化收益（CAGR）、年化波动、夏普（相对 rf，默认 0）、最大回撤。r 为每期收益。"""
@@ -129,7 +181,7 @@ class BacktestResult:
 def _bool(panel: dict, key: str, idx, cols) -> np.ndarray:
     if key not in panel:
         return np.zeros((len(idx), len(cols)), dtype=bool)
-    return as_bool(panel[key].reindex(index=idx, columns=cols)).to_numpy()
+    return bool_values(panel[key].reindex(index=idx, columns=cols))
 
 
 def _num(panel: dict, key: str, idx, cols) -> np.ndarray | None:
@@ -162,13 +214,17 @@ def allocate(target: np.ndarray, base: np.ndarray, w_old: np.ndarray, locked: np
     return w + alloc
 
 
-def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame | None = None,
-             direction: int = 1, top_q: float = 0.2, top_n: int | None = None, weighting: str = "cap",
-             execution: str = "open", costs: CostModel | None = None, slippage: SlippageModel | None | str = "default",
-             constraints: bool | None = None, securities: pd.DataFrame | None = None,
-             delist_return: float = -1.0, capital: float | None = None, capacity_aum: float = 1e8,
-             rf=None, end=None) -> BacktestResult:
-    """factor：调仓日 × 代码（行索引即调仓日）；mask：同形状股票池；direction=-1 选最小的。"""
+def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame | None = None,
+              direction: int = 1, top_q: float = 0.2, top_n: int | None = None, weighting: str = "cap",
+              execution: str = "open", costs: CostModel | None = None, slippage: SlippageModel | None | str = "default",
+              constraints: bool | None = None, securities: pd.DataFrame | None = None,
+              delist_return: float = -1.0, capital: float | None = None, capacity_aum: float = 1e8,
+              rf=None, end=None, adv: AdvCache | None = None) -> BacktestResult:
+    """底层回测（内部用；研究请走 evaluate.evaluate_factor，它经护栏读数并记账）。
+
+    factor：调仓日 × 代码（行索引即调仓日）；mask：同形状股票池；direction=-1 选最小的。
+    选股与 evaluate 的分组共用 select_top（并列按代码哈希，不按列顺序）。
+    adv：共用的「t 之前 20 日成交额中位数」缓存（只在成交日惰性计算）。"""
     if weighting not in ("cap", "equal"):
         raise ValueError("weighting 只能是 'cap' 或 'equal'")
     if execution not in ("open", "close"):
@@ -219,15 +275,24 @@ def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame 
     can_buy = has_px & ~susp & ~lim_up & ~delisted
 
     amount = panel.get("amount")
-    adv = (amount.shift(1).rolling(20, min_periods=10).median().reindex(index=days, columns=codes).to_numpy(float)
-           if amount is not None else np.full((n_d, n_c), np.nan))
-    slip_rate = slip.rate(adv) if slip is not None else np.zeros((n_d, n_c))
+    win = slip.window if slip is not None else 20
+    if adv is None or adv.amount is None or not adv.columns.equals(codes) or adv.window != win:
+        adv = AdvCache(None if amount is None else amount.reindex(columns=codes), win, max(1, win // 2))
+    nan_row = np.full(n_c, np.nan)
+
+    def adv_row(i: int) -> np.ndarray:
+        r = adv.row(days[i])
+        return nan_row if r is None else r
+
+    def slip_rate(i: int) -> np.ndarray:
+        return slip.rate(adv_row(i)) if slip is not None else np.zeros(n_c)
     px_exec = _num(panel, "open" if execution == "open" else "close", days, codes)
 
     # 信号
     sig = factor.reindex(columns=codes) * direction
     if mask is not None:
-        sig = sig.where(as_bool(mask.reindex(index=sig.index, columns=codes)))
+        sig = sig.where(bool_values(mask.reindex(index=sig.index, columns=codes)))
+    keys = tie_keys(codes)
     mcap = panel.get("mcap_float")
     if weighting == "cap" and mcap is None:
         raise ValueError("市值加权需要 mcap_float 字段")
@@ -246,12 +311,8 @@ def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame 
         if weighting == "cap":
             base = np.nan_to_num(mcap_rb.loc[t].to_numpy(float))
             valid &= base > 0
-        k = int(valid.sum())
-        n_sel = 0 if k == 0 else (min(top_n, k) if top_n else max(1, int(round(top_q * k))))
-        target = np.zeros(n_c, dtype=bool)
-        if n_sel:
-            order = s[valid].sort_values(ascending=False, kind="mergesort").index[:n_sel]
-            target[codes.get_indexer(order)] = True
+        vals = np.where(valid, s.to_numpy(float), np.nan)
+        target = select_top(vals, keys, top_q, top_n)
         orders[i_exec] = (target, base)
 
     w = np.zeros(n_c)
@@ -276,7 +337,7 @@ def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame 
             traded = (buy + sell) > 1e-12
             comm = np.where(traded, np.maximum((buy + sell) * costs.commission, costs.min_commission / V)
                             + (buy + sell) * costs.other, 0.0)
-        c = float(comm.sum() + (buy * b).sum() + (sell * s).sum() + ((buy + sell) * slip_rate[i]).sum())
+        c = float(comm.sum() + (buy * b).sum() + (sell * s).sum() + ((buy + sell) * slip_rate(i)).sum())
         to_s[days[i]] = to_s.get(days[i], 0.0) + float(np.abs(dw).sum() / 2)
         cost_s[days[i]] = cost_s.get(days[i], 0.0) + c
         return new, c
@@ -312,7 +373,7 @@ def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame 
                 weights[days[i]] = pd.Series(w, index=codes)[w > 0]
                 aum = capital * nav if capital is not None else capacity_aum
                 held = w > 0
-                cap_ratios.extend((w[held] * aum / adv[i][held]).tolist())
+                cap_ratios.extend((w[held] * aum / adv_row(i)[held]).tolist())
 
         if execution == "open":
             execute()
@@ -342,12 +403,12 @@ def backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame 
     return res
 
 
-def backtest_vs_universe(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame, **kw) -> dict:
-    """前 q 组合 vs 同一股票池（同一加权方式、同样成本与执行），返回两者结果与超额统计。"""
-    top = backtest(factor, panel, market, mask, **kw)
+def _backtest_vs_universe(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame, **kw) -> dict:
+    """前 q 组合 vs 同一股票池（全部入池证券，不论因子是否有值；同一加权方式、同样成本与执行）。内部用。"""
+    top = _backtest(factor, panel, market, mask, **kw)
     kw_b = {k: v for k, v in kw.items() if k not in ("direction", "top_q", "top_n")}
     ones = mask.astype(float).where(mask)
-    bench = backtest(ones, panel, market, mask, top_q=1.0, **kw_b)
+    bench = _backtest(ones, panel, market, mask, top_q=1.0, **kw_b)
     ex = (top.returns - bench.returns).dropna()
     ex_stats = perf_stats(ex)
     return {"top": top, "universe": bench, "excess": ex,

@@ -10,7 +10,8 @@ import pytest
 
 from factorlab import registry
 from factorlab.calendar import month_end_dates, shift_days, trading_days
-from factorlab.evaluate import evaluate_factor, forward_returns, nw_tstat, spanning_regression
+from factorlab.evaluate import _forward_returns as forward_returns
+from factorlab.evaluate import evaluate_factor, nw_tstat, spanning_regression
 from factorlab.guard import TrialLedger, code_bucket, split_codes
 from factorlab.preprocess import neutralize, rank_normalize, winsorize_mad, zscore
 from factorlab.registry import check_no_lookahead, factor

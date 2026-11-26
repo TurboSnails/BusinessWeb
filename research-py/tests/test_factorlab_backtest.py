@@ -6,8 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from factorlab.backtest import (CostModel, SlippageModel, allocate, backtest, backtest_vs_universe, cost_model,
-                                perf_stats)
+from factorlab.backtest import CostModel, SlippageModel, allocate, cost_model, perf_stats
+from factorlab.backtest import _backtest as backtest
+from factorlab.backtest import _backtest_vs_universe as backtest_vs_universe
 from factorlab_synth import market, tmp_ledger  # noqa: F401
 
 ZERO = CostModel(commission=0.0)
