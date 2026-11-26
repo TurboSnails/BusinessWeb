@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-11-26T03:04:23.233Z",
+  "rule": "G 宏观非防守；H 雷达偏热；C1 Baa−Aaa 半年扩大 ≥ 0.10；C2 VIX 当月均值比前 6 个月均值高 ≥ 10%；C3 标普距 12 个月高点 5% 以内且新高行业占比 ≤ 近 12 个可得值最高的一半；C4 防守九行业近 3 个月跑赢 49 行业等权 ≥ 3 个百分点；C5 标普 6 个月涨幅 ≤ 2%；C5′ 2 个月涨幅 ≤ 0。W1 = G 且 H 且 C1–C5 ≥ 3。",
+  "since": "2026-11",
+  "note": "影子读数：只记录、不操作。L-023 至 L-025 的历史检验都没通过（裂缝多在回调开始后才出现），这里只为在真实行情里检验它亮在高点之前还是之后；现行仓位仍按宏观攻守执行。完整月份在数据齐全后冻结，之后不再改动。",
+  "current": {
+    "month": "2026-11",
+    "tier": "lean-offense",
+    "heat": "hot",
+    "G": true,
+    "H": true,
+    "values": {
+      "baaChange": null,
+      "volTrend": 0.4174,
+      "nearHigh": 0.9369,
+      "highsLatest": 8.2,
+      "highsMax12": 63.3,
+      "defRel3m": 0.027,
+      "spx6m": -0.05,
+      "spx2m": -0.0589
+    },
+    "cracks": {
+      "C1": null,
+      "C2": true,
+      "C3": false,
+      "C4": false,
+      "C5": true,
+      "C5b": true
+    },
+    "counts": {
+      "n": 2,
+      "nA": 1,
+      "nB": 2,
+      "nD": 2,
+      "nE": 1,
+      "nF": 2
+    },
+    "flags": {
+      "W1": false,
+      "W2": false,
+      "B": false
+    },
+    "missing": [
+      "C1 利差"
+    ],
+    "estimate": true,
+    "heatFrom": "2026-10"
+  },
+  "rows": []
+}

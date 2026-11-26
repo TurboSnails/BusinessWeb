@@ -39,12 +39,14 @@ jobs:
         run: node scripts/check-live-ledger.mjs
       - name: Update vol-target shadow readings (frozen months are never rewritten)
         run: node scripts/vol-target-shadow.mjs
+      - name: Update late-cycle warning shadow readings (frozen months are never rewritten)
+        run: node scripts/late-cycle-shadow.mjs
       - name: Commit if changed
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json
+          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json public/data/late-cycle-shadow.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0

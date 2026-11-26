@@ -174,9 +174,12 @@ async function refreshIndustryTrend({ cache, fetcher, warn }) {
     const response = await fetcher(FRENCH_INDUSTRIES, { signal: AbortSignal.timeout(30_000) })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const csv = unzipEntry(Buffer.from(await response.arrayBuffer()), '49_Industry_Portfolios.csv')
-    const rows = buildIndustryTrend(parseFrenchMonthly(csv))
+    const monthly = parseFrenchMonthly(csv)
+    const rows = buildIndustryTrend(monthly)
     if (!rows.length || rows.at(-1)[0] < (previous.at(-1)?.[0] ?? '')) throw new Error('行业覆盖不足')
     writeJsonIfChanged(path, rows)
+    // 49 行业市值加权月收益（%），供牛市后期预警影子读数的防守轮动项使用（scripts/late-cycle-shadow.mjs）
+    writeJsonIfChanged(join(cache, 'industry-returns.json'), monthly.filter(([d]) => d >= '2000-01-01'))
     return rows
   } catch (error) {
     if (!previous.length) throw new Error(`industry-trend 下载失败且没有缓存：${error.message}`, { cause: error })
