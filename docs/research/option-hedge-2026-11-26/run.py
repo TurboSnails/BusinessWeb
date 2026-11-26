@@ -156,9 +156,9 @@ def evaluate(name: str, idx_ret: np.ndarray, base: pd.DataFrame, mask: np.ndarra
 
     sens = {}
     if rows:
-        mc, ms = monthly(cand, dates), monthly(stock, dates)
-        mk = monthly(cash, dates)
-        w_mon = float(brentq(lambda x: np.std(x * ms + (1 - x) * mk, ddof=1) - np.std(mc, ddof=1), 0.0, 2.0))
+        mc = monthly(cand, dates)
+        # M 每日再平衡：月收益取 M 日收益在当月连乘（第二实现指出原写法相当于按月再平衡，已改正）
+        w_mon = float(brentq(lambda x: np.std(monthly(x * stock + (1 - x) * cash, dates), ddof=1) - np.std(mc, ddof=1), 0.0, 2.0))
         keep = np.ones(len(cand), bool)
         for ee in idx:
             keep[ee["i"] + 1 : ee["j"] + 1] = False

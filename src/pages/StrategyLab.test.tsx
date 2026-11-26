@@ -8,6 +8,8 @@ import vt from '../features/strategy-lab/data/vol-target.json'
 import vol from '../features/strategy-lab/data/etf-volume.json'
 import confirm from '../features/strategy-lab/data/vol-confirm.json'
 import multi from '../features/strategy-lab/data/multi-asset.json'
+import audit from '../features/strategy-lab/data/overfit-audit.json'
+import hedge from '../features/strategy-lab/data/option-hedge.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -68,7 +70,7 @@ describe('研究中页签', () => {
     renderPage()
     const tabs = screen.getAllByRole('tab').map(t => t.textContent)
     const count = (tab: string): number => LAB_STUDIES.filter(x => x.tab === tab).length
-    expect(tabs).toEqual(['总览', `牛市后期 · ${count('late')}`, `趋势与刹车 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `A 股 ETF · ${count('cn')}`])
+    expect(tabs).toEqual(['总览', `规则可信度 · ${count('audit')}`, `牛市后期 · ${count('late')}`, `防下跌 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `A 股 ETF · ${count('cn')}`])
     expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
     expect(within(screen.getByTestId('lab-cards')).getAllByRole('button')).toHaveLength(LAB_STUDIES.length)
     expect(screen.getByTestId('lab-v01')).toBeTruthy()
@@ -85,14 +87,14 @@ describe('研究中页签', () => {
 
   it('旧链接 #lab-xxx 直接打开对应页签；?tab= 可分享', () => {
     renderPage('/invest/strategy-lab#lab-late-cycle')
-    expect(screen.getByRole('tab', { name: /^趋势与刹车/ }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('tab', { name: /^防下跌/ }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByTestId('lab-late-cycle')).toBeTruthy()
   })
 
-  it('德鲁肯米勒核查里的链接跳到「趋势与刹车」页签的趋势防下跌研究', () => {
+  it('德鲁肯米勒核查里的链接跳到「防下跌」页签的趋势防下跌研究', () => {
     renderPage(at('late'))
     fireEvent.click(within(screen.getByTestId('lab-druckenmiller')).getByRole('link', { name: '趋势防下跌研究' }))
-    expect(screen.getByRole('tab', { name: /^趋势与刹车/ }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('tab', { name: /^防下跌/ }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByTestId('lab-trend')).toBeTruthy()
   })
 
@@ -157,6 +159,23 @@ describe('研究中页签', () => {
     const rec = data.groups.find(g => g.label === '伴随衰退')!
     fireEvent.click(within(group).getByRole('button', { name: /^伴随衰退/ }))
     expect(within(events).getAllByRole('row')).toHaveLength(rec.n + 1)
+  })
+
+  it('过拟合审计：DSR 表按 N 逐行、置信集 6 个写法，判定来自研究结果', () => {
+    renderPage(at('audit'))
+    expect(within(screen.getByTestId('lab-audit-dsr')).getAllByRole('row')).toHaveLength(audit.T1.byN.length + 1)
+    expect(within(screen.getByTestId('lab-audit-mcs')).getAllByRole('row')).toHaveLength(7)
+    expect(screen.getByTestId('lab-audit-answer').textContent).toContain(audit.T1.verdict)
+    expect(screen.getByTestId('lab-audit-answer').textContent).toContain(audit.T1.byN.find(r => r.N === 86)!.dsr.toFixed(2))
+  })
+
+  it('期权保护：17 次急跌逐行、两个候选的判定与研究结果一致', () => {
+    renderPage(at('trend'))
+    expect(within(screen.getByTestId('lab-hedge-events')).getAllByRole('row')).toHaveLength(hedge.events.length + 1)
+    const main = screen.getByTestId('lab-hedge-main')
+    expect(main.textContent).toContain(hedge.confirm.PPUT.verdict)
+    expect(main.textContent).toContain(hedge.confirm.CLLZ.verdict)
+    expect(within(screen.getByTestId('lab-hedge-explore')).getAllByRole('row')).toHaveLength(Object.keys(hedge.explore).length + 1)
   })
 
   it('百分比用「−」号', () => {

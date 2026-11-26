@@ -10,6 +10,8 @@ import EtfVolumeStudy from '../features/strategy-lab/EtfVolumeStudy'
 import LateCycleStudy from '../features/strategy-lab/LateCycleStudy'
 import LateWarningStudy from '../features/strategy-lab/LateWarningStudy'
 import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
+import OptionHedgeStudy from '../features/strategy-lab/OptionHedgeStudy'
+import OverfitAuditStudy from '../features/strategy-lab/OverfitAuditStudy'
 import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
@@ -23,7 +25,7 @@ import '../styles/strategy-lab-tabs.css'
 export const STRATEGY_LAB_LEAD =
   '还没写进正式规则的研究放在这里：结论不确定、没通过检验、或只在影子跟踪的内容。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
 
-export type LabTab = 'overview' | 'late' | 'trend' | 'vol' | 'cn'
+export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'cn'
 type Status = 'pass' | 'partial' | 'fail' | 'note'
 
 export interface LabStudy {
@@ -39,10 +41,12 @@ export interface LabStudy {
 
 /** 全部研究，按页签分组；同一页签内的顺序就是页面上的顺序 */
 export const LAB_STUDIES: LabStudy[] = [
+  { id: 'lab-overfit-audit', tab: 'audit', title: '现行规则的过拟合审计', date: '2026-11-26', status: 'note', statusText: '审计', summary: '算上试过的 86 种写法，不能排除优势来自挑选；参数过拟合风险高；整类宏观写法仍有显著好于恒定仓位的。规则不变，预期打折。', Component: OverfitAuditStudy },
   { id: 'lab-late-warning', tab: 'late', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
   { id: 'lab-defensive-tilt', tab: 'late', title: '股票部分长期防守倾斜', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子运行', summary: '1934–1972 年通过，但同等波动下大跌并没有少跌，好处是效率；ETF 影子运行 12 个月。', Component: DefensiveTiltStudy },
   { id: 'lab-radar-vix', tab: 'late', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },
   { id: 'lab-druckenmiller', tab: 'late', title: '德鲁肯米勒「逃顶」核查', date: '2026-11-26', status: 'note', statusText: '核查', summary: '只对了一半：公开说不做多股票时，标普已从高点回落约 6%。', Component: DruckenmillerNote },
+  { id: 'lab-option-hedge', tab: 'trend', title: '期权保护能否更便宜地防急跌', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '每月买看跌急跌里少亏约 23%，但同等少亏下和直接降仓一样贵；零成本领口不起作用。', Component: OptionHedgeStudy },
   { id: 'lab-trend', tab: 'trend', title: '趋势防下跌：1872–1934 年确认检验', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '现行十个月均线和破位封顶 50% 在 8 次大跌里都全部少跌，统计上不显著；规则不变，破位封顶进影子记录。', Component: TrendStudy },
   { id: 'lab-late-cycle', tab: 'trend', title: '牛市后段到回调：月中刹车', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '策略只对宏观先转差的下跌有用；4 种按日刹车都不通过。', Component: LateCycleStudy },
   { id: 'lab-daily-execution', tab: 'trend', title: '宏观攻守能不能按日执行', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '按日执行更差，维持按月。', Component: DailyExecutionStudy },
@@ -52,8 +56,8 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-etf-volume', tab: 'cn', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
-const TAB_LABEL: Record<LabTab, string> = { overview: '总览', late: '牛市后期', trend: '趋势与刹车', vol: '降低波动', cn: 'A 股 ETF' }
-const TAB_ORDER: LabTab[] = ['overview', 'late', 'trend', 'vol', 'cn']
+const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', cn: 'A 股 ETF' }
+const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'cn']
 const isTab = (v: string | null): v is LabTab => v != null && (TAB_ORDER as string[]).includes(v)
 const studyTab = (id: string): LabTab | null => (id === 'lab-v01' ? 'overview' : LAB_STUDIES.find(s => s.id === id)?.tab ?? null)
 
