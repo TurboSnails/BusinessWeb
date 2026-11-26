@@ -308,6 +308,58 @@ def build_pit(cik: int, concepts: list[tuple[str, str]] | None = None, use_accep
     return p
 
 
+BULK_URL = "https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip"
+
+
+def fetch_bulk_companyfacts(refresh: bool = False) -> Path:
+    """SEC 官方打包的全部公司 companyfacts（约 1GB 的 zip，一次请求），流式写到 raw/bulk/companyfacts.zip。"""
+    import requests
+
+    p = raw_dir("bulk") / "companyfacts.zip"
+    if p.exists() and not refresh:
+        return p
+    tmp = p.with_suffix(".part")
+    with requests.get(BULK_URL, headers={"User-Agent": user_agent(), "Accept-Encoding": "gzip, deflate"},
+                      stream=True, timeout=120) as r:
+        r.raise_for_status()
+        with open(tmp, "wb") as f:
+            for chunk in r.iter_content(1 << 20):
+                f.write(chunk)
+    tmp.replace(p)
+    return p
+
+
+def build_pit_bulk(ciks: set[int] | None = None, concepts: list[tuple[str, str]] | None = None) -> dict:
+    """从打包文件生成点时 vintage 表（与 build_pit 同格式）。打包文件没有受理时间，
+    生效日一律按 filed + 1 个工作日（保守，见 effective_date）。ciks 为空时处理全部公司。"""
+    import zipfile
+
+    z = zipfile.ZipFile(fetch_bulk_companyfacts())
+    d = store.market_dir(MARKET) / "pit"
+    d.mkdir(parents=True, exist_ok=True)
+    done = empty = 0
+    for name in z.namelist():
+        if not (name.startswith("CIK") and name.endswith(".json")):
+            continue
+        cik = int(name[3:13])
+        if ciks is not None and cik not in ciks:
+            continue
+        v = vintages(extract_facts(json.loads(z.read(name)), concepts, None))
+        if v.empty:
+            empty += 1
+            continue
+        v.to_parquet(d / f"CIK{cik:010d}.parquet", index=False)
+        done += 1
+    return {"written": done, "empty": empty, "requested": None if ciks is None else len(ciks)}
+
+
+def universe_ciks() -> set[int]:
+    """美股证券表（store us）里的 ticker → 当前 CIK 映射（ticker 会被重复使用，见 fetch_company_tickers）。"""
+    m = fetch_company_tickers()
+    sec_codes = set(store.read_securities("us")["code"].astype(str).str.upper())
+    return set(m.loc[m["ticker"].isin(sec_codes), "cik"].astype(int))
+
+
 # ----------------------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m factorlab.sources.sec", description="SEC EDGAR 点时财报")
@@ -316,12 +368,21 @@ def main(argv: list[str] | None = None) -> int:
     f = sub.add_parser("facts", help="下载某公司 companyfacts 并生成点时 vintage 表")
     f.add_argument("--cik", type=int, required=True)
     f.add_argument("--concepts", default=None, help="逗号分隔，可写 taxonomy:concept，默认 us-gaap")
+    b = sub.add_parser("bulk", help="下载 SEC 打包的全部 companyfacts（约 1GB，一次请求）并生成点时表")
+    b.add_argument("--all", action="store_true", help="处理全部公司（默认只处理美股证券表里的公司）")
+    b.add_argument("--refresh", action="store_true")
     a = ap.parse_args(argv)
     try:
         user_agent()
     except SecUserAgentMissing as e:
         print(str(e), file=sys.stderr)
         return 2
+    if a.cmd == "bulk":
+        if a.refresh:
+            fetch_bulk_companyfacts(refresh=True)
+        rep = build_pit_bulk(None if a.all else universe_ciks())
+        print(json.dumps(rep, ensure_ascii=False))
+        return 0
     if a.cmd == "tickers":
         df = fetch_company_tickers(refresh=True)
         print(f"{len(df)} 条 ticker → CIK 映射（当前快照；ticker 会被重复使用，历史以 CIK 为准）")

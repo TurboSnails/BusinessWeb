@@ -348,8 +348,9 @@ def test_sec_quarterize_prefers_direct_three_month_values():
     assert len(q2) == 1 and q2["val"].iloc[0] == 60 and q2["method"].iloc[0] == "direct"
 
 
-def test_sec_requires_user_agent_env(monkeypatch, capsys):
+def test_sec_requires_user_agent_env(monkeypatch, capsys, tmp_path):
     monkeypatch.delenv("SEC_USER_AGENT", raising=False)
+    monkeypatch.setattr(sec, "UA_FILE", tmp_path / "missing")  # 本机私有文件存在时也要能测到「未设置」
     with pytest.raises(sec.SecUserAgentMissing):
         sec.user_agent()
     with pytest.raises(sec.SecUserAgentMissing):
