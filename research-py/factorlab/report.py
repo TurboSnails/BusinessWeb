@@ -64,6 +64,8 @@ def to_markdown(res: EvalResult) -> str:
     execution = EXEC_LABEL.get(cfg.get("execution"), str(cfg.get("execution")))
     wa = r.get("weighting_applied") or {}
     cap_word = "市值加权" if not wa.get("adv_proxy") else f"市值加权（{wa['adv_proxy']} 期缺市值，用成交额中位数代理）"
+    # 「前 x%」按事先登记的方向选：越大越好（+1）选最大的，越小越好（−1）选最小的；IC 不翻转符号
+    dir_word = "越小越好，「前」= 因子值最小的一组，IC 为负说明方向对" if int(cfg.get("direction", 1)) < 0 else "越大越好，IC 为正说明方向对"
     lines = [
         f"## 因子 {r.get('factor')}（v{r.get('version')}）· {r.get('market')} · {ZONE_LABEL.get(r.get('mode'), r.get('mode'))}",
         "",
@@ -73,7 +75,7 @@ def to_markdown(res: EvalResult) -> str:
         f"{'（有未提交改动）' if r.get('git_dirty') else ''}",
         "",
         "| 指标 | 值 |", "|---|---|",
-        f"| RankIC 均值 / IR / NW t | {_f(s.get('rank_ic_mean'))} / {_f(s.get('rank_ic_ir'), nd=2)} / {_f(s.get('rank_ic_t_nw'), nd=2)} |",
+        f"| RankIC 均值 / IR / NW t（按因子原值；事先方向 {dir_word}） | {_f(s.get('rank_ic_mean'))} / {_f(s.get('rank_ic_ir'), nd=2)} / {_f(s.get('rank_ic_t_nw'), nd=2)} |",
         f"| IC 均值 / IR | {_f(s.get('ic_mean'))} / {_f(s.get('ic_ir'), nd=2)} |",
         f"| 前 {grp} {cap_word} − 全股票池同加权（每期均值，主口径，{execution}，未扣成本） | {_f(s.get('tmu_cap_mean'), True, 4)}（NW t {_f(s.get('tmu_cap_t_nw'), nd=2)}） |",
         f"| 前 {grp} 等权 − 全股票池等权（每期均值） | {_f(s.get('tmu_ew_mean'), True, 4)} |",
