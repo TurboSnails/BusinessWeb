@@ -1,0 +1,20 @@
+{
+  "downloaded": "2026-11-26",
+  "sha256": {
+    "12_Industry_Portfolios_CSV.zip": "78ff32de9b3b308c96beb48a5f6f8ae06209495ef63ee6efa274d6bdbb491b86",
+    "SPY_yahoo_chart.json": "47268e22416e1a82d2604dffb54b83771a92a0c7624d8187ec2e52b1872c7849",
+    "XLB_yahoo_chart.json": "0799a20a09b47e44e634b2a43615ec632b3279984ca63b8e902fe721569fba5a",
+    "XLE_yahoo_chart.json": "06b7a090b66048cfc5138d7c914447180096c7627fa6c1e8c7db2acdc6da7b45",
+    "XLF_yahoo_chart.json": "d46eeb74374bb52aa5df5bb3491ff0c36f613155579d47cd4e9a61b788026831",
+    "XLI_yahoo_chart.json": "3013eb129ac2f009212bae190db9fdef6de373c28a9ad0cc93448de179c2187c",
+    "XLK_yahoo_chart.json": "364ea9d2e2e0cc0816639364a4846be77ec064927f34b0b4f87e472b22bfdf8c",
+    "XLP_yahoo_chart.json": "fc87291c8808d091893e064b9caac5e369397a3b04d5e7df55e28356e49b5080",
+    "XLU_yahoo_chart.json": "2bd5960293e88ae6490c603148fd530d313a197439330da7c3c31968b41da61d",
+    "XLV_yahoo_chart.json": "aaa2094da59a5a7f4f9e41f6a7fb018976a158336ae6a5b3fa9db64a0cbbdc8e",
+    "XLY_yahoo_chart.json": "a12dfd39077c339359eb081eef331f90345c5afa5758b20c4bc030304018eed6"
+  },
+  "sources": {
+    "12_Industry_Portfolios_CSV.zip": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_CSV.zip",
+    "*_yahoo_chart.json": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?period1=0&period2=1800000000&interval=1d&events=div（通用 UA）"
+  }
+}
