@@ -1,0 +1,10 @@
+file,url,downloaded_utc,sha256,bytes
+NASDAQCOM_fred.csv,https://fred.stlouisfed.org/graph/fredgraph.csv?id=NASDAQCOM,2026-11-26T07:43:35Z,9cb9d90f0ea2ac4a624241aa27879f5b84ee0aadf576dcfcd6ae3b3ce123816d,281753
+IXIC_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?period1=0&period2=1800000000&interval=1d,2026-11-26T07:43:38Z,783d97a6532fbe299b090ac3a58bff3c78189fcd38b5c1a7186305fbbebf0d3d,1455470
+COMP_nasdaq_historical.json,https://api.nasdaq.com/api/quote/COMP/historical?assetclass=index&fromdate=1971-01-01&todate=2026-12-31&limit=20000,2026-11-26T07:43:43Z,f806ca92ba4213acde1583438a148301f8cca34348159866d3c9554cea9f99c0,1158092
+SOX_yahoo_chart.json,https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?period1=0&period2=1800000000&interval=1d,2026-11-26T07:43:45Z,e86ec1df8e1eed4f97702775155b87dc2a5ac448983e1e29d3ea7ae20e0235ae,820893
+SOX_nasdaq_historical.json,https://api.nasdaq.com/api/quote/SOX/historical?assetclass=index&fromdate=1990-01-01&todate=2026-12-31&limit=20000,2026-11-26T07:43:49Z,9cc8d27b0c485a8a7ad94bcd7316e6ac4177706b2bc6e61364ffe8bfd148004f,977657
+49_Industry_Portfolios_CSV.zip,https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_CSV.zip,2026-11-26T07:43:52Z,d1a3b0b9896e1e633ed2aa85e24ca144d7998f8ab2ff344e2379383ebeb7b836,489861
+det_49_ind_port.html,https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_49_ind_port.html,2026-11-26T07:43:54Z,c934f624fd7da5484a973dab8cfbf0914b7428392a920efc58e279962acb9ebf,12337
+Siccodes49.zip,https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes49.zip,2026-11-26T07:43:56Z,36761b4009107e11cd15cff0eb75f8837ef49f024524b7378634629bf90905d5,9587
+cftc_tff_20974.json,"https://publicreporting.cftc.gov/resource/gpe5-46if.json?%24where=cftc_contract_market_code%3D%2720974%2B%27&%24select=report_date_as_yyyy_mm_dd,market_and_exchange_names,cftc_contract_market_code,open_interest_all,asset_mgr_positions_long,asset_mgr_positions_short&%24order=report_date_as_yyyy_mm_dd%20ASC&%24limit=5000",2026-11-26T07:44:00Z,d80f2a9ce0c07820a6a59cf7b449671c96cfb8a2da616f4896ce4b350b76da94,237526
