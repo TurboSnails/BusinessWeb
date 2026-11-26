@@ -1,0 +1,721 @@
+{
+ "built_from": "inputs/raw/（见 raw/manifest.json）",
+ "local_inputs_sha256": {
+  "data-raw/sp500-backtest/shiller.csv": "b2f1189b5185e898f81c98297d32b56db109d8b85a85723f244099d6daca5452",
+  "docs/research/trend-1871-2026-11-26/inputs/cp.json": "cf1625948843bc959524aede64a69004fb28bc9307ed49a5c785e7f111584819"
+ },
+ "formulas": {
+  "equity_local": "(1+equity_usd_t)*fx_t/fx_{t-1}-1; fx = 月末每美元兑本币（欧元区为旧货币单位）",
+  "bond_ret": "P(y_t; c=y_{t-1}, T=10-1/12, 半年付息) - 1 + y_{t-1}/12",
+  "cash_ret": "short_rate_{t-1}/100/12"
+ },
+ "short_rate_priority": [
+  "IR3TIB01",
+  "IR3TBB01",
+  "IR3TCD01",
+  "IRSTCI01"
+ ],
+ "countries": {
+  "JP": {
+   "name": "Japan",
+   "kf_file": "Japan.Dat",
+   "in_common": {
+    "start": "1989-02",
+    "end": "2025-12",
+    "months": 443,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1989-02",
+    "end": "2025-12",
+    "months": 443,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Japan.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXJPUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01JPM156N": {
+     "first": "1989-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TCD01JPM156N": {
+     "first": "1979-05",
+     "last": "2002-03"
+    },
+    "IR3TIB01JPM156N": {
+     "first": "2002-04",
+     "last": "2026-09"
+    },
+    "IRSTCI01JPM156N": {
+     "first": "2026-10",
+     "last": "2026-10"
+    }
+   },
+   "splices": [
+    {
+     "column": "short_src",
+     "month": "2002-04",
+     "from": "IR3TCD01JPM156N",
+     "to": "IR3TIB01JPM156N"
+    }
+   ]
+  },
+  "DE": {
+   "name": "Germany",
+   "kf_file": "Germany.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Germany.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01DEM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01DEM156N": {
+     "first": "1956-05",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01DEM156N": {
+     "first": "1960-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01DEM650N",
+     "to": "H10:DEXUSEU"
+    }
+   ]
+  },
+  "GB": {
+   "name": "UK",
+   "kf_file": "UK.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/UK.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSUK": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01GBM156N": {
+     "first": "1960-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01GBM156N": {
+     "first": "1957-01",
+     "last": "2026-01"
+    },
+    "IRSTCI01GBM156N": {
+     "first": "2026-02",
+     "last": "2026-10"
+    }
+   },
+   "splices": []
+  },
+  "FR": {
+   "name": "France",
+   "kf_file": "France.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/France.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01FRM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01FRM156N": {
+     "first": "1960-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01FRM156N": {
+     "first": "1970-01",
+     "last": "2026-10"
+    },
+    "IRSTCI01FRM156N": {
+     "first": "1955-01",
+     "last": "1969-12"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01FRM650N",
+     "to": "H10:DEXUSEU"
+    }
+   ]
+  },
+  "CA": {
+   "name": "Canada",
+   "kf_file": "Canada.Dat",
+   "in_common": {
+    "start": "1977-01",
+    "end": "2025-12",
+    "months": 588,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1977-01",
+    "end": "2025-12",
+    "months": 588,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Canada.Dat Dollar Mkt (Not Reqd)",
+    "first": "1977-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXCAUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01CAM156N": {
+     "first": "1955-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01CAM156N": {
+     "first": "1956-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": []
+  },
+  "AU": {
+   "name": "Australia",
+   "kf_file": "Austrlia.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Austrlia.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSAL": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01AUM156N": {
+     "first": "1969-07",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01AUM156N": {
+     "first": "1968-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": []
+  },
+  "CH": {
+   "name": "Switzerland",
+   "kf_file": "Swtzrlnd.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Swtzrlnd.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXSZUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01CHM156N": {
+     "first": "1955-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01CHM156N": {
+     "first": "1999-07",
+     "last": "2026-10"
+    },
+    "IRSTCI01CHM156N": {
+     "first": "1972-01",
+     "last": "1999-06"
+    }
+   },
+   "splices": [
+    {
+     "column": "short_src",
+     "month": "1999-07",
+     "from": "IRSTCI01CHM156N",
+     "to": "IR3TIB01CHM156N"
+    }
+   ]
+  },
+  "NL": {
+   "name": "Netherlands",
+   "kf_file": "Nethrlnd.Dat",
+   "in_common": {
+    "start": "1982-02",
+    "end": "2025-12",
+    "months": 527,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1982-02",
+    "end": "2025-12",
+    "months": 527,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Nethrlnd.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01NLM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01NLM156N": {
+     "first": "1959-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01NLM156N": {
+     "first": "1982-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01NLM650N",
+     "to": "H10:DEXUSEU"
+    }
+   ]
+  },
+  "SE": {
+   "name": "Sweden",
+   "kf_file": "Sweden.Dat",
+   "in_common": {
+    "start": "1987-01",
+    "end": "2025-12",
+    "months": 468,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1987-01",
+    "end": "2025-12",
+    "months": 468,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Sweden.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXSDUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01SEM156N": {
+     "first": "1986-12",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01SEM156N": {
+     "first": "1982-01",
+     "last": "2026-10"
+    },
+    "IRSTCI01SEM156N": {
+     "first": "1955-01",
+     "last": "1981-12"
+    }
+   },
+   "splices": [
+    {
+     "column": "short_src",
+     "month": "1982-01",
+     "from": "IRSTCI01SEM156N",
+     "to": "IR3TIB01SEM156N"
+    }
+   ]
+  },
+  "IT": {
+   "name": "Italy",
+   "kf_file": "Italy.Dat",
+   "in_common": {
+    "start": "1980-02",
+    "end": "2025-12",
+    "months": 551,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1991-04",
+    "end": "2025-12",
+    "months": 417,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Italy.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01ITM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "INTGSBITM193N": {
+     "first": "1980-01",
+     "last": "1991-02"
+    },
+    "IRLTLT01ITM156N": {
+     "first": "1991-03",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01ITM156N": {
+     "first": "1978-10",
+     "last": "2026-10"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01ITM650N",
+     "to": "H10:DEXUSEU"
+    },
+    {
+     "column": "bond_src",
+     "month": "1991-03",
+     "from": "INTGSBITM193N",
+     "to": "IRLTLT01ITM156N"
+    }
+   ]
+  },
+  "ES": {
+   "name": "Spain",
+   "kf_file": "Spain.Dat",
+   "in_common": {
+    "start": "1978-04",
+    "end": "2025-12",
+    "months": 573,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1980-02",
+    "end": "2025-12",
+    "months": 551,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Spain.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01ESM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "INTGSBESM193N": {
+     "first": "1978-03",
+     "last": "1979-12"
+    },
+    "IRLTLT01ESM156N": {
+     "first": "1980-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01ESM156N": {
+     "first": "1977-01",
+     "last": "2026-10"
+    },
+    "IRSTCI01ESM156N": {
+     "first": "1973-06",
+     "last": "1976-12"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01ESM650N",
+     "to": "H10:DEXUSEU"
+    },
+    {
+     "column": "bond_src",
+     "month": "1980-01",
+     "from": "INTGSBESM193N",
+     "to": "IRLTLT01ESM156N"
+    },
+    {
+     "column": "short_src",
+     "month": "1977-01",
+     "from": "IRSTCI01ESM156N",
+     "to": "IR3TIB01ESM156N"
+    }
+   ]
+  },
+  "BE": {
+   "name": "Belgium",
+   "kf_file": "Belgium.Dat",
+   "in_common": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1975-01",
+    "end": "2025-12",
+    "months": 612,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Belgium.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXUSEU": {
+     "first": "1999-01",
+     "last": "2026-11"
+    },
+    "OECD:CCUSSP01BEM650N": {
+     "first": "1960-01",
+     "last": "1998-12"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01BEM156N": {
+     "first": "1955-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01BEM156N": {
+     "first": "1957-11",
+     "last": "2026-10"
+    }
+   },
+   "splices": [
+    {
+     "column": "fx_src",
+     "month": "1999-01",
+     "from": "OECD:CCUSSP01BEM650N",
+     "to": "H10:DEXUSEU"
+    }
+   ]
+  },
+  "DK": {
+   "name": "Denmark",
+   "kf_file": "Denmark.Dat",
+   "in_common": {
+    "start": "1989-01",
+    "end": "2025-12",
+    "months": 444,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1989-01",
+    "end": "2025-12",
+    "months": 444,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Denmark.Dat Dollar Mkt (Not Reqd)",
+    "first": "1989-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXDNUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01DKM156N": {
+     "first": "1987-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01DKM156N": {
+     "first": "1987-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": []
+  },
+  "NO": {
+   "name": "Norway",
+   "kf_file": "Norway.Dat",
+   "in_common": {
+    "start": "1985-02",
+    "end": "2025-12",
+    "months": 491,
+    "internal_gaps": 0
+   },
+   "main_ok": {
+    "start": "1985-02",
+    "end": "2025-12",
+    "months": 491,
+    "internal_gaps": 0
+   },
+   "equity": {
+    "source": "KF F-F_International_Countries.zip/Norway.Dat Dollar Mkt (Not Reqd)",
+    "first": "1975-01",
+    "last": "2025-12"
+   },
+   "fx": {
+    "H10:DEXNOUS": {
+     "first": "1971-01",
+     "last": "2026-11"
+    }
+   },
+   "bond_yield": {
+    "IRLTLT01NOM156N": {
+     "first": "1985-01",
+     "last": "2026-10"
+    }
+   },
+   "short_rate": {
+    "IR3TIB01NOM156N": {
+     "first": "1979-01",
+     "last": "2026-10"
+    }
+   },
+   "splices": []
+  }
+ }
+}

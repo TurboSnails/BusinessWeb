@@ -1,0 +1,656 @@
+{
+ "_F-F_International_Countries.zip": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip",
+  "sha256": "6041ff104726d6aadfea76c4ef25af35594e799b90064b76b6bb83bd4acb0091",
+  "bytes": 1281647,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 不入库，只存用到的 .Dat"
+ },
+ "kf_Japan.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Japan.Dat",
+  "sha256": "f4cd2d8f3ee484ea29b7884312b4f80c0c93de86ee62958f70f08cea0fa5cb0a",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Germany.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Germany.Dat",
+  "sha256": "e05e5acda276a2442573fc2d50d4f669df15c153857fe1aefd9e0053bf6645d8",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_UK.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#UK.Dat",
+  "sha256": "6bf394692da421e128820cd5ad72d9076b1c51c1b4b42d8d4503524c00bcf416",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_France.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#France.Dat",
+  "sha256": "cbd4f1d14938b07b298ea0cee074ccbeddb847de252a09389cff440d02c3f26d",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Canada.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Canada.Dat",
+  "sha256": "a70cb5627d2818a37f34e9395c50004b2256a7e6ca746c2f984082cad4949ce9",
+  "bytes": 204435,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Austrlia.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Austrlia.Dat",
+  "sha256": "87a06277a82e58a96b81e191400f672676543cfc6aaec0fe0108f82189ccec22",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Swtzrlnd.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Swtzrlnd.Dat",
+  "sha256": "9b51c472e2d1f9dd5e67af291a2ff4e560f2f5c04dc3846f25ecdd101aeb3f30",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Nethrlnd.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Nethrlnd.Dat",
+  "sha256": "c58f52d054b8cd5051c52175ad1a36c83ec3525a7647120598b79dfb3a44adb5",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Sweden.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Sweden.Dat",
+  "sha256": "74e4df1305ed34af8813c5d3607ae56b2204c16d20d9dff2e1aaa6440e946a20",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Italy.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Italy.Dat",
+  "sha256": "79854ef69848fa69f870b3a534b8e61fdb883e6031ee3839d27343464f9375ce",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Spain.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Spain.Dat",
+  "sha256": "04f219ab3d2e487cffec52f7a7fab0602b7bf4d2bbd87be2bfbf52e322297db1",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Belgium.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Belgium.Dat",
+  "sha256": "95216e69eb84ee92ed7d668287bd9916ff02d64665afe31d4a847985da8728db",
+  "bytes": 212691,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Denmark.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Denmark.Dat",
+  "sha256": "5676df8a8625ca6d60334e36f0bc258a8d289e6b797694152b7d9679bd6c3dd4",
+  "bytes": 154899,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "kf_Norway.Dat": {
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_International_Countries.zip#Norway.Dat",
+  "sha256": "a5f61588a6ce6b9d368bf1ce7aea2e6e7d4a64c7c2e126b514e8ddad8fa8562b",
+  "bytes": 189987,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": "zip 内原文件，CRLF"
+ },
+ "fred_IRLTLT01JPM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01JPM156N",
+  "sha256": "0b2c83838a66d486aff176b452d2a7a0fd8cc02fc05dc4ffd3eb3bb217f00876",
+  "bytes": 7775,
+  "downloadedAt": "2026-11-26T06:23:04Z",
+  "note": ""
+ },
+ "fred_IR3TIB01JPM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01JPM156N",
+  "sha256": "687106db0889512117a2c9431beb42f4e15e7538405b3c27e99d03aa7f96b5ee",
+  "bytes": 5659,
+  "downloadedAt": "2026-11-26T06:23:06Z",
+  "note": ""
+ },
+ "fred_IR3TCD01JPM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TCD01JPM156N",
+  "sha256": "9f959cb42d19afd5765c66978a040cc243fde9a304e5655645ffbbcda9686f04",
+  "bytes": 9826,
+  "downloadedAt": "2026-11-26T06:23:09Z",
+  "note": ""
+ },
+ "fred_IRSTCI01JPM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01JPM156N",
+  "sha256": "6865f607ecbb4738f80d08287b472b8a97f6693c887322da20d370db295f81ff",
+  "bytes": 9553,
+  "downloadedAt": "2026-11-26T06:23:11Z",
+  "note": ""
+ },
+ "fred_CCUSSP01JPM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01JPM650N",
+  "sha256": "df4f91c1892e71451538eab7590fa572a35282bad6592315dbbc12feb06a406d",
+  "bytes": 25344,
+  "downloadedAt": "2026-11-26T06:23:12Z",
+  "note": ""
+ },
+ "fred_DEXJPUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXJPUS",
+  "sha256": "d0f835b0155ad2f4b8ea5745f78221f9ef2eda2eded6766ba5d2f18802ecfb04",
+  "bytes": 257519,
+  "downloadedAt": "2026-11-26T06:23:14Z",
+  "note": ""
+ },
+ "fred_IRLTLT01DEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01DEM156N",
+  "sha256": "74b34521250634c654deb04257d031760b45331f4d4bf2d4f83276ba478408f9",
+  "bytes": 24622,
+  "downloadedAt": "2026-11-26T06:23:16Z",
+  "note": ""
+ },
+ "fred_IR3TIB01DEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01DEM156N",
+  "sha256": "b172a5523c7ce2063bda3094151b24ebb4f8ea66f2f0025c79b2647b4286411d",
+  "bytes": 24209,
+  "downloadedAt": "2026-11-26T06:23:17Z",
+  "note": ""
+ },
+ "fred_IRSTCI01DEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01DEM156N",
+  "sha256": "c2a5a3979e7136014c8b2db56ee69ad6e592fab5401820d1446aabb9b85ea59f",
+  "bytes": 23410,
+  "downloadedAt": "2026-11-26T06:23:22Z",
+  "note": ""
+ },
+ "fred_CCUSSP01DEM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01DEM650N",
+  "sha256": "24ae339d285735ac8c5da6270aa21227946d9a0a94dca2f0bc7ba47571200bdd",
+  "bytes": 19233,
+  "downloadedAt": "2026-11-26T06:23:24Z",
+  "note": ""
+ },
+ "fred_IRLTLT01GBM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01GBM156N",
+  "sha256": "70077b19812d71264ef3208d89a7e9689fb311ff53d91486e9a21ed4aabd655e",
+  "bytes": 14659,
+  "downloadedAt": "2026-11-26T06:23:25Z",
+  "note": ""
+ },
+ "fred_IR3TIB01GBM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01GBM156N",
+  "sha256": "40c23cc654a1380ed278a2b0be691f368d5cc1648493cadbbf1a2a2f654d33d4",
+  "bytes": 15956,
+  "downloadedAt": "2026-11-26T06:23:27Z",
+  "note": ""
+ },
+ "fred_IRSTCI01GBM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01GBM156N",
+  "sha256": "ac8b9a7b318a7292bdb6d04a61c711739e8f95dfc7226cdadce7d637584e35d4",
+  "bytes": 10711,
+  "downloadedAt": "2026-11-26T06:23:32Z",
+  "note": ""
+ },
+ "fred_CCUSSP01GBM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01GBM650N",
+  "sha256": "fe158efae75e167b0ce76719b98ff57b41561a3c7e4f5f9c8be16ced0c42693e",
+  "bytes": 21537,
+  "downloadedAt": "2026-11-26T06:23:33Z",
+  "note": ""
+ },
+ "fred_DEXUSUK.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSUK",
+  "sha256": "0b38cc520791f1e2141a93e6d7ef1a73e6dc184b77d25541c2f7ec49c4ef1132",
+  "bytes": 259069,
+  "downloadedAt": "2026-11-26T06:23:35Z",
+  "note": ""
+ },
+ "fred_IRLTLT01FRM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01FRM156N",
+  "sha256": "9b8676f7f6b6a06710335a9596ab3a812856519dbbce8563213e66413b4b9f2f",
+  "bytes": 13033,
+  "downloadedAt": "2026-11-26T06:23:36Z",
+  "note": ""
+ },
+ "fred_IR3TIB01FRM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01FRM156N",
+  "sha256": "867dbde8e12f880e3be9fcce14f9602edc362c24e2bd63d838664db78e517895",
+  "bytes": 20701,
+  "downloadedAt": "2026-11-26T06:23:38Z",
+  "note": ""
+ },
+ "fred_IRSTCI01FRM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01FRM156N",
+  "sha256": "7934ee56dc88eb9a0b064e97beb8e8f6d65d7babc917aaca74b18768f8960039",
+  "bytes": 25234,
+  "downloadedAt": "2026-11-26T06:23:43Z",
+  "note": ""
+ },
+ "fred_CCUSSP01FRM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01FRM650N",
+  "sha256": "37e18c01916a98693da2182a9f32d8dfe46eb0fde94f892cb33a249d61a28eef",
+  "bytes": 14618,
+  "downloadedAt": "2026-11-26T06:23:44Z",
+  "note": ""
+ },
+ "fred_IRLTLT01CAM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01CAM156N",
+  "sha256": "816e939b631f2f7101072f04f50697f095e02ae25369de42700abcb98c1a62b6",
+  "bytes": 25132,
+  "downloadedAt": "2026-11-26T06:23:46Z",
+  "note": ""
+ },
+ "fred_IR3TIB01CAM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01CAM156N",
+  "sha256": "fcbb70c4153d87812a3f00768ac8757c931fb38328211858e94a12f457a28949",
+  "bytes": 19687,
+  "downloadedAt": "2026-11-26T06:23:47Z",
+  "note": ""
+ },
+ "fred_IRSTCI01CAM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01CAM156N",
+  "sha256": "7700917a661b660edec7a8127cc51ab1a8a78cdb620ba68dbce8ce2d7dfb5cd7",
+  "bytes": 18167,
+  "downloadedAt": "2026-11-26T06:23:52Z",
+  "note": ""
+ },
+ "fred_CCUSSP01CAM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01CAM650N",
+  "sha256": "2dbacbca72dc0c21820f56b33171bcf8242037965a170eaad128c129b80bec4f",
+  "bytes": 22305,
+  "downloadedAt": "2026-11-26T06:23:54Z",
+  "note": ""
+ },
+ "fred_DEXCAUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXCAUS",
+  "sha256": "29c2462bcd7fcc7574748c70a40ad63b3921b1170e9be9a1b9cf2d3cf9392630",
+  "bytes": 259105,
+  "downloadedAt": "2026-11-26T06:23:56Z",
+  "note": ""
+ },
+ "fred_IRLTLT01AUM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01AUM156N",
+  "sha256": "3f3ca480af655f794f4b5f407ea919aaead9b9a44ee5eedbe6e42894097d1918",
+  "bytes": 19477,
+  "downloadedAt": "2026-11-26T06:23:57Z",
+  "note": ""
+ },
+ "fred_IR3TIB01AUM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01AUM156N",
+  "sha256": "c67e677317baf5944ef0d4ad26ef2116520c1b06e6fa0df5776057b6981d4218",
+  "bytes": 19968,
+  "downloadedAt": "2026-11-26T06:23:59Z",
+  "note": ""
+ },
+ "fred_IR3TBB01AUM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TBB01AUM156N",
+  "sha256": "d6a897a76d2e2619d1191298de10c1a7d12facd433eb326c06def907b307fe0c",
+  "bytes": 10952,
+  "downloadedAt": "2026-11-26T06:24:00Z",
+  "note": ""
+ },
+ "fred_IRSTCI01AUM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01AUM156N",
+  "sha256": "c9957e93fbabf996d18d1e351b596f573a37d760886a0f8e0cb0b97b92844ee3",
+  "bytes": 12226,
+  "downloadedAt": "2026-11-26T06:24:03Z",
+  "note": ""
+ },
+ "fred_CCUSSP01AUM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01AUM650N",
+  "sha256": "1b573df486f5fc442413c60a2e62574d4122d09d5b1602e1ee2ead0d6545aefd",
+  "bytes": 13839,
+  "downloadedAt": "2026-11-26T06:24:05Z",
+  "note": ""
+ },
+ "fred_DEXUSAL.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSAL",
+  "sha256": "3782e8ba5de992a33f121629ccdcd85f96ebd5a014f6b3de177a309c653352f4",
+  "bytes": 259027,
+  "downloadedAt": "2026-11-26T06:24:07Z",
+  "note": ""
+ },
+ "fred_IRLTLT01CHM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01CHM156N",
+  "sha256": "45a392d54fd2abbf180d3fb884f68aee12e72ef5a7221510d98cc3ec2e27a6f0",
+  "bytes": 14759,
+  "downloadedAt": "2026-11-26T06:24:08Z",
+  "note": ""
+ },
+ "fred_IR3TIB01CHM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01CHM156N",
+  "sha256": "46895bcd430974cc5cdcd67ec55b382ebb6ec61c0fad50bcf30ec1ca486a02e7",
+  "bytes": 10009,
+  "downloadedAt": "2026-11-26T06:24:10Z",
+  "note": ""
+ },
+ "fred_IRSTCI01CHM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01CHM156N",
+  "sha256": "227c8dc2814dd19ef46a6a6289cc744e7489a661b12ac3f5e3038e6e938fccc8",
+  "bytes": 12680,
+  "downloadedAt": "2026-11-26T06:24:14Z",
+  "note": ""
+ },
+ "fred_CCUSSP01CHM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01CHM650N",
+  "sha256": "fe2bb246d2b2aa7a5775ddb8932391194c837a6fce2b78e1d33eba96c80245f8",
+  "bytes": 22305,
+  "downloadedAt": "2026-11-26T06:24:16Z",
+  "note": ""
+ },
+ "fred_DEXSZUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXSZUS",
+  "sha256": "7f13dfa683906025a951560815060c173f0f959c48cd9ee5f036bfda40c07fe8",
+  "bytes": 259069,
+  "downloadedAt": "2026-11-26T06:24:18Z",
+  "note": ""
+ },
+ "fred_IRLTLT01NLM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01NLM156N",
+  "sha256": "3147621aa7fd5ac7b57e026e47f33bb65d0d507743dea646da8e37109b7fea27",
+  "bytes": 13937,
+  "downloadedAt": "2026-11-26T06:24:19Z",
+  "note": ""
+ },
+ "fred_IR3TIB01NLM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01NLM156N",
+  "sha256": "d2eb36df0cbbdc0096836b004a856e68c2721a8396889b82dae0bd431685b308",
+  "bytes": 11419,
+  "downloadedAt": "2026-11-26T06:24:21Z",
+  "note": ""
+ },
+ "fred_IRSTCI01NLM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01NLM156N",
+  "sha256": "02b3561130b2025d371199c35e3f30573b35633d5b258072ac1220a822a63c42",
+  "bytes": 9814,
+  "downloadedAt": "2026-11-26T06:24:26Z",
+  "note": ""
+ },
+ "fred_CCUSSP01NLM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01NLM650N",
+  "sha256": "b6e3ac6b3fa36f282f6e0777efa124e4419307bb976ddc81f4e0129a93fbd3a2",
+  "bytes": 19233,
+  "downloadedAt": "2026-11-26T06:24:27Z",
+  "note": ""
+ },
+ "fred_IRLTLT01SEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01SEM156N",
+  "sha256": "7d702fac55126e553969f8b0034a80a760c52ab0c26013ed9784640d34e74b6b",
+  "bytes": 10184,
+  "downloadedAt": "2026-11-26T06:24:29Z",
+  "note": ""
+ },
+ "fred_IR3TIB01SEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01SEM156N",
+  "sha256": "7228c686abf256350b9121bb735a4a3f3b317a23a51f4d4504aaceb9a660f1b1",
+  "bytes": 10991,
+  "downloadedAt": "2026-11-26T06:24:30Z",
+  "note": ""
+ },
+ "fred_IRSTCI01SEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01SEM156N",
+  "sha256": "40efe5963add258c6b2d371f9f980511f407981def447bdd6b6381b53ec50248",
+  "bytes": 12796,
+  "downloadedAt": "2026-11-26T06:24:35Z",
+  "note": ""
+ },
+ "fred_CCUSSP01SEM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01SEM650N",
+  "sha256": "ba61c8cbaefe89644bcfb19cf515cbf3645528c382a1fc01c4cf439883b7c969",
+  "bytes": 23073,
+  "downloadedAt": "2026-11-26T06:24:37Z",
+  "note": ""
+ },
+ "fred_DEXSDUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXSDUS",
+  "sha256": "22fed0d1483305aca1b71adfecf39ee8c5139cc98000c4f7ef6f689cd2ae1d77",
+  "bytes": 260132,
+  "downloadedAt": "2026-11-26T06:24:39Z",
+  "note": ""
+ },
+ "fred_IRLTLT01ITM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01ITM156N",
+  "sha256": "42d4b31d10e20757d626dec8e2a3bf521728fad082181b5ee80ad61ca4694376",
+  "bytes": 7361,
+  "downloadedAt": "2026-11-26T06:24:40Z",
+  "note": ""
+ },
+ "fred_IR3TIB01ITM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01ITM156N",
+  "sha256": "9f8bb6f7077e366cdcbeea4a2a15ea937d7b96d3a7bc057b59a8b09c6f1ac579",
+  "bytes": 12424,
+  "downloadedAt": "2026-11-26T06:24:41Z",
+  "note": ""
+ },
+ "fred_IRSTCI01ITM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01ITM156N",
+  "sha256": "0b86e8d6982eec87698f6fa8f83391ef95e941bb6b0dc933ace1347455322255",
+  "bytes": 9814,
+  "downloadedAt": "2026-11-26T06:24:46Z",
+  "note": ""
+ },
+ "fred_CCUSSP01ITM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01ITM650N",
+  "sha256": "6c9f7999a491ec5a5fafcd12e122edc678bbabe8d697bde3e2b04637617287da",
+  "bytes": 16929,
+  "downloadedAt": "2026-11-26T06:24:48Z",
+  "note": ""
+ },
+ "fred_IRLTLT01ESM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01ESM156N",
+  "sha256": "b36a3eab5af23827c773c1893d8f9a08f860fc5f2ed88035467fa6131a57b50c",
+  "bytes": 17074,
+  "downloadedAt": "2026-11-26T06:24:49Z",
+  "note": ""
+ },
+ "fred_IR3TIB01ESM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01ESM156N",
+  "sha256": "b66af8eabdcc0f577c922ecf6f998ec20cb8641a63eedf43aa642524f3c6c40f",
+  "bytes": 18257,
+  "downloadedAt": "2026-11-26T06:24:51Z",
+  "note": ""
+ },
+ "fred_IRSTCI01ESM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01ESM156N",
+  "sha256": "84ef2f547015333640ba747e635343178418b697b739911afe47e53c47119992",
+  "bytes": 18919,
+  "downloadedAt": "2026-11-26T06:24:56Z",
+  "note": ""
+ },
+ "fred_CCUSSP01ESM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01ESM650N",
+  "sha256": "ef757459b0e0fb7fe063cf5d743eb512743384ec47e858c28d39e281f2cc86c1",
+  "bytes": 17697,
+  "downloadedAt": "2026-11-26T06:24:57Z",
+  "note": ""
+ },
+ "fred_IRLTLT01BEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01BEM156N",
+  "sha256": "3ed7e741ccc4e67bd04a03e7bf13b91bf72ec44923a2d8efd8d0ba6d6e250773",
+  "bytes": 14787,
+  "downloadedAt": "2026-11-26T06:24:59Z",
+  "note": ""
+ },
+ "fred_IR3TIB01BEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01BEM156N",
+  "sha256": "7e6d29865f9fb0b23c6c6dc315dc003705eaec18623a654679882153a3ff3da2",
+  "bytes": 17592,
+  "downloadedAt": "2026-11-26T06:25:00Z",
+  "note": ""
+ },
+ "fred_IRSTCI01BEM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01BEM156N",
+  "sha256": "417f4b2d37f1de959cb157bce986c8d8aa6694d92fcd906f787c8ef2cdaa55d1",
+  "bytes": 9814,
+  "downloadedAt": "2026-11-26T06:25:05Z",
+  "note": ""
+ },
+ "fred_CCUSSP01BEM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01BEM650N",
+  "sha256": "4aec2cb64486fa3cb18d7c8387d6d4affeb9f1e6c400dd77b4e9e7c0b7ef7018",
+  "bytes": 18465,
+  "downloadedAt": "2026-11-26T06:25:06Z",
+  "note": ""
+ },
+ "fred_IRLTLT01DKM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01DKM156N",
+  "sha256": "0bbda93e34a409f98209f7c5024f267330a60b8db1fb69eff1d0e48e2765b970",
+  "bytes": 8217,
+  "downloadedAt": "2026-11-26T06:25:08Z",
+  "note": ""
+ },
+ "fred_IR3TIB01DKM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01DKM156N",
+  "sha256": "047f9b870428f8934ea5ca2d36b1a1e92d9275dddb6ad41a9555a801f952173d",
+  "bytes": 10202,
+  "downloadedAt": "2026-11-26T06:25:10Z",
+  "note": ""
+ },
+ "fred_IRSTCI01DKM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01DKM156N",
+  "sha256": "9ba272b053c219ec2044b35a8c5ae0419e2a7c81aafb2651c186345b6b9d20c1",
+  "bytes": 6409,
+  "downloadedAt": "2026-11-26T06:25:14Z",
+  "note": ""
+ },
+ "fred_CCUSSP01DKM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01DKM650N",
+  "sha256": "ae1a23fdf6243c2f0fc10231d3edfdf68e712267e782d00eabd314f93d4f6bbb",
+  "bytes": 23073,
+  "downloadedAt": "2026-11-26T06:25:16Z",
+  "note": ""
+ },
+ "fred_DEXDNUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXDNUS",
+  "sha256": "c5aa5d49d3ca52bd6a0b29145abbe64cc5b58ff6a3e0e356e4dba381c3a17cb2",
+  "bytes": 259431,
+  "downloadedAt": "2026-11-26T06:25:18Z",
+  "note": ""
+ },
+ "fred_IRLTLT01NOM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRLTLT01NOM156N",
+  "sha256": "df77ffd42199a2fce7e72bfece5b9dfa9941a523e7ec6ad5d8b21ea208570524",
+  "bytes": 14167,
+  "downloadedAt": "2026-11-26T06:25:19Z",
+  "note": ""
+ },
+ "fred_IR3TIB01NOM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IR3TIB01NOM156N",
+  "sha256": "d1a618ef0100c90a34c3087c65f6ee55d14d81a93deb128faad292168c5f83bb",
+  "bytes": 13397,
+  "downloadedAt": "2026-11-26T06:25:21Z",
+  "note": ""
+ },
+ "fred_IRSTCI01NOM156N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IRSTCI01NOM156N",
+  "sha256": "5869054382372d0e5c5f703c27c673209eee5af41b5a0a5b7076a5e83ab7ab0c",
+  "bytes": 15229,
+  "downloadedAt": "2026-11-26T06:25:26Z",
+  "note": ""
+ },
+ "fred_CCUSSP01NOM650N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CCUSSP01NOM650N",
+  "sha256": "154f8177fb26d06688c71b4bdc0686946ba85913080a1b11287049d6f930f67d",
+  "bytes": 23073,
+  "downloadedAt": "2026-11-26T06:25:27Z",
+  "note": ""
+ },
+ "fred_DEXNOUS.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXNOUS",
+  "sha256": "f88b27a2b7eaf37e301cc0c8030d0fbfa7c2da93df0d8fb14d4e06e88f561a7a",
+  "bytes": 259891,
+  "downloadedAt": "2026-11-26T06:25:29Z",
+  "note": ""
+ },
+ "fred_DEXUSEU.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXUSEU",
+  "sha256": "993b5d2500d97ffb4d52701b04e08c6cef27188f1c7fe71c30cc7ac62e3bb49c",
+  "bytes": 129283,
+  "downloadedAt": "2026-11-26T06:25:31Z",
+  "note": ""
+ },
+ "fred_INTGSBITM193N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INTGSBITM193N",
+  "sha256": "e56725739708cca2b65fe6deede8d65c54b94d2c2f7112dd734ed35e6e8e14ef",
+  "bytes": 11891,
+  "downloadedAt": "2026-11-26T06:25:32Z",
+  "note": ""
+ },
+ "fred_INTGSBESM193N.csv": {
+  "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INTGSBESM193N",
+  "sha256": "46bdf80ae10e2aebcce21b2d3337c0453909f5b7faa9d85696e39313b289c67f",
+  "bytes": 9450,
+  "downloadedAt": "2026-11-26T06:25:34Z",
+  "note": ""
+ },
+ "bbk_zst10_monthly.csv": {
+  "url": "https://api.statistiken.bundesbank.de/rest/download/BBSIS/M.I.ZST.ZI.EUR.S1311.B.A604.R10XX.R.A.A._Z._Z.A?format=csv&lang=en",
+  "sha256": "6c43a435e9273d45f07f600a1f1a78c119bf504bc31a93de22debc0b9484e93b",
+  "bytes": 9533,
+  "downloadedAt": "2026-11-26T06:25:35Z",
+  "note": ""
+ },
+ "bbk_zst10_daily.csv": {
+  "url": "https://api.statistiken.bundesbank.de/rest/download/BBSIS/D.I.ZST.ZI.EUR.S1311.B.A604.R10XX.R.A.A._Z._Z.A?format=csv&lang=en",
+  "sha256": "6ff3ad485abd19cf3d33dc7a7a5902a866b58b1c5f5547f0c129715c1189ef53",
+  "bytes": 232302,
+  "downloadedAt": "2026-11-26T06:25:37Z",
+  "note": ""
+ },
+ "bbk_umr_s13_r0910_monthly_avg.csv": {
+  "url": "https://api.statistiken.bundesbank.de/rest/download/BBSIS/M.I.UMR.RD.EUR.S13.B.A.R0910.R.A.A._Z._Z.A?format=csv&lang=en",
+  "sha256": "cfd2e9cd82eb448102b81d4b55e6b1420f8d8245af4333a26491d829d7d447b1",
+  "bytes": 10004,
+  "downloadedAt": "2026-11-26T06:25:37Z",
+  "note": ""
+ },
+ "bbk_usd_dem_daily.csv": {
+  "url": "https://api.statistiken.bundesbank.de/rest/download/BBEX3/D.USD.DEM.AA.AC.000?format=csv&lang=en",
+  "sha256": "c3b9d5773d04e752d1b265ff2f8a929097262c5039f57766bb6f293d5cc418de",
+  "bytes": 422806,
+  "downloadedAt": "2026-11-26T06:25:39Z",
+  "note": ""
+ },
+ "mof_jgbcme_all.csv": {
+  "url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv",
+  "sha256": "56e7dcc459fd46d94de920ecbb76a3df3c9832f157c5fac5c61410e2eec06548",
+  "bytes": 1197657,
+  "downloadedAt": "2026-11-26T06:25:44Z",
+  "note": ""
+ },
+ "_missing_fred": {
+  "ids": [
+   "IR3TBB01JPM156N",
+   "IR3TBB01DEM156N",
+   "IR3TCD01DEM156N",
+   "IR3TBB01GBM156N",
+   "IR3TCD01GBM156N",
+   "IR3TBB01FRM156N",
+   "IR3TCD01FRM156N",
+   "IR3TBB01CAM156N",
+   "IR3TCD01CAM156N",
+   "IR3TCD01AUM156N",
+   "IR3TBB01CHM156N",
+   "IR3TCD01CHM156N",
+   "IR3TBB01NLM156N",
+   "IR3TCD01NLM156N",
+   "IR3TBB01SEM156N",
+   "IR3TCD01SEM156N",
+   "IR3TBB01ITM156N",
+   "IR3TCD01ITM156N",
+   "IR3TBB01ESM156N",
+   "IR3TCD01ESM156N",
+   "IR3TBB01BEM156N",
+   "IR3TCD01BEM156N",
+   "IR3TBB01DKM156N",
+   "IR3TCD01DKM156N",
+   "IR3TBB01NOM156N",
+   "IR3TCD01NOM156N"
+  ],
+  "note": "fredgraph 返回 404/非 CSV，视为 FRED 上没有该序列"
+ }
+}
