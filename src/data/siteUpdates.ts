@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-trend-14',
+    date: '2026-11-26',
+    title: '十个月均线在 14 个国家的检验：有用，但作用很小',
+    description: '方案里的「十个月均线」以前只在美国 1872–1934 年检验过。这次用 14 个发达国家 1975–2025 年的数据（117 次熊市）再检验：时机确实有信息，14 国全部少跌、统计上显著；但只少跌约 3.5%，熊市过后一年再算，只有一半是赚的，执行晚一个月就变成亏钱，没过事先定的门槛。结论和美国老数据几乎一样：作用真实但很小。仓位规则不变；方案的退路从「上限 + 十个月均线」改为「只保留上限」。说明书升到 v1.2.4。',
+    href: '/invest/strategy-lab?tab=trend#lab-trend-14',
+  },
+  {
     id: 'strategy-lab-defensive-trend',
     date: '2026-11-26',
     title: '防守部分要不要放债券？14 个国家的检验',

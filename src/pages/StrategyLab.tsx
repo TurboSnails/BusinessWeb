@@ -14,6 +14,7 @@ import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
 import OptionHedgeStudy from '../features/strategy-lab/OptionHedgeStudy'
 import OverfitAuditStudy from '../features/strategy-lab/OverfitAuditStudy'
 import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
+import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
@@ -47,6 +48,7 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-defensive-tilt', tab: 'late', title: '股票部分长期防守倾斜', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子运行', summary: '1934–1972 年通过，但同等波动下大跌并没有少跌，好处是效率；ETF 影子运行 12 个月。', Component: DefensiveTiltStudy },
   { id: 'lab-radar-vix', tab: 'late', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },
   { id: 'lab-druckenmiller', tab: 'late', title: '德鲁肯米勒「逃顶」核查', date: '2026-11-26', status: 'note', statusText: '核查', summary: '只对了一半：公开说不做多股票时，标普已从高点回落约 6%。', Component: DruckenmillerNote },
+  { id: 'lab-trend-14', tab: 'trend', title: '十个月均线：14 国确认检验', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '14 国全部少跌、时机显著，但只少跌约 3.5%，全周期一半赚一半亏，晚一个月执行就亏；退路改为只保留上限。', Component: Trend14Study },
   { id: 'lab-option-hedge', tab: 'trend', title: '期权保护能否更便宜地防急跌', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '每月买看跌急跌里少亏约 23%，但同等少亏下和直接降仓一样贵；零成本领口不起作用。', Component: OptionHedgeStudy },
   { id: 'lab-trend', tab: 'trend', title: '趋势防下跌：1872–1934 年确认检验', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '现行十个月均线和破位封顶 50% 在 8 次大跌里都全部少跌，统计上不显著；规则不变，破位封顶进影子记录。', Component: TrendStudy },
   { id: 'lab-late-cycle', tab: 'trend', title: '牛市后段到回调：月中刹车', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '策略只对宏观先转差的下跌有用；4 种按日刹车都不通过。', Component: LateCycleStudy },

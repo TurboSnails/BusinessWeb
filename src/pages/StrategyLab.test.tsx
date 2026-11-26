@@ -11,6 +11,7 @@ import multi from '../features/strategy-lab/data/multi-asset.json'
 import audit from '../features/strategy-lab/data/overfit-audit.json'
 import hedge from '../features/strategy-lab/data/option-hedge.json'
 import deftrend from '../features/strategy-lab/data/defensive-trend.json'
+import trend14 from '../features/strategy-lab/data/trend-14.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -185,6 +186,12 @@ describe('研究中页签', () => {
     const main = screen.getByTestId('lab-deftrend-main')
     expect(main.textContent).toContain(deftrend.C1.verdict)
     expect(main.textContent).toContain(deftrend.C2.verdict)
+  })
+
+  it('十个月均线 14 国：各国逐行，判定与研究结果一致', () => {
+    renderPage(at('trend'))
+    expect(within(screen.getByTestId('lab-trend14-countries')).getAllByRole('row')).toHaveLength(trend14.perCountry.length + 1)
+    expect(screen.getByTestId('lab-trend14-main').textContent).toContain(trend14.C1.verdict)
   })
 
   it('百分比用「−」号', () => {
