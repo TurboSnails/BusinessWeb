@@ -9,19 +9,20 @@ import vol from '../features/strategy-lab/data/etf-volume.json'
 import confirm from '../features/strategy-lab/data/vol-confirm.json'
 import multi from '../features/strategy-lab/data/multi-asset.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
-import StrategyLab, { STRATEGY_LAB_LEAD } from './StrategyLab'
+import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
 vi.mock('../features/combined-strategy/load', () => ({
   useCombinedStrategy: vi.fn(() => ({ status: 'ready', data: { current: { instruction: '股票仓位保持在你上限的 85%，本月不用调。' } } })),
 }))
 
-function renderPage(): void {
+function renderPage(path = '/invest/strategy-lab'): void {
   render(
-    <MemoryRouter initialEntries={['/invest/strategy-lab']}>
+    <MemoryRouter initialEntries={[path]}>
       <StrategyLab />
     </MemoryRouter>,
   )
 }
+const at = (tab: string): string => `/invest/strategy-lab?tab=${tab}`
 
 describe('研究中页签', () => {
   it('页头说明不影响仓位，TrioNav 第四个页签为当前页', () => {
@@ -36,7 +37,7 @@ describe('研究中页签', () => {
   })
 
   it('回调事件表逐行对应研究结果，汇总表含扩张后段一行', () => {
-    renderPage()
+    renderPage(at('trend'))
     const events = screen.getByTestId('lab-events')
     expect(within(events).getAllByRole('row')).toHaveLength(data.events.length + 1)
     const e2020 = data.events.find(e => e.peak === '2020-02-19')!
@@ -46,7 +47,7 @@ describe('研究中页签', () => {
   })
 
   it('四个候选都显示预注册结论', () => {
-    renderPage()
+    renderPage(at('trend'))
     const table = screen.getByTestId('lab-candidates')
     for (const id of ['K1', 'K2', 'K3', 'K4'] as const) {
       expect(within(table).getByTitle(data.verdictB[id]).textContent).toBe('不通过')
@@ -55,14 +56,55 @@ describe('研究中页签', () => {
     expect(table.textContent).toContain(pct(data.strategies.base.full.dailyMaxDd))
   })
 
-  it('按日执行研究：研究列表、三个写法的预注册结论', () => {
-    renderPage()
-    const index = screen.getByRole('navigation', { name: '研究列表' })
-    expect(within(index).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['#lab-v01', '#lab-multi-asset', '#lab-vol-confirm', '#lab-etf-volume', '#lab-vol-target', '#lab-daily-execution', '#lab-late-cycle'])
+  it('按日执行研究：三个写法的预注册结论', () => {
+    renderPage(at('trend'))
     expect(screen.getByTestId('lab-daily-answer').textContent).toContain(daily.answer)
     const table = screen.getByTestId('lab-daily-table')
     for (const id of ['D1', 'D2', 'D3'] as const) expect(within(table).getByTitle(daily.verdict[id]).textContent).toBe('不通过')
     expect(within(table).getAllByRole('row')).toHaveLength(5)
+  })
+
+  it('页签：五个分类带研究数；默认总览列出全部研究卡片和有效策略初版', () => {
+    renderPage()
+    const tabs = screen.getAllByRole('tab').map(t => t.textContent)
+    const count = (tab: string): number => LAB_STUDIES.filter(x => x.tab === tab).length
+    expect(tabs).toEqual(['总览', `牛市后期 · ${count('late')}`, `趋势与刹车 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `A 股 ETF · ${count('cn')}`])
+    expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
+    expect(within(screen.getByTestId('lab-cards')).getAllByRole('button')).toHaveLength(LAB_STUDIES.length)
+    expect(screen.getByTestId('lab-v01')).toBeTruthy()
+    expect(screen.queryByTestId('lab-late-cycle')).toBeNull()
+  })
+
+  it('点总览卡片切到对应页签并显示那项研究', () => {
+    renderPage()
+    fireEvent.click(screen.getByTestId('lab-card-lab-vol-confirm'))
+    expect(screen.getByRole('tab', { name: /^降低波动/ }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByTestId('lab-vol-confirm')).toBeTruthy()
+    expect(screen.queryByTestId('lab-cards')).toBeNull()
+  })
+
+  it('旧链接 #lab-xxx 直接打开对应页签；?tab= 可分享', () => {
+    renderPage('/invest/strategy-lab#lab-late-cycle')
+    expect(screen.getByRole('tab', { name: /^趋势与刹车/ }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByTestId('lab-late-cycle')).toBeTruthy()
+  })
+
+  it('德鲁肯米勒核查里的链接跳到「趋势与刹车」页签的趋势防下跌研究', () => {
+    renderPage(at('late'))
+    fireEvent.click(within(screen.getByTestId('lab-druckenmiller')).getByRole('link', { name: '趋势防下跌研究' }))
+    expect(screen.getByRole('tab', { name: /^趋势与刹车/ }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByTestId('lab-trend')).toBeTruthy()
+  })
+
+  it('同一页签多项研究时有页内跳转；切页签只显示该类研究', () => {
+    renderPage(at('vol'))
+    const jump = screen.getByRole('navigation', { name: '本页研究' })
+    expect(within(jump).getAllByRole('button')).toHaveLength(LAB_STUDIES.filter(x => x.tab === 'vol').length)
+    expect(screen.queryByTestId('lab-daily-execution')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: /^A 股 ETF/ }))
+    expect(screen.getByTestId('lab-etf-volume')).toBeTruthy()
+    expect(screen.queryByRole('navigation', { name: '本页研究' })).toBeNull()
+    expect(screen.queryByTestId('lab-vol-confirm')).toBeNull()
   })
 
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {
@@ -75,7 +117,7 @@ describe('研究中页签', () => {
   })
 
   it('波动率目标：三个写法的结论、同等仓位对照与当前读数', () => {
-    renderPage()
+    renderPage(at('vol'))
     const table = screen.getByTestId('lab-vt-table')
     for (const id of ['VT1', 'VT2', 'VT3'] as const) expect(within(table).getByTitle(vt.verdict[id]).textContent).toBe('不通过')
     expect(within(screen.getByTestId('lab-vt-events')).getAllByRole('row')).toHaveLength(9)
@@ -83,21 +125,21 @@ describe('研究中页签', () => {
   })
 
   it('A 股成交量检验：三个条件的判定', () => {
-    renderPage()
+    renderPage(at('cn'))
     const table = screen.getByTestId('lab-etf-volume-table')
     for (const id of ['V1', 'V2', 'V3'] as const) expect(table.textContent).toContain(vol.decision[id].text)
     expect(within(table).getAllByRole('row')).toHaveLength(5)
   })
 
   it('降波动确认检验：10 个市场逐行、上限表 3 行', () => {
-    renderPage()
+    renderPage(at('vol'))
     expect(within(screen.getByTestId('lab-vol-confirm-table')).getAllByRole('row')).toHaveLength(1 + 1 + confirm.overseas.length)
     expect(within(screen.getByTestId('lab-cap-table')).getAllByRole('row')).toHaveLength(4)
     expect(screen.getByTestId('lab-vol-confirm-answer').textContent).toContain('部分成立')
   })
 
   it('多资产检验：6 行比较、5 个条件、结论不通过', () => {
-    renderPage()
+    renderPage(at('vol'))
     expect(within(screen.getByTestId('lab-multi-table')).getAllByRole('row')).toHaveLength(7)
     expect(within(screen.getByTestId('lab-multi-checks')).getAllByRole('row')).toHaveLength(6)
     expect(multi.verdict.passed).toEqual([])
@@ -105,7 +147,7 @@ describe('研究中页签', () => {
   })
 
   it('回调事件表可按类型筛选，扩张后段只剩对应几次', () => {
-    renderPage()
+    renderPage(at('trend'))
     const events = screen.getByTestId('lab-events')
     const group = screen.getByRole('group', { name: '按回调类型筛选' })
     const late = data.groups.find(g => g.label.includes('扩张后段'))!

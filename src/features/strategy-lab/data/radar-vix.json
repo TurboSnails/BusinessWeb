@@ -1,0 +1,70 @@
+{
+  "source": "docs/research/market-radar-v2-2026-11-24.md「二之四、第四轮：企业债利差 + VIX 变化趋势（2026-11-26，L-022）」的「结果」表与「事后观察」段，手工抄录；没有 results.json，脚本见同节 r4.mjs、r4-stage2.mjs、r4-episodes.mjs",
+  "ledger": "L-022",
+  "prereg": "docs/research/market-radar-v2-2026-11-24/PREREG-round4-vix-credit.md（提交 d36a999f）",
+  "segments": {
+    "train": "1973–1999",
+    "valid": "2000–2026",
+    "full": "全样本"
+  },
+  "schemes": [
+    {
+      "id": "base",
+      "name": "基线：线上 radar-v1",
+      "rule": "现行雷达计分",
+      "role": "base",
+      "train": { "cagr": 0.1191, "maxDd": -0.313, "sharpe": 0.506 },
+      "valid": { "cagr": 0.0762, "maxDd": -0.266, "sharpe": 0.692 },
+      "full": { "cagr": 0.0975, "maxDd": -0.313, "sharpe": 0.590 }
+    },
+    {
+      "id": "K1",
+      "name": "K1 VIX 趋势并入流动性",
+      "rule": "VIX 趋势 ≥ +20% 扣 1 分、≤ −15% 加 1 分，和企业债利差变化同在流动性维度里平均",
+      "role": "confirm",
+      "verdict": "不采用：训练期夏普 −0.001，不过线",
+      "train": { "cagr": 0.1196, "maxDd": -0.314, "sharpe": 0.505 },
+      "valid": { "cagr": 0.0742, "maxDd": -0.282, "sharpe": 0.652 },
+      "full": { "cagr": 0.0966, "maxDd": -0.314, "sharpe": 0.573 }
+    },
+    {
+      "id": "K2",
+      "name": "K2 利差走阔看 VIX 趋势",
+      "rule": "利差半年扩大 ≥ 0.20 时，VIX 趋势 > 0 扣 1 分，≤ 0 加 1 分",
+      "role": "confirm",
+      "verdict": "不采用：训练期过线，验证期夏普 −0.073、回撤多 2.8 个百分点",
+      "train": { "cagr": 0.1235, "maxDd": -0.321, "sharpe": 0.532 },
+      "valid": { "cagr": 0.0721, "maxDd": -0.294, "sharpe": 0.619 },
+      "full": { "cagr": 0.0975, "maxDd": -0.321, "sharpe": 0.571 }
+    },
+    {
+      "id": "E1",
+      "name": "E1 K1 + K2",
+      "rule": "探索，不能据此采用",
+      "role": "explore",
+      "train": { "cagr": 0.1228, "maxDd": -0.314, "sharpe": 0.526 },
+      "valid": { "cagr": 0.0731, "maxDd": -0.282, "sharpe": 0.632 },
+      "full": { "cagr": 0.0977, "maxDd": -0.314, "sharpe": 0.574 }
+    },
+    {
+      "id": "E2",
+      "name": "E2 联合压力",
+      "rule": "探索：利差和波动同时走坏才扣分、同时好转才加分",
+      "role": "explore",
+      "train": { "cagr": 0.1226, "maxDd": -0.321, "sharpe": 0.527 },
+      "valid": { "cagr": 0.0720, "maxDd": -0.288, "sharpe": 0.629 },
+      "full": { "cagr": 0.0970, "maxDd": -0.321, "sharpe": 0.573 }
+    }
+  ],
+  "episodes": {
+    "condition": "利差扩大 ≥ 0.20 且 VIX 趋势 ≥ +20%",
+    "count": 17,
+    "positive": 16,
+    "months": ["1974-09", "1979-10", "1980-03", "1982-02", "1982-08", "1984-03", "1984-08", "1990-09", "2008-09", "2010-06", "2011-09", "2015-01", "2015-08", "2016-01", "2018-12", "2020-03", "2022-05"],
+    "negative": { "month": "2015-01", "fwd12": -0.07 },
+    "macroDefensive": 13,
+    "worstDd": { "month": "2008-09", "dd": -0.207 }
+  },
+  "display": "VIX 变化趋势加到雷达页「趋势与波动」组，只展示（日频写法：近 21 个交易日均值 ÷ 之前 126 个交易日均值 − 1）",
+  "freezeUntil": "2027-02-24"
+}

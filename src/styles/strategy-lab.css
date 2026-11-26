@@ -179,3 +179,15 @@
   .lab-legend__swatch { forced-color-adjust: none; border: 1px solid CanvasText; }
   .lab-bars__bar, .lab-ratio__bar { forced-color-adjust: none; stroke: CanvasText; stroke-width: 1px; vector-effect: non-scaling-stroke; }
 }
+
+/* ── 趋势防下跌 / 多维预警 / 防守倾斜 / 德鲁肯米勒 ───────────── */
+.lab-defs { display: grid; gap: 6px; margin: 8px 0 16px; }
+.lab-defs__item { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: 4px 12px; font-size: 0.9rem; line-height: 1.55; }
+.lab-defs__item dt { font-weight: 600; color: var(--text-primary); }
+.lab-defs__item dd { margin: 0; color: var(--text-secondary); }
+@media (max-width: 520px) { .lab-defs__item { grid-template-columns: 1fr; gap: 0; } }
+
+.lab-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 8px 24px; margin: 8px 0 12px; }
+.lab-cols__title { margin: 0 0 4px; font-size: 0.95rem; }
+
+.lab-shadow { margin: 8px 0 12px; font-size: 0.9rem; line-height: 1.6; }

@@ -1,0 +1,96 @@
+/* 研究中 · 页签、总览卡片、页内跳转（lab-rcard / lab-pill / lab-jump） */
+
+/* 吸顶页签下方锚点不被遮住 */
+.lab-page .lab-study { scroll-margin-top: 120px; }
+.lab-panel { min-height: 40vh; }
+
+/* 状态标签 */
+.lab-pill {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.7;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  background: var(--system-gray6, #f2f2f0);
+}
+.lab-pill[data-status='pass'] { color: var(--accent-ink); background: var(--accent-soft); }
+.lab-pill[data-status='fail'] { color: var(--warm-ink); background: var(--accent-warm-soft); }
+.lab-pill[data-status='partial'] {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--cs-tier-lean-defense) 18%, var(--cs-card-bg));
+}
+
+/* 总览 */
+.lab-overview { margin: 0 0 32px; }
+.lab-overview__title { margin: 0 0 4px; font-size: 1.15rem; }
+.lab-overview__hint { margin: 0 0 12px; font-size: 0.85rem; color: var(--text-secondary); }
+.lab-rcards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 12px;
+}
+.lab-rcard { margin: 0; }
+.lab-rcard__btn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--cs-line);
+  border-radius: 10px;
+  background: var(--cs-card-bg);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+.lab-rcard__btn:hover {
+  border-color: color-mix(in srgb, var(--text-primary) 30%, var(--cs-line));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.lab-rcard__btn:focus-visible { outline: 2px solid var(--accent-ink, currentColor); outline-offset: 2px; }
+.lab-rcard__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary); }
+.lab-rcard__title { font-weight: 650; font-size: 0.98rem; line-height: 1.4; }
+.lab-rcard__summary { font-size: 0.86rem; line-height: 1.6; color: var(--text-secondary); }
+.lab-rcard__go { margin-top: auto; font-size: 0.8rem; color: var(--accent-ink, var(--text-primary)); }
+
+/* 页内跳转：同一页签有多项研究时 */
+.lab-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 10px 12px;
+  border: 1px solid var(--cs-line);
+  border-radius: 10px;
+  background: var(--cs-card-bg);
+}
+.lab-jump__label { font-size: 0.78rem; color: var(--text-secondary); margin-right: 2px; }
+.lab-jump__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+.lab-jump__btn:hover { border-color: color-mix(in srgb, var(--text-primary) 30%, var(--cs-line)); }
+.lab-jump__btn:focus-visible { outline: 2px solid var(--accent-ink, currentColor); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-rcard__btn { transition: none; }
+}
