@@ -1,0 +1,163 @@
+{
+  "note": "已用数据：收益月 1951-01 至 2026-06，A2（席勒月均价）与月末口径（日收盘月末，信号次月生效）。只用来判断门槛难度，不是 1871–1934 年的结果。",
+  "base": 0.85,
+  "events": [
+    [
+      "1961-12",
+      "1962-06",
+      -0.2225
+    ],
+    [
+      "1968-11",
+      "1970-06",
+      -0.2918
+    ],
+    [
+      "1972-12",
+      "1974-09",
+      -0.4274
+    ],
+    [
+      "1987-08",
+      "1987-11",
+      -0.2959
+    ],
+    [
+      "2000-08",
+      "2002-09",
+      -0.4469
+    ],
+    [
+      "2007-10",
+      "2009-02",
+      -0.5096
+    ],
+    [
+      "2021-12",
+      "2022-09",
+      -0.2389
+    ]
+  ],
+  "C1": {
+    "A2": {
+      "wM": 0.7848,
+      "L": 0.9543,
+      "wins": 6,
+      "dE": 0.0685,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0028,
+      "calmVsB0": -0.0049,
+      "dCER": 0.00305,
+      "sharpe": 0.6563,
+      "sharpeM": 0.6243,
+      "switchesPerYear": 1.272,
+      "turnoverPerYear": 0.191,
+      "avgW": 0.8079
+    },
+    "A2cost30": {
+      "wM": 0.7848,
+      "L": 0.956,
+      "wins": 6,
+      "dE": 0.0629,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0024,
+      "calmVsB0": -0.0053,
+      "dCER": 0.00267,
+      "sharpe": 0.6523,
+      "sharpeM": 0.6243,
+      "switchesPerYear": 1.272,
+      "turnoverPerYear": 0.191,
+      "avgW": 0.8079
+    },
+    "monthEnd": {
+      "wM": 0.7835,
+      "L": 0.9498,
+      "wins": 5,
+      "dE": 0.0738,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0028,
+      "calmVsB0": -0.0053,
+      "dCER": 0.00321,
+      "sharpe": 0.5644,
+      "sharpeM": 0.5365,
+      "switchesPerYear": 1.483,
+      "turnoverPerYear": 0.223,
+      "avgW": 0.8073
+    },
+    "deltaL": -0.0045,
+    "gatesOnUsedData": {
+      "Lstar": 0.9589,
+      "G1": true,
+      "G2": true,
+      "G3": true,
+      "G4": true,
+      "G6": true,
+      "G7": true,
+      "note": "G4 无子期、G5 未算、L₋₂₉ 不适用"
+    }
+  },
+  "C2": {
+    "A2": {
+      "wM": 0.7115,
+      "L": 0.8538,
+      "wins": 6,
+      "dE": 0.1829,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0048,
+      "calmVsB0": -0.0115,
+      "dCER": 0.00608,
+      "sharpe": 0.6947,
+      "sharpeM": 0.6243,
+      "switchesPerYear": 1.272,
+      "turnoverPerYear": 0.445,
+      "avgW": 0.7519
+    },
+    "A2cost30": {
+      "wM": 0.7115,
+      "L": 0.8585,
+      "wins": 6,
+      "dE": 0.1693,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0039,
+      "calmVsB0": -0.0123,
+      "dCER": 0.00519,
+      "sharpe": 0.6844,
+      "sharpeM": 0.6243,
+      "switchesPerYear": 1.272,
+      "turnoverPerYear": 0.445,
+      "avgW": 0.7519
+    },
+    "monthEnd": {
+      "wM": 0.7085,
+      "L": 0.8406,
+      "wins": 5,
+      "dE": 0.2005,
+      "posE": 5,
+      "nEvents": 7,
+      "calmVsM": 0.0049,
+      "calmVsB0": -0.0123,
+      "dCER": 0.00641,
+      "sharpe": 0.5982,
+      "sharpeM": 0.5365,
+      "switchesPerYear": 1.483,
+      "turnoverPerYear": 0.519,
+      "avgW": 0.7503
+    },
+    "deltaL": -0.0132,
+    "gatesOnUsedData": {
+      "Lstar": 0.8749,
+      "G1": true,
+      "G2": true,
+      "G3": true,
+      "G4": true,
+      "G6": true,
+      "G7": true,
+      "note": "G4 无子期、G5 未算、L₋₂₉ 不适用"
+    }
+  }
+}
