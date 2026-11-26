@@ -62,7 +62,7 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
         {share == null ? null : <span className="cs-cap__times">× 档位 {formatSharePct(share)}</span>}
       </p>
       <p id={`${id}-def`} className="cs-cap__def">
-        上限 = 你打算投入美股的资金里，最多放股票的比例；其余放现金或短期国债。
+        上限 = 你打算投入美股的资金里，最多放股票的比例；其余放现金或短期国债。每月按这笔钱的当前总值算。
       </p>
       <details className="cs-cap__why">
         <summary data-testid="mp-equity-cap-recommend">

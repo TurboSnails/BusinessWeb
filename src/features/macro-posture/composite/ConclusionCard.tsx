@@ -11,7 +11,7 @@ import {
 import type { CompositeFile, TierId } from './types'
 
 const EQUITY_CAP_KEY = 'mp-equity-cap'
-/** 建议上限（2026-11-25 起，以降低波动为目标；依据见说明书 v1.1.0 第二章与「研究中」页签）。用户自己设过的值优先。 */
+/** 建议上限（2026-11-25 起，以降低波动为目标；依据见说明书 v1.1.0 起的第二章与「研究中」页签；v1.2.0 写明按当前总值计算）。用户自己设过的值优先。 */
 export const RECOMMENDED_EQUITY_CAP = 80
 
 export function readEquityCap(): number {
@@ -116,7 +116,7 @@ export function EquityCapInput({ equityShare }: { equityShare: number | null }):
       </span>
       <p className="mp-equity-cap__def">「上限」就是你计划里的股票目标权重。</p>
       <p className="mp-equity-cap__def" data-testid="mp-equity-cap-recommend">
-        {cap === RECOMMENDED_EQUITY_CAP ? '这是建议值' : `建议 ${RECOMMENDED_EQUITY_CAP}%`}：以降低波动为目标，上限取打算投入美股资金的 {RECOMMENDED_EQUITY_CAP}%，其余放现金或短期国债。历史上波动约 11% → 9%，最大回撤约 −33% → −27%，年化少约 1 个百分点。能承受更大波动可以调高。
+        {cap === RECOMMENDED_EQUITY_CAP ? '这是建议值' : `建议 ${RECOMMENDED_EQUITY_CAP}%`}：以降低波动为目标，上限取打算投入美股资金的 {RECOMMENDED_EQUITY_CAP}%（每月按当前总值算），其余放现金或短期国债。历史上波动约 11% → 9%，最大回撤约 −33% → −27%，年化少约 1 个百分点。能承受更大波动可以调高。
         {' '}<Link to="/invest/strategy/spec">依据</Link>
       </p>
       <p id={`${id}-hint`} className="mp-equity-cap__hint" data-testid="mp-equity-cap-implied">

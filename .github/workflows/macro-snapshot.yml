@@ -41,12 +41,21 @@ jobs:
         run: node scripts/vol-target-shadow.mjs
       - name: Update late-cycle warning shadow readings (frozen months are never rewritten)
         run: node scripts/late-cycle-shadow.mjs
+      # 抓取或计算失败只发 warning；退出码 2 表示已冻结的行被改写，此时任务失败
+      - name: Update defensive-tilt ETF shadow run (frozen months are never rewritten)
+        shell: bash
+        run: |
+          set +e
+          node scripts/defensive-tilt-shadow.mjs
+          code=$?
+          if [ "$code" -eq 2 ]; then exit 1; fi
+          if [ "$code" -ne 0 ]; then echo "::warning::Defensive-tilt shadow refresh failed"; fi
       - name: Commit if changed
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json public/data/late-cycle-shadow.json
+          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json public/data/late-cycle-shadow.json public/data/defensive-tilt-shadow.json data-raw/defensive-tilt-shadow/
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0

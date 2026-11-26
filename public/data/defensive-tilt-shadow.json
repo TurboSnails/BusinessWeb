@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-11-26T03:10:30.987Z",
+  "rule": "股票部分 70% SPY + 30% 防守腿，每月初再平衡。S1：防守腿 = XLP、XLV、XLU 等权（对应 P1 防守九行业）；S2：防守腿 = USMV（对应 P2 低波十行业），S2b 用 SPLV。研究口径对照：P1 = Food、Soda、Beer、Smoke、Hshld、Hlth、MedEq、Drugs、Util 等权；P2 = 该月之前 36 个月月收益无缺失的行业中样本标准差最低的 10 个等权（同值按行业顺序）。ETF 月收益按月末复权收盘（含分红）。",
+  "since": "2026-12",
+  "until": "2027-11",
+  "note": "影子运行：只记录、不操作，现行仓位仍按宏观攻守执行。L-026 的预注册下一步，只检验 ETF 执行与研究口径是否一致（看跟踪差），不对收益做判定；期满由用户决定是否采用。研究口径篮子用 Ken French 49 行业数据，约晚 1–2 个月发布，完整月份在 ETF 行情与研究数据都齐全后冻结（超过 3 个月仍缺则带缺项冻结），之后不再改动。收益均为小数。",
+  "current": {
+    "month": "2026-11",
+    "etf": {
+      "SPY": -0.051633,
+      "XLP": 0.032208,
+      "XLV": -0.006437,
+      "XLU": 0.004145,
+      "USMV": -0.013504,
+      "SPLV": 0.01959
+    },
+    "period": [
+      "2026-10-30",
+      "2026-11-25"
+    ],
+    "p1Etf": 0.009972,
+    "S1": -0.033151,
+    "S2": -0.040194,
+    "S2b": -0.030266,
+    "research": {
+      "p1": null,
+      "p2": null,
+      "p2Members": null
+    },
+    "tracking": {
+      "p1": null,
+      "p2Usmv": null,
+      "p2Splv": null
+    },
+    "missing": [
+      "研究 P1",
+      "研究 P2"
+    ],
+    "estimate": true
+  },
+  "rows": [],
+  "summary": {
+    "through": null,
+    "months": 0,
+    "cumulative": {
+      "S1": null,
+      "S2": null,
+      "S2b": null,
+      "SPY": null
+    },
+    "tracking": {
+      "p1": {
+        "months": 0,
+        "mean": null,
+        "std": null
+      },
+      "p2Usmv": {
+        "months": 0,
+        "mean": null,
+        "std": null
+      },
+      "p2Splv": {
+        "months": 0,
+        "mean": null,
+        "std": null
+      }
+    }
+  }
+}

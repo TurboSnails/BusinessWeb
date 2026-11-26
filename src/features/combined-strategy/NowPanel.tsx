@@ -76,6 +76,25 @@ export default function NowPanel({
         ))}
       </ol>
 
+      {current.heat === 'hot' ? (
+        <details className="cs-discipline" data-testid="cs-discipline">
+          <summary>
+            <strong className="cs-discipline__label">偏热时的纪律</strong>
+            标普跌 20% 时，按建议上限 80%，美股资金大约跌 14%（上限 100% 约 17%）。规则不会提前躲开。
+          </summary>
+          <ul className="cs-discipline__list">
+            <li>不融资，不用杠杆 ETF。</li>
+            <li>三年内确定要用的钱，不放在股票里。</li>
+            <li>新增资金先放短期国债，每月执行时按档位买入。</li>
+            <li>急跌时不手动加减仓，按月执行。</li>
+          </ul>
+          <p className="cs-discipline__why">
+            依据：宏观没问题但偏热时开始的 9 次回调，本策略中位承受标普约 85% 的跌幅；用利差走阔、VIX 放大、新高变少等提前预警的 7 种写法都没有通过，这些现象多在回调开始后才出现。
+            {' '}<Link to="/invest/strategy/spec">说明书第十章</Link>
+          </p>
+        </details>
+      ) : null}
+
       {current.dates.length > 0 ? (
         <p className="cs-now__dates" data-testid="cs-dates">
           <span className="cs-now__dates-label">数据更新</span>

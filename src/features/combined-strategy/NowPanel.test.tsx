@@ -27,6 +27,18 @@ describe('NowPanel', () => {
     expect(screen.queryByTestId('cs-now-cell')).toBeNull()
   })
 
+  it('偏热时显示纪律与损失预期，不偏热时不显示', () => {
+    wrap(<NowPanel data={combinedStrategyFixture()} />)
+    const box = screen.getByTestId('cs-discipline')
+    expect(box.textContent).toContain('美股资金大约跌 14%')
+    expect(box.textContent).toContain('不融资')
+    expect(within(box).getByRole('link', { name: '说明书第十章' }).getAttribute('href')).toBe('/invest/strategy/spec')
+    cleanup()
+    const mid = combinedStrategyFixture()
+    wrap(<NowPanel data={{ ...mid, current: { ...mid.current, heat: 'mid' } }} />)
+    expect(screen.queryByTestId('cs-discipline')).toBeNull()
+  })
+
   it('换算卡：大号显示上限 × 档位，改上限即时更新；月底提醒可选', () => {
     localStorage.removeItem('mp-equity-cap')
     wrap(<NowPanel data={combinedStrategyFixture()} watch={{ text: '11 月剩下 3 个交易日，标普均价如果低于 6,861 点，月底降一档到中性（上限的 70%）。', gap: -0.047, close: false }} />)

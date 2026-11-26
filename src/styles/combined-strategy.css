@@ -615,6 +615,27 @@ html.dark .cs-page {
   white-space: nowrap;
 }
 
+/* 偏热时的纪律（只在偏热时出现，不改变仓位） */
+.cs-discipline {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cs-tier-lean-defense) 35%, var(--cs-line));
+  background: color-mix(in srgb, var(--cs-tier-lean-defense) 6%, var(--cs-card-bg));
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+.cs-discipline > summary { cursor: pointer; }
+.cs-discipline__label { margin-right: 8px; color: var(--text-primary); }
+.cs-discipline__list { margin: 8px 0 6px; padding-left: 1.2em; }
+.cs-discipline__why { margin: 0; }
+.cs-discipline__why a {
+  color: var(--accent-ink, var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* 换算卡 */
 .cs-page .cs-cap {
   display: block;
