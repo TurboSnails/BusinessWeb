@@ -127,12 +127,12 @@ describe('StrategySpecView', () => {
     expect(changed).toEqual(['一、概要', '十三、回测证据', '十四、对照方案与已检验但未采用的改动', '十五、已知局限'])
   })
 
-  it('真实版本：现行 v1.2.7，「对比最近两个版本」是对照方案和已知局限两章', () => {
+  it('真实版本：现行 v1.2.8，「对比最近两个版本」是执行、对照方案和已知局限三章', () => {
     renderAt('/invest/strategy/spec')
-    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.2.7')
+    expect(screen.getByTestId('ss-cover').textContent).toContain('v1.2.8')
     fireEvent.click(screen.getByTestId('ss-compare-start'))
-    expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.2\.6 → v1\.2\.7：16 章里有 2 章不同。$/)
+    expect(screen.getByTestId('ss-compare-summary').textContent).toMatch(/^v1\.2\.7 → v1\.2\.8：16 章里有 3 章不同。$/)
     const changed = [...document.querySelectorAll('.ss-diff[data-status="changed"]')].map(node => node.querySelector('.ss-diff__title')?.textContent)
-    expect(changed).toEqual(['十四、对照方案与已检验但未采用的改动', '十五、已知局限'])
+    expect(changed).toEqual(['十一、执行', '十四、对照方案与已检验但未采用的改动', '十五、已知局限'])
   })
 })

@@ -15,6 +15,7 @@ import trend14 from '../features/strategy-lab/data/trend-14.json'
 import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
 import tm from '../features/strategy-lab/data/trend-momentum.json'
+import sector from '../features/strategy-lab/data/sector-rotation.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
 
@@ -71,11 +72,11 @@ describe('研究中页签', () => {
     expect(within(table).getAllByRole('row')).toHaveLength(5)
   })
 
-  it('页签：六个分类带研究数；默认总览列出全部研究卡片和有效策略初版', () => {
+  it('页签：七个分类带研究数；默认总览列出全部研究卡片和有效策略初版', () => {
     renderPage()
     const tabs = screen.getAllByRole('tab').map(t => t.textContent)
     const count = (tab: string): number => LAB_STUDIES.filter(x => x.tab === tab).length
-    expect(tabs).toEqual(['总览', `规则可信度 · ${count('audit')}`, `牛市后期 · ${count('late')}`, `防下跌 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `轮动 · ${count('rotate')}`, `A 股 ETF · ${count('cn')}`])
+    expect(tabs).toEqual(['总览', `规则可信度 · ${count('audit')}`, `牛市后期 · ${count('late')}`, `防下跌 · ${count('trend')}`, `降低波动 · ${count('vol')}`, `轮动 · ${count('rotate')}`, `板块轮动 · ${count('sector')}`, `A 股 ETF · ${count('cn')}`])
     expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
     expect(within(screen.getByTestId('lab-cards')).getAllByRole('button')).toHaveLength(LAB_STUDIES.length)
     expect(screen.getByTestId('lab-v01')).toBeTruthy()
@@ -220,6 +221,24 @@ describe('研究中页签', () => {
     expect(within(table).getAllByRole('row')).toHaveLength(3)
     expect(table.textContent).toContain(tm.main.T1.verdict)
     expect(within(screen.getByTestId('lab-tm-bears')).getAllByRole('row')).toHaveLength(tm.bears.length + 1)
+  })
+
+  it('板块轮动页签：两个写法逐行，判定来自研究结果；影子读数加载失败有提示', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
+    renderPage(at('sector'))
+    const table = screen.getByTestId('lab-sector-table')
+    expect(within(table).getAllByRole('row')).toHaveLength(3)
+    expect(table.textContent).toContain(sector.main.S1.verdict)
+    expect(await screen.findByText('影子读数暂时加载不了')).toBeTruthy()
+    vi.unstubAllGlobals()
+  })
+
+  it('板块轮动影子读数：显示当月入选', async () => {
+    const body = { since: '2026-12', until: '2027-11', rows: [], current: null, upcoming: { month: '2026-12', picks: { S1: ['XLE', 'XLK', 'XLB'], S2: null } } }
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(body) })))
+    renderPage(at('sector'))
+    expect(await screen.findByText(/2026-12 入选——S1：能源（XLE）、科技（XLK）、原材料（XLB）；S2：待上月底数据。/)).toBeTruthy()
+    vi.unstubAllGlobals()
   })
 
   it('更多过热读数：五个指标逐行，49 行业面板判定来自研究结果', () => {

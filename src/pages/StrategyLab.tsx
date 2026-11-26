@@ -15,6 +15,7 @@ import MultiAssetStudy from '../features/strategy-lab/MultiAssetStudy'
 import OptionHedgeStudy from '../features/strategy-lab/OptionHedgeStudy'
 import OverfitAuditStudy from '../features/strategy-lab/OverfitAuditStudy'
 import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
+import SectorRotationStudy from '../features/strategy-lab/SectorRotationStudy'
 import { CountryMomentumStudy, HeatMoreStudy } from '../features/strategy-lab/RotationHeatStudies'
 import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendMomentumStudy from '../features/strategy-lab/TrendMomentumStudy'
@@ -30,7 +31,7 @@ import '../styles/strategy-lab-tabs.css'
 export const STRATEGY_LAB_LEAD =
   '还没写进正式规则的研究放在这里：结论不确定、没通过检验、或只在影子跟踪的内容。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
 
-export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'cn'
+export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'sector' | 'cn'
 type Status = 'pass' | 'partial' | 'fail' | 'note'
 
 export interface LabStudy {
@@ -63,13 +64,14 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-vol-confirm', tab: 'vol', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
   { id: 'lab-multi-asset', tab: 'vol', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
+  { id: 'lab-sector-rotation', tab: 'sector', title: '美股板块轮动：每月持有最强的 3 个板块', date: '2026-11-26', status: 'pass', statusText: '通过 · 影子记录', summary: '1927–2026 年对等权、对大盘都更好，板块 ETF 也确认；但 2011 年后已跑不赢大盘，国内难以照做。仓位不变，影子记录 12 个月。', Component: SectorRotationStudy },
   { id: 'lab-trend-momentum', tab: 'rotate', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
   { id: 'lab-country-momentum', tab: 'rotate', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
   { id: 'lab-etf-volume', tab: 'cn', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
-const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', cn: 'A 股 ETF' }
-const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'cn']
+const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', sector: '板块轮动', cn: 'A 股 ETF' }
+const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'sector', 'cn']
 const isTab = (v: string | null): v is LabTab => v != null && (TAB_ORDER as string[]).includes(v)
 const studyTab = (id: string): LabTab | null => (id === 'lab-v01' ? 'overview' : LAB_STUDIES.find(s => s.id === id)?.tab ?? null)
 

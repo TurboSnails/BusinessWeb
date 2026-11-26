@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'strategy-lab-sector-rotation',
+    date: '2026-11-26',
+    title: '新页签「板块轮动」：美股板块动量通过检验，开始影子记录',
+    description: '按建议检验了美股板块轮动：每月持有过去一年涨得最好的 3 个大板块。1927–2026 年比平均持有所有板块、比直接买大盘都好，随机时机检验显著，晚一个月执行也成立，用 9 只真实板块 ETF（2000–2026）也确认了，按事先的规则判「通过」，所以在「研究中」单独开了「板块轮动」页签。但 2011 年以后它按夏普已经跑不赢大盘，国内用 QDII 也很难照做，所以仓位不变、股票部分仍买宽基；从 2026-12 起用板块 ETF 做 12 个月影子记录，页签上每月显示入选的板块，期满再由你决定。',
+    href: '/invest/strategy-lab?tab=sector#lab-sector-rotation',
+  },
+  {
     id: 'strategy-lab-trend-momentum',
     date: '2026-11-26',
     title: '趋势 + 动量轮动（股、债、金）：接近成立，但还不稳',
