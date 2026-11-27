@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T21:06:37+00:00",
+  "generatedAt": "2026-11-27T21:32:17+00:00",
   "data": [
     {
       "market": "cn",
@@ -97,11 +97,11 @@
   ],
   "ledger": {
     "cn": {
-      "records": 66,
-      "trials": 66,
-      "distinct": 38,
+      "records": 69,
+      "trials": 69,
+      "distinct": 41,
       "byMode": {
-        "explore": 54,
+        "explore": 57,
         "validate": 12
       },
       "factors": [
@@ -115,6 +115,7 @@
         "cn_ep_resid",
         "cn_ep_ttm",
         "cn_gpa_ttm",
+        "cn_ind_mom",
         "cn_multi4",
         "cn_np_growth_yoy",
         "cn_pead2",
@@ -133,8 +134,10 @@
         "max_ret_21d",
         "mom_12_1",
         "mom_6_1",
+        "resmom_12_1",
         "rev_1m",
         "rev_5d",
+        "season_hs",
         "size",
         "skew_60d",
         "turnover_20d",
@@ -142,14 +145,14 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-27T21:03:40+00:00"
+      "last": "2026-11-27T21:31:20+00:00"
     },
     "hk": {
-      "records": 30,
-      "trials": 30,
-      "distinct": 24,
+      "records": 32,
+      "trials": 32,
+      "distinct": 26,
       "byMode": {
-        "explore": 28,
+        "explore": 30,
         "validate": 2
       },
       "factors": [
@@ -169,8 +172,10 @@
         "max_ret_21d",
         "mom_12_1",
         "mom_6_1",
+        "resmom_12_1",
         "rev_1m",
         "rev_5d",
+        "season_hs",
         "size",
         "skew_60d",
         "turnover_20d",
@@ -178,7 +183,7 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-27T21:04:38+00:00"
+      "last": "2026-11-27T21:31:51+00:00"
     },
     "us": {
       "records": 20,
@@ -274,6 +279,16 @@
       }
     },
     {
+      "id": "R11",
+      "file": "docs/research/factorlab/rounds/R11-2026-11-28.md",
+      "status": "已完成",
+      "summary": "残差动量、行业动量、同月季节性（A 股 3 个、港股 2 个），5 个都没过第 1 关，没有候选。A 股动量类（残差、行业）都不成立，与 A 股以反转为主一致；季节性两个市场都没有稳定排序能力；港股残差动量主口径超额 t 2.72、扣成本回测 +8.3%/年，但 RankIC t 2.74 未达 3，不放宽门槛，90 天内不试变体。",
+      "candidates": {
+        "cn": [],
+        "hk": []
+      }
+    },
+    {
       "id": "R2",
       "file": "docs/research/factorlab/rounds/R2-2026-11-27.md",
       "status": "已完成",
@@ -362,31 +377,31 @@
     }
   ],
   "multipleTesting": {
-    "generatedAt": "2026-11-27T21:06:58+00:00",
-    "totalTrials": 116,
-    "totalExploreDistinct": 82,
+    "generatedAt": "2026-11-27T21:32:39+00:00",
+    "totalTrials": 121,
+    "totalExploreDistinct": 87,
     "markets": [
       {
         "market": "cn",
         "label": "A 股",
-        "trials": 38,
-        "effectiveTrials": 21,
-        "pbo": 0.6316239316239316,
+        "trials": 41,
+        "effectiveTrials": 23,
+        "pbo": 0.6561771561771562,
         "tGe2Actual": 11,
-        "tGe2Expected": 0.8815,
+        "tGe2Expected": 0.965,
         "tGe2Ci90": [
           0.0,
-          4.0
+          5.0
         ]
       },
       {
         "market": "hk",
         "label": "港股",
-        "trials": 24,
-        "effectiveTrials": 18,
-        "pbo": 0.38733488733488736,
-        "tGe2Actual": 1,
-        "tGe2Expected": 0.62,
+        "trials": 26,
+        "effectiveTrials": 19,
+        "pbo": 0.37832167832167835,
+        "tGe2Actual": 2,
+        "tGe2Expected": 0.714,
         "tGe2Ci90": [
           0.0,
           3.0
@@ -411,7 +426,7 @@
         "id": "K1",
         "label": "盈余惊喜",
         "factor": "cn_sue",
-        "dsr": 0.6475505214701532,
+        "dsr": 0.6391924551296764,
         "nwT": 2.6154706073763387,
         "srPeriod": 0.1590797973877739
       },
@@ -419,7 +434,7 @@
         "id": "K2",
         "label": "营收惊喜",
         "factor": "cn_sur",
-        "dsr": 0.6977384082747344,
+        "dsr": 0.6899394546794856,
         "nwT": 2.4132548854431346,
         "srPeriod": 0.1689883386082848
       },
@@ -427,12 +442,12 @@
         "id": "K3",
         "label": "换手波动",
         "factor": "turnover_vol_20d",
-        "dsr": 0.6793293473392921,
+        "dsr": 0.671048006197181,
         "nwT": 2.9825858044311646,
         "srPeriod": 0.1642537641724317
       }
     ],
-    "headline": "A 股过 t 值 ≥ 2 的写法比纯运气多（11 个对 0–4），说明样本里确有规律；但挑选本身不可靠（A 股过拟合概率 0.63，高于 0.5：样本内最好的写法，换一段样本后反而常常不如中位数），三个候选的紧缩夏普 0.65–0.70 都低于常用门槛 0.95，不能排除是挑出来的好看；能不能用，只看 12 月锁箱确认和前推。",
+    "headline": "A 股过 t 值 ≥ 2 的写法比纯运气多（11 个对 0–5），说明样本里确有规律；但挑选本身不可靠（A 股过拟合概率 0.66，高于 0.5：样本内最好的写法，换一段样本后反而常常不如中位数），三个候选的紧缩夏普 0.64–0.69 都低于常用门槛 0.95，不能排除是挑出来的好看；能不能用，只看 12 月锁箱确认和前推。",
     "caveat": "有效试验数按月度收益 |相关|>0.7 聚类，不是独立试验的精确等价；过拟合概率用组合对称交叉验证，列数少或重叠期短时不稳定；运气模拟保留了截面相关与块自相关，但把真实效应一律当成 0，且未模拟选股规则本身。"
   }
 }
