@@ -72,7 +72,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "data(macro): 更新宏观温度数据 $(date -u +%Y-%m-%d)"
-          git push
+          bash scripts/git-push-retry.sh
           echo "changed=true" >> "$GITHUB_OUTPUT"
       # Action 用 GITHUB_TOKEN 推送不会触发其他工作流，这里手动触发 Pages 部署（Vercel 由其 GitHub 应用照常部署）
       - name: Deploy GitHub Pages

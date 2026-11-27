@@ -71,11 +71,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add $paths
           git commit -m "data(etf-uptrend): 更新 ETF 主升浪快照 $(TZ=Asia/Shanghai date +%Y-%m-%d)"
-          for i in 1 2 3; do
-            git push && exit 0
-            git pull --rebase
-          done
-          exit 1
+          bash scripts/git-push-retry.sh
       - name: Fail if collection failed
         if: steps.fetch.outputs.status != '0'
         run: |

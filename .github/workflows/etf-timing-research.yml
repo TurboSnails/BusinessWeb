@@ -37,5 +37,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m "research(etf-timing): 长历史指数检验 $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          bash scripts/git-push-retry.sh

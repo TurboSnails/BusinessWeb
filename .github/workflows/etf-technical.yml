@@ -39,8 +39,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add public/data/etf-technical-latest.json
           git commit -m "data(etf): 更新 ETF 与债基技术面"
-          git pull --rebase origin main
-          git push
+          bash scripts/git-push-retry.sh
           echo "changed=true" >> "$GITHUB_OUTPUT"
       - name: Deploy GitHub Pages
         if: steps.commit.outputs.changed == 'true'
