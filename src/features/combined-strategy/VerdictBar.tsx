@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import type { Stage } from '../macro/stages'
-import { visibleText } from './labels'
+import { useEquityCapInput } from '../macro-posture/composite/useEquityCapInput'
+import { resolveExecutable } from './labels'
 import { beijingToday, monthText, officialFreshness } from './freshness'
 import { useCombinedStrategy } from './load'
 import '../../styles/verdict-bar.css'
@@ -19,6 +20,7 @@ export interface VerdictBarProps {
 
 export default function VerdictBar({ stage, hideStage = false, fetcher, today }: VerdictBarProps): JSX.Element {
   const state = useCombinedStrategy(fetcher)
+  const { cap } = useEquityCapInput()
 
   if (state.status === 'loading') {
     return (
@@ -40,7 +42,13 @@ export default function VerdictBar({ stage, hideStage = false, fetcher, today }:
     )
   }
 
-  const instruction = visibleText(state.data.current.instruction)
+  const instruction = resolveExecutable({
+    instruction: state.data.current.instruction,
+    macroTier: state.data.current.macroTier,
+    equityShare: state.data.current.equityShare,
+    official: state.data.current.official,
+    cap,
+  }).text
   const officialMonth = state.data.current.official?.month ?? null
   const freshness = officialFreshness(officialMonth, today ?? beijingToday())
   const stageLine = stage

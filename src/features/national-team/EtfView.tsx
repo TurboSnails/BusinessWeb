@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { TableWrap } from '../../components/ui'
 import { Delta, GroupTag, Stat } from './parts'
 import LineChart from './LineChart'
 import { formatPct, formatShares, formatYuan } from './format'
@@ -101,7 +102,7 @@ export default function EtfView({ data }: { data: EtfData }): JSX.Element {
           </label>
           <span className="nt-muted nt-filters__count" aria-live="polite">{rows.length} 只</span>
         </div>
-        <div className="nt-tablewrap">
+        <TableWrap label="国家队 ETF 明细" stickyHeader>
           <table className="nt-table nt-table--stocks">
             <thead>
               <tr>
@@ -132,7 +133,7 @@ export default function EtfView({ data }: { data: EtfData }): JSX.Element {
               })}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
         {rows.length === 0 && <p className="nt-muted">没有符合条件的 ETF。</p>}
       </section>
     </div>

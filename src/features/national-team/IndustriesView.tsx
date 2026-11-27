@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { TableWrap } from '../../components/ui'
 import { Delta } from './parts'
 import { MiniSpark } from './LineChart'
 import { changeRate, formatPct, formatYuan } from './format'
@@ -24,7 +25,7 @@ export default function IndustriesView({ industries, series, onIndustry }: {
   return (
     <div className="nt-stack">
       <p className="nt-note">行业按东方财富的<b>当前</b>行业分类归属，历史各期也用同一分类，所以行业走势反映的是「这些公司」而不是「当时的行业划分」。</p>
-      <div className="nt-tablewrap">
+      <TableWrap label="国家队行业持仓" stickyHeader>
         <table className="nt-table">
           <thead>
             <tr>
@@ -49,7 +50,7 @@ export default function IndustriesView({ industries, series, onIndustry }: {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
     </div>
   )
 }

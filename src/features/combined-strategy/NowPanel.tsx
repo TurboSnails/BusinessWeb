@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useEquityCapInput } from '../macro-posture/composite/useEquityCapInput'
 import CapCalculator from './CapCalculator'
-import { formatSharePct, tierLabel, visibleText } from './labels'
+import { formatSharePct, resolveExecutable, tierLabel, visibleText } from './labels'
 import type { CombinedStrategyFile } from './types'
 import type { TacticalWatch } from './watch'
 
@@ -22,6 +23,14 @@ export default function NowPanel({
   const tier = current.macroTier
   const share = formatSharePct(current.equityShare)
   const official = officialText(current.official?.month)
+  const capInput = useEquityCapInput()
+  const position = resolveExecutable({
+    instruction: current.instruction,
+    macroTier: current.macroTier,
+    equityShare: current.equityShare,
+    official: current.official,
+    cap: capInput.cap,
+  })
 
   return (
     <section
@@ -43,7 +52,7 @@ export default function NowPanel({
       <div className="cs-hero__grid">
         <div className="cs-hero__main">
           <p className="cs-now__instruction" data-testid="cs-instruction">
-            {visibleText(current.instruction)}
+            {position.text}
           </p>
           <p className="cs-now__scope" data-testid="cs-now-scope">
             这是美股总仓位。主动额度和备用金另按
@@ -51,7 +60,7 @@ export default function NowPanel({
             执行。
           </p>
         </div>
-        <CapCalculator equityShare={current.equityShare} />
+        <CapCalculator position={position} capInput={capInput} />
         {watch ? (
           <p
             className={`cs-watch${watch.close ? ' is-close' : ''}`}

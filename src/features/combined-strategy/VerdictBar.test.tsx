@@ -66,9 +66,15 @@ describe('VerdictBar', () => {
     expect(screen.getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
   })
 
-  it('有阶段：展示指令与阶段动作', async () => {
+  it('有阶段：展示可执行仓位与阶段动作', async () => {
+    localStorage.removeItem('mp-equity-cap')
     wrap(<VerdictBar fetcher={okFetcher()} stage={STAGES[1]} />)
-    await waitFor(() => expect(screen.getByTestId('verdict-bar-equity').textContent).toContain('股票仓位保持在你上限的 85%'))
+    await waitFor(() => {
+      const text = screen.getByTestId('verdict-bar-equity').textContent ?? ''
+      expect(text).toContain('美股股票仓位约 68%')
+      expect(text).toContain('你的上限 80%')
+      expect(text).toContain('当前档位 85%')
+    })
     expect(screen.getByTestId('verdict-bar-stage').textContent).toBe('风险预算阶段：预警。暂停新增主动持仓')
     expect(screen.getByRole('link', { name: '综合策略' }).getAttribute('href')).toBe('/invest/strategy')
     expect(screen.getByRole('link', { name: '阶段规则' }).getAttribute('href')).toBe('/monitor?tab=method')

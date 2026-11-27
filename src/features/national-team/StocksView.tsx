@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { TableWrap } from '../../components/ui'
 import { Delta, GroupTag } from './parts'
 import LineChart from './LineChart'
 import { useNt } from './data'
@@ -114,7 +115,7 @@ export default function StocksView({ stocks, meta, filters, onFilters }: {
         <span className="nt-muted nt-filters__count" aria-live="polite">{rows.length} / {stocks.length} 只</span>
       </div>
 
-      <div className="nt-tablewrap">
+      <TableWrap label="国家队个股持仓" stickyHeader>
         <table className="nt-table nt-table--stocks">
           <thead>
             <tr>
@@ -150,7 +151,7 @@ export default function StocksView({ stocks, meta, filters, onFilters }: {
             })}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
       {rows.length === 0 && <p className="nt-muted">没有符合条件的个股。</p>}
       {rows.length > limit && (
         <button type="button" className="nt-more" onClick={() => setLimit(l => l + PAGE)}>再显示 {Math.min(PAGE, rows.length - limit)} 只（还剩 {rows.length - limit}）</button>

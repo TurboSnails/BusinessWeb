@@ -4,13 +4,22 @@ import {
   RECOMMENDED_EQUITY_CAP,
   useEquityCapInput,
 } from '../macro-posture/composite/useEquityCapInput'
-import { formatSharePct } from './labels'
+import { formatSharePct, type ExecutablePosition } from './labels'
+
+export type EquityCapInput = ReturnType<typeof useEquityCapInput>
 
 /**
  * 综合策略页的「换算成你的仓位」：大号显示换算结果，上限可改。
  * 与宏观攻守页的上限输入共用同一本地存储键，改一处两页同步。
+ * capInput / position 由父组件传入，与标题共用同一份状态与口径。
  */
-export default function CapCalculator({ equityShare }: { equityShare: number | null }): JSX.Element {
+export default function CapCalculator({
+  capInput,
+  position,
+}: {
+  capInput: EquityCapInput
+  position: ExecutablePosition
+}): JSX.Element {
   const {
     fieldId,
     errorId,
@@ -26,8 +35,8 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
     onBlur,
     onKeyDown,
     reset,
-  } = useEquityCapInput()
-  const share = equityShare != null && Number.isFinite(equityShare) ? equityShare : null
+  } = capInput
+  const share = position.holdShare
   const implied = share == null ? null : Math.round(cap * share)
 
   return (
@@ -44,6 +53,11 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
           </>
         )}
       </p>
+      {position.pendingImplied != null ? (
+        <p className="cs-cap__pending" data-testid="mp-equity-cap-pending">
+          月底可能变为约 {position.pendingImplied}%
+        </p>
+      ) : null}
       <p className="cs-cap__formula">
         <label htmlFor={fieldId}>上限</label>
         <span className="cs-cap__field">
@@ -65,7 +79,9 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
             改回 {RECOMMENDED_EQUITY_CAP}%
           </button>
         )}
-        {share == null ? null : <span className="cs-cap__times">× 档位 {formatSharePct(share)}</span>}
+        {share == null || !position.holdShareLabel ? null : (
+          <span className="cs-cap__times">× {position.holdShareLabel} {formatSharePct(share)}</span>
+        )}
       </p>
       {(error || correction) && (
         <p id={errorId} className="cs-cap__feedback" role="status" data-testid="mp-equity-cap-feedback">
@@ -77,7 +93,9 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
       </p>
       <details className="cs-cap__why">
         <summary data-testid="mp-equity-cap-recommend">
-          {isRecommended ? `为什么建议 ${RECOMMENDED_EQUITY_CAP}%` : `建议 ${RECOMMENDED_EQUITY_CAP}%，为什么`}
+          {isRecommended
+            ? `上限为什么建议 ${RECOMMENDED_EQUITY_CAP}%`
+            : `上限建议 ${RECOMMENDED_EQUITY_CAP}%，为什么`}
         </summary>
         <p>
           以降低波动为目标。上限取 {RECOMMENDED_EQUITY_CAP}% 时，历史上波动约 11% → 9%，最大回撤约 −33% → −27%，

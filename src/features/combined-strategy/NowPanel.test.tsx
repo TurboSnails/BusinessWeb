@@ -13,8 +13,14 @@ function wrap(ui: React.ReactElement) {
 
 describe('NowPanel', () => {
   it('指令最醒目，三件事与上限输入', () => {
+    localStorage.removeItem('mp-equity-cap')
     wrap(<NowPanel data={combinedStrategyFixture()} />)
-    expect(screen.getByTestId('cs-instruction').textContent).toContain('股票仓位保持在你上限的 85%')
+    const title = screen.getByTestId('cs-instruction').textContent ?? ''
+    expect(title).toContain('美股股票仓位约 68%')
+    expect(title).toContain('你的上限 80%')
+    expect(title).toContain('当前档位 85%')
+    expect(title).toContain('本月不用调')
+    expect(screen.getByTestId('mp-equity-cap-recommend').textContent).toBe('上限为什么建议 80%')
     expect(screen.getByTestId('cs-now-scope').textContent).toContain('这是美股总仓位')
     expect(within(screen.getByTestId('cs-now-scope')).getByRole('link', { name: '风险预算阶段' }).getAttribute('href')).toBe('/monitor?tab=method')
     expect(screen.getByTestId('cs-steps').textContent).toContain('10 月底定档为偏进攻')
@@ -39,12 +45,16 @@ describe('NowPanel', () => {
     expect(screen.queryByTestId('cs-discipline')).toBeNull()
   })
 
-  it('换算卡：大号显示上限 × 档位，改上限即时更新；月底提醒可选', () => {
+  it('换算卡：大号显示上限 × 档位，改上限即时更新；标题跟着变；月底提醒可选', () => {
     localStorage.removeItem('mp-equity-cap')
     wrap(<NowPanel data={combinedStrategyFixture()} watch={{ text: '11 月剩下 3 个交易日，标普均价如果低于 6,861 点，月底降一档到中性（上限的 70%）。', gap: -0.047, close: false }} />)
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('68')
+    expect(screen.getByTestId('cs-instruction').textContent).toContain('约 68%')
     fireEvent.change(screen.getByLabelText('上限'), { target: { value: '100' } })
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('85')
+    expect(screen.getByTestId('cs-instruction').textContent).toContain('约 85%')
+    expect(screen.getByTestId('cs-instruction').textContent).toContain('你的上限 100%')
+    expect(screen.getByTestId('mp-equity-cap-recommend').textContent).toBe('上限建议 80%，为什么')
     expect(screen.getByRole('button', { name: '改回 80%' })).toBeTruthy()
     expect(screen.getByTestId('cs-now-watch').textContent).toContain('月底前留意')
     expect(screen.getByTestId('cs-now-tier').textContent).toBe('偏进攻 · 85%')
@@ -58,5 +68,28 @@ describe('NowPanel', () => {
     wrap(<NowPanel data={combinedStrategyNoCellFixture()} />)
     expect(screen.getByTestId('cs-instruction').textContent).toContain('暂不给出仓位')
     expect(screen.getByTestId('cs-step-做法').textContent).toContain('雷达读数暂缺')
+  })
+
+  it('情况 3：大字按官方档，注明月底可能变为读数档', () => {
+    localStorage.removeItem('mp-equity-cap')
+    const mid = combinedStrategyFixture()
+    const data = {
+      ...mid,
+      current: {
+        ...mid.current,
+        macroTier: 'lean-offense' as const,
+        equityShare: 0.85,
+        official: { month: '2026-10', tier: 'neutral' as const, previousTier: 'neutral' as const },
+        instruction: '股票仓位先保持在你上限的 70%；按目前数据，月底可能变为 85%，等月底定档再调。',
+      },
+    }
+    wrap(<NowPanel data={data} />)
+    const title = screen.getByTestId('cs-instruction').textContent ?? ''
+    expect(title).toContain('先保持约 56%')
+    expect(title).toContain('官方档位 70%')
+    expect(title).toContain('变为约 68%')
+    expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('56')
+    expect(screen.getByTestId('mp-equity-cap-pending').textContent).toContain('月底可能变为约 68%')
+    expect(screen.getByTestId('mp-equity-cap').textContent).toContain('官方档位 70%')
   })
 })

@@ -658,6 +658,7 @@ html.dark .cs-page {
 .cs-cap__num { font-size: clamp(2.6rem, 6vw, 3.2rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
 .cs-cap__unit { font-size: 1.4rem; font-weight: 650; }
 .cs-cap__na { font-size: 1rem; color: var(--text-secondary); }
+.cs-cap__pending { margin: 0 0 8px; font-size: 0.82rem; color: var(--text-secondary); }
 .cs-cap__formula {
   margin: 0 0 6px;
   display: flex;
