@@ -101,10 +101,9 @@ class MergeMacroMarketTest(unittest.TestCase):
         self.assertEqual(merged['series']['orphan']['latest'], old['series']['orphan']['latest'])
 
     def test_ae91bfd4_replay_keeps_twenty_five_long_and_frequency(self):
-        """旧文件用 ae91bfd4^；新采集只用 latest（模拟 company-refresh 的 pack 结果）。"""
-        raw = subprocess.check_output(
-            ['git', 'show', 'ae91bfd4^:public/data/macro-us.json'], cwd=ROOT)
-        old = json.loads(raw)
+        """旧文件取自 ae91bfd4^ 的 macro-us.json（fixtures 里只保留每个序列 long / history 的前 3 点，
+        CI 是浅克隆读不到 git 历史）；新采集只用 latest（模拟 company-refresh 的 pack 结果）。"""
+        old = json.loads((ROOT / 'scripts/fixtures/macro-us-before-ae91bfd4.json').read_text(encoding='utf-8'))
         with_long = [k for k, s in old['series'].items() if 'long' in s]
         self.assertEqual(len(with_long), 25, with_long)
         collected_series = {}
