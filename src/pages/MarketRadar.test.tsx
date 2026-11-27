@@ -51,14 +51,14 @@ function renderPage(
 }
 
 describe('MarketRadar 页面', () => {
-  it('页头声明独立于大师方案，并用 TrioNav 链到宏观攻守与综合策略', () => {
+  it('页头声明独立于大师方案，并用 TrioNav 链到通过检验与研究中', () => {
     renderPage()
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('市场雷达')
     expect(screen.getByTestId('mr-head-lead').textContent).toBe(MARKET_RADAR_LEAD)
     const trio = screen.getByRole('navigation', { name: '策略相关页面' })
-    expect(within(trio).getByRole('link', { name: '宏观依据 · 宏观攻守' }).getAttribute('href')).toBe('/invest/macro-posture')
-    expect(within(trio).getByRole('link', { name: '结论 · 综合策略' }).getAttribute('href')).toBe('/invest/strategy')
-    expect(within(trio).getByRole('link', { name: '股市依据 · 市场雷达' }).getAttribute('aria-current')).toBe('page')
+    expect(within(trio).getByRole('link', { name: '已通过 · 通过检验' }).getAttribute('href')).toBe('/invest/verified')
+    expect(within(trio).getByRole('link', { name: '待验证 · 研究中' }).getAttribute('href')).toBe('/invest/strategy-lab')
+    expect(within(trio).queryByRole('link', { name: '股市依据 · 市场雷达' })).toBeNull()
     expect(document.body.textContent).toContain(MARKET_RADAR_FOOTER)
   })
 

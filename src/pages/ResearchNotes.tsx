@@ -39,7 +39,7 @@ import CandidateButton from '../components/CandidateButton'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { useToolSources } from '../features/candidates/useToolSources'
 import { dcfOf } from '../features/candidates/links'
-import { matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
+import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { CompanyValuationCell, CompanyValuationFilterChips } from '../features/company-valuation/CompanyValuation'
 import { matchValuationFilter, VALUATION_FILTERS, type ValuationFilter } from '../features/company-valuation/model'
 import { useCandidates } from '../features/candidates/useCandidates'
@@ -77,8 +77,22 @@ function resolveTab(tab: string | null, m: string | null): TabId {
 const BADGE_TONE: Record<Tone, string> = { green: 'accent', blue: 'neutral', orange: 'warm', red: 'up', gray: 'muted' }
 const badge = (tone: Tone, extra = ''): string => `ui-badge ui-badge--${BADGE_TONE[tone]}${extra ? ` ${extra}` : ''}`
 
+const RATING_FILTERS = ['全部', '优先关注', '条件关注', '观察', '回避', '未估值'] as const
+const LYNCH_TYPES = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '数据不足'] as const
+const LYNCH_TIERS = ['高', '中', '低', '待定'] as const
+const LYNCH_MOATS = ['全部', '宽', '窄'] as const
+const STAGE_FILTERS = ['全部', 'verified', 'draft', 'screen'] as const
+const FILTER_KEYS = ['q', 'rating', 'stage', 'lt', 'lm', 'ly', 'vf', 'dcf', 'sec', 'grp'] as const
+
+const pickOne = <T extends string>(raw: string | null, allowed: readonly T[], fallback: T): T =>
+  (allowed as readonly string[]).includes(raw ?? '') ? (raw as T) : fallback
+
+/** 列表条件指纹：滚动恢复只在条件相同时生效 */
+const listKeyOf = (sp: URLSearchParams): string =>
+  FILTER_KEYS.map(k => `${k}=${sp.get(k) ?? ''}`).concat(`m=${sp.get('m') ?? ''}`, `v=${sp.get('v') ?? ''}`).join('&')
+
 export default function ResearchNotes(): JSX.Element {
-  // 页签/市场/板块存在 URL 查询参数里：从公司二级页返回时能回到原来的位置
+  // 页签/市场/板块/筛选都在 URL：从公司二级页返回时能回到同一份列表
   const navType = useNavigationType()
   const [params, setParams] = useSearchParams()
   const tabParam = params.get('tab')
@@ -90,6 +104,16 @@ export default function ResearchNotes(): JSX.Element {
   const view = vParam === 'combined' ? 'combined' : vParam === 'overview' ? 'overview' : vParam === 'lynch' ? 'lynch' : 'list'
   const progSector = params.get('sec') || '全部'
   const progGroup = params.get('grp') || '全部' // adr/ndx 地域分组（region）或 cn 主题（theme）
+  const q = params.get('q') ?? ''
+  const ratingF = pickOne(params.get('rating'), RATING_FILTERS, '全部')
+  const stageF = pickOne(params.get('stage'), STAGE_FILTERS, '全部') as ResearchStage | '全部'
+  const lTier = pickOne(params.get('lt'), ['全部', ...LYNCH_TIERS] as const, '全部')
+  const lMoat = pickOne(params.get('lm'), LYNCH_MOATS, '全部')
+  const lType = pickOne(params.get('ly'), ['全部', ...LYNCH_TYPES] as const, '全部')
+  const dcfF = pickOne(params.get('dcf'), DCF_FILTERS.map(f => f.id), 'all')
+  const valuationRaw = params.get('vf')
+  const valuationF: ValuationFilter = VALUATION_FILTERS.some(f => f.id === valuationRaw) || valuationRaw === 'numeric' || valuationRaw === 'undated'
+    ? (valuationRaw as ValuationFilter) : 'all'
   const inCategory = activeTab === 'companies'
   // 只加载当前市场需要的数据：纳指页签由美股 + ADR + 纳指新增三部分拼成
   const needs = (m: Market): boolean => inCategory && (catMarket === m || (catMarket === 'ndx' && (m === 'us' || m === 'adr')))
@@ -98,44 +122,51 @@ export default function ResearchNotes(): JSX.Element {
   const { list: hkList, loading: hkLoading, partial: hkPartial, retry: hkRetry } = useCompanies('hk', needs('hk'))
   const { list: adrList, loading: adrLoading, partial: adrPartial, retry: adrRetry } = useCompanies('adr', needs('adr'))
   const { list: ndxNewList, loading: ndxNewLoading, partial: ndxPartial, retry: ndxRetry } = useCompanies('ndx', needs('ndx'))
-  const lynch = useLynch(inCategory)
+  const { data: lynch } = useLynch(inCategory)
   const cand = useCandidates(inCategory)
   const tools = useToolSources()
-  const [dcfF, setDcfF] = useState<DcfFilterId>('all')
-  const [valuationF, setValuationF] = useState<ValuationFilter>('all')
   const dcfOk = (c: Company): boolean => dcfF === 'all' || matchDcfFilter(dcfF, dcfOf(c.market, c.code, tools))
   const isCand = (c: Company): boolean => cand.items.some(i => i.market === c.market && i.code === c.code)
   const toggleCand = (c: Company): void => cand.toggle(c.market, c.code)
-  const [lTier, setLTier] = useState('全部')
-  const [lMoat, setLMoat] = useState('全部')
-  const [lType, setLType] = useState('全部')
-  const [q, setQ] = useState('')
-  const [ratingF, setRatingF] = useState('全部')
-  const [stageF, setStageF] = useState<ResearchStage | '全部'>('全部')
   const [limit, setLimit] = useState(60)
-  // 切换市场时清空筛选，避免上一个市场的评级/类型筛选让新市场的列表为空
-  useEffect(() => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all') }, [catMarket])
-  const resetFilters = (): void => { setRatingF('全部'); setStageF('全部'); setQ(''); setLTier('全部'); setLMoat('全部'); setLType('全部'); setValuationF('all'); updateParams({ sec: null, grp: null }) }
-  useEffect(() => { setLimit(60) }, [catMarket, progSector, progGroup, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
-  const updateParams = (patch: Record<string, string | null>): void =>
+  const updateParams = (patch: Record<string, string | null>, replace = true): void =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
       Object.entries(patch).forEach(([k, v]) => (v === null ? next.delete(k) : next.set(k, v)))
       return next
-    }, { replace: true })
-  const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null })
-  const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, sec: null, grp: null, v: null })
+    }, { replace })
+  // 筛选一律 replace；一级页签用 push，返回键能回到上一个页签（L8）
+  const setFilter = (patch: Record<string, string | null>): void => updateParams(patch, true)
+  const setQ = (value: string): void => setFilter({ q: value.trim() ? value : null })
+  const setRatingF = (value: string): void => setFilter({ rating: value === '全部' ? null : value })
+  const setStageF = (value: ResearchStage | '全部'): void => setFilter({ stage: value === '全部' ? null : value })
+  const setLTier = (value: string): void => setFilter({ lt: value === '全部' ? null : value })
+  const setLMoat = (value: string): void => setFilter({ lm: value === '全部' ? null : value })
+  const setLType = (value: string): void => setFilter({ ly: value === '全部' ? null : value })
+  const setDcfF = (value: DcfFilterId): void => setFilter({ dcf: value === 'all' ? null : value })
+  const setValuationF = (value: ValuationFilter): void => setFilter({ vf: value === 'all' ? null : value })
+  const clearListFilters = (): Record<string, string | null> => ({
+    q: null, rating: null, stage: null, lt: null, lm: null, ly: null, vf: null, dcf: null, sec: null, grp: null,
+  })
+  const resetFilters = (): void => setFilter(clearListFilters())
+  useEffect(() => { setLimit(60) }, [catMarket, progSector, progGroup, q, ratingF, lTier, lMoat, lType, view, dcfF, valuationF])
+  const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null }, false)
+  // 切换市场时顺带清空筛选，避免上一个市场的评级/类型让新市场列表为空
+  const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, v: null, ...clearListFilters() }, true)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
 
   useEffect(() => {
-    // 从公司二级页返回时恢复滚动位置，否则回到顶部
+    // 从公司二级页返回时，仅在列表条件相同时恢复滚动；否则回到顶部
     let y = 0
     try {
-      // 只有“返回”（POP）才恢复，从导航栏新进入一律回到顶部
-      y = navType === 'POP' ? Number(sessionStorage.getItem('rn-scroll') || 0) : 0
+      const raw = sessionStorage.getItem('rn-scroll')
       sessionStorage.removeItem('rn-scroll')
-    } catch { /* 隐私模式下忽略 */ }
+      if (navType === 'POP' && raw) {
+        const parsed = JSON.parse(raw) as { y?: number; key?: string } | number
+        if (typeof parsed === 'object' && parsed && parsed.key === listKeyOf(params)) y = Number(parsed.y) || 0
+      }
+    } catch { /* 隐私模式或旧格式忽略 */ }
     window.scrollTo(0, y)
     const handleScroll = () => setShowBackToTop(window.scrollY > 400)
     window.addEventListener('scroll', handleScroll)
@@ -145,7 +176,7 @@ export default function ResearchNotes(): JSX.Element {
   const hint = (children: React.ReactNode): JSX.Element => <p className="rn-hint">{children}</p>
 
   const Table = ({ heads, rows, label }: { heads: string[]; rows: React.ReactNode[][]; label?: string }): JSX.Element => (
-    <TableWrap label={label ?? heads.join(' / ')}>
+    <TableWrap label={label ?? heads.join(' / ')} stickyHeader>
       <table className="ui-table rn-table">
         <thead>
           <tr>{heads.map(h => <th key={h} scope="col">{h}</th>)}</tr>
@@ -231,8 +262,7 @@ export default function ResearchNotes(): JSX.Element {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
 
-  const LYNCH_TYPES = ['快速增长型', '稳健型', '缓慢增长型', '周期型', '困境反转型', '资产型', '数据不足']
-  const LYNCH_TIERS = ['高', '中', '低', '待定'] // 待定：PE 等估值输入缺失，排在「低」之后
+  // 待定：PE 等估值输入缺失，排在「低」之后
   const tierRank: Record<string, number> = { 高: 0, 中: 1, 低: 2, 待定: 3 }
   const moatTone = (l: string): Tone => (l.startsWith('宽') ? 'green' : l.startsWith('窄') ? 'blue' : 'gray')
   const tierTone = (t: string): Tone => (t === '高' ? 'green' : t === '中' ? 'blue' : t === '待定' ? 'orange' : 'gray')
@@ -259,12 +289,19 @@ export default function ResearchNotes(): JSX.Element {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
   const chip = (on: boolean): string => (on ? 'ui-chip is-active' : 'ui-chip')
-  const emptyHint = (n: number): React.ReactNode => (n === 0 ? (
-    <div className="rn-empty">
-      没有符合当前筛选条件的公司{progPartial ? '（部分公司数据暂不可用，结果可能不完整）' : ''}。
-      <button type="button" onClick={resetFilters} className="tool-btn tool-btn--primary">清除筛选</button>
-    </div>
-  ) : null)
+  // 慢加载时不要冒充「共 0 家 · 没有符合条件」（M2）
+  const emptyHint = (n: number): React.ReactNode => {
+    if (combinedLoading && n === 0) {
+      return <div className="rn-empty" role="status">正在加载{marketLabel(catMarket)}公司…</div>
+    }
+    if (n !== 0) return null
+    return (
+      <div className="rn-empty">
+        没有符合当前筛选条件的公司{progPartial ? '（部分公司数据暂不可用，结果可能不完整）' : ''}。
+        <button type="button" onClick={resetFilters} className="tool-btn tool-btn--primary">清除筛选</button>
+      </div>
+    )
+  }
 
   const moreFilterCount = (progSector !== '全部' ? 1 : 0) + (progGroup !== '全部' ? 1 : 0) + (valuationF !== 'all' ? 1 : 0) + (stageF !== '全部' ? 1 : 0)
   const valuationLabel = VALUATION_FILTERS.find(f => f.id === valuationF)?.label ?? valuationF
@@ -463,8 +500,18 @@ export default function ResearchNotes(): JSX.Element {
 
   const companyLink = (market: Market, code: string, label: string): React.ReactNode => {
     const exists = (market === 'us' ? usList : market === 'cn' ? cnList : market === 'adr' ? adrList : market === 'ndx' ? ndxNewList : hkList).some(c => c.code === code)
+    const listUrl = `/research-notes?${params.toString()}`
     return exists
-      ? <Link to={`/research-notes/${market}/${encodeURIComponent(code)}`} onClick={() => { try { sessionStorage.setItem('rn-scroll', String(window.scrollY)) } catch { /* ignore */ } }} className="rn-link">{label}</Link>
+      ? <Link
+          to={`/research-notes/${market}/${encodeURIComponent(code)}`}
+          state={{ from: listUrl }}
+          onClick={() => {
+            try {
+              sessionStorage.setItem('rn-scroll', JSON.stringify({ y: window.scrollY, key: listKeyOf(params) }))
+            } catch { /* ignore */ }
+          }}
+          className="rn-link"
+        >{label}</Link>
       : label
   }
 
@@ -520,7 +567,7 @@ export default function ResearchNotes(): JSX.Element {
             researchAsOf={catMarket === 'ndx' ? NDX_ASOF : undefined}
           />}
           <div className="rn-info-bar__links">
-            <Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · {cand.items.length} 家</Link>
+            <Link to="/candidates" className="rn-link"><Star size={14} aria-hidden="true" /> 我的候选池 · <span aria-live="polite">{cand.items.length}</span> 家</Link>
             <Link to="/earnings" className="rn-link"><CalendarClock size={14} aria-hidden="true" /> 财报前瞻</Link>
           </div>
           <details className="rn-info-bar__note">

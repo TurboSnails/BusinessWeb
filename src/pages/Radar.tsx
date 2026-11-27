@@ -85,7 +85,7 @@ function ExcludedList({ list }: { list: Exclusion[] }): JSX.Element {
 
 function LaneTable({ lane, rows, inPool, toggle }: { lane: Lane; rows: RadarRow[]; inPool: (r: RadarRow) => boolean; toggle: (r: RadarRow) => void }): JSX.Element {
   return (
-    <TableWrap label={`${LANE[lane].title}公司列表`} className="radar-table-wrap">
+    <TableWrap label={`${LANE[lane].title}公司列表`} className="radar-table-wrap" stickyHeader>
       <table className={`radar-table radar-table--${lane}`}>
         <colgroup>
           <col className="radar-col-index" /><col className="radar-col-company" />

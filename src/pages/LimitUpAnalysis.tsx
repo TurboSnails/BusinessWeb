@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import { useUrlTab } from '../hooks/useUrlTab'
 import LimitUpLadder from '../features/limit-up/LimitUpLadder'
 import { buildLadder } from '../features/limit-up/ladder'
 import {
@@ -34,9 +35,10 @@ function sortStocks(stocks: LimitUpStock[], key: SortKey | null, desc: boolean):
   })
 }
 const VIEWS: Array<{ id: View; label: string }> = [{ id: 'ladder', label: '涨停梯队' }, { id: 'plates', label: '板块明细' }]
+const VIEW_IDS = ['ladder', 'plates'] as const
 
 export default function LimitUpAnalysis(): JSX.Element {
-  const [view, setView] = useState<View>('ladder')
+  const [view, setView] = useUrlTab<View>('tab', VIEW_IDS, 'ladder')
   const [initial] = useState(() => { const view = readLimitUpView(shanghaiDate()); return { ...view, cached: getLimitUpCache(view.date, view.only) } })
   const [concepts, setConcepts] = useState<LimitUpConcept[]>(initial.cached?.result.concepts || [])
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null)
@@ -91,8 +93,12 @@ export default function LimitUpAnalysis(): JSX.Element {
 
   const toggleSort = (key: SortKey): void => setSort(prev => prev.key === key ? { key, desc: !prev.desc } : { key, desc: key !== 'limitUpTime' })
   const copyText = (id: string, text: string): void => {
-    navigator.clipboard?.writeText(text).then(() => { setCopied(id); window.setTimeout(() => setCopied(''), 1500) }).catch(() => undefined)
+    const done = (label: string) => { setCopied(label); window.setTimeout(() => setCopied(''), 1500) }
+    if (!navigator.clipboard?.writeText) { done(`${id}:fail`); return }
+    navigator.clipboard.writeText(text).then(() => done(`${id}:ok`)).catch(() => done(`${id}:fail`))
   }
+  const copyLabel = (id: string, idle: string): string =>
+    copied === `${id}:ok` ? '已复制' : copied === `${id}:fail` ? '复制失败，请手动选择' : idle
   const allStocksText = (): string => filteredConcepts.map(c => `${c.name}：${c.stocks.map(stockLine).join('、')}`).join('\n')
 
   return (
@@ -109,7 +115,7 @@ export default function LimitUpAnalysis(): JSX.Element {
           <input type="date" className="ui-input" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} aria-label="查询日期" max={shanghaiDate()} />
         </label>
         <button type="button" className="tool-btn" disabled={!filteredConcepts.length} onClick={() => copyText('all', allStocksText())}>
-          {copied === 'all' ? '已复制' : '复制全部'}
+          {copyLabel('all', '复制全部板块')}
         </button>
         <button type="button" onClick={fetchLimitUpData} disabled={loading} className="tool-btn tool-btn--primary">
           <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
@@ -162,7 +168,7 @@ export default function LimitUpAnalysis(): JSX.Element {
               {currentConcept.changePercent >= 0 ? '+' : ''}{currentConcept.changePercent.toFixed(2)}%
             </span>
             <button type="button" className="tool-btn" onClick={() => copyText('plate', currentConcept.stocks.map(stockLine).join('、'))}>
-              {copied === 'plate' ? '已复制' : '复制本板块'}
+              {copyLabel('plate', '复制本板块')}
             </button>
           </div>
 

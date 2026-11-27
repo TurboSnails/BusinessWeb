@@ -183,22 +183,36 @@ export const lynchFor = (lynch: Record<string, LynchInfo>, c: { market: Market; 
   for (const key of lynchKeysOf(c)) if (lynch[key]) return lynch[key]
   return undefined
 }
-let lynchCache: Promise<Record<string, LynchInfo>> | null = null
-export const loadLynch = (): Promise<Record<string, LynchInfo>> => {
+export type LynchLoadResult = { data: Record<string, LynchInfo>; ok: boolean }
+let lynchCache: Promise<LynchLoadResult> | null = null
+export const loadLynch = (): Promise<LynchLoadResult> => {
   if (!lynchCache) {
     lynchCache = fetch(`${import.meta.env.BASE_URL}data/lynch.json`)
-      .then(r => (r.ok ? (r.json() as Promise<Record<string, LynchInfo>>) : {}))
-      .catch(() => ({} as Record<string, LynchInfo>))
+      .then(async r => {
+        if (!r.ok) return { data: {} as Record<string, LynchInfo>, ok: false }
+        return { data: await r.json() as Record<string, LynchInfo>, ok: true }
+      })
+      .catch(() => ({ data: {} as Record<string, LynchInfo>, ok: false }))
   }
   return lynchCache
 }
-export const useLynch = (enabled = true): Record<string, LynchInfo> => {
+export type LynchState = { data: Record<string, LynchInfo>; loading: boolean; failed: boolean }
+export const useLynch = (enabled = true): LynchState => {
   const [data, setData] = useState<Record<string, LynchInfo>>({})
+  const [loading, setLoading] = useState(enabled)
+  const [failed, setFailed] = useState(false)
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) { setLoading(false); return }
     let alive = true
-    loadLynch().then(d => { if (alive) setData(d) })
+    setLoading(true)
+    setFailed(false)
+    loadLynch().then(result => {
+      if (!alive) return
+      setData(result.data)
+      setFailed(!result.ok)
+      setLoading(false)
+    })
     return () => { alive = false }
   }, [enabled])
-  return data
+  return { data, loading, failed }
 }

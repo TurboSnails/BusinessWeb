@@ -3,10 +3,11 @@ import { Callout, EmptyState, Page, PageToolbar, Stat, StatGrid } from '../compo
 import { PageTabs } from '../components/ui/PageTabs'
 import { EtfFlowChart } from '../features/etf-flow/EtfFlowChart'
 import { asEtfFlow, fmtYi, type EtfFlowData } from '../features/etf-flow/model'
-import { LabNav } from '../features/etf-signal-plans/LabNav'
+import { useUrlTab } from '../hooks/useUrlTab'
 import '../features/etf-flow/etf-flow.css'
 
 type Scope = 'all' | 'broad'
+const SCOPES = ['all', 'broad'] as const
 const BASE = import.meta.env.BASE_URL
 
 function tone(value: number | null) {
@@ -15,7 +16,7 @@ function tone(value: number | null) {
 }
 
 export function EtfFlowView({ data, failed = false }: { data: EtfFlowData | null; failed?: boolean }): JSX.Element {
-  const [scope, setScope] = useState<Scope>('all')
+  const [scope, setScope] = useUrlTab<Scope>('tab', SCOPES, 'all')
   const k = data?.kpi[scope]
   const lastDate = data?.series.at(-1)?.date
   const startDate = data?.series.slice(-60)[0]?.date
@@ -23,7 +24,6 @@ export function EtfFlowView({ data, failed = false }: { data: EtfFlowData | null
 
   return (
     <Page title="ETF 资金净流入（实验）">
-      <LabNav current="/lab/etf-flow" />
       <PageToolbar note="全 A / 宽基 ETF 日度申购净流入（同花顺原口径）叠加上证指数。与「同花顺 · ETF资金」页入口分离：那里看个股份额推算，这里看全市场大周期。" />
       <Callout tone="warn" title="观察中，不是买卖指令">实验页；历史统计与展示口径仍可能调整。不构成投资建议。</Callout>
       <PageTabs<Scope>
@@ -37,7 +37,7 @@ export function EtfFlowView({ data, failed = false }: { data: EtfFlowData | null
       ) : !data ? (
         <p role="status">正在读取资金流快照…</p>
       ) : !k || !lastDate ? (
-        <EmptyState title="暂无数据">运行 <code>npm run etf-flow:update</code> 生成快照后再打开。</EmptyState>
+        <EmptyState title="暂无数据">资金流快照尚未生成，请稍后刷新再试。</EmptyState>
       ) : (
         <>
           {data.sample && <Callout tone="warn" title="示例数据">本页展示样本快照。</Callout>}

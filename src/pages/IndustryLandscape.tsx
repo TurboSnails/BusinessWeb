@@ -25,6 +25,7 @@ import {
 import { Link, useInRouterContext } from 'react-router-dom'
 import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { companyNameOf, useCompanyLinks } from '../data/industryCompanyLinks'
+import { useUrlTab } from '../hooks/useUrlTab'
 import ThemeCards from './ThemeCards'
 import '../styles/industry-landscape.css'
 import { Page } from '../components/ui'
@@ -142,6 +143,7 @@ const SOURCES = {
 } as const
 type SourceId = keyof typeof SOURCES
 type TabId = SourceId | 'cards'
+const TAB_IDS: readonly TabId[] = [...(Object.keys(SOURCES) as SourceId[]), 'cards']
 const BENEFIT_TITLE = '受益公司'
 const title = (node: TreeNode) => node.t.split('\n')[0]
 function countNodes(node: TreeNode): number {
@@ -290,7 +292,7 @@ function Node({
 }
 
 export default function IndustryLandscape(): JSX.Element {
-  const [tab, setTab] = useState<TabId>('solid')
+  const [tab, setTab] = useUrlTab<TabId>('tab', TAB_IDS, 'solid')
   const readerRef = useRef<HTMLElement>(null)
   const [trees, setTrees] = useState<Partial<Record<SourceId, TreeNode | null>>>({})
   const [q, setQ] = useState('')

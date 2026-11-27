@@ -1,5 +1,6 @@
 import React from 'react'
 import { act, render, screen, cleanup, fireEvent } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import LimitUpAnalysis from './LimitUpAnalysis'
 const valid = { code: 200, data: { plate_stock: [{ secu_name: '医药', change: .02, plate_stock_up_num: 1, stock_list: [{ secu_code: 'sz000710', secu_name: '贝瑞基因', time: '2026-09-30 09:33:06', last_px: 10, change: .1, cmc: 100000000, up_num: '4天2板' }] }] } }
@@ -8,7 +9,7 @@ async function show(date: string, response: unknown, status = 200) {
   vi.useFakeTimers(); vi.setSystemTime(new Date(`${date}T08:00:00Z`))
   const fetcher = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(response), { status }))
   vi.stubGlobal('fetch', fetcher)
-  await act(async () => { render(<LimitUpAnalysis />) })
+  await act(async () => { render(<MemoryRouter><LimitUpAnalysis /></MemoryRouter>) })
   return fetcher
 }
 describe('每日涨停状态展示', () => {
@@ -46,7 +47,7 @@ it('离开再回来保留日期、模式和缓存，不重新请求', async () =
   await act(async () => fireEvent.click(screen.getByRole('checkbox', { name: '只看涨停' })))
   expect(fetcher).toHaveBeenCalledTimes(2)
   cleanup()
-  await act(async () => { render(<LimitUpAnalysis />) })
+  await act(async () => { render(<MemoryRouter><LimitUpAnalysis /></MemoryRouter>) })
   expect(screen.getByText('贝瑞基因')).toBeTruthy()
   expect((screen.getByRole('checkbox', { name: '只看涨停' }) as HTMLInputElement).checked).toBe(false)
   expect((screen.getByLabelText('查询日期') as HTMLInputElement).value).toBe('2026-10-02')
@@ -67,7 +68,7 @@ it('缓存过期返回页面先保留旧数据，再刷新', async () => {
   const fetcher = await show('2026-09-30', valid)
   cleanup(); vi.setSystemTime(new Date('2026-09-30T08:06:00Z'))
   fetcher.mockRejectedValueOnce(new Error('网络断开'))
-  await act(async () => { render(<LimitUpAnalysis />) })
+  await act(async () => { render(<MemoryRouter><LimitUpAnalysis /></MemoryRouter>) })
   expect(fetcher).toHaveBeenCalledTimes(2)
   expect(screen.getByText('贝瑞基因')).toBeTruthy()
   expect(screen.getByRole('status').textContent).toContain('刷新失败')

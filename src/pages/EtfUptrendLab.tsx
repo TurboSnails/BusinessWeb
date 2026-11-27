@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, EmptyState, Page, PageToolbar } from '../components/ui'
-import { LabNav } from '../features/etf-signal-plans/LabNav'
 import {
   asDay, asDetailMap, asIndex, asReconstructed, bit, filterRows, latestPeriod, loadFilters, loadSort, loadWatch,
   missingCats, nextSort, reconDays, reconMembers, saveFilters, saveSort, saveWatch, securityCode, sortRows, tabCount, TABS,
@@ -145,7 +144,6 @@ export default function EtfUptrendLab(): JSX.Element {
 
   return (
     <Page title="ETF 主升浪（实验）" className="uptrend">
-      <LabNav current="/lab/etf-uptrend" />
       <PageToolbar note="同花顺「主升浪」完整存档：名单、历史上涨区间、AI 上涨原因、倒推历史。来源非自有模型；名单会事后改写。" />
       <Callout tone="warn" title="外部名单 · 观察中">不是自有信号、不是买卖指令。本站未接实时补拉接口，以定时采集存档为准。</Callout>
       {error && <EmptyState title="无法加载">{error}</EmptyState>}
@@ -421,7 +419,7 @@ export default function EtfUptrendLab(): JSX.Element {
           <li>今日涨幅、盘中累计涨幅等需登录指标，这里不采集也不冒充。</li>
           <li>区间与 AI 上涨原因来自同花顺公开接口，数值为来源原值，未独立核实；「区间涨幅」是从区间起始日前一交易日收盘到区间止日收盘的涨幅，不等于 App 里的盘中累计涨幅。</li>
           <li>倒推历史与真实快照分开存放，不会混进行情日列表。</li>
-          <li>自选只存本机。更新：<code>npm run etf-uptrend:update</code>；倒推重建：<code>npm run etf-uptrend:reconstruct</code>。</li>
+          <li>自选只存本机。名单与倒推历史由站点定期更新，刷新页面即可看到最新快照。</li>
           <li>来源：{index?.source_page ? <a href={index.source_page} target="_blank" rel="noopener noreferrer">同花顺 ETF 主升浪</a> : '同花顺 ETF 主升浪'}；定时约北京时间 {(index?.schedule.times ?? ['23:30', '07:00']).join('、')}。</li>
         </ul>
       </section>

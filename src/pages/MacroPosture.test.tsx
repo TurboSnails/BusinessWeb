@@ -205,8 +205,10 @@ describe('MacroPosture 综合指标视图', () => {
   it('页头 TrioNav 与次要数据链接', () => {
     renderPage()
     const trio = screen.getByRole('navigation', { name: '策略相关页面' })
-    expect(within(trio).getByRole('link', { name: '宏观依据 · 宏观攻守' }).getAttribute('aria-current')).toBe('page')
-    expect(within(trio).getByRole('link', { name: '结论 · 综合策略' }).getAttribute('href')).toBe('/invest/strategy')
+    // 组药丸已有宏观攻守等三项；TrioNav 只留通过检验 / 研究中
+    expect(within(trio).getByRole('link', { name: '已通过 · 通过检验' }).getAttribute('href')).toBe('/invest/verified')
+    expect(within(trio).getByRole('link', { name: '待验证 · 研究中' }).getAttribute('href')).toBe('/invest/strategy-lab')
+    expect(within(trio).queryByRole('link', { name: '宏观依据 · 宏观攻守' })).toBeNull()
     expect(screen.getByRole('link', { name: '宏观温度' }).getAttribute('href')).toBe('/monitor')
     expect(screen.getByRole('link', { name: '宏观大师' }).getAttribute('href')).toBe('/invest/macro-masters')
     expect(screen.getByTestId('verdict-bar')).toBeTruthy()

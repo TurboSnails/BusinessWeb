@@ -40,12 +40,13 @@ const confirmedText = (c: boolean | null): string => (c === true ? '已确认' :
 export default function CompanyDetail(): JSX.Element {
   const { market, code } = useParams()
   const navigate = useNavigate()
-  const { hash } = useLocation()
+  const location = useLocation()
+  const { hash } = location
   // 未知市场不回退美股；Router 已解码 code，不再 decodeURIComponent（`%25` 会解出 `%` 并抛 URIError）
   const validMarket = isMarket(market)
   const mk: Market = validMarket ? market : 'us'
   const { list, loading, failed, partial, retry } = useCompanies(mk, validMarket)
-  const lynchAll = useLynch()
+  const { data: lynchAll, loading: lynchLoading, failed: lynchFailed } = useLynch()
   const company = validMarket && code ? list.find(c => c.code === code) : undefined
   // 部分数据下切换公司（同一路由组件不会重新挂载）时自动重试一次，恢复后同一 SPA 可找回
   const prevCode = useRef(code)
@@ -88,12 +89,17 @@ export default function CompanyDetail(): JSX.Element {
     </TableWrap>
   )
 
+  const fromList = typeof (location.state as { from?: unknown } | null)?.from === 'string'
+    && (location.state as { from: string }).from.startsWith('/research-notes')
+    ? (location.state as { from: string }).from
+    : null
+  const backTo = fromList ?? `/research-notes?tab=companies&m=${mk}`
   const back = (
     <Link
-      to={`/research-notes?tab=companies&m=${mk}`}
+      to={backTo}
       onClick={e => {
-        // 有站内历史就原路返回（保留页签、市场、板块和滚动位置）
-        if (window.history.state && window.history.state.idx > 0) {
+        // 从列表进来：优先 history 返回（保留滚动）；否则落到带原筛选的列表 URL
+        if (fromList && window.history.state && window.history.state.idx > 0) {
           e.preventDefault()
           navigate(-1)
         }
@@ -184,6 +190,7 @@ export default function CompanyDetail(): JSX.Element {
   const candItem = cand.items.find(i => i.market === company.market && i.code === company.code)
   const lastDecision = candItem && latestDecision(candItem)
   const lynchInfo = lynchFor(lynchAll, company)
+  const lynchStatus = lynchLoading ? 'loading' : lynchFailed ? 'failed' : 'ready'
   const dcfSummary = dcfOf(company.market, company.code, tools)
   const signals = companySignals({
     rating: company.rating,
@@ -193,6 +200,7 @@ export default function CompanyDetail(): JSX.Element {
     scenarios: company.scenarios ?? scenRows?.map(([name, value]) => ({ name, price: value })),
     dcf: dcfSummary,
     lynch: lynchInfo && { type: lynchInfo.t, attention: lynchInfo.r, moat: lynchInfo.m ? `护城河财务证据 ${lynchInfo.m.s}/${lynchInfo.m.n} 项通过` : undefined },
+    lynchStatus,
     decision: lastDecision && { action: lastDecision.action, nextCheck: lastDecision.nextCheck, count: candItem?.decisions?.length ?? 0 },
     today: localDay(),
   })
@@ -304,7 +312,13 @@ export default function CompanyDetail(): JSX.Element {
           )}
           {(() => {
             const ly = lynchFor(lynchAll, company)
-            if (!ly || ((company.market === 'hk' || company.market === 'adr') && company.researchReport)) return null
+            if ((company.market === 'hk' || company.market === 'adr') && company.researchReport) return null
+            if (!ly) {
+              const detail = lynchStatus === 'loading' ? '分类数据加载中…'
+                : lynchStatus === 'failed' ? '分类数据加载失败，请稍后刷新重试。'
+                : '该公司未覆盖林奇分类。'
+              return <Card id="cd-lynch" title="林奇分类"><p className="rn-text" role="status">{detail}</p></Card>
+            }
             const cls = ly.r === '高' ? 'rn-card--good' : ly.r === '中' ? 'rn-card--lead' : undefined
             return (
               <Card id="cd-lynch" className={cls} title={<>林奇分类：{ly.t}（同类关注度 {ly.r}）{ly.m ? ` · ${ly.m.l}` : ''}</>}>

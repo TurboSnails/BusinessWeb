@@ -18,9 +18,12 @@ beforeAll(() => {
 })
 afterEach(() => cleanup())
 
+const renderPage = (ui = <IndustryLandscape />, path = '/industry-landscape') =>
+  render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>)
+
 describe('产业格局', () => {
   it('半导体产业链和固态电池一样以可展开、可搜索的树展示，不再是图片', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     fireEvent.click(screen.getByRole('tab', { name: '半导体产业链' }))
     expect(await screen.findByRole('heading', { name: '上游：基础与工具' })).toBeTruthy()
     expect(document.querySelector('img[alt="半导体产业链脑图"]')).toBeNull()
@@ -30,7 +33,7 @@ describe('产业格局', () => {
 
   it('切回已看过的页签不重复请求', async () => {
     fetcher.mockClear()
-    render(<IndustryLandscape />)
+    renderPage()
     expect(await screen.findByRole('heading', { name: '解决痛点' })).toBeTruthy()
     fireEvent.click(screen.getByRole('tab', { name: '半导体产业链' }))
     await screen.findByRole('heading', { name: '上游：基础与工具' })
@@ -40,7 +43,7 @@ describe('产业格局', () => {
   })
 
   it('页面声明不构成投资建议，数据里没有荐股、目标价和配置建议', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     expect(screen.getByRole('note').textContent).toContain('不构成投资建议')
     for (const file of ['solid-state.json', 'semiconductor.json']) {
       const text = readFileSync(resolve('public/industry', file), 'utf8')
@@ -71,7 +74,7 @@ describe('产业格局', () => {
       const file = name || (String(url).includes('semiconductor') ? 'semiconductor.json' : 'solid-state.json')
       return { json: async () => JSON.parse(readFileSync(resolve('public/industry', file), 'utf8')) } as Response
     })
-    render(<IndustryLandscape />)
+    renderPage()
     for (const [label, [file, chapter]] of Object.entries(files)) {
       fireEvent.click(screen.getByRole('tab', { name: label }))
       expect(await screen.findByRole('heading', { name: chapter })).toBeTruthy()
@@ -91,7 +94,7 @@ describe('产业格局', () => {
   })
 
   it('章节目录末尾有「受益公司」汇总，按章节分组', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     await screen.findByRole('heading', { name: '解决痛点' })
     const directory = screen.getByRole('navigation', { name: '固态电池章节目录' })
     const items = within(directory).getAllByRole('button')
@@ -110,11 +113,7 @@ describe('产业格局', () => {
           : 'solid-state.json'
       return { json: async () => JSON.parse(readFileSync(resolve('public/industry', file), 'utf8')) } as Response
     })
-    render(
-      <MemoryRouter>
-        <IndustryLandscape />
-      </MemoryRouter>,
-    )
+    renderPage()
     fireEvent.click(screen.getByRole('tab', { name: 'AI算力' }))
     fireEvent.click(await screen.findByRole('button', { name: /网络与光互连/ }))
     fireEvent.change(screen.getByRole('textbox', { name: '搜索节点' }), { target: { value: '中际旭创' } })
@@ -124,14 +123,14 @@ describe('产业格局', () => {
 
   it('有「主题研究卡」页签，切过去不请求产业数据', async () => {
     fetcher.mockClear()
-    render(<IndustryLandscape />)
+    renderPage()
     fireEvent.click(screen.getByRole('tab', { name: '主题研究卡' }))
     expect(screen.getByRole('textbox', { name: '主题名称' })).toBeTruthy()
     // 只数产业数据请求；公司链接（useCompanyLinks）会另外读公司库，次数取决于其缓存时序
     expect(fetcher.mock.calls.filter(([url]) => String(url).includes('industry/'))).toHaveLength(1)
   })
   it('章节导航切换阅读内容，并记住两个产业各自的阅读位置', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     await screen.findByRole('heading', { name: '解决痛点' })
     const directory = screen.getByRole('navigation', { name: '固态电池章节目录' })
     fireEvent.click(within(directory).getByRole('button', { name: /^技术路线/ }))
@@ -148,7 +147,7 @@ describe('产业格局', () => {
   })
 
   it('全局搜索跨章节保留路径、高亮命中，支持空结果及清空恢复', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     fireEvent.click(screen.getByRole('tab', { name: '半导体产业链' }))
     await screen.findByRole('heading', { name: '上游：基础与工具' })
     const search = screen.getByRole('textbox', { name: '搜索节点' })
@@ -167,7 +166,7 @@ describe('产业格局', () => {
   })
 
   it('展开与收起控制所有层级，折叠条目使用可访问按钮', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     await screen.findByRole('heading', { name: '解决痛点' })
     const reader = screen.getByRole('region', { name: '产业资料阅读区' })
     fireEvent.click(screen.getByRole('button', { name: '全部展开' }))
@@ -185,7 +184,7 @@ describe('产业格局', () => {
     expect(root.getAttribute('aria-expanded')).toBe('true')
   })
   it('成本与技术资料表格保留表头语义和横向阅读容器', async () => {
-    render(<IndustryLandscape />)
+    renderPage()
     await screen.findByRole('heading', { name: '解决痛点' })
     const directory = screen.getByRole('navigation', { name: '固态电池章节目录' })
     fireEvent.click(within(directory).getByRole('button', { name: /^固态电池预测/ }))

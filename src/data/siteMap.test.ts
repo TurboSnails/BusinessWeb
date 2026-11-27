@@ -211,4 +211,9 @@ describe('searchPages', () => {
   it('无匹配返回空数组', () => {
     expect(searchPages('不存在的词', pages)).toEqual([])
   })
+  it('页面名支持拼音首字母（如 zhcl → 综合策略）', () => {
+    const hit = searchPages('zhcl')
+    expect(hit.some(p => p.path === '/invest/strategy' && p.p === 'zhcl')).toBe(true)
+    expect(searchPages('gsyj').some(p => p.path === '/research-notes')).toBe(true)
+  })
 })

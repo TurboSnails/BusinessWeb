@@ -52,7 +52,7 @@ export default function StockTable<T extends { code: string; name: string }>({ l
   if (!rows.length) return <p className="mm-empty">{empty}</p>
   const click = (key: string): void => setSort(s => (s?.key === key ? { key, dir: s.dir === 'desc' ? 'asc' : 'desc' } : { key, dir: 'desc' }))
   return (
-    <TableWrap label={label} stickyFirst className="kd-wrap">
+    <TableWrap label={label} stickyFirst stickyHeader className="kd-wrap">
       <table className="ui-table kd-table">
         <thead>
           <tr>

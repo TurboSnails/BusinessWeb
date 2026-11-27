@@ -37,6 +37,12 @@ describe('SectionChrome', () => {
     expect(current?.textContent).toBe('网格交易')
   })
 
+  it('公司详情保留面包屑，不显示与返回链接重复的组药丸', () => {
+    renderAt('/research-notes/us/AAPL')
+    expect(screen.getByRole('navigation', { name: '面包屑' }).textContent).toContain('公司研究')
+    expect(screen.queryByRole('navigation', { name: '同组页面' })).toBeNull()
+  })
+
   it('候选池一组只有候选池与机会雷达两页，用同组切换条互相跳转', () => {
     renderAt('/candidates')
     expect(screen.getByRole('navigation', { name: '面包屑' }).textContent).toContain('候选池')

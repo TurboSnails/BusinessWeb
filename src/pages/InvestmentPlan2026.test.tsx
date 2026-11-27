@@ -98,6 +98,49 @@ describe('再平衡检查器：撤销与输入校验（H2 / M9）', () => {
   })
 })
 
+describe('再平衡检查器：窄屏卡片布局（M9）', () => {
+  const stubNarrow = (matches: boolean) => {
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+      matches: query.includes('640') ? matches : false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })))
+  }
+
+  it('宽屏渲染表格，不渲染卡片列表', () => {
+    stubNarrow(false)
+    openAllocation()
+    expect(screen.getByTestId('plan-rebal-table')).toBeTruthy()
+    expect(screen.queryByTestId('plan-rebal-cards')).toBeNull()
+  })
+
+  it('窄屏渲染卡片；输入校验与撤销仍可用', () => {
+    stubNarrow(true)
+    openAllocation()
+    expect(screen.getByTestId('plan-rebal-cards')).toBeTruthy()
+    expect(screen.queryByTestId('plan-rebal-table')).toBeNull()
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+
+    const amounts = screen.getAllByPlaceholderText('万元') as HTMLInputElement[]
+    amounts.forEach((el, i) => fireEvent.change(el, { target: { value: String(10 + i * 5) } }))
+    fireEvent.change(amounts[0], { target: { value: '-30' } })
+    expect(amounts[0].getAttribute('aria-invalid')).toBe('true')
+    expect(screen.getAllByText('金额需 ≥ 0').length).toBeGreaterThanOrEqual(1)
+
+    fireEvent.click(screen.getAllByRole('button', { name: '删除' })[0])
+    expect(screen.getByTestId('plan-holdings-undo').textContent).toContain('已删除')
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+    fireEvent.click(screen.getByRole('button', { name: '撤销' }))
+    expect(screen.getAllByRole('listitem')).toHaveLength(4)
+    expect(screen.getByLabelText('资产名称 A股宽基')).toBeTruthy()
+  })
+})
+
 describe('情绪工具：打开即并行获取全部读数', () => {
   it('一次请求 /api/sentiment 填入六项读数，并显示数据日期与来源', async () => {
     const snapshot = { equityPC: 0.58, spxPC: 1.15, pcDate: '2026-10-02', vix: 15.59, vix3m: 18.07, vixDate: '2026-10-05', gexBn: 7.69, gexDate: '2026-10-02', goldSilver: 67.73, goldSilverDate: '2026-10-05', warnings: [] }

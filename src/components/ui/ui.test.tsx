@@ -87,6 +87,33 @@ describe('TableWrap', () => {
     const region = screen.getByRole('region', { name: '公司列表' })
     expect(region.getAttribute('tabindex')).toBe('0')
     expect(region.className).toContain('ui-table-wrap--sticky')
+    expect(region.className).not.toContain('ui-table-wrap--scroll')
+  })
+
+  it('默认不启用长表纵滚；stickyHeader / maxHeight 才加 --scroll', () => {
+    const { rerender } = render(
+      <TableWrap label="短表"><table className="ui-table"><tbody><tr><td>a</td></tr></tbody></table></TableWrap>,
+    )
+    expect(screen.getByRole('region', { name: '短表' }).className).not.toContain('ui-table-wrap--scroll')
+
+    rerender(
+      <TableWrap label="短表" stickyHeader>
+        <table className="ui-table"><tbody><tr><td>a</td></tr></tbody></table>
+      </TableWrap>,
+    )
+    const withSticky = screen.getByRole('region', { name: '短表' })
+    expect(withSticky.className).toContain('ui-table-wrap--scroll')
+    expect(withSticky.getAttribute('style') || '').not.toContain('--ui-table-max-h')
+
+    rerender(
+      <TableWrap label="短表" maxHeight={480} stickyFirst>
+        <table className="ui-table"><tbody><tr><td>a</td></tr></tbody></table>
+      </TableWrap>,
+    )
+    const withMax = screen.getByRole('region', { name: '短表' })
+    expect(withMax.className).toContain('ui-table-wrap--scroll')
+    expect(withMax.className).toContain('ui-table-wrap--sticky')
+    expect(withMax.style.getPropertyValue('--ui-table-max-h')).toBe('480px')
   })
 })
 

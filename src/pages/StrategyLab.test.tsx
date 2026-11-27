@@ -40,7 +40,8 @@ describe('研究中页签', () => {
     const lab = within(trio).getByRole('link', { name: '待验证 · 研究中' })
     expect(lab.getAttribute('href')).toBe('/invest/strategy-lab')
     expect(lab.getAttribute('aria-current')).toBe('page')
-    expect(within(trio).getByRole('link', { name: '结论 · 综合策略' }).getAttribute('aria-current')).toBeNull()
+    expect(within(trio).getByRole('link', { name: '已通过 · 通过检验' }).getAttribute('aria-current')).toBeNull()
+    expect(within(trio).queryByRole('link', { name: '结论 · 综合策略' })).toBeNull()
   })
 
   it('回调事件表逐行对应研究结果，汇总表含扩张后段一行', () => {

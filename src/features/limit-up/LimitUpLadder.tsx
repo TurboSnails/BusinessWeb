@@ -4,17 +4,23 @@ import { EmptyState } from '../../components/ui'
 import { ladderCopyText, type LadderTier } from './ladder'
 
 export default function LimitUpLadder({ tiers, onPickConcept }: { tiers: LadderTier[]; onPickConcept(name: string): void }): JSX.Element {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState<'ok' | 'fail' | ''>('')
   if (tiers.length === 0) return <EmptyState title="暂无涨停梯队数据" />
   const total = tiers.reduce((n, t) => n + t.stocks.length, 0)
   const copy = async () => {
-    try { await navigator.clipboard.writeText(ladderCopyText(tiers)); setCopied(true); setTimeout(() => setCopied(false), 1500) } catch { /* 剪贴板不可用时忽略 */ }
+    const done = (state: 'ok' | 'fail') => { setCopied(state); setTimeout(() => setCopied(''), 1500) }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable')
+      await navigator.clipboard.writeText(ladderCopyText(tiers))
+      done('ok')
+    } catch { done('fail') }
   }
+  const label = copied === 'ok' ? '已复制' : copied === 'fail' ? '复制失败，请手动选择' : '复制梯队'
   return (
     <section className="ui-card limitup-ladder" aria-label="涨停梯队图">
       <div className="limitup-ladder__head">
         <h2 className="limitup-detail__title">涨停梯队图 <small>共 {total} 只，最高 {tiers[0].boards} 板</small></h2>
-        <button type="button" className="tool-btn" onClick={() => void copy()}><Copy size={15} aria-hidden="true" />{copied ? '已复制' : '复制全部'}</button>
+        <button type="button" className="tool-btn" onClick={() => void copy()}><Copy size={15} aria-hidden="true" />{label}</button>
       </div>
       <div className="limitup-ladder__tiers">
         {tiers.map(tier => (

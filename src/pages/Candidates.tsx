@@ -16,8 +16,9 @@ import CandidateAlerts from '../components/CandidateAlerts'
 import WeeklyChanges from '../components/WeeklyChanges'
 import EarningsSoonList from '../components/EarningsSoonList'
 import { useEarningsCalendar } from '../features/earnings/loadCalendar'
-import { RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
+import { RESEARCH_BY_KEY, RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
+import { POOL } from '../data/futureTrendsPool'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { autoDcfOf, dcfOf, MARKET_LABEL, researchToCandidate, toolProgress, venueOf } from '../features/candidates/links'
 import { useToolSources } from '../features/candidates/useToolSources'
@@ -84,7 +85,12 @@ export default function Candidates(): JSX.Element {
   ].filter(Boolean).join('')
   // 财报临近：与「本周变化」的下周财报共用一次 earnings-calendar.json 请求（模块级缓存）
   const { cal: earningsCal } = useEarningsCalendar(tab === 'mine' && cand.items.length > 0)
-  const buyable = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
+  // 研究全量 vs 入围池（POOL）按最新报价：页签用后者，页头两口径并陈（M13）
+  const buyableResearch = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
+  const buyableInPool = useMemo(() => POOL.reduce((n, entry) => {
+    const r = RESEARCH_BY_KEY.get(entry.key)
+    return n + (r && poolBucket(r) === 'buy' ? 1 : 0)
+  }, 0), [])
 
   // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
   const dcfFilter = (r: ResearchSummary): boolean => {
@@ -120,9 +126,13 @@ export default function Candidates(): JSX.Element {
           <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
           <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
           <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
-          <div><dt>满足情景门槛</dt><dd>{buyable}<small> 家</small></dd></div>
+          <div title="入围池按最新报价计数；研究全量含未进展示池的公司"><dt>满足情景门槛</dt><dd>{buyableInPool}<small> 家 · 研究全量 {buyableResearch}</small></dd></div>
         </dl>
-      ) : <p className="cand-buyable">满足情景门槛 {buyable} 家</p>}
+      ) : (
+        <p className="cand-buyable" title="入围池按最新报价；括号内为研究全量口径">
+          入围池满足情景门槛 {buyableInPool} 家（研究全量 {buyableResearch} 家）
+        </p>
+      )}
 
       <PageTabs label="候选池视图" value={tab} onChange={setTab} items={[
         { id: 'mine', label: `我的候选 · ${cand.items.length}`, icon: <ListChecks size={14} /> },

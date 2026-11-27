@@ -222,7 +222,7 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
       </div>
       <StatusLegend>{METHOD.status}</StatusLegend>
       {rows.length ? (
-        <TableWrap label="A股指数估值，可横向滚动" stickyFirst>
+        <TableWrap label="A股指数估值，可横向滚动" stickyFirst stickyHeader>
           <table className="ui-table jt-table">
             <thead><tr>{COLUMNS.map(c => {
               const direction = sort?.key === c.key ? sort.direction : undefined

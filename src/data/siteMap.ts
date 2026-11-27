@@ -193,12 +193,39 @@ export interface SearchablePage {
   group: string
   desc?: string
   archived?: boolean
+  /** 页面名拼音首字母（小写，无空格；如 综合策略 → zhcl） */
+  p?: string
 }
 
 export interface WorkbenchTool {
   path: string
   label: string
   desc: string
+}
+
+// 页面名拼音首字母（与 ⌘K 公司索引同口径；手写维护，覆盖中文标签）
+const PAGE_PINYIN: Record<string, string> = {
+  首页: 'sy', 投资: 'tz', AI实验室: 'aisys', 博客: 'bk', 知识图谱: 'zstp', 自由之路: 'zyzl', 关于: 'gy',
+  我的书: 'wds', 我的计划与持仓: 'wdjhycc', '2026 投资计划（作者示例）': '2026tzjhzzsl',
+  观察盘: 'gcp', 综合策略: 'zhcl', 宏观攻守: 'hggs', 市场雷达: 'scld', 宏观温度: 'hgwd', 全球行情: 'qqhq',
+  'A股每日复盘': 'agmrfp', 板块轮动: 'bkld', 涨停板块: 'ztbk', 产业格局: 'cygj', 主题研究: 'ztyj',
+  公司研究: 'gsyj', 财报前瞻: 'cbqz', 国家队持仓: 'gjdcc', 候选池: 'hxc', 机会雷达: 'jhld',
+  综合估值: 'zhgz', 宏观大师: 'hgds', 顶级投资人: 'djtzr', 'AI 降价与利润': 'aijjylr', 基本面量化: 'jbmlh',
+  因子实验室: 'yzsys', 估值工作台: 'gzgzt', 'DCF 计算器': 'dcfjsq', 指数估值: 'zsgz', 指数全景: 'zsqj',
+  网格交易: 'wgjy', 财富自由计算器: 'cfzyjsq', 'ETF 流派地图': 'etflpdt', 'ETF 清单': 'etfqd',
+  研究笔记: 'yjbj', 债基研究报告: 'zjyjbg', 博主观点整理: 'bzgdzl', 'ETF 资金流': 'etfzjl',
+  'ETF 主升浪': 'etfzsl', 行业观察池: 'hygcc', 创业板择时优选: 'cybzsyx', '沪深300择时优选': 'hs300zsyx',
+  三方案回测: 'sfahc', 择时实验: 'zssy', 组合再平衡回测: 'zhzphhc', 开盘啦: 'kpl', 同花顺: 'ths',
+  今天几星: 'jtjx', 'AI 投研 Skills': 'aityskills', '道与术（短线策略）': 'dysdxcl',
+  综合投资策略框架: 'zhtzclkj', 'A 股观察池（AI 扩散）': 'aggccai', 美股观察池: 'mggcc',
+  '每日分析 · 历史旧版': 'mrfxlsjb', 从这里开始: 'czlks', 'Human 3.0 人生规划': 'human30rsgh',
+  书的目录: 'sdml', 网格记录: 'wgjl', 'ETF 复盘': 'etffp', 全栈学习路线: 'qzxxlx',
+  'dev-team 使用说明': 'devteamsysm',
+}
+
+const withPinyin = (page: SearchablePage): SearchablePage => {
+  const p = PAGE_PINYIN[page.label]
+  return p ? { ...page, p } : page
 }
 
 // 不在导航和投资分组里、但有固定路径的页面
@@ -211,13 +238,13 @@ const EXTRA_PAGES: SearchablePage[] = [
   { path: '/etf-review', label: 'ETF 复盘', group: '投资 · 工具', desc: '自选 ETF 分组观察与每日复盘笔记，数据保存在本机浏览器' },
   { path: '/ai/fullstack-roadmap', label: '全栈学习路线', group: 'AI实验室', desc: 'AI 全栈开发学习计划' },
   { path: '/ai/dev-team', label: 'dev-team 使用说明', group: 'AI实验室', desc: 'Orca 开发团队的安装、自检、配置、派工与验证范围' },
-]
+].map(withPinyin)
 
 /** 跳转面板与最近访问共用的页面注册表，由导航、投资分组和 AI 方向拼出，不另外手写 */
 export const SEARCHABLE_PAGES: SearchablePage[] = [
-  ...NAV_ITEMS.map(i => ({ path: i.path, label: i.label, group: '栏目' })),
+  ...NAV_ITEMS.map(i => withPinyin({ path: i.path, label: i.label, group: '栏目' })),
   ...INVEST_GROUPS.flatMap(g =>
-    g.links.filter(l => !LAB_DIRECTIONS.some(d => l.path === `/ai/${d.slug}`)).map(l => ({
+    g.links.filter(l => !LAB_DIRECTIONS.some(d => l.path === `/ai/${d.slug}`)).map(l => withPinyin({
       path: l.path,
       label: l.label,
       group: `投资 · ${g.title}`,
@@ -226,7 +253,7 @@ export const SEARCHABLE_PAGES: SearchablePage[] = [
     }))
   ),
   ...EXTRA_PAGES,
-  ...LAB_DIRECTIONS.map(d => ({ path: `/ai/${d.slug}`, label: d.title, group: 'AI实验室 · 方向', desc: d.reason })),
+  ...LAB_DIRECTIONS.map(d => withPinyin({ path: `/ai/${d.slug}`, label: d.title, group: 'AI实验室 · 方向', desc: d.reason })),
 ]
 
 export function findSearchablePage(pathname: string): SearchablePage | null {
@@ -251,15 +278,21 @@ export const WORKBENCH_TOOLS: WorkbenchTool[] = [
   { path: '/first-book', label: '我的书', desc: shortOf('/first-book', '《正念投资》全文与目录') },
 ]
 
-/** 关键词按空格切开，每个词都要命中；label 开头 > label 包含 > 其他字段；已舍弃永远最后 */
+/** 关键词按空格切开，每个词都要命中；label 开头 > label 包含 > 拼音首字母 > 其他字段；已舍弃永远最后 */
 export function searchPages(query: string, pages: SearchablePage[] = SEARCHABLE_PAGES): SearchablePage[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
   const first = terms[0]
+  const py = /^[a-z]+$/.test(first ?? '') && (first?.length ?? 0) >= 2 ? first : ''
   const scored = pages.flatMap((page, index) => {
     const label = page.label.toLowerCase()
     const haystack = [page.label, page.group, page.desc ?? '', page.path].join(' ').toLowerCase()
-    if (!terms.every(t => haystack.includes(t))) return []
-    const rank = !first ? 0 : label.startsWith(first) ? 0 : label.includes(first) ? 1 : 2
+    const pinyinHit = !!py && !!page.p && (page.p === py || page.p.startsWith(py))
+    if (!terms.every(t => haystack.includes(t) || (page.p?.includes(t) ?? false))) return []
+    const rank = !first ? 0
+      : label.startsWith(first) ? 0
+      : label.includes(first) ? 1
+      : pinyinHit ? (page.p === py ? 2 : 3)
+      : 4
     return [{ page, index, rank: rank + (page.archived ? 10 : 0) }]
   })
   return scored.sort((a, b) => a.rank - b.rank || a.index - b.index).map(s => s.page)

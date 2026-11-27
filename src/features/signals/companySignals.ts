@@ -23,6 +23,8 @@ export interface SignalInput {
   scenarios?: { name: string; price: string }[]
   dcf?: DcfSummary
   lynch?: { type: string; attention: string; moat?: string }
+  /** 林奇数据加载态：与 lynch 缺失配合，区分加载中 / 失败 / 未覆盖 */
+  lynchStatus?: 'loading' | 'failed' | 'ready'
   decision?: { action: DecisionAction; nextCheck: string; count: number }
   today: string
 }
@@ -80,8 +82,13 @@ function dcfSignal(dcf: DcfSummary | undefined): Signal {
   }
 }
 
-function lynchSignal(lynch: SignalInput['lynch']): Signal {
-  if (!lynch) return { id: 'lynch', label: '林奇分类', verdict: '暂无', detail: '分类数据加载中或未覆盖', direction: null }
+function lynchSignal(lynch: SignalInput['lynch'], status: SignalInput['lynchStatus'] = 'ready'): Signal {
+  if (!lynch) {
+    const detail = status === 'loading' ? '分类数据加载中'
+      : status === 'failed' ? '分类数据加载失败'
+      : '该公司未覆盖林奇分类'
+    return { id: 'lynch', label: '林奇分类', verdict: '暂无', detail, direction: null }
+  }
   return {
     id: 'lynch', label: '林奇分类', verdict: `${lynch.type} · 关注度${lynch.attention}`, detail: lynch.moat ?? '同类内关注度按统一规则计算',
     // 「待定」= 估值输入缺失，不参与分歧判断
@@ -92,7 +99,7 @@ function lynchSignal(lynch: SignalInput['lynch']): Signal {
 const NAMES: Record<Signal['id'], string> = { rating: '研究评级', scenario: '三情景', dcf: 'DCF', lynch: '林奇分类', decision: '我的决策' }
 
 export function companySignals(input: SignalInput): SignalSummary {
-  const signals = [ratingSignal(input.rating), scenarioSignal(input), dcfSignal(input.dcf), lynchSignal(input.lynch)]
+  const signals = [ratingSignal(input.rating), scenarioSignal(input), dcfSignal(input.dcf), lynchSignal(input.lynch, input.lynchStatus)]
   const d = input.decision
   if (d) signals.push({ id: 'decision', label: '我的决策', verdict: DECISION_ACTIONS[d.action], detail: `${d.count} 个版本；下次检查 ${d.nextCheck}`, direction: null })
 

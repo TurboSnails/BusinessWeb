@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageToolbar, Stat, StatGrid, TableWrap } from '../components/ui'
 import { loadPlanBundle } from '../features/etf-signal-plans/load-plans'
 import { PlanPriceChart } from '../features/etf-signal-plans/PlanPriceChart'
-import { LabNav } from '../features/etf-signal-plans/LabNav'
 import {
   backtestPlan, backtestPlanYearly, yearlySummary,
   type PlanBacktest, type PlanBar, type PlanKey, type PlanResult, type PlanYearly,
@@ -111,7 +110,6 @@ export default function EtfSignalPlansLab(): JSX.Element {
 
   return (
     <Page title="三方案回测（实验）">
-      <LabNav current="/lab/etf-signal-plans" />
       <PageToolbar note="创业板择时 / 沪深300择时 / 纯MACD 的研究口径回测。独立实验页，不并入网格主流程；不发提醒。" />
       <Callout tone="warn" title="观察中 · 不是买卖指令">
         满仓进出、单边 0.1% 成本、前 120 根预热。日线与择时比值一律用腾讯后复权数据。逐年=自然年单独回测（不足 120 交易日不计）；年化需满一年；卡玛=年化÷|最大回撤|。历史统计不代表未来。

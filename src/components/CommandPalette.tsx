@@ -246,7 +246,7 @@ function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex:
         )}
 
         <div ref={listRef} id={listId} className="cmdk__list" role="listbox" aria-label="页面和公司">
-          {flat.length === 0 && <p className="cmdk__empty">没有匹配的页面</p>}
+          {flat.length === 0 && <p className="cmdk__empty">没有匹配的页面或公司</p>}
           {sections.map(section =>
             section.items.length === 0 ? null : (
               <div key={section.title} role="group" aria-label={section.title} className="cmdk__group">

@@ -22,6 +22,8 @@ export default function SectionChrome(): JSX.Element | null {
 
   if (!entry) return null
   const { group, link } = entry
+  // 公司详情已有面包屑 +「返回公司研究」，组药丸与之重复（M10）
+  const hideSiblings = /^\/research-notes\/[^/]+\/[^/]+/.test(pathname)
 
   return (
     <div className="section-chrome">
@@ -33,7 +35,7 @@ export default function SectionChrome(): JSX.Element | null {
         <span className="breadcrumb__current">{link.label}</span>
       </nav>
       {link.archived && <p className="section-archived" role="note">{link.archived}</p>}
-      {group.links.length > 1 && (
+      {!hideSiblings && group.links.length > 1 && (
         <nav className="section-tabs" aria-label="同组页面" ref={overflowRef}>
           {group.links.map(l => {
             const active = l.path === link.path || link.path.startsWith(l.path + '/')

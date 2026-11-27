@@ -96,6 +96,24 @@ function targetError(raw: string): string | null {
   if (n <= 0) return '目标需 > 0'
   return null
 }
+
+/** 再平衡检查器窄屏断点：与 plan.css / 候选池一致，≤640 用卡片 */
+const REBAL_NARROW_MQ = '(max-width: 640px)'
+function useRebalNarrow(): boolean {
+  const read = (): boolean =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(REBAL_NARROW_MQ).matches
+  const [narrow, setNarrow] = useState(read)
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia(REBAL_NARROW_MQ)
+    const onChange = (): void => setNarrow(mql.matches)
+    onChange()
+    mql.addEventListener?.('change', onChange)
+    return () => mql.removeEventListener?.('change', onChange)
+  }, [])
+  return narrow
+}
+
 const dayDiff = (a: Date, b: Date) =>
   Math.round((Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()) - Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())) / 86400000)
 
@@ -111,6 +129,26 @@ const TONE: Record<Tone, { fg: string; bg: string }> = {
 const Pill: React.FC<{ tone: Tone; children: React.ReactNode }> = ({ tone, children }) => (
   <span className={`plan-pill is-${tone}`}>{children}</span>
 )
+
+function RebalanceStatus({ amtErr, tgtErr, dev, hit, gap }: {
+  amtErr: string | null
+  tgtErr: string | null
+  dev: number
+  hit: boolean
+  gap: number
+}): JSX.Element {
+  if (amtErr) return <Pill tone="red">{amtErr}</Pill>
+  if (tgtErr) return <Pill tone="red">{tgtErr}</Pill>
+  if (!Number.isFinite(dev)) return <Pill tone="gray">待填写</Pill>
+  if (hit) {
+    return (
+      <Pill tone="red">
+        {gap > 0 ? `超出阈值，需买入 ${fmtMoney(gap)}` : `超出阈值，需卖出 ${fmtMoney(-gap)}`}
+      </Pill>
+    )
+  }
+  return <Pill tone="green">区间内</Pill>
+}
 
 const Card: React.FC<{
   title?: string
@@ -760,6 +798,7 @@ const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
   const [undo, setUndo] = useState<HoldingsUndo | null>(null)
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const narrow = useRebalNarrow()
 
   const offerUndo = (message: string, snapshot: Holding[]) => {
     if (undoTimer.current) clearTimeout(undoTimer.current)
@@ -852,75 +891,131 @@ const Allocation: React.FC = () => {
             <button type="button" className="tool-btn" onClick={restoreUndo}>撤销</button>
           </div>
         )}
-        <div className="ui-table-wrap plan-table-wrap">
-          <table className="ui-table plan-table">
-            <thead>
-              <tr>
-                {['资产', '角色', '目标 %', '阈值 ±%', '当前金额', '当前占比', '相对偏离', '状态 / 回到目标需', ''].map(h => (
-                  <th key={h}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {computed.map(({ r, cur, dev, hit, gap, amtErr, tgtErr }) => {
-                const tgtErrId = `tgt-err-${r.id}`
-                const amtErrId = `amt-err-${r.id}`
-                return (
-                <tr key={r.id}>
-                  <td className="plan-minw-120"><input className="ui-input" aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
-                  <td className="plan-minw-140"><input className="ui-input" value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
-                  <td className="plan-w-80">
+        {narrow ? (
+          <div className="plan-rebal-cards" data-testid="plan-rebal-cards" role="list" aria-label="再平衡持仓">
+            {computed.map(({ r, cur, dev, hit, gap, amtErr, tgtErr }) => {
+              const tgtErrId = `tgt-err-${r.id}`
+              const amtErrId = `amt-err-${r.id}`
+              return (
+                <article key={r.id} className="plan-rebal-card" role="listitem" data-testid={`plan-rebal-card-${r.id}`}>
+                  <div className="plan-rebal-card__head">
                     <input
-                      className="ui-input"
-                      aria-label={`目标占比 ${r.name}`}
-                      inputMode="decimal"
-                      value={r.target}
-                      aria-invalid={tgtErr ? true : undefined}
-                      aria-describedby={tgtErr ? tgtErrId : undefined}
-                      onChange={e => patch(r.id, 'target', e.target.value)}
+                      className="ui-input plan-rebal-card__name"
+                      aria-label={`资产名称 ${r.name}`}
+                      value={r.name}
+                      onChange={e => patch(r.id, 'name', e.target.value)}
                     />
-                    {tgtErr ? <span id={tgtErrId} className="plan-field-error">{tgtErr}</span> : null}
-                  </td>
-                  <td className="plan-w-80"><input className="ui-input" inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
-                  <td className="plan-w-110">
-                    <input
-                      className="ui-input"
-                      inputMode="decimal"
-                      placeholder="万元"
-                      value={r.amount}
-                      aria-label={`当前金额 ${r.name}`}
-                      aria-invalid={amtErr ? true : undefined}
-                      aria-describedby={amtErr ? amtErrId : undefined}
-                      onChange={e => patch(r.id, 'amount', e.target.value)}
-                    />
-                    {amtErr ? <span id={amtErrId} className="plan-field-error">{amtErr}</span> : null}
-                  </td>
-                  <td>{fmtPct(cur)}</td>
-                  <td>{Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</td>
-                  <td>
-                    {amtErr ? (
-                      <Pill tone="red">{amtErr}</Pill>
-                    ) : tgtErr ? (
-                      <Pill tone="red">{tgtErr}</Pill>
-                    ) : !Number.isFinite(dev) ? (
-                      <Pill tone="gray">待填写</Pill>
-                    ) : hit ? (
-                      <Pill tone="red">{gap > 0 ? `超出阈值，需买入 ${fmtMoney(gap)}` : `超出阈值，需卖出 ${fmtMoney(-gap)}`}</Pill>
-                    ) : (
-                      <Pill tone="green">区间内</Pill>
-                    )}
-                  </td>
-                  <td className="plan-w-44">
-                    <button aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => removeRow(r.id)}>
+                    <button type="button" aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => removeRow(r.id)}>
                       <Trash2 size={14} />
                     </button>
-                  </td>
+                  </div>
+                  <div className="plan-rebal-card__fields">
+                    <label className="plan-rebal-card__field">
+                      <span>当前金额</span>
+                      <input
+                        className="ui-input"
+                        inputMode="decimal"
+                        placeholder="万元"
+                        value={r.amount}
+                        aria-label={`当前金额 ${r.name}`}
+                        aria-invalid={amtErr ? true : undefined}
+                        aria-describedby={amtErr ? amtErrId : undefined}
+                        onChange={e => patch(r.id, 'amount', e.target.value)}
+                      />
+                      {amtErr ? <span id={amtErrId} className="plan-field-error">{amtErr}</span> : null}
+                    </label>
+                    <label className="plan-rebal-card__field">
+                      <span>目标 %</span>
+                      <input
+                        className="ui-input"
+                        aria-label={`目标占比 ${r.name}`}
+                        inputMode="decimal"
+                        value={r.target}
+                        aria-invalid={tgtErr ? true : undefined}
+                        aria-describedby={tgtErr ? tgtErrId : undefined}
+                        onChange={e => patch(r.id, 'target', e.target.value)}
+                      />
+                      {tgtErr ? <span id={tgtErrId} className="plan-field-error">{tgtErr}</span> : null}
+                    </label>
+                    <label className="plan-rebal-card__field">
+                      <span>阈值 ±%</span>
+                      <input className="ui-input" inputMode="decimal" aria-label={`阈值 ${r.name}`} value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} />
+                    </label>
+                    <label className="plan-rebal-card__field">
+                      <span>角色</span>
+                      <input className="ui-input" aria-label={`角色 ${r.name}`} value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} />
+                    </label>
+                  </div>
+                  <div className="plan-rebal-card__meta">
+                    <span>占比 {fmtPct(cur)}</span>
+                    <span>偏离 {Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</span>
+                    <RebalanceStatus amtErr={amtErr} tgtErr={tgtErr} dev={dev} hit={hit} gap={gap} />
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="ui-table-wrap plan-table-wrap" data-testid="plan-rebal-table">
+            <table className="ui-table plan-table">
+              <thead>
+                <tr>
+                  {['资产', '角色', '目标 %', '阈值 ±%', '当前金额', '当前占比', '相对偏离', '状态 / 回到目标需', ''].map(h => (
+                    <th key={h}>{h}</th>
+                  ))}
                 </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {computed.map(({ r, cur, dev, hit, gap, amtErr, tgtErr }) => {
+                  const tgtErrId = `tgt-err-${r.id}`
+                  const amtErrId = `amt-err-${r.id}`
+                  return (
+                  <tr key={r.id}>
+                    <td className="plan-minw-120"><input className="ui-input" aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
+                    <td className="plan-minw-140"><input className="ui-input" value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
+                    <td className="plan-w-80">
+                      <input
+                        className="ui-input"
+                        aria-label={`目标占比 ${r.name}`}
+                        inputMode="decimal"
+                        value={r.target}
+                        aria-invalid={tgtErr ? true : undefined}
+                        aria-describedby={tgtErr ? tgtErrId : undefined}
+                        onChange={e => patch(r.id, 'target', e.target.value)}
+                      />
+                      {tgtErr ? <span id={tgtErrId} className="plan-field-error">{tgtErr}</span> : null}
+                    </td>
+                    <td className="plan-w-80"><input className="ui-input" inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
+                    <td className="plan-w-110">
+                      <input
+                        className="ui-input"
+                        inputMode="decimal"
+                        placeholder="万元"
+                        value={r.amount}
+                        aria-label={`当前金额 ${r.name}`}
+                        aria-invalid={amtErr ? true : undefined}
+                        aria-describedby={amtErr ? amtErrId : undefined}
+                        onChange={e => patch(r.id, 'amount', e.target.value)}
+                      />
+                      {amtErr ? <span id={amtErrId} className="plan-field-error">{amtErr}</span> : null}
+                    </td>
+                    <td>{fmtPct(cur)}</td>
+                    <td>{Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</td>
+                    <td>
+                      <RebalanceStatus amtErr={amtErr} tgtErr={tgtErr} dev={dev} hit={hit} gap={gap} />
+                    </td>
+                    <td className="plan-w-44">
+                      <button aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => removeRow(r.id)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
         <div className="ui-stack ui-stack--sm plan-mt">
           {Math.abs(targetSum - 100) > 0.01 && <Note tone="red">目标占比合计 {targetSum}%，应为 100%。</Note>}
           {total > 0 && (

@@ -394,6 +394,26 @@
   background: var(--bg-secondary);
 }
 
+/* 长表：容器纵滚，现有 thead sticky top 才能生效；手机留出顶栏/页签高度 */
+.ui-table-wrap--scroll {
+  max-height: var(--ui-table-max-h, min(70vh, calc(100dvh - 12rem)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 长表内任意表头吸顶（覆盖 .radar-table 等非 .ui-table 的表） */
+.ui-table-wrap--scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-secondary);
+}
+
+/* 长表 + 首列吸附：左上角同时 sticky top+left，压过其余吸顶/吸附格 */
+.ui-table-wrap--scroll.ui-table-wrap--sticky .ui-table thead th:first-child {
+  z-index: 4;
+}
+
 /* ---------- 对话框与表单 ---------- */
 .ui-dialog-overlay {
   position: fixed;

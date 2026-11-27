@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageToolbar, TableWrap } from '../components/ui'
-import { LabNav } from '../features/etf-signal-plans/LabNav'
 import { fmtPct } from '../features/etf-watch-pool/model'
 import '../features/etf-flow/etf-flow.css'
 
@@ -58,7 +57,6 @@ export default function EtfResearchListLab({ kind }: { kind: Kind }): JSX.Elemen
 
   return (
     <Page title={meta.title}>
-      <LabNav current={meta.path} />
       <PageToolbar note={meta.note} />
       <Callout tone="warn" title="研究名单 · 不是投资建议">不并入 ETF 复盘默认分组，不发 Telegram。历史年化/回撤仅供对照。</Callout>
       {error && <EmptyState title="无法加载">{error}</EmptyState>}

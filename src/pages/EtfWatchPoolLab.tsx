@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, Page, PageToolbar, TableWrap } from '../components/ui'
-import { LabNav } from '../features/etf-signal-plans/LabNav'
 import { asWatchPool, fmtPct, PLAN_LABEL, type WatchPool } from '../features/etf-watch-pool/model'
 import '../features/etf-flow/etf-flow.css'
 
@@ -27,7 +26,6 @@ export default function EtfWatchPoolLab(): JSX.Element {
 
   return (
     <Page title="行业观察池（实验）">
-      <LabNav current="/lab/etf-watch-pool" />
       <PageToolbar note="高波动 / 大行业 ETF 观察名单。独立入口，不自动写入 ETF 复盘分组，也不发提醒。" />
       <Callout tone="warn" title="只看信号 · 不是优选组合">
         对照研究导出名单；样本外未证明可提高收益。历史年化/回撤仅供对照，不构成投资建议。

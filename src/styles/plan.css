@@ -300,6 +300,65 @@
   border-color: var(--system-red);
 }
 
+/* 再平衡检查器：≤640 卡片布局（桌面仍用表格） */
+.plan-rebal-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.plan-rebal-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.plan-rebal-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-rebal-card__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.plan-rebal-card__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.plan-rebal-card__field {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.plan-rebal-card__field .ui-input {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.plan-rebal-card__field .ui-input[aria-invalid="true"] {
+  border-color: var(--system-red);
+}
+
+.plan-rebal-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
 .plan-icon-btn {
   justify-content: center;
   min-width: 36px;

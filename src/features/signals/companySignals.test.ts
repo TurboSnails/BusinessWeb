@@ -30,6 +30,12 @@ describe('companySignals', () => {
     expect(lynch('待定')).toBeNull()
   })
 
+  it('林奇缺失时按加载中 / 失败 / 未覆盖分别提示', () => {
+    expect(byId(companySignals({ rating: '观察', lynchStatus: 'loading', today: '2026-10-20' }), 'lynch').detail).toBe('分类数据加载中')
+    expect(byId(companySignals({ rating: '观察', lynchStatus: 'failed', today: '2026-10-20' }), 'lynch').detail).toBe('分类数据加载失败')
+    expect(byId(companySignals({ rating: '观察', lynchStatus: 'ready', today: '2026-10-20' }), 'lynch').detail).toBe('该公司未覆盖林奇分类')
+  })
+
   it('DCF：安全边际 ≥20% 偏积极、低于 −10% 偏谨慎；低可信度与不适用不参与', () => {
     const dcf = (mos: number, extra = {}) => byId(companySignals({ rating: '观察', dcf: { price: 100, mos, source: 'auto', currency: 'USD', current: 90, buyBelow: 95, ...extra }, today: '2026-10-20' }), 'dcf')
     expect(dcf(0.25)).toMatchObject({ direction: 1 })
