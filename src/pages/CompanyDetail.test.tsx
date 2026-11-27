@@ -22,6 +22,33 @@ const fileResponse = (rel: string): Response => {
   }
 }
 
+// 每日行情刷新会改现价与估值价位，「两套估值方向相反」这类场景会随之消失。
+// AAPL、MSFT 的估值记录与行情报价固定为测试写定时（2026-11-20 刷新后）的数据，其余公司仍用真实数据。
+const PINNED_FILE = 'src/pages/__fixtures__/company-valuations-us-pinned.json'
+type ValRecord = { code: string; asOf: string }
+const PINNED: ValRecord[] = JSON.parse(readFileSync(resolve(PINNED_FILE), 'utf8')).records
+const pinnedValuations = (res: Response): Response => {
+  if (!res.ok) return res
+  return {
+    ...res,
+    json: async () => {
+      const d = (await res.json()) as { asOf: string; records: ValRecord[] }
+      // 记录的 asOf 须与文档一致才会通过校验；固定记录都是未定期限情景，改 asOf 不影响价位
+      const byCode = new Map(PINNED.map(r => [r.code, { ...r, asOf: d.asOf }]))
+      return { ...d, records: d.records.map(r => byCode.get(r.code) ?? r) }
+    },
+  } as Response
+}
+vi.mock('../data/companyMarketSnapshot.json', async importOriginal => {
+  // @ts-ignore 测试环境在 Node 中运行
+  const fs = await import('node:fs')
+  // @ts-ignore
+  const path = await import('node:path')
+  const quotes = JSON.parse(fs.readFileSync(path.resolve('src/pages/__fixtures__/company-valuations-us-pinned.json'), 'utf8')).quotes
+  const actual = (await importOriginal()) as { default: Record<string, unknown> }
+  return { default: { ...actual.default, ...quotes } }
+})
+
 beforeEach(() => {
   usMode = 'ok'
   vi.resetModules() // 公司库缓存在模块级，每个用例重新加载
@@ -30,6 +57,7 @@ beforeEach(() => {
     const rel = String(url).replace(/^.*?data\//, '')
     if (rel === 'us.json' && usMode === '503') return { ok: false, status: 503, json: async () => ({}) } as Response
     if (rel === 'us.json' && usMode === 'html') return { ok: true, status: 200, json: async () => { throw new SyntaxError("Unexpected token '<'") } } as unknown as Response
+    if (rel === 'company-valuations/us.json') return pinnedValuations(fileResponse(rel))
     return fileResponse(rel)
   })
 })

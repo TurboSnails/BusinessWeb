@@ -1,0 +1,443 @@
+{
+ "note": "CompanyDetail.test 用的固定数据：AAPL、MSFT 的估值记录（company-valuations/us.json）与行情报价（companyMarketSnapshot.json），取自 2026-11-20 行情刷新后的版本（测试写定时的数据），避免每日行情刷新让断言漂移。",
+ "records": [
+  {
+   "key": "us:MSFT",
+   "market": "us",
+   "code": "MSFT",
+   "name": "微软",
+   "sector": "信息技术",
+   "currency": "USD",
+   "asOf": "2026-11-20",
+   "price": {
+    "value": 484.52,
+    "date": "2026-11-20",
+    "currency": "USD",
+    "source": "snap-us"
+   },
+   "status": "conditional",
+   "value": {
+    "low": 532.48,
+    "base": 701.91,
+    "high": 774.52,
+    "kind": "undated",
+    "date": null,
+    "primaryMethod": "PE"
+   },
+   "comparison": {
+    "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
+    "priceValue": 484.52,
+    "priceDate": "2026-11-20",
+    "low": 0.1,
+    "base": 0.45,
+    "high": 0.6
+   },
+   "methods": [
+    {
+     "name": "PE",
+     "applicable": true,
+     "reason": "盈利为正（TTM 19.16、前瞻 24.20），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 22×/29×/32×，未重估）",
+     "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
+     "inputs": {
+      "epsTrailingTwelveMonths": 19.16,
+      "epsForward": 24.20376,
+      "researchMultiples": {
+       "low": 22.0,
+       "base": 29.0,
+       "high": 32.0
+      },
+      "researchScenarioEPS": {
+       "low": 17.5,
+       "base": 20.0,
+       "high": 23.0
+      },
+      "forwardYearBound": false,
+      "researchScenarioCount": 3,
+      "yahooTrailingPE": 25.2881,
+      "yahooForwardPE": 20.018377,
+      "priceUsed": 484.52,
+      "dcfPrefillAnnualEPS": 18.01,
+      "dcfPrefillFY": "2026-06-30"
+     },
+     "values": [
+      532.48,
+      701.91,
+      774.52
+     ],
+     "sourceIds": [
+      "yahoo-batch",
+      "research-us"
+     ]
+    },
+    {
+     "name": "PEG",
+     "applicable": true,
+     "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
+     "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
+     "inputs": {
+      "growthPercent": 32,
+      "yahooForwardPE": 20.018377,
+      "currentForwardPEComputed": 20.02
+     },
+     "values": null,
+     "sourceIds": [
+      "lynch"
+     ]
+    },
+    {
+     "name": "PB",
+     "applicable": false,
+     "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+     "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
+     "inputs": {
+      "bookValuePerShare": 63.351,
+      "yahooPriceToBook": null,
+      "currency": "USD"
+     },
+     "values": null,
+     "sourceIds": [
+      "yahoo-batch"
+     ]
+    },
+    {
+     "name": "DCF",
+     "applicable": true,
+     "reason": "有预取历史财报（FY 2026-06-30，5 年）、股数与资产负债项，可作输入；缺显式预测期、再投资率与终值假设，本批次不计值",
+     "formula": "FCFF 显式期现值 + 终值；股权价 = (EV − 债务 + 现金 − 少数权益) ÷ 摊薄股数",
+     "inputs": {
+      "fy": "2026-06-30",
+      "cash": 20281000000,
+      "debt": 35481000000,
+      "minorityInterest": null,
+      "shares": 7426194552,
+      "beta": 1.069
+     },
+     "values": null,
+     "sourceIds": [
+      "dcf-prefill"
+     ]
+    }
+   ],
+   "quality": "原研究口径（未重核）：中—高（最近 12 个季度营收同比都在 +12%–18.4% 区间）；营收增速稳：最近 6 个季度同比 +13%、+18%、+18%、+17%、+18%、+18%，净利率 35.7%→39.7%（同比 +4.1pt），经营杠杆明显；三层锁定：企业 IT 基础设施（Azure/Entra）→ 生产力套件（M365/Teams）→ 开发工具（GitHub/VS Code），行业里无第二家可对标（旧页护城河评分 19/20，为 53 家最高）",
+   "pricing": "现价 484.52（2026-11-20，快照）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 24.20 × 研究倍数 → 悲观/基准/乐观 532.48/701.91/774.52，相对现价 +44.9%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +21.0%；PEG：适用但与 PE 共享增长假设；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+   "expectations": "前瞻 EPS 一致预期 24.20（供应商口径）；验证节点：2026 年 10 月底（FY27 Q1）：Azure 增速、毛利率、资本开支；重评触发：毛利率<66% 或营收增速<12%；持续期：能持续到 2027 年底，前提是 Azure/Copilot 的 AI 收入继续转化为利润，资本开支回报不恶化",
+   "risk": "毛利率连续两季低于 66%（验证：2026 年 10 月底财报）；Azure 增速环比下滑（验证：下一季财报）；毛利率 67.2%，较去年同期 68.6% 下降 1.4pt，AI 算力成本在压低毛利；压力：悲观价 532.48 相对现价 +9.9%，倍数压缩情景而非下限，另需检融资与股权稀释",
+   "assumptions": [
+    "PE 倍数取原研究情景（22×/29×/32×，未重估，研究假设）",
+    "分母为 Yahoo 前瞻 EPS（24.20，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+    "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
+    "方法分歧：原研究基准 EPS 假设 20（未重估）与前瞻一致预期 24.20 相差 +21.0%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+    "价格 484.52（2026-11-20，供应商最后报价）",
+    "原研究资料日期：2026-09-30（原文：2026-09-30 增补公告复核（现金流必须按标注的财季与定义比较））"
+   ],
+   "missing": [
+    "DCF 缺显式预测期、再投资与终值假设，未计值",
+    "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
+    "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
+    "DCF、FCF 与资本开支未纳入本批次自动计值"
+   ],
+   "sources": [
+    {
+     "id": "snap-us",
+     "title": "companyMarketSnapshot 价格锚点（腾讯延迟行情，供应商最后报价）",
+     "url": "src/data/companyMarketSnapshot.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "yahoo-batch",
+     "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
+     "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "research-us",
+     "title": "原研究公司导出（情景倍数与评级，未重估；us 口径）",
+     "url": "research/comprehensive-valuation-2026-10-22/universe-us.json",
+     "asOf": "2026-09-30"
+    },
+    {
+     "id": "lynch",
+     "title": "Lynch 增速与分类（原研究，PE 行情字段 2026-10-20 核验）",
+     "url": "data/lynch.json",
+     "asOf": "2026-10-20"
+    },
+    {
+     "id": "dcf-prefill",
+     "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
+     "url": "data/dcf-prefill.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "dcf-auto",
+     "title": "DCF 旧自动值（字段口径未核，仅存档）",
+     "url": "data/dcf-auto.json",
+     "asOf": "2026-11-20"
+    }
+   ],
+   "review": {
+    "mode": "programmatic",
+    "by": "scripts/build-company-valuations-us.py（Orca 批量脚本）",
+    "note": "程序化条件初稿：研究倍数未重估，财务分母取供应商口径；未逐家重读财报，不得标已复核"
+   },
+   "legacy": {
+    "rating": "条件关注（好公司，当前价赔率不足）",
+    "headline": "观察：AI 收入与正现金流已确认；现价安全边际未认证",
+    "discipline": "合理买入区 $440–460（约归一化 TTM EPS 26–27×，由 (580−P)/(P−385)=2 反推约 $450）；当前不在区间",
+    "dcfAuto": [
+     0,
+     205.48,
+     164.384,
+     "h",
+     488.78,
+     "USD",
+     "2026-11-20",
+     0
+    ],
+    "dcfAutoNote": "旧 DCF 自动值原始数组，字段口径未核，不计入本轮估值",
+    "note": "旧研究评级与旧价格纪律区（旧价口径，仅作历史参考），未随本轮价格静默改写"
+   }
+  },
+  {
+   "key": "us:AAPL",
+   "market": "us",
+   "code": "AAPL",
+   "name": "苹果",
+   "sector": "信息技术",
+   "currency": "USD",
+   "asOf": "2026-11-20",
+   "price": {
+    "value": 342.56,
+    "date": "2026-11-20",
+    "currency": "USD",
+    "source": "snap-us"
+   },
+   "status": "conditional",
+   "value": {
+    "low": 264.32,
+    "base": 348.9,
+    "high": 391.19,
+    "kind": "undated",
+    "date": null,
+    "primaryMethod": "PE"
+   },
+   "comparison": {
+    "label": "敏感性价相对现价差额（估值 / 现价 − 1，未定期限）",
+    "priceValue": 342.56,
+    "priceDate": "2026-11-20",
+    "low": -0.23,
+    "base": 0.02,
+    "high": 0.14
+   },
+   "methods": [
+    {
+     "name": "PE",
+     "applicable": true,
+     "reason": "盈利为正（TTM 8.98、前瞻 10.57），可用 PE；倍数沿用原研究情景（悲观/基准/乐观 25×/33×/37×，未重估）",
+     "formula": "前瞻 EPS（供应商一致预期）× 研究情景 PE（悲观/基准/乐观）",
+     "inputs": {
+      "epsTrailingTwelveMonths": 8.98,
+      "epsForward": 10.57273,
+      "researchMultiples": {
+       "low": 25.0,
+       "base": 33.0,
+       "high": 37.0
+      },
+      "researchScenarioEPS": {
+       "low": 8.6,
+       "base": 9.6,
+       "high": 10.8
+      },
+      "forwardYearBound": false,
+      "researchScenarioCount": 3,
+      "yahooTrailingPE": 38.146996,
+      "yahooForwardPE": 32.400333,
+      "priceUsed": 342.56,
+      "dcfPrefillAnnualEPS": 9.1,
+      "dcfPrefillFY": "2026-09-26"
+     },
+     "values": [
+      264.32,
+      348.9,
+      391.19
+     ],
+     "sourceIds": [
+      "yahoo-batch",
+      "research-us"
+     ]
+    },
+    {
+     "name": "PEG",
+     "applicable": true,
+     "reason": "利润增速 32%（Lynch 研究口径，非独立一致预期）；PEG 与 PE 共享增长假设，不作为独立证据；目标 PEG 无同口径依据，未计值",
+     "formula": "PE ÷ 增长率百分数（如 20% 填 20）；目标价=EPS × 目标 PEG × 增长百分数",
+     "inputs": {
+      "growthPercent": 32,
+      "yahooForwardPE": 32.400333,
+      "currentForwardPEComputed": 32.4
+     },
+     "values": null,
+     "sourceIds": [
+      "lynch"
+     ]
+    },
+    {
+     "name": "PB",
+     "applicable": false,
+     "reason": "轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+     "formula": "普通股 BVPS × 合理 PB（需 ROE/股权成本依据）",
+     "inputs": {
+      "bookValuePerShare": 7.713,
+      "yahooPriceToBook": null,
+      "currency": "USD"
+     },
+     "values": null,
+     "sourceIds": [
+      "yahoo-batch"
+     ]
+    },
+    {
+     "name": "DCF",
+     "applicable": true,
+     "reason": "有预取历史财报（FY 2026-09-26，5 年）、股数与资产负债项，可作输入；缺显式预测期、再投资率与终值假设，本批次不计值",
+     "formula": "FCFF 显式期现值 + 终值；股权价 = (EV − 债务 + 现金 − 少数权益) ÷ 摊薄股数",
+     "inputs": {
+      "fy": "2026-09-26",
+      "cash": 36305000000,
+      "debt": 80111000000,
+      "minorityInterest": null,
+      "shares": 14532182000,
+      "beta": 1.034
+     },
+     "values": null,
+     "sourceIds": [
+      "dcf-prefill"
+     ]
+    }
+   ],
+   "quality": "原研究口径（未重核）：中—高（营收连续 3 季 +16% 左右）；营收同比 +7.9%、+15.7%、+16.6%、+16.4%：FQ1 起增速翻倍，且连续三季维持；封闭生态与 20 亿级终端用户，转换成本高",
+   "pricing": "现价 342.56（2026-11-20，快照）；PE 敏感性（未定期限，非今日价值）：前瞻 EPS 10.57 × 研究倍数 → 悲观/基准/乐观 264.32/348.9/391.19，相对现价 +1.9%（基准）；一致预期 EPS 与原研究基准 EPS 口径差 +10.1%；PEG：适用但与 PE 共享增长假设；PB：轻资产，无形资产与商誉占比高，账面值对价值约束弱；不以PB定价",
+   "expectations": "前瞻 EPS 一致预期 10.57（供应商口径）；验证节点：FQ4 财报（通常 10 月底–11 月初，具体日期待公告）：营收增速、毛利率、服务；持续期：增长能否持续到 2027 年底取决于换机周期与服务；本次未取到分部数据，先按 +10% 利润增速假设",
+   "risk": "营收同比回落到 +12% 以下（验证：下季财报，通常 10 月底–11 月初）；毛利率低于 49%；TTM PE 37.8×，在 IT 大盘股里偏高，且需要 +10% 以上的利润增速维持；压力：悲观价 264.32 相对现价 -22.8%，倍数压缩情景而非下限，另需检融资与股权稀释",
+   "assumptions": [
+    "PE 倍数取原研究情景（25×/33×/37×，未重估，研究假设）",
+    "分母为 Yahoo 前瞻 EPS（10.57，一致预期口径，待与公司披露核对），非价格÷PE 倒推",
+    "悲观/乐观仅改变倍数，EPS 不变（不等于原研究的 EPS 与倍数同时下修/上修情景）",
+    "方法分歧：原研究基准 EPS 假设 9.6（未重估）与前瞻一致预期 10.57 相差 +10.1%；本批次采用一致预期口径，原研究 EPS 口径未采用",
+    "价格 342.56（2026-11-20，供应商最后报价）",
+    "原研究资料日期：2026-09-21（原文：腾讯自选股 westock，时点 2026-09-21）"
+   ],
+   "missing": [
+    "DCF 缺显式预测期、再投资与终值假设，未计值",
+    "前瞻 EPS 预测财年未绑定，PE 值仅为未定期限敏感性，不是今日估值；需确定预测年度与倍数时点",
+    "一手财报与公司公告未在本批次逐家重读（仅供应商 TTM/前瞻 EPS 与原研究）",
+    "DCF、FCF 与资本开支未纳入本批次自动计值"
+   ],
+   "sources": [
+    {
+     "id": "snap-us",
+     "title": "companyMarketSnapshot 价格锚点（腾讯延迟行情，供应商最后报价）",
+     "url": "src/data/companyMarketSnapshot.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "yahoo-batch",
+     "title": "Yahoo 批量报价（EPS、BVPS、前瞻 EPS 一致预期、价格交叉核对）",
+     "url": "research/data-refresh-2026-10-20/yahoo-quote-batch.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "research-us",
+     "title": "原研究公司导出（情景倍数与评级，未重估；us 口径）",
+     "url": "research/comprehensive-valuation-2026-10-22/universe-us.json",
+     "asOf": "2026-09-21"
+    },
+    {
+     "id": "lynch",
+     "title": "Lynch 增速与分类（原研究，PE 行情字段 2026-10-20 核验）",
+     "url": "data/lynch.json",
+     "asOf": "2026-10-20"
+    },
+    {
+     "id": "dcf-prefill",
+     "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
+     "url": "data/dcf-prefill.json",
+     "asOf": "2026-11-20"
+    },
+    {
+     "id": "dcf-auto",
+     "title": "DCF 旧自动值（字段口径未核，仅存档）",
+     "url": "data/dcf-auto.json",
+     "asOf": "2026-11-20"
+    }
+   ],
+   "review": {
+    "mode": "programmatic",
+    "by": "scripts/build-company-valuations-us.py（Orca 批量脚本）",
+    "note": "程序化条件初稿：研究倍数未重估，财务分母取供应商口径；未逐家重读财报，不得标已复核"
+   },
+   "legacy": {
+    "rating": "观察（质量好，价格在基准之上）",
+    "headline": "营收 +16.4%、净利 +27.1%、毛利率 50.1%，最近三个季度营收连续 +16% 左右；但 $329 对应 TTM PE 37.8×，基准情景价 $317，2:1 要 $250 以下",
+    "discipline": "合理买入区 $240–260（约 TTM EPS 27.5–30×，由 (317−P)/(P−215)=2 反推约 $249）；当前不在区间",
+    "dcfAuto": [
+     0,
+     118.491,
+     94.7928,
+     "h",
+     345.77,
+     "USD",
+     "2026-11-20",
+     0
+    ],
+    "dcfAutoNote": "旧 DCF 自动值原始数组，字段口径未核，不计入本轮估值",
+    "note": "旧研究评级与旧价格纪律区（旧价口径，仅作历史参考），未随本轮价格静默改写"
+   }
+  }
+ ],
+ "quotes": {
+  "us:AAPL": {
+   "price": 342.56,
+   "currency": "USD",
+   "marketTime": "2026-11-20T16:00:04-05:00",
+   "date": "2026-11-20",
+   "checkedAt": "2026-11-20T22:30:16.792101+00:00",
+   "provider": "腾讯延迟行情",
+   "source": "research/data-refresh-2026-11-20/tencent-quotes.json",
+   "session": "供应商最后报价，非交易所认证收盘",
+   "financialPeriod": null,
+   "financialSource": null,
+   "financialCheckedAt": null,
+   "financialCurrency": null,
+   "trailingPE": 38.146996,
+   "forwardPE": 32.400333,
+   "low52": 243.42,
+   "high52": 360.83,
+   "valuationMarketTime": "2026-11-20T16:00:02-05:00",
+   "valuationSource": "research/data-refresh-2026-11-20/yahoo-quote-batch.json",
+   "mcpStatus": "MCP未取回完整资料；使用独立批量行情，财报未重核",
+   "symbol": "AAPL"
+  },
+  "us:MSFT": {
+   "price": 484.52,
+   "currency": "USD",
+   "marketTime": "2026-11-20T16:00:04-05:00",
+   "date": "2026-11-20",
+   "checkedAt": "2026-11-20T22:30:18.729920+00:00",
+   "provider": "腾讯延迟行情",
+   "source": "research/data-refresh-2026-11-20/tencent-quotes.json",
+   "session": "供应商最后报价，非交易所认证收盘",
+   "financialPeriod": null,
+   "financialSource": null,
+   "financialCheckedAt": null,
+   "financialCurrency": null,
+   "trailingPE": 25.2881,
+   "forwardPE": 20.018377,
+   "low52": 349.2,
+   "high52": 559.15,
+   "valuationMarketTime": "2026-11-20T16:00:00-05:00",
+   "valuationSource": "research/data-refresh-2026-11-20/yahoo-quote-batch.json",
+   "mcpStatus": "MCP未取回完整资料；使用独立批量行情，财报未重核",
+   "symbol": "MSFT"
+  }
+ }
+}
