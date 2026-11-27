@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, RefreshCw } from 'lucide-react'
-import { Page, PageToolbar } from '../components/ui'
+import { LoadError, Page, PageToolbar } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import { fetchIndexQuotes } from '../services/indexQuotes'
 import VerdictBar from '../features/combined-strategy/VerdictBar'
@@ -35,8 +35,22 @@ function BlockHead({ title, note, to, link }: { title: string; note?: string; to
   )
 }
 
-function MacroBlock({ snap, error, tick }: { snap: MacroSnapshot | null; error: boolean; tick: number }): JSX.Element {
-  if (!snap) return <section className="watch-block" aria-label="风险预算阶段"><BlockHead title="风险预算阶段" to="/monitor" link="宏观温度" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{error ? '宏观数据加载失败。' : '正在加载宏观数据…'}</p></section>
+function MacroBlock({ snap, error, tick, onRetry }: {
+  snap: MacroSnapshot | null
+  error: boolean
+  tick: number
+  onRetry: () => void
+}): JSX.Element {
+  if (!snap) {
+    return (
+      <section className="watch-block" aria-label="风险预算阶段">
+        <BlockHead title="风险预算阶段" to="/monitor" link="宏观温度" />
+        {error
+          ? <LoadError reason="宏观数据这份读数现在拿不到。" onRetry={onRetry} />
+          : <p className="watch-muted" role="status">正在加载宏观数据…</p>}
+      </section>
+    )
+  }
   const { values, stage, score, entered } = stageFromSnapshot(snap)
   return (
     <section className={`watch-block watch-macro is-${stage?.tone ?? 'gray'}`} aria-label="风险预算阶段">
@@ -145,8 +159,22 @@ function MarketsBlock({ groups, loading }: { groups: Record<string, GroupState>;
   )
 }
 
-function AShareBlock({ data, loading, error }: { data: DailySnapshot | undefined; loading: boolean; error: string | null }): JSX.Element {
-  if (!data) return <section className="watch-block" aria-label="A股情绪"><BlockHead title="A股情绪" to="/daily-analysis" link="每日复盘" /><p className="watch-muted" role={error ? 'alert' : 'status'}>{loading ? '正在获取 A 股复盘…' : error ?? '暂未取得复盘数据'}</p></section>
+function AShareBlock({ data, loading, error, onRetry }: {
+  data: DailySnapshot | undefined
+  loading: boolean
+  error: string | null
+  onRetry: () => void
+}): JSX.Element {
+  if (!data) {
+    return (
+      <section className="watch-block" aria-label="A股情绪">
+        <BlockHead title="A股情绪" to="/daily-analysis" link="每日复盘" />
+        {loading
+          ? <p className="watch-muted" role="status">正在获取 A 股复盘…</p>
+          : <LoadError reason={error ?? '复盘暂时取不到'} onRetry={onRetry} />}
+      </section>
+    )
+  }
   const m = metricsWithBreadth(data)
   const { mood, reason } = moodOf(m)
   const up = m.upCount ?? 0, down = m.downCount ?? 0
@@ -192,7 +220,7 @@ function AShareBlock({ data, loading, error }: { data: DailySnapshot | undefined
 
 /** 观察盘：宏观、全球、A 股三块一页看完；细节去各自的详情页 */
 export default function WatchBoard(): JSX.Element {
-  const { snap: macro, error: macroError } = useMacroSnapshot()
+  const { snap: macro, error: macroError, retry: retryMacro } = useMacroSnapshot()
   const [live, setLive] = useState<Record<string, QuoteRow[]>>({})
   const [quotesLoading, setQuotesLoading] = useState(true)
   const [daily, setDaily] = useState<DailySnapshot[]>(loadDailySnapshots)
@@ -202,7 +230,7 @@ export default function WatchBoard(): JSX.Element {
   const [tick, setTick] = useState(0)
 
   const load = useCallback((signal: AbortSignal) => {
-    setQuotesLoading(true); setDailyLoading(true)
+    setQuotesLoading(true); setDailyLoading(true); setDailyError(null)
     Promise.all(MARKET_GROUPS.map(g => fetchIndexQuotes(g.items, fetch, signal)
       .then(rows => [g.id, rows] as const)
       .catch(() => [g.id, [] as QuoteRow[]] as const)))
@@ -217,9 +245,19 @@ export default function WatchBoard(): JSX.Element {
         if (entries.some(([, rows]) => rows.length)) setUpdatedAt(at)
       })
       .finally(() => { if (!signal.aborted) setQuotesLoading(false) })
+    // loadDailyAnalysis 内部对 /api/daily-analysis 使用 AbortSignal 等价的 10s 超时（L13）
     loadDailyAnalysis(signal)
-      .then(r => { if (!signal.aborted) { setDaily(r.snapshots); setDailyError(r.liveError) } })
-      .catch(() => { if (!signal.aborted) setDailyError('最新复盘获取失败，显示已有快照。') })
+      .then(r => {
+        if (signal.aborted) return
+        setDaily(r.snapshots)
+        setDailyError(r.liveError
+          ? (r.snapshots.length ? r.liveError : '复盘暂时取不到')
+          : null)
+      })
+      .catch(() => {
+        if (signal.aborted) return
+        setDailyError('复盘暂时取不到')
+      })
       .finally(() => { if (!signal.aborted) setDailyLoading(false) })
   }, [])
 
@@ -248,9 +286,14 @@ export default function WatchBoard(): JSX.Element {
       </PageToolbar>
       <VerdictBar hideStage />
       <div className="watch-grid">
-        <MacroBlock snap={macro} error={macroError} tick={tick} />
+        <MacroBlock snap={macro} error={macroError} tick={tick} onRetry={retryMacro} />
         <MarketsBlock groups={groups} loading={quotesLoading} />
-        <AShareBlock data={daily[0]} loading={dailyLoading} error={dailyError} />
+        <AShareBlock
+          data={daily[0]}
+          loading={dailyLoading}
+          error={dailyError}
+          onRetry={() => setTick(n => n + 1)}
+        />
       </div>
     </Page>
   )

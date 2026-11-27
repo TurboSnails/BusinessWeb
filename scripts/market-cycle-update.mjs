@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { writeReport } from './market-cycle-report.mjs'
 import { OUT_FILE } from './market-cycle-breadth.mjs'
+import { checkHkResearchConstituents } from './check-hk-research-constituents.mjs'
 
 const MAX_BREADTH_ROUNDS = 12 // 12 rounds x 40 requests = 480 requests budget
 const BREADTH_DEADLINE_MS = 8 * 60 * 1000
@@ -61,6 +62,8 @@ export async function update(run = runScript, report = writeReport, opts = {}) {
     if (key === lastKey) break // no progress: further rounds would only repeat the same failures
     lastKey = key
   }
+  // 港股研究池 vs 官方恒指/恒科：只告警缺漏，不改名单、不计入 failures（不让工作流失败）
+  try { checkHkResearchConstituents() } catch (error) { console.warn(`[hk-research-constituents] ${error.message}`) }
   return report(failures)
 }
 function runScript(name, { timeoutMs } = {}) {

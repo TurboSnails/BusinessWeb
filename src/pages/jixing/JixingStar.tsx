@@ -1,7 +1,7 @@
 // 今天几星 · 今日星级（/jixing）：本站自定的 A 股估值星级（1.0–5.9 星，越高越便宜），公开数据收盘后每天计算一次。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Badge, Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote } from '../../features/jixing-tabs/StatusBadge'
@@ -193,21 +193,39 @@ function ChecksCard({ data }: { data: JixingStarData }): JSX.Element {
 export default function JixingStar(): JSX.Element {
   const [data, setData] = useState<JixingStarData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/jixing-star.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asJixingStar(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingStar(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page">
       <PageTitle>今天几星 · 今日星级</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取星级数据…</p> : !data ? <EmptyState title="暂无星级数据">收盘后更新，待公开数据发布。</EmptyState> : <>
+      {loading ? <p role="status">正在读取星级数据…</p> : error ? (
+        <LoadError reason="星级数据这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无星级数据">收盘后更新，待公开数据发布。</EmptyState> : <>
         <Hero data={data} />
         {data.neutral && <IndustriesCard data={data.neutral} />}
         <InputsCard data={data} />

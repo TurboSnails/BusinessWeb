@@ -114,7 +114,8 @@ describe('财报前瞻页', () => {
   it('加载失败显示错误；周末时第一页签是下周', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, json: async () => ({}) })))
     renderPage(new Date('2026-11-14T02:00:00Z'))
-    await waitFor(() => expect(screen.getByText('财报日历暂时无法加载')).toBeTruthy())
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('数据暂时取不到'))
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     cleanup()
     vi.stubGlobal('fetch', okFetch(calendar()))
     renderPage(new Date('2026-11-14T02:00:00Z'))

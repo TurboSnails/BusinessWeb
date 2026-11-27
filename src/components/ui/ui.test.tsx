@@ -2,7 +2,7 @@ import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { fireEvent } from '@testing-library/react'
-import { Badge, Callout, Card, Dialog, EmptyState, Field, Page, PageToolbar, Stat, StatGrid, TableWrap } from './index'
+import { Badge, Callout, Card, Dialog, EmptyState, Field, LoadError, loadErrorDetail, Page, PageToolbar, plainLoadReason, Stat, StatGrid, TableWrap } from './index'
 
 afterEach(cleanup)
 
@@ -78,6 +78,26 @@ describe('Stat / StatGrid / Badge / EmptyState', () => {
     render(<EmptyState title="暂无数据" action={<button>重试</button>}>稍后再来</EmptyState>)
     expect(screen.getByText('暂无数据')).toBeTruthy()
     expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
+  })
+})
+
+describe('LoadError', () => {
+  it('渲染统一文案、role=alert，点击重试回调；HTTP 码只在小字', () => {
+    let clicks = 0
+    render(<LoadError detail="HTTP 500" onRetry={() => { clicks += 1 }} />)
+    const alert = screen.getByRole('alert')
+    expect(alert.textContent).toContain('数据暂时取不到')
+    expect(alert.textContent).toMatch(/网络不稳|暂时不可用/)
+    expect(alert.textContent).toContain('HTTP 500')
+    expect(alert.querySelector('.ui-load-error__reason')?.textContent).not.toContain('HTTP 500')
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    expect(clicks).toBe(1)
+  })
+  it('loadErrorDetail / plainLoadReason', () => {
+    expect(loadErrorDetail('HTTP 404')).toBe('HTTP 404')
+    expect(loadErrorDetail('500')).toBe('HTTP 500')
+    expect(plainLoadReason('TimeoutError')).toMatch(/超时/)
+    expect(plainLoadReason('数据结构异常')).toMatch(/格式/)
   })
 })
 

@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Page, Segmented } from '../components/ui'
 import TrioNav from '../features/combined-strategy/TrioNav'
 import VerdictBar from '../features/combined-strategy/VerdictBar'
 import LegacyMarketView from '../features/macro-posture/composite/LegacyMarketView'
 import UsCompositeView from '../features/macro-posture/composite/UsCompositeView'
-import { useCompositePosture } from '../features/macro-posture/composite/load'
+import { invalidateCompositeCache, useCompositePosture } from '../features/macro-posture/composite/load'
 import { useMacroPostureData } from '../features/macro-posture/data'
 import { buildMacroView, POSTURE_RULE_VERSION } from '../features/macro-posture/model'
 import type { Market } from '../features/macro-posture/types'
@@ -34,8 +34,13 @@ function parseMarket(raw: string | null): Market {
 export default function MacroPosture(): JSX.Element {
   const [params, setParams] = useSearchParams()
   const market = parseMarket(params.get('market'))
-  const composite = useCompositePosture()
-  const legacy = useMacroPostureData()
+  const [compositeAttempt, setCompositeAttempt] = useState(0)
+  const composite = useCompositePosture(undefined, compositeAttempt)
+  const { retry: retryLegacy, ...legacy } = useMacroPostureData()
+  const retryComposite = (): void => {
+    invalidateCompositeCache()
+    setCompositeAttempt(n => n + 1)
+  }
 
   const setMarket = (next: Market): void => {
     setParams(prev => {
@@ -87,12 +92,13 @@ export default function MacroPosture(): JSX.Element {
       </div>
 
       {market === 'us' ? (
-        <UsCompositeView state={composite} />
+        <UsCompositeView state={composite} onRetry={retryComposite} />
       ) : (
         <LegacyMarketView
           market={market}
           view={legacyView}
           status={legacy.status === 'ready' ? 'ready' : legacy.status}
+          onRetry={retryLegacy}
         />
       )}
 

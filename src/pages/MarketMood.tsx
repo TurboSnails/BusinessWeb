@@ -3,7 +3,7 @@
 // 数据：public/data/market-mood.json（scripts/market-mood.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../components/ui'
+import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import MoodChart, { type Point } from '../features/market-mood/MoodChart'
 import KplTabs, { KPL_DISCLAIMER } from '../features/market-mood/KplTabs'
@@ -13,8 +13,10 @@ import '../styles/market-mood.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ok'; data: MarketMood }
 
-function useMarketMood(): Load {
+function useMarketMood(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/market-mood.json`, { cache: 'no-cache', signal: controller.signal })
@@ -25,8 +27,8 @@ function useMarketMood(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 // 格式：真正的负号；涨跌按 A 股习惯红涨绿跌
@@ -397,7 +399,13 @@ export default function MarketMood(): JSX.Element {
       <KplTabs />
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
-      {load.state === 'error' && <EmptyState title="市场情绪数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError
+          reason="市场情绪这份读数现在拿不到。"
+          detail={load.message}
+          onRetry={load.retry}
+        />
+      )}
       {load.state === 'ok' && <MoodBody m={load.data} />}
     </Page>
   )

@@ -1,5 +1,5 @@
 // 宏观攻守数据适配器：读取站内已有的宏观 JSON，产出 types.ts 约定的 MacroData
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { computeNetLiquidity, isValidIsoDate, sanitizePoints } from '../macro-masters/readings'
 import { qualifiedBreadth, type Breadth } from '../us-market/model'
 import type { DataState, MacroData, Market, MarketData, Metric, Window } from './types'
@@ -381,14 +381,19 @@ export async function loadMacroPostureData(fetcher: Fetcher = fetch, asOf?: stri
   return data
 }
 
-export function useMacroPostureData(): DataState {
+export function useMacroPostureData(): DataState & { retry: () => void } {
   const [state, setState] = useState<DataState>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = useCallback(() => {
+    setState({ status: 'loading' })
+    setAttempt(n => n + 1)
+  }, [])
   useEffect(() => {
     let alive = true
     loadMacroPostureData()
       .then(data => { if (alive) setState({ status: 'ready', data }) })
       .catch(() => { if (alive) setState({ status: 'error' }) })
     return () => { alive = false }
-  }, [])
-  return state
+  }, [attempt])
+  return { ...state, retry }
 }

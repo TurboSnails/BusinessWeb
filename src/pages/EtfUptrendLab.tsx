@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, EmptyState, Page, PageToolbar } from '../components/ui'
+import { Callout, LoadError, Page, PageToolbar } from '../components/ui'
 import {
   asDay, asDetailMap, asIndex, asReconstructed, bit, filterRows, latestPeriod, loadFilters, loadSort, loadWatch,
   missingCats, nextSort, reconDays, reconMembers, saveFilters, saveSort, saveWatch, securityCode, sortRows, tabCount, TABS,
@@ -21,27 +21,41 @@ export default function EtfUptrendLab(): JSX.Element {
   const [watch, setWatch] = useState<Set<string>>(() => loadWatch())
   const [open, setOpen] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [retryKey, setRetryKey] = useState(0)
   const [recon, setRecon] = useState<Reconstructed | null>(null)
   const [reconOpen, setReconOpen] = useState(false)
   const [reconDay, setReconDay] = useState('')
   const [reconRetr, setReconRetr] = useState(false)
   const [reconQ, setReconQ] = useState('')
 
+  const retry = () => {
+    setIndex(null)
+    setDetail({})
+    setDayCache({})
+    setDayKey('')
+    setError('')
+    setLoading(true)
+    setRetryKey(n => n + 1)
+  }
+
   useEffect(() => {
     let live = true
+    setLoading(true)
     Promise.all([
       fetch(`${BASE}index.json`, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() }),
       fetch(`${BASE}detail.json`, { cache: 'no-store' }).then(r => r.ok ? r.json() : {}),
     ]).then(([idxBody, detailBody]) => {
       if (!live) return
       const idx = asIndex(idxBody)
-      if (!idx?.days.length) { setError('暂无主升浪存档'); return }
+      if (!idx?.days.length) { setError('暂无主升浪存档'); setLoading(false); return }
       setIndex(idx)
       setDetail(asDetailMap(detailBody))
       setDayKey(idx.days.at(-1)!.d)
-    }).catch(e => { if (live) setError(e instanceof Error ? e.message : '加载失败') })
+      setLoading(false)
+    }).catch(e => { if (live) { setError(e instanceof Error ? e.message : '加载失败'); setLoading(false) } })
     return () => { live = false }
-  }, [])
+  }, [retryKey])
 
   useEffect(() => {
     if (!dayKey || dayCache[dayKey]) return
@@ -146,7 +160,14 @@ export default function EtfUptrendLab(): JSX.Element {
     <Page title="ETF 主升浪（实验）" className="uptrend">
       <PageToolbar note="同花顺「主升浪」完整存档：名单、历史上涨区间、AI 上涨原因、倒推历史。来源非自有模型；名单会事后改写。" />
       <Callout tone="warn" title="外部名单 · 观察中">不是自有信号、不是买卖指令。本站未接实时补拉接口，以定时采集存档为准。</Callout>
-      {error && <EmptyState title="无法加载">{error}</EmptyState>}
+      {loading && !error && !index && <p role="status" className="up-loading">正在读取名单…</p>}
+      {error && (
+        <LoadError
+          reason="ETF 主升浪名单这份读数现在拿不到。"
+          detail={error}
+          onRetry={retry}
+        />
+      )}
 
       {index && meta && (
         <dl className="up-stats" aria-live="polite">

@@ -58,7 +58,7 @@ function renderPage(
   market: MarketState = { status: 'ready', data: marketReferenceFixture() },
   radar: RadarState = { status: 'ready', data: radarFixture() },
 ) {
-  mockedStrategy.mockReturnValue(strategy)
+  mockedStrategy.mockReturnValue({ ...strategy, retry: vi.fn() } as ReturnType<typeof useCombinedStrategy>)
   mockedComposite.mockReturnValue(composite)
   mockedMarket.mockReturnValue(market)
   mockedRadar.mockReturnValue(radar)
@@ -90,9 +90,21 @@ describe('CombinedStrategy 页面', () => {
     renderPage({ status: 'loading' })
     expect(screen.getByRole('status').textContent).toContain('加载中')
     cleanup()
-    renderPage({ status: 'error', message: 'HTTP 404' })
-    expect(screen.getByTestId('cs-error').textContent).toContain('综合策略加载失败')
-    expect(screen.getByTestId('cs-error').textContent).toContain('HTTP 404')
+    const retry = vi.fn()
+    mockedStrategy.mockReturnValue({ status: 'error', message: 'HTTP 404', retry } as ReturnType<typeof useCombinedStrategy>)
+    mockedComposite.mockReturnValue({ status: 'ready', data: compositeFixture() })
+    mockedMarket.mockReturnValue({ status: 'ready', data: marketReferenceFixture() })
+    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture() })
+    render(
+      <MemoryRouter initialEntries={['/invest/strategy']}>
+        <CombinedStrategy />
+      </MemoryRouter>,
+    )
+    const alert = screen.getByTestId('cs-error')
+    expect(alert.textContent).toContain('数据暂时取不到')
+    expect(alert.textContent).toContain('HTTP 404')
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    expect(retry).toHaveBeenCalledTimes(1)
   })
 
   it('吸顶锚点与七个部分都渲染；研究记录默认折叠', () => {

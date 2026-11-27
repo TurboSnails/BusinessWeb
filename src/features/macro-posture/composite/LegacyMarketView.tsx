@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Badge } from '../../../components/ui'
+import { Badge, LoadError } from '../../../components/ui'
 import { CANDIDATES } from '../candidates'
 import type {
   Candidate,
@@ -247,10 +247,12 @@ export default function LegacyMarketView({
   market,
   view,
   status,
+  onRetry,
 }: {
   market: Market
   view: MacroView | null
   status: 'loading' | 'error' | 'ready'
+  onRetry?: () => void
 }): JSX.Element {
   const candidates = CANDIDATES[market] ?? []
 
@@ -260,7 +262,10 @@ export default function LegacyMarketView({
         <p className="mp-status" role="status">宏观攻守数据加载中…</p>
       )}
       {status === 'error' && (
-        <p className="mp-error" role="alert">宏观攻守数据加载失败，请稍后重试。</p>
+        <LoadError
+          reason="宏观攻守这份读数现在拿不到。"
+          onRetry={onRetry ?? (() => window.location.reload())}
+        />
       )}
       {view && (
         <>

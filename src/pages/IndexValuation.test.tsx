@@ -48,13 +48,14 @@ describe('指数估值页', () => {
   it('加载失败显示错误态', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(null, { status: 500 })))
     renderAt('/invest/index-valuation')
-    expect((await screen.findByRole('alert')).textContent).toContain('指数数据加载失败')
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     cleanup()
     renderAt('/invest/index-valuation?tab=spread')
-    expect((await screen.findByRole('alert')).textContent).toContain('股债息差数据加载失败')
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
     cleanup()
     renderAt('/invest/index-valuation?tab=spread&mkt=us')
-    expect((await screen.findByRole('alert')).textContent).toContain('美股股债息差数据加载失败')
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
   })
 
   it('默认估值位置；切到股债息差并切换 mkt', async () => {

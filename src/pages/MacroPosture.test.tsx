@@ -184,7 +184,7 @@ function renderPage(
   candidates: CandidatesState = { status: 'ready', data: candidatesFixture() },
 ) {
   mockedComposite.mockReturnValue(composite)
-  mockedLegacy.mockReturnValue(legacy)
+  mockedLegacy.mockReturnValue({ ...legacy, retry: vi.fn() } as ReturnType<typeof useMacroPostureData>)
   mockedCandidates.mockReturnValue(candidates)
   mockedBuild.mockImplementation((m: Market) => viewFor(m, m === 'cn' ? '偏防守' : '进攻候选'))
   return render(
@@ -216,7 +216,10 @@ describe('MacroPosture 综合指标视图', () => {
 
   it('加载失败显示错误', () => {
     renderPage('/invest/macro-posture', { status: 'error', message: 'HTTP 404' })
-    expect(screen.getByRole('alert').textContent).toContain('加载失败')
+    const alert = screen.getByRole('alert')
+    expect(alert.textContent).toContain('数据暂时取不到')
+    expect(alert.textContent).toContain('HTTP 404')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('就绪时渲染结论卡：档位、仓位、置信度、距离改判', () => {

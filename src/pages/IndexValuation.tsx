@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { PageTabs, PageTitle, Segmented, type TabItem } from '../components/ui/PageTabs'
-import { Page } from '../components/ui'
+import { LoadError, Page } from '../components/ui'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
 import SmartLink from '../components/SmartLink'
 import { ValuationView } from '../features/macro/ValuationView'
@@ -52,6 +52,9 @@ export default function IndexValuation(): JSX.Element {
   const [spreadError, setSpreadError] = useState(false)
   const [usSpread, setUsSpread] = useState<UsSpreadSnapshot | null>(usSpreadCache)
   const [usSpreadError, setUsSpreadError] = useState(false)
+  const [indexRetry, setIndexRetry] = useState(0)
+  const [spreadRetry, setSpreadRetry] = useState(0)
+  const [usSpreadRetry, setUsSpreadRetry] = useState(0)
   const spreadMarket: SpreadMarket = params.get('mkt') === 'us' ? 'us' : 'cn'
   const tabParam = params.get('tab')
   const tab: TabId = TABS.some(t => t.id === tabParam) ? (tabParam as TabId) : 'valuation'
@@ -62,26 +65,45 @@ export default function IndexValuation(): JSX.Element {
     return next
   }, { replace: true })
 
+  const retryIndexes = (): void => {
+    indexCache = null
+    setIndexes(null)
+    setIndexError(false)
+    setIndexRetry(n => n + 1)
+  }
+  const retrySpread = (): void => {
+    spreadCache = null
+    setSpread(null)
+    setSpreadError(false)
+    setSpreadRetry(n => n + 1)
+  }
+  const retryUsSpread = (): void => {
+    usSpreadCache = null
+    setUsSpread(null)
+    setUsSpreadError(false)
+    setUsSpreadRetry(n => n + 1)
+  }
+
   useEffect(() => {
     if (tab !== 'valuation') return
     // 每次进页签都向服务器校验一次：数据文件会随更新变化，不能沿用浏览器或模块里的旧副本
     load('index-history.json', { cache: 'no-cache' })
-      .then((d: IndexSnapshot) => { indexCache = d; setIndexes(d) })
+      .then((d: IndexSnapshot) => { indexCache = d; setIndexes(d); setIndexError(false) })
       .catch(() => setIndexError(true))
-  }, [tab])
+  }, [tab, indexRetry])
 
   useEffect(() => {
     if (tab !== 'spread') return
     if (spreadMarket === 'us') {
       load('us-equity-bond-spread.json', { cache: 'no-cache' })
-        .then((d: UsSpreadSnapshot) => { usSpreadCache = d; setUsSpread(d) })
+        .then((d: UsSpreadSnapshot) => { usSpreadCache = d; setUsSpread(d); setUsSpreadError(false) })
         .catch(() => setUsSpreadError(true))
     } else {
       load('equity-bond-spread.json', { cache: 'no-cache' })
-        .then((d: SpreadSnapshot) => { spreadCache = d; setSpread(d) })
+        .then((d: SpreadSnapshot) => { spreadCache = d; setSpread(d); setSpreadError(false) })
         .catch(() => setSpreadError(true))
     }
-  }, [tab, spreadMarket])
+  }, [tab, spreadMarket, spreadRetry, usSpreadRetry])
 
   return (
     <Page>
@@ -117,9 +139,9 @@ export default function IndexValuation(): JSX.Element {
         {tab === 'valuation' && (
           indexes
             ? <ValuationView data={indexes} onData={d => { indexCache = d }} />
-            : <p role={indexError ? 'alert' : 'status'} className="macro-muted">
-                {indexError ? '指数数据加载失败，请刷新重试。' : '正在加载指数数据…'}
-              </p>
+            : indexError
+              ? <LoadError reason="指数估值这份读数现在拿不到。" onRetry={retryIndexes} />
+              : <p role="status" className="macro-muted">正在加载指数数据…</p>
         )}
         {tab === 'spread' && (
           <>
@@ -134,16 +156,16 @@ export default function IndexValuation(): JSX.Element {
             {spreadMarket === 'cn' && (
               spread
                 ? <SpreadView data={spread} />
-                : <p role={spreadError ? 'alert' : 'status'} className="macro-muted">
-                    {spreadError ? '股债息差数据加载失败，请刷新重试。' : '正在加载股债息差数据…'}
-                  </p>
+                : spreadError
+                  ? <LoadError reason="股债息差这份读数现在拿不到。" onRetry={retrySpread} />
+                  : <p role="status" className="macro-muted">正在加载股债息差数据…</p>
             )}
             {spreadMarket === 'us' && (
               usSpread
                 ? <UsSpreadView data={usSpread} />
-                : <p role={usSpreadError ? 'alert' : 'status'} className="macro-muted">
-                    {usSpreadError ? '美股股债息差数据加载失败，请刷新重试。' : '正在加载美股股债息差数据…'}
-                  </p>
+                : usSpreadError
+                  ? <LoadError reason="美股股债息差这份读数现在拿不到。" onRetry={retryUsSpread} />
+                  : <p role="status" className="macro-muted">正在加载美股股债息差数据…</p>
             )}
           </>
         )}

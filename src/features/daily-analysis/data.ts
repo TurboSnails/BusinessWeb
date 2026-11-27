@@ -47,21 +47,25 @@ export async function loadDailyAnalysis(signal: AbortSignal): Promise<{ snapshot
   const base = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '')
   const get = async (url: string, timeout: number): Promise<unknown> => {
     const controller = new AbortController()
-    const abort = () => controller.abort()
-    signal.addEventListener('abort', abort, { once: true })
-    if (signal.aborted) abort()
-    const timer = setTimeout(abort, timeout)
+    const onParentAbort = () => controller.abort(signal.reason)
+    signal.addEventListener('abort', onParentAbort, { once: true })
+    if (signal.aborted) onParentAbort()
+    // L13：实时复盘超时（观察盘用 10s）；用 setTimeout 等价 AbortSignal.timeout，便于测试 fake timers
+    const timer = setTimeout(
+      () => controller.abort(new DOMException('TimeoutError', 'TimeoutError')),
+      timeout,
+    )
     try {
       const response = await fetch(url, { signal: controller.signal, cache: 'no-store', headers: { Accept: 'application/json' } })
       if (!response.ok) throw new Error(`行情服务 HTTP ${response.status}`)
       return await response.json()
     } finally {
       clearTimeout(timer)
-      signal.removeEventListener('abort', abort)
+      signal.removeEventListener('abort', onParentAbort)
     }
   }
   const [live, archive] = await Promise.allSettled([
-    get(`${base}/api/daily-analysis`, 18000).then(body => snapshotSchema.parse(body)),
+    get(`${base}/api/daily-analysis`, 10_000).then(body => snapshotSchema.parse(body)),
     get(`${import.meta.env.BASE_URL}data/daily-analysis.json`, 8000).then(body => z.object({ schemaVersion: z.literal(1), snapshots: z.array(snapshotSchema).max(60) }).parse(body).snapshots),
   ])
   if (signal.aborted) throw new DOMException('Aborted', 'AbortError')

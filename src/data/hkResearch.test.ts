@@ -12,10 +12,12 @@ beforeAll(async () => {
 })
 
 describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () => {
-  it('127家公司全部使用带来源、时间戳和证据边界的当前报告', () => {
+  it('2026-10-07 的 127 家手工研究页仍完整；程序化初筛可并存于研究池', () => {
     const audit = read('audit.json')
-    expect(companies).toHaveLength(127)
-    expect(new Set(companies.map(c => c.code)).size).toBe(127)
+    const screened = companies.filter(c => c.auto && !c.reviewed && !c.researchReport)
+    expect(companies.length).toBeGreaterThanOrEqual(127)
+    expect(new Set(companies.map(c => c.code)).size).toBe(companies.length)
+    expect(audit.companies).toHaveLength(127)
     for (const row of audit.companies) {
       const company = companies.find(c => c.code === row.code)!
       expect(company.headline).toContain(row.judgment)
@@ -33,7 +35,13 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
       expect(row.certified).toBe(false)
     }
     expect(read('batches.json').every((b: { codes: string[] }) => b.codes.length >= 3 && b.codes.length <= 5)).toBe(true)
-    expect(read('batches.json').flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(companies.map(c => c.code).sort())
+    expect(read('batches.json').flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(audit.companies.map((c: { code: string }) => c.code).sort())
+    // 恒指/恒科新增成分以程序化初筛占位，不编造情景价
+    expect(screened.length).toBeGreaterThanOrEqual(13)
+    for (const c of screened) {
+      expect(c.scenarios?.some(s => /\d/.test(s.price) && !/MISSING/.test(s.price)) ?? false).toBe(false)
+      expect(c.rating).toMatch(/^未估值/)
+    }
   })
 
   it('extra.ts中的REIT/药明历史结论不会复活；财年、列序与处罚修正保留', () => {
@@ -55,8 +63,9 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
     expect(models['00939'].bvpsCny).toBe(13.69)
     expect(models['01288'].bvpsCny).toBe(8.17)
     expect(models['00823'].nav).toBe(57.75)
-    for (const company of companies) {
-      const row = read('audit.json').companies.find((r: any) => r.code === company.code)!
+    const auditRows = read('audit.json').companies as Array<{ code: string; judgment: string }>
+    for (const row of auditRows) {
+      const company = companies.find(c => c.code === row.code)!
       expect(company.headline).toContain(row.judgment)
       const model = models[company.code]
       expect(model.certified).toBe(false)

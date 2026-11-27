@@ -29,12 +29,14 @@ export async function loadComposite(fetcher: typeof fetch = fetch): Promise<Comp
 
 let cache: Promise<CompositeFile> | null = null
 
-/** 同一次页面会话内只请求一次；失败后允许下次重试。 */
-export function useCompositePosture(fetcher?: typeof fetch): CompositeState {
+/** 同一次页面会话内只请求一次；失败后允许下次重试（清缓存 + 递增 attempt）。 */
+export function useCompositePosture(fetcher?: typeof fetch, attempt = 0): CompositeState {
   const [state, setState] = useState<CompositeState>({ status: 'loading' })
   useEffect(() => {
     let alive = true
-    const request = fetcher ? loadComposite(fetcher) : (cache ??= loadComposite())
+    setState({ status: 'loading' })
+    // attempt>0 时强制绕过会话缓存
+    const request = fetcher || attempt > 0 ? loadComposite(fetcher) : (cache ??= loadComposite())
     request.then(
       data => { if (alive) setState({ status: 'ready', data }) },
       (error: unknown) => {
@@ -43,8 +45,13 @@ export function useCompositePosture(fetcher?: typeof fetch): CompositeState {
       },
     )
     return () => { alive = false }
-  }, [fetcher])
+  }, [fetcher, attempt])
   return state
+}
+
+/** 清掉模块缓存，配合页面侧 attempt 递增做同页重试 */
+export function invalidateCompositeCache(): void {
+  cache = null
 }
 
 export function tierDef(file: CompositeFile, id: TierId | null | undefined): TierDef | undefined {

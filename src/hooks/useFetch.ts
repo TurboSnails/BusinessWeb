@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export default function useFetch<T>(fn: () => Promise<T>) {
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [reload, setReload] = useState(0)
+  const retry = useCallback(() => setReload(n => n + 1), [])
 
   useEffect(() => {
     let mounted = true
@@ -24,7 +26,7 @@ export default function useFetch<T>(fn: () => Promise<T>) {
     return () => {
       mounted = false
     }
-  }, [fn])
+  }, [fn, reload])
 
-  return { data, loading, error }
+  return { data, loading, error, retry }
 }

@@ -3,7 +3,7 @@
 // 数据：public/data/kpl-daban.json（scripts/kpl-daban.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -16,8 +16,10 @@ import '../../styles/kpl-daban.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useDaban(): Load {
+function useDaban(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-daban.json`, { cache: 'no-cache', signal: controller.signal })
@@ -32,8 +34,8 @@ function useDaban(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 /* ---------- 各列表的列 ---------- */
@@ -222,7 +224,9 @@ export default function KplDaban(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="打板数据尚未生成">交易日收盘后（北京 15:10 之后）首次运行数据脚本，这里就会显示当日涨停、炸板、跌停等列表。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="打板数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="打板数据这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <DabanBody d={load.data} />}
     </Page>
   )

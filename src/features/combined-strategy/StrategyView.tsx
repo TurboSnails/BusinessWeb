@@ -1,4 +1,5 @@
 import React from 'react'
+import { LoadError } from '../../components/ui'
 import AnchorNav from './AnchorNav'
 import MatrixPanel from './MatrixPanel'
 import NowPanel from './NowPanel'
@@ -11,7 +12,10 @@ import { useCompositePosture } from '../macro-posture/composite/load'
 import { tacticalWatch } from './watch'
 import type { CombinedStrategyState } from './load'
 
-export default function StrategyView({ state }: { state: CombinedStrategyState }): JSX.Element {
+export default function StrategyView({ state, onRetry }: {
+  state: CombinedStrategyState
+  onRetry?: () => void
+}): JSX.Element {
   const composite = useCompositePosture()
   const watch = tacticalWatch(composite.status === 'ready' ? composite.data : null)
 
@@ -20,10 +24,12 @@ export default function StrategyView({ state }: { state: CombinedStrategyState }
   }
   if (state.status === 'error') {
     return (
-      <p className="cs-error" role="alert" data-testid="cs-error">
-        综合策略加载失败，请稍后重试。
-        {state.message ? `（${state.message}）` : ''}
-      </p>
+      <LoadError
+        testId="cs-error"
+        reason="综合策略这份读数现在拿不到。"
+        detail={state.message}
+        onRetry={onRetry ?? (() => window.location.reload())}
+      />
     )
   }
 

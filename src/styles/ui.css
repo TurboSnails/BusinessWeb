@@ -632,6 +632,26 @@
   margin-top: var(--space-2);
 }
 
+/* ---------- 加载失败 · 重试 ---------- */
+.ui-load-error {
+  margin: var(--space-4) 0;
+}
+
+.ui-load-error .ui-empty {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--danger, #b42318) 6%, var(--bg, #fff));
+}
+
+.ui-load-error__reason {
+  margin: 0;
+}
+
+.ui-load-error__detail {
+  margin: var(--space-1) 0 0;
+  color: var(--text-tertiary);
+}
+
 /* ---------- 布局 ---------- */
 .ui-stack {
   display: flex;

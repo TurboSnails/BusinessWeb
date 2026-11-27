@@ -1,5 +1,6 @@
 export { Page, PageToolbar } from './Page'
 export { Card, Callout, Stat, StatGrid, Badge, EmptyState } from './Card'
+export { LoadError, loadErrorDetail, plainLoadReason } from './LoadError'
 export { TableWrap } from './TableWrap'
 export { Dialog, Field } from './Dialog'
 export { PageTabs, Segmented, PageTitle, type TabItem } from './PageTabs'

@@ -19,11 +19,19 @@ export function mergeLive(old: MacroSnapshot | null, fresh: MacroSnapshot | unde
 /**
  * 先读每月更新的静态快照（立刻有数），再向 /api/macro 取实时数据覆盖；实时失败不影响页面。
  * refresh()：手动重新取一次实时数据。
+ * retry()：静态快照失败后重新拉（清缓存）。
  */
-export function useMacroSnapshot(): { snap: MacroSnapshot | null; error: boolean; live: MacroLive; refresh: () => Promise<void> } {
+export function useMacroSnapshot(): {
+  snap: MacroSnapshot | null
+  error: boolean
+  live: MacroLive
+  refresh: () => Promise<void>
+  retry: () => void
+} {
   const [snap, setSnap] = useState<MacroSnapshot | null>(cache)
   const [error, setError] = useState(false)
   const [live, setLive] = useState<MacroLive>(liveState)
+  const [attempt, setAttempt] = useState(0)
   const alive = useRef(true)
 
   const fetchLive = useCallback(async (): Promise<void> => {
@@ -40,6 +48,15 @@ export function useMacroSnapshot(): { snap: MacroSnapshot | null; error: boolean
     if (alive.current) { setSnap(next); setLive(state) }
   }, [])
 
+  const retry = useCallback(() => {
+    cache = null
+    liveState = 'idle'
+    setSnap(null)
+    setError(false)
+    setLive('idle')
+    setAttempt(n => n + 1)
+  }, [])
+
   useEffect(() => {
     alive.current = true
     if (cache) { if (liveState === 'idle') void fetchLive(); return () => { alive.current = false } }
@@ -48,8 +65,8 @@ export function useMacroSnapshot(): { snap: MacroSnapshot | null; error: boolean
       .then((d: MacroSnapshot) => { cache = d; liveState = 'idle'; if (alive.current) setSnap(d); return fetchLive() })
       .catch(() => { if (alive.current) setError(true) })
     return () => { alive.current = false }
-  }, [fetchLive])
-  return { snap, error, live, refresh: fetchLive }
+  }, [fetchLive, attempt])
+  return { snap, error, live, refresh: fetchLive, retry }
 }
 
 /** 仅供测试：清掉模块级缓存，避免用例之间互相影响 */

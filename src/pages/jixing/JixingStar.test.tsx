@@ -68,9 +68,10 @@ describe('今天几星 · 今日星级', () => {
     expect(screen.getByRole('img', { name: '中证全指口径历史星级（近 3 年）' })).toBeTruthy()
   })
 
-  it('数据缺失或格式异常时显示空状态', async () => {
+  it('数据缺失或格式异常时显示 LoadError 与重试', async () => {
     stub(null, false); renderPage()
-    expect(await screen.findByText('暂无星级数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('校验器拒绝越界星级、字符串数字与历史末日不等于数据日', () => {

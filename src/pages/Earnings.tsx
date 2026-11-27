@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Page, PageDataFreshness, Segmented } from '../components/ui'
+import { Callout, LoadError, Page, PageDataFreshness, Segmented } from '../components/ui'
 import { PageTitle } from '../components/ui/PageTabs'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { EarningsCard, RatingBadge, SurpriseBadge } from '../features/earnings/EarningsCard'
@@ -19,8 +19,10 @@ type Load = { state: 'loading' } | { state: 'error'; message: string } | { state
 const beijingDay = (now: Date): string => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
 const SLOTS: Slot[] = ['bmo', 'amc', 'other']
 
-function useEarningsCalendar(): Load {
+function useEarningsCalendar(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/earnings-calendar.json`, { cache: 'no-cache', signal: controller.signal })
@@ -31,8 +33,8 @@ function useEarningsCalendar(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 function FilterBar({ filters, setFilters, counts }: { filters: Filters; setFilters: (f: Filters) => void; counts: Record<VenueFilter, number> }): JSX.Element {
@@ -264,7 +266,13 @@ export default function Earnings({ now }: { now?: Date } = {}): JSX.Element {
       </section>
 
       {load.state === 'loading' && <p role="status" className="ec-muted">正在加载财报日历…</p>}
-      {load.state === 'error' && <Callout tone="danger" title="财报日历暂时无法加载">{load.message}。请稍后刷新；数据由每天的定时任务生成。</Callout>}
+      {load.state === 'error' && (
+        <LoadError
+          reason="财报日历这份读数现在拿不到。数据由每天的定时任务生成。"
+          detail={load.message}
+          onRetry={load.retry}
+        />
+      )}
 
       {data && (
         <>

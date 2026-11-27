@@ -15,7 +15,7 @@ import { ChinaView, GuideView, HkView, OverviewView, StagesView, UsView } from '
 import type { MacroSnapshot } from '../features/macro/indicators'
 import type { CnKey } from '../features/macro/china'
 import type { HkKey } from '../features/macro/hk'
-import { Page } from '../components/ui'
+import { LoadError, Page } from '../components/ui'
 import VerdictBar from '../features/combined-strategy/VerdictBar'
 import { stageFromSnapshot } from '../features/macro/indicators'
 import { PageDataFreshness } from '../components/ui/PageDataFreshness'
@@ -97,9 +97,17 @@ export default function Monitor(): JSX.Element {
   const archive: ArchiveId = ARCHIVE.some(a => a.id === archiveParam) ? (archiveParam as ArchiveId) : 'execution'
   const [data, setData] = useState<Snapshots | null>(snapshotCache)
   const [error, setError] = useState('')
+  const [retryKey, setRetryKey] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
   const [notice, setNotice] = useState('')
   const loadsMacro = !redirectToValuation && !redirectToSpread && tab !== 'us-market' && tab !== 'cn-market'
+
+  const retrySnapshots = (): void => {
+    snapshotCache = null
+    setData(null)
+    setError('')
+    setRetryKey(n => n + 1)
+  }
 
   /** 拉取实时数据；成功返回新快照（AI 解读会先调用它，保证解读的是最新数据） */
   const refresh = async (): Promise<Snapshots | null> => {
@@ -125,8 +133,8 @@ export default function Monitor(): JSX.Element {
     // 中国数据失败不影响美国部分
     Promise.all([load('macro-us.json'), load('macro-cn.json').catch(() => null), load('macro-hk.json').catch(() => null)])
       .then(([us, cn, hk]: [MacroSnapshot, MacroSnapshot<CnKey> | null, MacroSnapshot<HkKey> | null]) => { snapshotCache = { us, cn, hk }; setData(snapshotCache) })
-      .catch(() => setError('宏观数据加载失败，请刷新重试。'))
-  }, [loadsMacro])
+      .catch(() => setError('宏观数据加载失败'))
+  }, [loadsMacro, retryKey])
 
   const go = (patch: Record<string, string | null>): void => setParams(prev => {
     const next = new URLSearchParams(prev)
@@ -164,7 +172,9 @@ export default function Monitor(): JSX.Element {
         {tab === 'cn-market' && <Suspense fallback={<p role="status">正在加载中国市场…</p>}><CnMarketView /></Suspense>}
         {tab === 'us-market' && <Suspense fallback={<p role="status">正在加载美股市场…</p>}><UsMarketView /></Suspense>}
         {tab === 'market-cycle' && <Suspense fallback={<p role="status">正在加载牛熊周期面板…</p>}><MarketCycleView /></Suspense>}
-        {needsData && !snap && <p role={error ? 'alert' : 'status'} className="macro-muted">{error || '正在加载宏观数据…'}</p>}
+        {needsData && !snap && (error
+          ? <LoadError reason="宏观温度这份读数现在拿不到。" detail={error} onRetry={retrySnapshots} />
+          : <p role="status" className="macro-muted">正在加载宏观数据…</p>)}
         {snap && needsData && (
           <div className="page-toolbar">
             <span className="page-toolbar__note" role="status">{notice || (snap.fetchedAt ? `实时数据 · 拉取于 ${timeText(snap.fetchedAt)}` : `当前为 ${snap.generatedAt} 的快照，可刷新获取最新读数`)}</span>
@@ -175,8 +185,8 @@ export default function Monitor(): JSX.Element {
         )}
         {snap && tab === 'overview' && <OverviewView snap={snap} cn={data.cn} hk={data.hk} onRefresh={refresh} />}
         {snap && tab === 'us' && <UsView snap={snap} />}
-        {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <p role="alert" className="macro-muted">中国数据加载失败，请刷新重试。</p>)}
-        {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <p role="alert" className="macro-muted">港股数据加载失败，请刷新重试。</p>)}
+        {snap && tab === 'cn' && (data.cn ? <ChinaView snap={data.cn} /> : <LoadError reason="中国宏观数据这份读数现在拿不到。" onRetry={retrySnapshots} />)}
+        {snap && tab === 'hk' && (data.hk ? <HkView snap={data.hk} /> : <LoadError reason="港股宏观数据这份读数现在拿不到。" onRetry={retrySnapshots} />)}
         {snap && tab === 'cycles' && <CyclesView us={snap} cn={data.cn} />}
         {tab === 'method' && (
           <>

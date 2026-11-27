@@ -1,7 +1,7 @@
 // 同花顺 · 市场（/ths-mood/market）：对照同花顺「市场」分析页的估值、资金供需、利率与风格模块，公开数据盘后更新。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -223,21 +223,39 @@ function OverseasCard({ data }: { data: ThsMarketData }): JSX.Element {
 export default function ThsMarket(): JSX.Element {
   const [data, setData] = useState<ThsMarketData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-market.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asThsMarket(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asThsMarket(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page tm-page">
       <PageTitle>同花顺 · 市场</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取市场数据…</p> : !data ? <EmptyState title="暂无市场数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取市场数据…</p> : error ? (
+        <LoadError reason="同花顺市场这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无市场数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
         <p className="mm-method">数据日期：{data.asOf}（盘后） · 采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。所有分区与强弱均为历史统计描述，不构成投资建议。</p>
         <ValuationCard data={data} />
         <SupplyCard data={data} />

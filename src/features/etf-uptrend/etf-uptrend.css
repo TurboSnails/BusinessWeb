@@ -11,6 +11,7 @@
   .up-stats dd .small { font-size: 15px; }
   .up-stats dd.up-muted { font-size: 14px; font-weight: 400; }
 
+  .up-loading { margin: 12px 0 16px; color: #64748b; }
   .up-banners { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
   .up-banners:empty { display: none; }
   .up-banner { border: 1px solid #bae6fd; background: #f0f9ff; color: #0c4a6e; border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.6; }

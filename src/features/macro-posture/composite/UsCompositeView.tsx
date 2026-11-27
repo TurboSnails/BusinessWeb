@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { LoadError } from '../../../components/ui'
 import AnchorNav from './AnchorNav'
 import BacktestPanel from './BacktestPanel'
 import CandidatesPanel from './CandidatesPanel'
@@ -22,16 +23,20 @@ function MarketRadarCard(): JSX.Element {
   )
 }
 
-export default function UsCompositeView({ state }: { state: CompositeState }): JSX.Element {
+export default function UsCompositeView({ state, onRetry }: {
+  state: CompositeState
+  onRetry?: () => void
+}): JSX.Element {
   if (state.status === 'loading') {
     return <p className="mp-status" role="status">宏观攻守综合指标加载中…</p>
   }
   if (state.status === 'error') {
     return (
-      <p className="mp-error" role="alert">
-        宏观攻守综合指标加载失败，请稍后重试。
-        {state.message ? `（${state.message}）` : ''}
-      </p>
+      <LoadError
+        reason="宏观攻守综合指标这份读数现在拿不到。"
+        detail={state.message}
+        onRetry={onRetry ?? (() => window.location.reload())}
+      />
     )
   }
 

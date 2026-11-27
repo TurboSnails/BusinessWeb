@@ -241,7 +241,9 @@ export default function ResearchNotes(): JSX.Element {
   const secList = progList.filter(c => (progSector === '全部' || c.sector === progSector) && (progGroup === '全部' || groupOf(c) === progGroup))
   // 评级归档规则见 features/signals/companySignals 的 ratingBucket（公司页信号汇总共用）
   const ratingOf = (c: { rating: string }): string => ratingBucket(c.rating)
-  const hkNote = '港股范围 = 恒生指数成分股（取自维基百科 2026-01 名单）∪ 恒生科技与主要 H 股龙头补充，共 127 家，全部已覆盖（领展、药明生物、药明康德因东方财富接口失败，改用第三方 stockanalysis.com 数据，需核实）。这不是官方指数口径，是「港股大盘蓝筹」的研究池。数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。127 家港股均已按股票分析专家标准做成手工研究页：用 aktools（东方财富）取财务与估值，联网搜索公司 2026 中期业绩核对，给出三情景、买入区与评级；其中赣锋锂业、中国铝业、中国铁建、中国交建、中国建材、信义玻璃、信义光能 7 家因搜索额度用尽，只有东方财富口径的 H1 同比加第三方（stockanalysis.com）的年度/TTM 数据，分部、产量等标 [MISSING]；海螺水泥仅有东方财富口径，结论信息不全；比亚迪电子等数页缺 H1 公告数据；电能实业、长江基建 PE 含出售 UKPN 一次性收益，页内改用估算的经常性 EPS。多数公司盈亏比低于 1:1，评级以观察为主，反映价格已含较高预期而非数据缺失。'
+  const hkScreenCount = hkList.filter(c => researchStage(c) === 'screen').length
+  const hkOfficialAsOf = '2026-11-27' // 与 public/data/market-cycle-universes.json 恒指/恒科官方快照日一致
+  const hkNote = `港股范围 = 恒指 + 恒科当期成分（恒生官方名单 ${hkOfficialAsOf}）∪ 主要 H 股龙头补充，共 ${hkList.length} 家；其中 ${hkScreenCount} 家为程序化初筛，尚无手工研究页。研究池不是纯官方指数口径，保留已调出成分与 H 股龙头补充。既有手工研究页数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。手工页曾按股票分析专家标准核读（aktools + 2026 中期业绩）；赣锋锂业、中国铝业、中国铁建、中国交建、中国建材、信义玻璃、信义光能等部分公司证据不全处标 [MISSING]。程序化初筛仅占位名单与板块，三情景/买入区/评级待研究；行情与估值由公司行情刷新工作流补齐。多数已研究公司盈亏比低于 1:1，评级以观察为主，反映价格已含较高预期而非数据缺失。`
   const adrNote = '美股非标普研究池（2026-10-07 复核时66家）按地区分组覆盖：海外龙头30家、中概21家、新兴市场平台13家、新上市/热门2家；板块按 GICS 一级，地区分组见「地区」筛选；名单是自选研究池，不是官方指数。2026-10-07已逐家核读公司或监管财务原件，更新常规交易价快照、证券单位、财报期、一次性损益、旧结论修正与风险证伪。采用单模型多视角复核，15个批次每批3–5家。汇丰与道明银行有静态BV/ROE敏感性草案，全部66家均未完成两种独立估值认证；旧买入区、赔率及未经核实的美元EPS折算不作为当前结论。每家公司可打开本轮完整报告；缺证据标[MISSING]，不把缺证直接解释成经营恶化。'
   const ndxNote = (): string => {
     const sp = ndxList.filter(c => c.market === 'us').length
@@ -361,7 +363,7 @@ export default function ResearchNotes(): JSX.Element {
     <>
       <div className="ui-cluster ui-cluster--scroll rn-filters rn-filters--primary" role="group" aria-label="搜索与评级">
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜索公司名称或代码" aria-label="搜索公司名称或代码" className="rn-search" />
-        {['全部', '优先关注', '条件关注', '观察', '回避', ...(catMarket === 'adr' ? ['未估值'] : [])].map(r => (
+        {['全部', '优先关注', '条件关注', '观察', '回避', ...(catMarket === 'adr' || catMarket === 'hk' ? ['未估值'] : [])].map(r => (
           <button type="button" key={r} onClick={() => setRatingF(r)} className={chip(ratingF === r)} aria-pressed={ratingF === r}>
             {r} <span className="ui-chip__count">{r === '全部' ? secList.length : secList.filter(c => ratingOf(c) === r).length}</span>
           </button>

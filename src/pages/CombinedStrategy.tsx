@@ -31,7 +31,7 @@ function SpecEntry(): JSX.Element {
 }
 
 export default function CombinedStrategy(): JSX.Element {
-  const state = useCombinedStrategy()
+  const { retry, ...state } = useCombinedStrategy()
   const spec = currentSpec()
 
   return (
@@ -45,7 +45,7 @@ export default function CombinedStrategy(): JSX.Element {
         <SpecEntry />
       </header>
 
-      <StrategyView state={state} />
+      <StrategyView state={state} onRetry={retry} />
 
       <footer className="cs-footer" role="note">
         <p>

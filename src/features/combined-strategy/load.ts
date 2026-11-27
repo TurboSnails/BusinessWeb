@@ -1,5 +1,5 @@
 // 读取 public/data/combined-strategy.json（manager 维护契约）。页面只用本次加载。
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { CombinedStrategyFile } from './types'
 
 export type CombinedStrategyState =
@@ -38,9 +38,15 @@ export async function loadCombinedStrategy(fetcher: typeof fetch = fetch): Promi
 
 let cache: Promise<CombinedStrategyFile> | null = null
 
-/** 同一次页面会话内只请求一次；失败后允许下次重试。 */
-export function useCombinedStrategy(fetcher?: typeof fetch): CombinedStrategyState {
+/** 同一次页面会话内只请求一次；失败后允许 retry() 再拉。 */
+export function useCombinedStrategy(fetcher?: typeof fetch): CombinedStrategyState & { retry: () => void } {
   const [state, setState] = useState<CombinedStrategyState>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = useCallback(() => {
+    cache = null
+    setState({ status: 'loading' })
+    setAttempt(n => n + 1)
+  }, [])
   useEffect(() => {
     let alive = true
     const request = fetcher ? loadCombinedStrategy(fetcher) : (cache ??= loadCombinedStrategy())
@@ -52,8 +58,8 @@ export function useCombinedStrategy(fetcher?: typeof fetch): CombinedStrategySta
       },
     )
     return () => { alive = false }
-  }, [fetcher])
-  return state
+  }, [fetcher, attempt])
+  return { ...state, retry }
 }
 
 /** 测试用：清空模块级缓存 */
