@@ -13,7 +13,7 @@ import statsmodels.api as sm
 
 ROOT = Path(__file__).resolve().parents[4]
 SRC = ROOT / "research-py/factor-data/us_kf/portfolios.parquet"
-OUT = Path(__file__).resolve().parent / "R9-2026-11-28.json"
+OUT = Path(__file__).resolve().parent / "R9-detail.json"
 CUT = pd.Timestamp("2023-10-31")
 START, MID_END, MID_START = "1963-07", "1993-08", "1993-09"
 CANDS = [  # (编号, 名称, 文件, 组合列表, 发表年, 已被 L-042 锁箱看过)
