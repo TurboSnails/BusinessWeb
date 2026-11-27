@@ -468,6 +468,84 @@ test('S&P 500 on the gold-silver rows: Shiller monthly averages, daily averages 
   assert.equal(attachSpx([{ observedOn: '1950-01-31', value: 30 }], shiller, daily)[0].spx, undefined)
 })
 
+test('copper: World Bank months before daily, Yahoo full months, latest day + 20-day change; Nasdaq overlays align', async () => {
+  const {
+    copperPrice, parseWorldBankCopper, attachNasdaq, attachSpx, LB_PER_METRIC_TON,
+  } = await import('./lib/market-radar/sources.mjs')
+  const shared = ['Copper', '1960M01', 'Gold']
+  const xml = '<row r="5"><c r="B5" t="s"><v>2</v></c><c r="C5" t="s"><v>0</v></c></row>' +
+    '<row r="6"><c r="C6" t="s"><v>0</v></c></row>' +
+    '<row r="7"><c r="A7" t="s"><v>1</v></c><c r="B7"><v>100</v></c><c r="C7"><v>2204.622621</v></c></row>'
+  assert.deepEqual(parseWorldBankCopper(xml, shared), [['1960-01-31', 1]])
+  assert.equal(LB_PER_METRIC_TON, 2204.622621)
+
+  const days = [
+    ...['08-30', '08-31'].map(d => '2000-' + d),
+    ...Array.from({ length: 21 }, (_, i) => `2000-09-${String(i + 1).padStart(2, '0')}`),
+    '2000-10-02', '2000-10-03',
+  ]
+  const daily = days.map((d, i) => [d, 1 + i * 0.01])
+  const early = [['2000-07-31', 0.9], ['2000-08-31', 0.95], ['2000-09-30', 9]]
+  const rows = copperPrice(daily, early, '2000-10-03')
+  assert.deepEqual(rows.slice(0, 2).map(row => [row.observedOn, row.value]), [['2000-07-31', 0.9], ['2000-08-31', 0.95]])
+  const september = days.slice(2, 23).map((d, i) => 1.02 + i * 0.01)
+  const avg = Math.round(september.reduce((s, v) => s + v, 0) / september.length * 10000) / 10000
+  assert.deepEqual([rows[2].observedOn, rows[2].value], ['2000-09-30', avg])
+  const last = rows[3]
+  assert.deepEqual([last.observedOn, last.value], ['2000-10-03', 1.24])
+  // at(-21) = 倒数第 21 个交易日（隔 20 个交易日）
+  assert.equal(last.change, Math.round((1.24 - 1.04) * 10000) / 10000)
+
+  const withIx = attachNasdaq(attachSpx(rows, [], [['2000-09-15', 3000], ['2000-09-30', 3100], ['2000-10-03', 3200]]),
+    [['2000-09-15', 2000], ['2000-09-30', 2100], ['2000-10-03', 2200]])
+  assert.equal(withIx[2].spx, 3050)
+  assert.equal(withIx[2].nasdaq, 2050)
+  assert.equal(withIx[3].spx, 3200)
+  assert.equal(withIx[3].nasdaq, 2200)
+})
+
+test('copper indicator: display-only, after goldSilver, overlays aligned to history dates', () => {
+  const date = '2026-11-20'
+  const copperHistory = Array.from({ length: 120 }, (_, i) => {
+    const d = new Date(Date.UTC(2016, 0, 31))
+    d.setUTCMonth(d.getUTCMonth() + i)
+    const observedOn = d.toISOString().slice(0, 10)
+    return {
+      observedOn, availableOn: observedOn, value: 2 + i * 0.01,
+      spx: 2000 + i, nasdaq: 5000 + i,
+    }
+  })
+  copperHistory.push({
+    observedOn: date, availableOn: date, value: 4.5, change: 0.12, spx: 6700, nasdaq: 23000,
+  })
+  const goldHistory = copperHistory.map(row => ({
+    ...row, value: 80, gold: 2000, silver: 25,
+  }))
+  const indicators = buildIndicators({ copper: copperHistory, goldSilver: goldHistory }, {}, date)
+  const copper = indicators.find(row => row.id === 'copper')
+  const goldSilver = indicators.find(row => row.id === 'goldSilver')
+  assert.ok(copper)
+  assert.equal(copper.inScore, false)
+  assert.equal(copper.score, null)
+  assert.equal(copper.core, false)
+  assert.match(copper.rule, /事后新增，只展示，不计分/)
+  assert.equal(copper.group, '利率、美元与商品')
+  const copperIdx = indicators.findIndex(row => row.id === 'copper')
+  const gsIdx = indicators.findIndex(row => row.id === 'goldSilver')
+  assert.equal(copperIdx, gsIdx + 1)
+  assert.deepEqual(copper.overlays?.map(o => o.id), ['spx', 'nasdaq'])
+  assert.deepEqual(goldSilver.overlays?.map(o => o.id), ['gold', 'silver', 'spx', 'nasdaq'])
+  const dates = new Set(copper.history.map(([d]) => d))
+  for (const overlay of copper.overlays) {
+    assert.ok(overlay.history.length > 0)
+    assert.ok(overlay.history.every(([d]) => dates.has(d)))
+  }
+  // 已有计分指标分数不被铜价序列影响
+  const scored = indicators.filter(row => row.inScore)
+  assert.equal(scored.length, 9)
+  assert.ok(scored.every(row => row.id !== 'copper' && row.id !== 'goldSilver'))
+})
+
 test('A2：净流动性在 ON RRP 启用前缺读数按 0，启用后仍要求近 7 天有读数', async () => {
   const { buildRadarSeries: build } = await import('./lib/market-radar/sources.mjs')
   const local = {
@@ -711,7 +789,7 @@ test('季度序列：FRED 季初标注落到季末；月度序列落到月末', 
   assert.equal(current.hfEquityLs.at(-1).observedOn, '2026-06-30')
 })
 
-test('65 项指标 source 都是可打开的 https 网址', () => {
+test('66 项指标 source 都是可打开的 https 网址', () => {
   const date = '2026-11-24'
   const indicators = buildIndicators({}, {
     netLiquidity: 'https://fred.stlouisfed.org/series/WALCL',
@@ -723,6 +801,7 @@ test('65 项指标 source 都是可打开的 https 网址', () => {
     realYield: 'https://fred.stlouisfed.org/series/DFII10',
     dollar: 'https://fred.stlouisfed.org/series/DTWEXBGS',
     goldSilver: 'https://finance.yahoo.com/quote/SI=F/',
+    copper: 'https://finance.yahoo.com/quote/HG=F/',
     pe: 'https://www.multpl.com/s-p-500-pe-ratio',
     forwardPe: 'https://example.com/fpe',
     cape: 'https://www.multpl.com/shiller-pe',
@@ -780,7 +859,7 @@ test('65 项指标 source 都是可打开的 https 网址', () => {
     hsiGap: 'https://finance.yahoo.com/quote/%5EHSI/history/',
     sseGap: 'https://finance.yahoo.com/quote/000001.SS/history/',
   }, date)
-  assert.equal(indicators.length, 65)
+  assert.equal(indicators.length, 66)
   for (const row of indicators) {
     assert.match(row.source, /^https:\/\/\S+$/, row.id)
     assert.equal(row.source.includes('÷'), false, row.id)

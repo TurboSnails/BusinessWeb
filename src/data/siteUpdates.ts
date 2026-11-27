@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'radar-copper-spx-nasdaq',
+    date: '2026-11-27',
+    title: '市场雷达：金银比旁加铜价，并叠标普与纳斯达克',
+    description: '「利率、美元与商品」一组在金银比后面加了 COMEX 铜价（美元/磅）：早期用世界银行月均、之后用连续合约日线，只展示不计分。铜价图叠标普 500 与纳斯达克；金银比图也补上纳斯达克，方便对照商品与股市。',
+    href: '/invest/market-radar',
+  },
+  {
     id: 'ux-polish-2026-11-27',
     date: '2026-11-27',
     title: '交互改进：可撤销、输入提示、表格横滑提示与中文标签',

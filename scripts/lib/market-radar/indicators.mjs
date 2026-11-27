@@ -114,10 +114,24 @@ const DEFINITIONS = {
       { id: 'gold', key: 'gold', label: '黄金', unit: '美元/盎司' },
       { id: 'silver', key: 'silver', label: '白银', unit: '美元/盎司' },
       { id: 'spx', key: 'spx', label: '标普 500', unit: '点' },
+      { id: 'nasdaq', key: 'nasdaq', label: '纳斯达克', unit: '点' },
     ],
     display: p => `COMEX 黄金 ÷ 白银 ${formatReading(p.value, '', 1)}（金 ${formatReading(p.gold, '', 0)}、银 ${formatReading(p.silver, '', 2)} 美元/盎司）` +
       (p.change == null ? '' : `，较 20 个交易日前 ${signed(p.change, n => formatReading(n, '', 1))}`) + '。',
     rule: '1960 年 1 月至 2000 年 8 月用世界银行 Pink Sheet 金、银月均价之比（银价只有一位小数，1960 年代单月误差可达约 5%）；之后用 Yahoo COMEX 连续合约日线的月均价之比，最新读数为最近一个交易日。百分位以月度为样本。1971 年以前金价由布雷顿森林体系固定在每盎司 35 美元，比值只反映银价。事后新增，只展示，不计分。比值走高说明资金偏向避险属性更强的黄金、白银代表的工业与投机需求转弱，常见于避险和增长担忧阶段；回落常伴随风险偏好回升。',
+  },
+  copper: {
+    dimension: 'liquidity', group: '利率、美元与商品', core: false,
+    label: 'COMEX 铜价', frequency: 'daily', direction: 'hot', unit: '美元/磅',
+    valueText: p => formatReading(p.value, '美元/磅', 4),
+    percentileMode: 'monthly',
+    overlays: [
+      { id: 'spx', key: 'spx', label: '标普 500', unit: '点' },
+      { id: 'nasdaq', key: 'nasdaq', label: '纳斯达克', unit: '点' },
+    ],
+    display: p => `COMEX 铜连续合约 ${formatReading(p.value, '', 4)} 美元/磅` +
+      (p.change == null ? '' : `，较 20 个交易日前 ${signed(p.change, n => formatReading(n, '', 4))}`) + '。',
+    rule: `1960 年 1 月至 Yahoo 日线开始前用世界银行 Pink Sheet 铜月均价（原表为美元/吨，按 2204.622621 磅/吨换成美元/磅）；之后用 Yahoo COMEX 连续合约（HG=F）日线的月均价，最新读数为最近一个交易日。百分位以月度为样本。${displayOnly}铜价常随全球工业需求起落；供给中断、关税和库存也会让它偏离宏观景气。`,
   },
   pe: {
     dimension: 'valuation', group: '盈利估值', core: true,

@@ -66,8 +66,8 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // SqueezeMetrics 估算的做市商 Gamma 敞口（GEX），只展示；首次下载失败且没有缓存时跳过。
   sources.gex = await refresh('gex', SQUEEZE_DIX, parseSqueezeGex)
     .catch(error => { warn(`gex 暂缺：${error.message}`); return [] })
-  // 金银比只展示：Yahoo COMEX 金、银连续合约全历史（2000 年 8 月起）；首次下载失败且没有缓存时跳过。
-  for (const [id, symbol, digits] of [['gold', 'GC=F', 2], ['silver', 'SI=F', 3]]) {
+  // 金银比、铜价只展示：Yahoo COMEX 金、银、铜连续合约全历史；首次下载失败且没有缓存时跳过。
+  for (const [id, symbol, digits] of [['gold', 'GC=F', 2], ['silver', 'SI=F', 3], ['copper', 'HG=F', 4]]) {
     const url = YAHOO_CHART + encodeURIComponent(symbol) + '?period1=0&period2=9999999999&interval=1d'
     sources[id] = await refresh(id, url, body => parseYahooFuturesClose(JSON.parse(body), symbol, new Date(), digits).history,
       { 'User-Agent': 'Mozilla/5.0' }).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
@@ -82,6 +82,9 @@ export async function refreshRadarSources({ cache, fetcher, today, localVix, shi
   // 2000 年以前的月度金银比来自世界银行 Pink Sheet，一次性回补（scripts/gold-silver-history.mjs），不再变动。
   sources.goldSilverEarly = readJson(join(cache, 'gold-silver-worldbank.json'), [])
   if (!sources.goldSilverEarly.length) warn('gold-silver-worldbank.json 缺失，金银比只有 2000 年起的历史')
+  // 铜价 Yahoo 日线开始前的月度来自同一 Pink Sheet（scripts/copper-history.mjs），单位已换成美元/磅。
+  sources.copperEarly = readJson(join(cache, 'copper-worldbank.json'), [])
+  if (!sources.copperEarly.length) warn('copper-worldbank.json 缺失，铜价只有 Yahoo 日线起的历史')
   // 隐含相关性只展示；首次下载失败且没有缓存时跳过，不影响雷达其余部分。
   for (const id of ['COR1M', 'COR3M']) {
     sources[id] = await cboe(id).catch(error => { warn(`${id} 暂缺：${error.message}`); return [] })
@@ -426,10 +429,10 @@ export function parseShillerPrice(csv) {
 }
 
 /**
- * 给金银比各行补上同期标普 500 点位：月度行用席勒月均价，席勒快照之后的月份用日收盘的月均值（只取完整月份），
- * 最新一行（日度）用当日或之前最近一个交易日的收盘。与金、银的月均价口径一致。
+ * 给主序列各行补上同期指数点位：月度行优先用 monthly 月均价，缺的月份用日收盘月均值（只取完整月份），
+ * 最新一行（带 change 的日度）用当日或之前最近一个交易日的收盘。
  */
-export function attachSpx(rows, monthly = [], daily = []) {
+export function attachIndex(rows, { monthly = [], daily = [], key = 'spx' } = {}) {
   const byMonth = new Map(monthly.map(([d, value]) => [month(d), value]))
   const sums = new Map()
   for (const [d, close] of daily) {
@@ -438,15 +441,25 @@ export function attachSpx(rows, monthly = [], daily = []) {
     sums.set(month(d), [sum + close, n + 1])
   }
   const lastDaily = daily.at(-1)?.[0] ?? ''
-  for (const [key, [sum, n]] of sums) {
+  for (const [m, [sum, n]] of sums) {
     // 当月还没结束的不算月均
-    if (key < month(lastDaily)) byMonth.set(key, Math.round(sum / n * 100) / 100)
+    if (m < month(lastDaily)) byMonth.set(m, Math.round(sum / n * 100) / 100)
   }
   return rows.map((row, index) => {
     const isLatest = index === rows.length - 1 && row.change !== undefined
-    const spx = isLatest ? daily.findLast(([d]) => d <= row.observedOn)?.[1] : byMonth.get(month(row.observedOn))
-    return spx > 0 ? { ...row, spx } : row
+    const value = isLatest ? daily.findLast(([d]) => d <= row.observedOn)?.[1] : byMonth.get(month(row.observedOn))
+    return value > 0 ? { ...row, [key]: value } : row
   })
+}
+
+/** 金银比 / 铜价上的标普 500：席勒月均 + 日线月均 + 最新收盘。 */
+export function attachSpx(rows, monthly = [], daily = []) {
+  return attachIndex(rows, { monthly, daily, key: 'spx' })
+}
+
+/** 纳斯达克综合：只有 Yahoo 日线，完整月份取月均，最新行取最近收盘。 */
+export function attachNasdaq(rows, daily = []) {
+  return attachIndex(rows, { daily, key: 'nasdaq' })
 }
 
 export function parseShillerEps(csv) {
@@ -773,22 +786,28 @@ export function impliedCorrelation(cor1m = [], cor3m = []) {
 }
 
 const round2 = n => Math.round(n * 100) / 100
+const round4 = n => Math.round(n * 10000) / 10000
+/** 世界银行铜价为美元/吨；COMEX / Yahoo HG=F 为美元/磅。 */
+export const LB_PER_METRIC_TON = 2204.622621
 export const WORLD_BANK_CMO = 'https://www.worldbank.org/en/research/commodity-markets'
+
+function worldBankMonthlyCells(sheetXml, shared) {
+  return [...sheetXml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)].map(([, row]) =>
+    Object.fromEntries([...row.matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)]
+      .map(([, col, attrs, body = '']) => {
+        const raw = /<v>([^<]*)<\/v>/.exec(body)?.[1]
+        return [col, /t="s"/.test(attrs) ? shared[Number(raw)] : raw]
+      })))
+}
 
 /**
  * 世界银行 Pink Sheet 月表（Monthly Prices）→ [月末日期, 金 ÷ 银, 金月均价, 银月均价]（美元/盎司）。sheetXml 为工作表 XML，shared 为共享字符串；
  * 按表头里的 Gold、Silver 两列取值，行标签形如 1960M01。
  */
 export function parseWorldBankGoldSilver(sheetXml, shared) {
-  const cellsOf = row => Object.fromEntries([...row.matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)]
-    .map(([, col, attrs, body = '']) => {
-      const raw = /<v>([^<]*)<\/v>/.exec(body)?.[1]
-      return [col, /t="s"/.test(attrs) ? shared[Number(raw)] : raw]
-    }))
   let columns
   const rows = []
-  for (const [, row] of sheetXml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)) {
-    const cells = cellsOf(row)
+  for (const cells of worldBankMonthlyCells(sheetXml, shared)) {
     if (!columns) {
       const find = name => Object.keys(cells).find(col => cells[col]?.trim() === name)
       if (find('Gold') && find('Silver')) columns = [find('Gold'), find('Silver')]
@@ -800,6 +819,59 @@ export function parseWorldBankGoldSilver(sheetXml, shared) {
   }
   if (!columns) throw new Error('世界银行月表缺少 Gold、Silver 列')
   return rows
+}
+
+/**
+ * 世界银行 Pink Sheet 铜月均价（美元/吨）→ [月末日期, 美元/磅]（按 LB_PER_METRIC_TON 换算，与 COMEX 连续合约口径对齐）。
+ */
+export function parseWorldBankCopper(sheetXml, shared) {
+  let column
+  const rows = []
+  for (const cells of worldBankMonthlyCells(sheetXml, shared)) {
+    if (!column) {
+      column = Object.keys(cells).find(col => cells[col]?.trim() === 'Copper')
+      continue
+    }
+    const label = /^(\d{4})M(\d{2})$/.exec(cells.A ?? '')
+    const mt = Number(cells[column])
+    if (label && mt > 0) rows.push([monthEnd(`${label[1]}-${label[2]}`), round4(mt / LB_PER_METRIC_TON)])
+  }
+  if (!column) throw new Error('世界银行月表缺少 Copper 列')
+  return rows
+}
+
+/**
+ * COMEX 铜价：Yahoo 日线首个完整月份以前用世界银行月均（early，已是美元/磅），之后用 Yahoo 月均，
+ * 最后接上最新交易日并附较 20 个交易日前的变化。百分位以月度为样本。
+ */
+export function copperPrice(daily = [], early = [], today = daily.at(-1)?.[0] ?? '') {
+  const days = daily.filter(([d, value]) => d <= today && value > 0)
+  if (!days.length) {
+    return early.filter(([d]) => d <= today).map(([d, value]) => ({
+      observedOn: d, availableOn: d, value,
+    }))
+  }
+  const firstFull = month(monthEnd(days[0][0], 1))
+  const byMonth = new Map()
+  for (const [d, value] of days) {
+    if (month(d) < firstFull || month(d) >= month(today)) continue
+    const [sum, n] = byMonth.get(month(d)) ?? [0, 0]
+    byMonth.set(month(d), [sum + value, n + 1])
+  }
+  const monthly = [
+    ...early.filter(([d]) => month(d) < firstFull).map(([d, value]) => ({
+      observedOn: d, availableOn: d, value,
+    })),
+    ...[...byMonth].map(([key, [sum, n]]) => ({
+      observedOn: monthEnd(key + '-01'), availableOn: monthEnd(key + '-01'), value: round4(sum / n),
+    })),
+  ]
+  const last = days.at(-1)
+  const prior = days.at(-21)
+  return [...monthly, {
+    observedOn: last[0], availableOn: last[0], value: last[1],
+    change: days.length > 20 ? round4(last[1] - prior[1]) : null,
+  }]
 }
 
 /**
@@ -931,8 +1003,14 @@ export function buildRadarSeries({
     cftcLev: simple('cftcSpxLev'),
     breadth: marketSeries(industries, 0, true),
     vixTerm,
-    goldSilver: attachSpx(goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
+    goldSilver: attachNasdaq(attachSpx(
+      goldSilverRatio(normalize(fetched.gold, today), normalize(fetched.silver, today), fetched.goldSilverEarly, today),
       shillerPrice, spxDaily.filter(([d]) => d <= today)),
+      (fetched.ixic ?? []).filter(([d]) => d <= today)),
+    copper: attachNasdaq(attachSpx(
+      copperPrice(normalize(fetched.copper, today), fetched.copperEarly ?? [], today),
+      shillerPrice, spxDaily.filter(([d]) => d <= today)),
+      (fetched.ixic ?? []).filter(([d]) => d <= today)),
     impliedCorr: impliedCorrelation(fetched.COR1M, fetched.COR3M),
     gex: gammaExposure(normalize(fetched.gex, today)),
     breadth200: marketSeries(breadth200, 0, true),
@@ -986,7 +1064,9 @@ export function buildRadarSeries({
   }
   const sources = Object.fromEntries(Object.entries(local).map(([id, entry]) => [id, entry.source]))
   Object.assign(sources, {
-    netLiquidity: FRED_SERIES + 'WALCL', hy: sources.hyDaily, goldSilver: 'https://finance.yahoo.com/quote/SI=F/',
+    netLiquidity: FRED_SERIES + 'WALCL', hy: sources.hyDaily,
+    goldSilver: 'https://finance.yahoo.com/quote/SI=F/',
+    copper: 'https://finance.yahoo.com/quote/HG=F/',
     baaChange: FRED_SERIES + 'BAA', erp: FRED_SERIES + 'GS10',
     pe: sources.spxPe, cape: sources.shillerCape, forwardPe: sources.spxFactSetFpe,
     equityShare: FRED_SERIES + macroUs.equityShare?.fred, cashShare: FRED_SERIES + CASH_SERIES[3],

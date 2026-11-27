@@ -64,7 +64,9 @@ export function logTicks(lo: number, hi: number): number[] {
 }
 
 /** 叠加序列配色：按 id 取约定色，其余按顺序取备用色 */
-const OVERLAY_CLASS: Record<string, string> = { gold: 'mr-zoom__ov--gold', silver: 'mr-zoom__ov--silver', spx: 'mr-zoom__ov--spx' }
+const OVERLAY_CLASS: Record<string, string> = {
+  gold: 'mr-zoom__ov--gold', silver: 'mr-zoom__ov--silver', spx: 'mr-zoom__ov--spx', nasdaq: 'mr-zoom__ov--nasdaq',
+}
 const overlayClass = (id: string, index: number) => OVERLAY_CLASS[id] ?? `mr-zoom__ov--${index % 2 ? 'b' : 'a'}`
 
 /** 右轴说明：单位相同的序列合并写，例如「黄金、白银为美元/盎司，标普 500 为点」 */

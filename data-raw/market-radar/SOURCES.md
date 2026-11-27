@@ -23,6 +23,7 @@
 | 10 年期实际利率 | **新接** FRED [DFII10](https://fred.stlouisfed.org/series/DFII10) | TIPS 10 年实际收益率 % | 2003-01 | 自动（缓存 `DFII10.json`）；FRED 请求不加浏览器 UA |
 | 美元指数 13 周变化 | **新接** FRED [DTWEXBGS](https://fred.stlouisfed.org/series/DTWEXBGS) | 贸易加权美元指数 13 周涨跌幅 %；读数句附指数水平 | 2006-01 | 自动（缓存 `DTWEXBGS.json`） |
 | 金银比 | 1960-01 至 2000-08：[世界银行 Pink Sheet 月表](https://www.worldbank.org/en/research/commodity-markets)（CC BY 4.0）金、银月均价；之后：Yahoo [GC=F](https://finance.yahoo.com/quote/GC=F/)、[SI=F](https://finance.yahoo.com/quote/SI=F/) 日线 | 金 ÷ 银；历史按月（Yahoo 段取完整月份的月均金 ÷ 月均银），最新读数为最近交易日并附 20 个交易日变化。Yahoo 为连续合约收盘，不是官方结算价；世界银行银价只有一位小数。事后新增，只展示 | 1960-01（月度） | 自动（日线缓存 `gold.json`、`silver.json`）；1960–2000 段见下文回补 |
+| COMEX 铜价 | Yahoo 日线开始前：[世界银行 Pink Sheet 月表](https://www.worldbank.org/en/research/commodity-markets)（CC BY 4.0）铜月均价（美元/吨→美元/磅）；之后：Yahoo [HG=F](https://finance.yahoo.com/quote/HG=F/) 日线 | 美元/磅；历史按月（Yahoo 段取完整月份月均），最新为最近交易日并附 20 个交易日变化。叠加标普 500、纳斯达克。事后新增，只展示 | 1960-01（月度） | 自动（日线缓存 `copper.json`）；月度回补见下文 |
 
 ### 估值
 
@@ -109,6 +110,7 @@ node scripts/market-radar.mjs                                 # 重新生成雷�
 | `spxFactSetFpe` | FactSet 官网存档 2016-12 起；官网返回 429 或缺档时改读 [互联网档案馆](https://web.archive.org/) 的同一 PDF。2014–2016 年只找到 2016-12 一期，2022-08 缺档 | `factset-forward-pe.json` |
 | `retailBull` / `retailBear` | AAII 官方 `sentiment.xls`，发布日换成之前最近的周三、保留一位小数；与站内重叠的 4 周一致 | `aaii-sentiment.json` |
 | 金银比 1960–2000 月度 | 世界银行 Pink Sheet 月表 `CMO-Historical-Data-Monthly.xlsx`（链接随每期发布变化，脚本从商品市场页找当期文件）；`node scripts/gold-silver-history.mjs` | `gold-silver-worldbank.json` |
+| 铜价 1960 起月度（至 Yahoo 日线前） | 同上 Pink Sheet 的 Copper 列（美元/吨÷2204.622621→美元/磅）；`node scripts/copper-history.mjs` | `copper-worldbank.json` |
 | `volumeRatio` 2010 年以前 | Yahoo ^GSPC 1950 年起日成交量；`node scripts/spx-volume-ratio-history.mjs`（只保留站内 Cboe 序列首个观测之前的部分） | `spx-volume-ratio-early.json` |
 
 ## 三、访问上的坑

@@ -1323,14 +1323,15 @@ html.dark .mr-overview__bar-seg--cool {
 .mr-zoom__hint { margin: 8px 0 0; font-size: 0.75rem; color: var(--text-tertiary, var(--text-secondary)); }
 
 /* 放大图叠加序列（金银比上的金、银价格）：主线加粗用主题色，叠加线细一些 */
-.mr-zoom { --mr-gold: #b8860b; --mr-silver: #7f8c99; --mr-spx: #2563eb; --mr-ov-a: #8b5cf6; --mr-ov-b: #0ea5e9; }
+.mr-zoom { --mr-gold: #b8860b; --mr-silver: #7f8c99; --mr-spx: #2563eb; --mr-nasdaq: #c2410c; --mr-ov-a: #8b5cf6; --mr-ov-b: #0ea5e9; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .mr-zoom { --mr-gold: #e0b341; --mr-silver: #b4bfca; --mr-spx: #60a5fa; }
+  :root:not([data-theme="light"]) .mr-zoom { --mr-gold: #e0b341; --mr-silver: #b4bfca; --mr-spx: #60a5fa; --mr-nasdaq: #fb923c; }
 }
-:root[data-theme="dark"] .mr-zoom { --mr-gold: #e0b341; --mr-silver: #b4bfca; --mr-spx: #60a5fa; }
+:root[data-theme="dark"] .mr-zoom { --mr-gold: #e0b341; --mr-silver: #b4bfca; --mr-spx: #60a5fa; --mr-nasdaq: #fb923c; }
 .mr-zoom__ov--gold { --ov: var(--mr-gold); }
 .mr-zoom__ov--silver { --ov: var(--mr-silver); }
 .mr-zoom__ov--spx { --ov: var(--mr-spx); }
+.mr-zoom__ov--nasdaq { --ov: var(--mr-nasdaq); }
 .mr-zoom__ov--a { --ov: var(--mr-ov-a); }
 .mr-zoom__ov--b { --ov: var(--mr-ov-b); }
 .mr-zoom__line { stroke-width: 2.2; }
