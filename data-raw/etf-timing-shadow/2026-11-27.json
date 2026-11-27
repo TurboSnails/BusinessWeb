@@ -1,6 +1,6 @@
 {
  "asOf": "2026-11-27",
- "generatedAt": "2026-11-27T08:07:52.912Z",
+ "generatedAt": "2026-11-27T10:43:00.658Z",
  "universeVersion": "2026-11-15",
  "timing": {
   "hs300Bull": true,
@@ -14,12 +14,12 @@
  },
  "sources": {
   "benchmarks": {
-   "159915": "em",
+   "159915": "tencent",
    "510300": "em",
    "510880": "em"
   },
-  "tencent": 54,
-  "em": 22
+  "tencent": 47,
+  "em": 29
  },
  "items": [
   {
@@ -1108,7 +1108,7 @@
    "name": "港股创新药ETF广发",
    "close": 1.176,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1131,7 +1131,7 @@
    "name": "恒生科技ETF华泰柏瑞",
    "close": 0.448,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1154,7 +1154,7 @@
    "name": "恒生科技ETF华夏",
    "close": 0.454,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1177,7 +1177,7 @@
    "name": "港股通金融ETF华夏",
    "close": 1.789,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1200,7 +1200,7 @@
    "name": "纳指生物科技ETF汇添富",
    "close": 1.913,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1223,7 +1223,7 @@
    "name": "中韩半导体ETF华泰柏瑞",
    "close": 3.522,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": "buy",
@@ -1244,9 +1244,9 @@
   {
    "code": "513630",
    "name": "港股低波红利ETF摩根",
-   "close": 1.565,
-   "date": "2026-11-26",
-   "src": "tencent",
+   "close": 1.545,
+   "date": "2026-11-27",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
