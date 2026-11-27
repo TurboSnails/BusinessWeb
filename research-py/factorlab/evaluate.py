@@ -498,6 +498,7 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                 "tmu_cap_mean": float(tmu.mean()), "tmu_cap_t_nw": t_tmu,
                 "p_tmu": float(1 - stats.norm.cdf(t_tmu)) if np.isfinite(t_tmu) else float("nan"),
                 "tmu_ew_mean": float(sd["tmu_ew"].mean()) if "tmu_ew" in sd else float("nan"),
+                "tmu_ew_t_nw": nw_tstat(sd["tmu_ew"], lag) if "tmu_ew" in sd else float("nan"),
                 "tmb_ew_mean": float(sd["tmb_ew"].mean()) if "tmb_ew" in sd else float("nan"),
                 "sr_period": sr, "top_turnover_mean": float(turn.mean()), "coverage_mean": float(cov.mean()),
                 "universe_size_mean": usize,
@@ -512,7 +513,10 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                     if sel:
                         label = f"{'' if a == pd.Timestamp.min else a.date()}–{'' if b == pd.Timestamp.max else b.date()}"
                         tiers_seg[label] = {"rank_ic_mean": float(ic["rank_ic"].reindex(sel).mean()),
-                                            "tmu_cap_mean": float(tmu.reindex(sel).mean()), "n_periods": len(sel)}
+                                            "tmu_cap_mean": float(tmu.reindex(sel).mean()),
+                                            "tmu_ew_mean": (float(sd["tmu_ew"].reindex(sel).mean())
+                                                            if "tmu_ew" in sd else float("nan")),
+                                            "n_periods": len(sel)}
 
             bts = {}
             if run_backtest:

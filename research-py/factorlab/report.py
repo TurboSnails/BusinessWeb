@@ -78,7 +78,7 @@ def to_markdown(res: EvalResult) -> str:
         f"| RankIC 均值 / IR / NW t（按因子原值；事先方向 {dir_word}） | {_f(s.get('rank_ic_mean'))} / {_f(s.get('rank_ic_ir'), nd=2)} / {_f(s.get('rank_ic_t_nw'), nd=2)} |",
         f"| IC 均值 / IR | {_f(s.get('ic_mean'))} / {_f(s.get('ic_ir'), nd=2)} |",
         f"| 前 {grp} {cap_word} − 全股票池同加权（每期均值，主口径，{execution}，未扣成本） | {_f(s.get('tmu_cap_mean'), True, 4)}（NW t {_f(s.get('tmu_cap_t_nw'), nd=2)}） |",
-        f"| 前 {grp} 等权 − 全股票池等权（每期均值） | {_f(s.get('tmu_ew_mean'), True, 4)} |",
+        f"| 前 {grp} 等权 − 全股票池等权（每期均值） | {_f(s.get('tmu_ew_mean'), True, 4)}（NW t {_f(s.get('tmu_ew_t_nw'), nd=2)}） |",
         f"| 多空（前 {grp} − 后 {grp}，等权，只报告） | {_f(s.get('tmb_ew_mean'), True, 4)} |",
         f"| 前 {grp} 名单每期换手 | {_f(s.get('top_turnover_mean'), True)} |",
     ]
