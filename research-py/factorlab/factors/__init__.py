@@ -7,3 +7,4 @@ from . import price  # noqa: F401
 from . import price2  # noqa: F401
 from . import composite  # noqa: F401
 from . import surprise  # noqa: F401
+from . import composite_r8  # noqa: F401
