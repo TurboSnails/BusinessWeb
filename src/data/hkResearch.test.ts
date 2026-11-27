@@ -36,9 +36,8 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
     }
     expect(read('batches.json').every((b: { codes: string[] }) => b.codes.length >= 3 && b.codes.length <= 5)).toBe(true)
     expect(read('batches.json').flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(audit.companies.map((c: { code: string }) => c.code).sort())
-    // 恒指/恒科新增成分以程序化初筛占位，不编造情景价（2026-11-27：13 家新增中 5 家已有手工研究页，其余 8 家仍为初筛）
-    expect(screened.length).toBeGreaterThanOrEqual(8)
-    for (const code of ['03750', '02513', '00100', '00020', '09660']) {
+    // 按恒生官方当期名单补入的 13 家（2026-11-27）均已有手工研究页；仍为程序化初筛的公司不编造情景价
+    for (const code of ['03750', '02513', '00100', '00020', '09660', '01698', '09863', '09903', '01519', '02338', '03993', '06181', '09901']) {
       const c = companies.find(x => x.code === code)!
       expect(c.auto, code).toBeFalsy()
       expect(c.scenarios, code).toHaveLength(3)
