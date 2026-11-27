@@ -1,0 +1,8 @@
+{
+  "legs_dxus.csv": "3129c7e02fcb9acae26f3826beae616c13cfedbc9a02107ffd5210e360b6665a",
+  "legs_em.csv": "c7c1e789aec086c2de9b79e40f08df100e0856269cf8310e4716f719a4015e7d",
+  "legs_us.csv": "b22f82514b32f1038bfe9bf559b4f1f0210327e45669a4c16be5160409f159a3",
+  "regional_factors.csv": "93dbb88f0befbc4fa1cd90237bce971848d3b150abc40bdcb014daff282f73f0",
+  "source_parquet_sha256": "767b1b9666a307e42edc02f4f16ebf470c9ee6382075b20d4ee80f1cd8839c10",
+  "cutoff": "2023-10"
+}
