@@ -194,3 +194,50 @@ def test_perf_stats_and_vs_universe():
     out = backtest_vs_universe(f, panel, "cn", mask, securities=sec)
     assert out["stats"]["excess_cagr"] > 0
     assert out["universe"].stats["turnover_per_rebalance"] < out["top"].stats["turnover_per_rebalance"]
+
+
+# ---------------------------------------------------------------- 回测起点与截面不足
+def test_backtest_starts_at_first_formable_date():
+    """因子前几个调仓日没有值：组合与基准都从第一个能选出前组的调仓日开始；所有股票同涨同跌时超额 ≈ 0
+    （修正前组合在前几期持现金、基准持股票池，超额被压成很大的负数）。"""
+    days, p = tiny(n_days=60)
+    up = pd.Series(1.01 ** np.arange(60), index=days)               # 每天都涨 1%，四只股票相同
+    for k in ("close_adj", "close", "open", "open_adj", "high", "low"):
+        p[k] = p[k].mul(up, axis=0)
+    rb = [0, 10, 20, 30, 40, 50]
+    rows = {i: [np.nan] * 4 for i in rb[:3]}
+    rows.update({i: [4.0, 3.0, 2.0, 1.0] for i in rb[3:]})
+    f = fac(days, rows)
+    mask = pd.DataFrame(True, index=f.index, columns=CODES)
+    kw = {"top_n": 1, "weighting": "equal", "execution": "close", "costs": ZERO, "slippage": None}
+    out = backtest_vs_universe(f, p, "cn", mask, **kw)
+    start = days[30]
+    assert out["stats"]["start"] == str(start.date())
+    assert out["top"].returns.index[0] == out["universe"].returns.index[0] == start
+    assert out["stats"]["excess_cagr"] == pytest.approx(0.0, abs=1e-9)
+    # min_names：有效值不足 min_names 的调仓日不算「能选出前组」
+    rows2 = {**rows, 30: [4.0, np.nan, np.nan, np.nan]}
+    out2 = backtest_vs_universe(fac(days, rows2), p, "cn", mask, min_names=2, **kw)
+    assert out2["stats"]["start"] == str(days[40].date())
+    # 股票池外的值不算
+    mask3 = mask.copy()
+    mask3.loc[days[30]] = False
+    assert backtest_vs_universe(f, p, "cn", mask3, **kw)["stats"]["start"] == str(days[40].date())
+    with pytest.raises(ValueError):
+        backtest_vs_universe(fac(days, {i: [np.nan] * 4 for i in rb}), p, "cn", mask, **kw)
+
+
+def test_missing_cross_section_holds_previous_portfolio():
+    """中途某个调仓日因子截面不足：不调仓、继续持有上期组合（不清仓持现金），记在 skipped_rebalances。"""
+    days, p = tiny(n_days=30)
+    p["close_adj"].loc[days[12]:, "A"] = 11.0                      # A 在第 12 天涨 10%
+    p["close"] = p["close_adj"].copy()
+    f = fac(days, {0: [4.0, 3.0, 2.0, 1.0], 10: [np.nan] * 4, 20: [1.0, 2.0, 3.0, 4.0]})
+    r = run(f, p)
+    assert r.stats["skipped_rebalances"] == [str(days[10].date())]
+    assert days[10] not in r.weights and days[20] in r.weights
+    assert r.returns.loc[days[12]] == pytest.approx(0.1)          # 第 10 天之后仍持有 A
+    assert list(r.weights[days[20]].index) == ["D"]
+    r2 = run(fac(days, {0: [4.0, 3.0, 2.0, 1.0], 10: [np.nan, np.nan, np.nan, 1.0], 20: [1.0, 2.0, 3.0, 4.0]}), p,
+             min_names=2)
+    assert r2.stats["skipped_rebalances"] == [str(days[10].date())] and r2.returns.loc[days[12]] == pytest.approx(0.1)

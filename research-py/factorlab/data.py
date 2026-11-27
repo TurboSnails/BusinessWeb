@@ -43,6 +43,21 @@ def extra_provider(market: str):
     return mod if mod.available() else None
 
 
+def has_field(market: str, field: str) -> bool:
+    """该市场能否读到 field：日线 prices.parquet 里有这一列，或额外提供方提供，或是派生字段。"""
+    if field in DERIVED:
+        return all(has_field(market, f) for f in DERIVED[field])
+    prov = extra_provider(market)
+    if prov is not None and field in prov.PROVIDES:
+        return True
+    import pyarrow.parquet as pq
+
+    try:
+        return field in set(pq.read_schema(store.market_dir(market) / "prices.parquet").names)
+    except OSError:
+        return False
+
+
 def add_open_adj(panel: dict) -> dict:
     """open_adj = open × close_adj / close（复权因子 = close_adj / close）。缺字段时不加。"""
     if {"open", "close", "close_adj"} <= set(panel) and "open_adj" not in panel:

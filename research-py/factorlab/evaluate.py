@@ -377,6 +377,10 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
           | 'confirm'（锁箱，须 token，且（因子名、源码哈希、参数哈希、配置哈希）与解封时冻结的候选完全一致，
             每个候选只能确认一次）| 'forward'（前推区，须 prereg：真实提交、含列出本因子的预注册文件）。
     preprocess：{'mad_n': 5, 'neutralize': None | 'size' | 'size+industry', 'method': 'zscore' | 'rank' | 'raw'}。
+          'size+industry' 时自动把点时行业 industry 读进面板（不用写进因子 needs）；市场没有行业数据、或传入的
+          面板里没有（或全为空）时报错（记 status='error'），不静默退化为只做市值。
+    回测（run_backtest）：组合与基准都从第一个「股票池内因子有效值 ≥ 2 × n_quantiles」的调仓日开始
+    （summary['bt_start']），之后截面不足的调仓日不调仓、持有上期组合（summary['bt_skipped_rebalances']）。
     min_universe / min_coverage：层内平均股票池只数、因子平均覆盖率低于此值时报错（记 status='error'），
     不静默给出空结果。
     motivation：'literature'（文献）| 'mining'（挖掘）等，写进登记簿。
@@ -425,8 +429,14 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                     record["batch_id"] = token.batch_id
 
             frac = lockbox.explore_frac
+            need_ind = pp["neutralize"] == "size+industry"
             if panel is None:
-                fields = sorted(set(PANEL_FIELDS) | set(spec.needs if spec else ()) | {"open_adj"})
+                fields = set(PANEL_FIELDS) | set(spec.needs if spec else ()) | {"open_adj"}
+                if need_ind:
+                    if not data_mod.has_field(market, "industry"):
+                        raise ValueError(f"neutralize='size+industry' 需要点时行业字段 industry，市场 {market} 的数据里没有")
+                    fields.add("industry")
+                fields = sorted(fields)
                 md = data_mod.load_market(market, fields, mode, token, prereg=record.get("prereg"), repo=repo,
                                           log=False)
                 panel, snapshot = md.panel, md.snapshot
@@ -438,6 +448,9 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                 securities = data_mod.guard_securities(securities, mode, end_ex, hidden, frac)
                 snapshot = "external-panel"
             record["data_snapshot"] = snapshot
+            if need_ind and (panel.get("industry") is None or not panel["industry"].notna().to_numpy().any()):
+                raise ValueError("neutralize='size+industry' 需要点时行业字段 industry，面板里没有（或全为空）："
+                                 "不静默退化为只做市值中性化")
 
             days = trading_days(panel["close_adj"])
             dates = month_end_dates(days)
@@ -453,9 +466,7 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
             if pp["neutralize"] in ("size", "size+industry") and "mcap_float" in panel:
                 m = panel["mcap_float"].reindex(index=dates, columns=mask.columns)
                 log_size = np.log(m.where(m > 0))
-            industry = panel.get("industry") if pp["neutralize"] == "size+industry" else None
-            if pp["neutralize"] == "size+industry" and industry is None:
-                record["preprocess_applied"] = "size only（没有点时行业）"
+            industry = panel["industry"] if need_ind else None
             f = standard_pipeline(raw, mask, pp["mad_n"], log_size,
                                   None if industry is None else industry.reindex(index=dates, columns=mask.columns),
                                   pp["method"])
@@ -524,9 +535,11 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                 bt_end = ex_end if pd.notna(ex_end) else ends[zdates[-1]]
                 bt_panel = panel if w_applied["adv_proxy"] == 0 or wbase is None else {**panel, "mcap_float": wbase}
                 for wname in ("cap", "equal"):
+                    # 起点 = 第一个股票池内因子有效值 ≥ 2 × 分组数的调仓日（与 quantile_analysis 的分组门槛一致），
+                    # 组合与基准同起点；之后截面不足的调仓日组合不调仓（见 backtest 模块说明）
                     bts[wname] = _backtest_vs_universe(
-                        f.loc[zdates], bt_panel, market, mz, direction=direction, top_q=top_q,
-                        weighting=wname, execution=execution, costs=costs, slippage=slippage,
+                        f.loc[zdates], bt_panel, market, mz, min_names=2 * n_quantiles, direction=direction,
+                        top_q=top_q, weighting=wname, execution=execution, costs=costs, slippage=slippage,
                         securities=securities, delist_return=delist_return, end=bt_end, adv=adv)
                 for wname, b in bts.items():
                     summ[f"bt_{wname}_excess_cagr"] = b["stats"]["excess_cagr"]
@@ -536,6 +549,8 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                     summ[f"bt_{wname}_top_maxdd"] = b["stats"]["top"]["maxdd"]
                     summ[f"bt_{wname}_turnover"] = b["stats"]["top"]["turnover_per_rebalance"]
                 summ["capacity_median_pos_adv"] = bts["cap"]["stats"]["capacity"]["median"]
+                summ["bt_start"] = bts["equal"]["stats"]["start"]
+                summ["bt_skipped_rebalances"] = len(bts["equal"]["stats"]["skipped_rebalances"])
 
             series = sd.reindex(columns=["tmu_cap", "tmu_ew", "tmb_ew", "top_cap", "univ_cap", "top_ew", "univ_ew"])
             series["rank_ic"] = ic["rank_ic"]

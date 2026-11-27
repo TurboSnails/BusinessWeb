@@ -259,3 +259,100 @@ def test_preprocess_and_stats():
     assert abs(sp["alpha_t_nw"]) < 3 and sp["betas"]["f1"] == pytest.approx(0.5, abs=0.05)
     sp2 = spanning_regression(yv + 0.3, pd.DataFrame({"f1": f1}))
     assert sp2["alpha_t_nw"] > 10
+
+
+# ---------------------------------------------------------------- 回测起点 / 行业中性化（引擎缺口修正）
+def test_backtest_starts_when_factor_has_values(tmp_ledger):
+    """因子前 24 个调仓日没有值：回测（组合与基准）从第一个股票池内有效值 ≥ 2 × 分组数的调仓日开始。"""
+    panel, sec = market()
+    dates = month_end_dates(trading_days(panel["close_adj"]))
+    f = panel["signal"].reindex(dates)
+    f.iloc[:24] = np.nan
+    f.iloc[24, 5:] = np.nan                                    # 第 24 期只有 5 只有值（< 2 × 5），不算
+    res = evaluate_factor("cn", f, name="late_signal", panel=panel, securities=sec)
+    s = res.summary
+    first = res.universe.index[res.universe.index.get_loc(dates[25])]
+    assert s["bt_start"] == str(first.date())
+    for w in ("cap", "equal"):
+        b = res.backtests[w]
+        assert b["top"].returns.index[0] == b["universe"].returns.index[0] == first
+    assert s["bt_equal_excess_cagr"] > 0 and s["bt_skipped_rebalances"] == 0
+    rec = TrialLedger().trials("cn")[-1]
+    assert rec["stats"]["bt_start"] == s["bt_start"]
+
+
+def test_config_hash_unchanged_by_engine_fixes():
+    """回测起点、行业自动读取的修正不改配置（锁箱候选冻结的是配置哈希）。"""
+    from factorlab.evaluate import candidate_spec
+
+    assert candidate_spec("cn", "mom_12_1")["config_hash"].startswith("efc06e526d76")
+    pp = {"mad_n": 5, "neutralize": "size+industry", "method": "zscore"}
+    assert candidate_spec("cn", "mom_12_1", preprocess=pp)["config_hash"].startswith("300c91112314")
+
+
+def _with_industry(panel):
+    codes = panel["close_adj"].columns
+    ind = pd.DataFrame([[f"I{i % 5}" for i in range(len(codes))]], columns=codes)
+    return {**panel, "industry": pd.DataFrame(np.repeat(ind.to_numpy(), len(panel["close_adj"]), 0),
+                                              index=panel["close_adj"].index, columns=codes)}
+
+
+def _check_neutral(res, panel):
+    f = res.factor
+    ind = panel["industry"]
+    for d in f.index[30::15]:
+        x = f.loc[d].dropna()
+        if len(x) < 30:
+            continue
+        g = x.groupby(ind.loc[d, x.index]).mean()
+        assert g.abs().max() < 1e-8
+        ls = np.log(panel["mcap_float"].loc[d, x.index])
+        assert abs(np.corrcoef(x, ls)[0, 1]) < 1e-8
+
+
+def test_size_industry_neutralize_uses_industry_or_errors(tmp_ledger):
+    """neutralize='size+industry'：面板里有行业就做行业 + 市值中性化；没有就报错并记 status='error'，不静默退化。"""
+    pp = {"mad_n": 5, "neutralize": "size+industry", "method": "zscore"}
+    panel, sec = market()
+    pi = _with_industry(panel)
+    res = evaluate_factor("cn", "mom_12_1", panel=pi, securities=sec, preprocess=pp, run_backtest=False)
+    assert "preprocess_applied" not in res.record
+    _check_neutral(res, pi)
+    with pytest.raises(ValueError, match="industry"):
+        evaluate_factor("cn", "mom_12_1", panel=panel, securities=sec, preprocess=pp, run_backtest=False)
+    with pytest.raises(ValueError, match="industry"):
+        evaluate_factor("cn", "mom_12_1", panel={**pi, "industry": pi["industry"].where(pi["industry"].isna())}, securities=sec,
+                        preprocess=pp, run_backtest=False)
+    recs = TrialLedger().trials("cn", include_errors=True)
+    assert [r["status"] for r in recs[-2:]] == ["error", "error"]
+
+
+def test_size_industry_auto_loads_industry_from_store(tmp_ledger, tmp_path, monkeypatch):
+    """经数据层读数时自动把 industry 读进面板（不用写进因子 needs）；数据里没有行业列则报错。"""
+    from factorlab import store
+    from factorlab.schema import Manifest
+    from factorlab_synth import to_long
+
+    monkeypatch.setenv("FACTORLAB_DATA", str(tmp_path / "data"))
+    pp = {"mad_n": 5, "neutralize": "size+industry", "method": "zscore"}
+    panel, sec = market()
+    pi = _with_industry(panel)
+
+    def write(p):
+        long = to_long(p)
+        store.write_securities("cn", sec)
+        store.write_prices("cn", long)
+        store.write_manifest(Manifest(market="cn", source="synthetic", survivorship="A",
+                                      downloaded_at="2026-11-26T00:00:00Z",
+                                      coverage=(str(long["date"].min().date()), str(long["date"].max().date())),
+                                      rows=len(long), securities=len(sec), sha256={}))
+
+    write(pi)
+    assert "industry" not in registry.get("mom_12_1").needs
+    res = evaluate_factor("cn", "mom_12_1", preprocess=pp, run_backtest=False)
+    assert "preprocess_applied" not in res.record and res.record["status"] == "ok"
+    _check_neutral(res, pi)
+    write(panel)                                               # 没有行业列
+    with pytest.raises(ValueError, match="industry"):
+        evaluate_factor("cn", "mom_12_1", preprocess=pp, run_backtest=False)
+    assert TrialLedger().trials("cn", include_errors=True)[-1]["status"] == "error"

@@ -10,6 +10,11 @@
   剩余价值转为现金。没有证券表时不识别退市（停止交易的股票视为长期停牌）。
 - 成本：佣金（可设最低佣金）+ 印花税 + 其他双边费用 + 按成交额分档的滑点；给出 capital 时按整手（A 股
   100 股）取整并计最低佣金，否则只按比例计。现金收益为 0。
+- 因子截面不足（某调仓日股票池内有效因子值少于 min_names 只）：**不调仓、继续持有上期组合**（随价格漂移），
+  而不是清仓持现金——缺数据不是「看空」信号；跳过的调仓日记在 stats['skipped_rebalances']。
+- 对股票池回测（_backtest_vs_universe）的起点：第一个「股票池内有效因子值 ≥ min_names」的调仓日；组合与基准
+  **都从这一天开始**（此前因子还没有值，组合只能持现金而基准持有股票池，年化超额会被系统性压低）。
+  evaluate_factor 传 min_names = 2 × 分组数，与 quantile_analysis 每期做分组的门槛一致。
 """
 
 from __future__ import annotations
@@ -219,12 +224,13 @@ def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame
               execution: str = "open", costs: CostModel | None = None, slippage: SlippageModel | None | str = "default",
               constraints: bool | None = None, securities: pd.DataFrame | None = None,
               delist_return: float = -1.0, capital: float | None = None, capacity_aum: float = 1e8,
-              rf=None, end=None, adv: AdvCache | None = None) -> BacktestResult:
+              rf=None, end=None, adv: AdvCache | None = None, min_names: int = 1) -> BacktestResult:
     """底层回测（内部用；研究请走 evaluate.evaluate_factor，它经护栏读数并记账）。
 
     factor：调仓日 × 代码（行索引即调仓日）；mask：同形状股票池；direction=-1 选最小的。
     选股与 evaluate 的分组共用 select_top（并列按代码哈希，不按列顺序）。
-    adv：共用的「t 之前 20 日成交额中位数」缓存（只在成交日惰性计算）。"""
+    adv：共用的「t 之前 20 日成交额中位数」缓存（只在成交日惰性计算）。
+    min_names：调仓日有效因子值（股票池内、市值加权时另须有市值）少于此数时不调仓，持有上期组合。"""
     if weighting not in ("cap", "equal"):
         raise ValueError("weighting 只能是 'cap' 或 'equal'")
     if execution not in ("open", "close"):
@@ -298,6 +304,7 @@ def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame
         raise ValueError("市值加权需要 mcap_float 字段")
     mcap_rb = mcap.reindex(columns=codes).ffill(limit=5).reindex(rb_dates) if weighting == "cap" else None
     orders: dict[int, tuple[np.ndarray, np.ndarray]] = {}   # 成交日序号 → (目标, 权重基数)
+    skipped: list[pd.Timestamp] = []                         # 截面不足、不调仓的调仓日
     day_pos = {d: i for i, d in enumerate(days)}
     for t in rb_dates:
         if t not in day_pos:
@@ -312,6 +319,9 @@ def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame
             base = np.nan_to_num(mcap_rb.loc[t].to_numpy(float))
             valid &= base > 0
         vals = np.where(valid, s.to_numpy(float), np.nan)
+        if np.isfinite(vals).sum() < max(int(min_names), 1):
+            skipped.append(t)
+            continue
         target = select_top(vals, keys, top_q, top_n)
         orders[i_exec] = (target, base)
 
@@ -399,21 +409,40 @@ def _backtest(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame
     n_reb = max(len([d for d in orders]), 1)
     res.stats = {**perf_stats(res.returns, rf),
                  "turnover_per_rebalance": float(res.turnover.sum() / n_reb),
+                 "skipped_rebalances": [str(d.date()) for d in skipped],
                  "cost_annual": float(res.costs.sum() / max(n_d, 1) * TRADING_DAYS),
                  "capacity_median_pos_adv": res.capacity["median"]}
     return res
 
 
-def _backtest_vs_universe(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame, **kw) -> dict:
-    """前 q 组合 vs 同一股票池（全部入池证券，不论因子是否有值；同一加权方式、同样成本与执行）。内部用。"""
-    top = _backtest(factor, panel, market, mask, **kw)
+def first_formable(factor: pd.DataFrame, mask: pd.DataFrame | None, min_names: int = 1) -> pd.Timestamp | None:
+    """第一个「股票池内有效因子值 ≥ min_names」的调仓日；没有这样的日子为 None。"""
+    ok = factor.notna()
+    if mask is not None:
+        ok &= bool_values(mask.reindex(index=factor.index, columns=factor.columns))
+    hit = ok.sum(axis=1) >= max(int(min_names), 1)
+    return hit.idxmax() if hit.any() else None
+
+
+def _backtest_vs_universe(factor: pd.DataFrame, panel: dict, market: str, mask: pd.DataFrame,
+                          min_names: int = 1, **kw) -> dict:
+    """前 q 组合 vs 同一股票池（全部入池证券，不论因子是否有值；同一加权方式、同样成本与执行）。内部用。
+
+    组合与基准都从 first_formable(factor, mask, min_names) 开始（见模块说明）；之后截面不足的调仓日
+    组合不调仓、基准照常调仓。"""
+    start = first_formable(factor, mask, min_names)
+    if start is None:
+        raise ValueError(f"因子在任何调仓日的股票池内有效值都不足 {min_names} 只，无法回测")
+    factor, mask = factor.loc[start:], mask.loc[start:]
+    top = _backtest(factor, panel, market, mask, min_names=min_names, **kw)
     kw_b = {k: v for k, v in kw.items() if k not in ("direction", "top_q", "top_n")}
     ones = mask.astype(float).where(mask)
     bench = _backtest(ones, panel, market, mask, top_q=1.0, **kw_b)
     ex = (top.returns - bench.returns).dropna()
     ex_stats = perf_stats(ex)
     return {"top": top, "universe": bench, "excess": ex,
-            "stats": {"top": top.stats, "universe": bench.stats,
+            "stats": {"top": top.stats, "universe": bench.stats, "start": str(pd.Timestamp(start).date()),
+                      "skipped_rebalances": top.stats["skipped_rebalances"],
                       "excess_cagr": top.stats["cagr"] - bench.stats["cagr"],
                       "excess_ann": float(ex.mean() * TRADING_DAYS), "excess_ir": ex_stats["sharpe"],
                       "excess_maxdd": ex_stats["maxdd"], "capacity": top.capacity}}
