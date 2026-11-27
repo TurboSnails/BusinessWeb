@@ -35,17 +35,17 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       TZ: Asia/Shanghai
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
       # 大且可重新下载的 raw（domestic_raw、shiller 等）不入 Git，用 Actions 缓存跨次保留；缓存缺失时 runner 会重新下载
       - name: Restore provider raw cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             tools/index-panorama/data/providers/domestic_raw
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload refresh report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: index-panorama-refresh-${{ github.run_id }}
           path: tools/index-panorama/reports/refresh/
