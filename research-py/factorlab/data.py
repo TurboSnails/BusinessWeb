@@ -29,7 +29,9 @@ DERIVED = {"open_adj": ("open", "close", "close_adj")}
 # snapshot()、panel_fields(fields, panel, end_ex, hidden)）。美股：SEC 点时基本面与「股本 × 不复权价」市值
 # （prices.parquet 的 mcap_float / mcap_total / turnover 全空，改由这里提供），见 fundamentals_us.py。
 # A 股：cn_fin 点时财报（fin_pit.parquet）→ 月末 TTM / 平均 / 同比等字段（fin_*），见 fundamentals_cn.py。
-EXTRA_PROVIDERS = {"us": "factorlab.fundamentals_us", "cn": "factorlab.fundamentals_cn"}
+# 港股：hk_fin 点时财报 → 月末 TTM / 隐含股本市值 / 半年 SUE 等字段（hkf_*），见 fundamentals_hk.py（R7）。
+EXTRA_PROVIDERS = {"us": "factorlab.fundamentals_us", "cn": "factorlab.fundamentals_cn",
+                   "hk": "factorlab.fundamentals_hk"}
 
 
 def extra_provider(market: str):

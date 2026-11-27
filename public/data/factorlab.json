@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T02:56:23+00:00",
+  "generatedAt": "2026-11-27T04:08:05+00:00",
   "data": [
     {
       "market": "cn",
@@ -141,17 +141,23 @@
       "last": "2026-11-27T02:52:21+00:00"
     },
     "hk": {
-      "records": 21,
-      "trials": 21,
-      "distinct": 16,
+      "records": 27,
+      "trials": 27,
+      "distinct": 22,
       "byMode": {
-        "explore": 20,
+        "explore": 26,
         "validate": 1
       },
       "factors": [
         "amihud_20d",
         "beta_252d",
         "high_52w",
+        "hk_asset_growth",
+        "hk_bp",
+        "hk_ep_ttm",
+        "hk_gpa_ttm",
+        "hk_roe_ttm",
+        "hk_sue_h",
         "idio_vol_60d",
         "low_price",
         "max_ret_21d",
@@ -166,7 +172,7 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-27T02:29:03+00:00"
+      "last": "2026-11-27T03:57:35+00:00"
     },
     "us": {
       "records": 20,
@@ -293,6 +299,15 @@
       "summary": "A 股价值因子做行业 + 市值中性：EP 的截面排序与市值加权只做多超额都变强（探索 t 2.30、验证 t 2.15），但扣掉规模、反转、波动、换手后截距 t 1.54，没有过增量性；BP 第 1 关未过。港股换手率 2022 年前大多缺失，换手类因子未测；调查后确认巨潮的港股财报接口可用（2003 年起、带公告日），下一步用它建港股点时财报。",
       "candidates": {
         "cn": []
+      }
+    },
+    {
+      "id": "R7",
+      "file": "docs/research/factorlab/rounds/R7-2026-11-27.md",
+      "status": "已完成",
+      "summary": "港股基本面（2007 年起，用新建的巨潮点时财报；市值用净利润 ÷ 每股收益推出的股本）：盈利收益率、账面市值比、ROE、毛利 / 资产、资产增长、半年度盈余惊喜。截面排序方面盈利收益率、ROE、盈余惊喜的 RankIC t 3.8–5.2（盈余惊喜方向与 A 股一致），但港股主口径只做多超额 t 都不到 1.5，6 个都没过第 1 关，没有候选。",
+      "candidates": {
+        "hk": []
       }
     }
   ]
