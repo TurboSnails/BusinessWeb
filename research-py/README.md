@@ -69,15 +69,43 @@ uv run python -m data.checks      # 与第二来源核对，写 data/CHECKS.md
 
 ```bash
 cd research-py
-uv run python -m factorlab.sources.kf fetch && uv run python -m factorlab.sources.kf build     # Ken French 组合（约 2 分钟）
-uv run python -m factorlab.sources.cn fetch --rps 1 && uv run python -m factorlab.sources.cn build   # A 股全量（约 3–5 小时，分批）
-uv run python -m factorlab.sources.hk fetch --rps 1 && uv run python -m factorlab.sources.hk build
-uv run python -m factorlab.sources.us fetch && uv run python -m factorlab.sources.us build     # 美股个股（等级 B，约 2 小时）
+uv run python -m factorlab.datapack status                              # 数据在不在、快照哈希、预注册冻结哈希核对
 uv run python -m factorlab.cli list-factors
 uv run python -m factorlab.cli eval --market cn --factor mom_12_1      # 自动记入 factor-ledger/cn.jsonl
 uv run python -m factorlab.cli ledger --market cn
 ```
 
-- 数据在 `research-py/factor-data/`（不进 git）；试验登记簿 `research-py/factor-ledger/`（进 git）。
+- 数据在 `research-py/factor-data/`（不进 git，约 11 GB，其中 raw/ 下载缓存约 9 GB）；试验登记簿 `research-py/factor-ledger/` 与锁箱配置 `factorlab/lockbox.json` 进 git。
 - 锁箱 2023-11-01 至 2026-11-30 在数据层强制：`store.read_prices` / `load_panel` 默认就截掉锁箱，解封只能走 `factorlab.cli unseal`（按季度批次、终身 24 个候选）。
-- SEC 财报需要先设环境变量 `SEC_USER_AGENT`（你自己的联系方式，代码里不写任何个人信息）。
+
+### 在另一台电脑上
+
+clone 仓库、`uv sync` 之后，数据有两条路：
+
+**A. 拷数据包（快，逐字节相同；锁箱确认必须走这条）**
+
+```bash
+# 原机器：打包评估所需的数据（不含 raw/ 下载缓存与 derived/*.npz 中间缓存），约 1.8 GB、10 秒左右
+uv run python -m factorlab.datapack pack --out ~/factor-data-$(date +%F).tar
+# 拷到新机器（U 盘 / 网盘 / scp），然后：
+uv run python -m factorlab.datapack unpack ~/factor-data-2026-11-27.tar    # 逐个核对 sha256，最后自动跑 status
+```
+
+- 包内 `DATAPACK.json` 记文件清单、sha256、打包时的 git 提交和各市场快照哈希；解包后两台机器的快照哈希相同，登记簿记录可以直接对照。
+- 解包先整体检查（只接受清单里的普通文件、拒绝绝对路径与 `..`），已有文件内容不同就拒绝、一个都不写，确认要覆盖加 `--force`。
+- `--include-raw` 连下载缓存一起打（约 11 GB），之后在新机器上续传 / 重建不用重下。
+- 预注册 `docs/research/factorlab-confirm-2026Q4/PREREG.md` 冻结了 `factor-data/cn/fin_pit.parquet` 与几份源码的 sha256；`status` 逐个核对，必须全是 OK 才能做锁箱确认。重新下载的财报会因修订而不同，所以确认只能用这份数据（或在原机器上做）。
+
+**B. 从零下载（数小时，不逐字节相同）**
+
+```bash
+uv run python -m factorlab.datapack fetch-all --dry-run                 # 先看按依赖排好的 18 步与估计用时
+uv run python -m factorlab.datapack fetch-all                           # 全部市场，合计约 14 小时
+uv run python -m factorlab.datapack fetch-all --markets kf,hk           # 只要部分市场（cn、hk、us、kf）
+```
+
+- 顺序：kf → A 股日线 → 巨潮 ST / 行业 / 股本（并增补日线）→ A 股财报 → 港股日线 → 港股财报 → 美股日线 → SEC → 美股基本面事件表。大头是 A 股三步（约 9.5 小时，巨潮限速 1 次/秒）和美股日线（约 2 小时）；raw/ 缓存约 9 GB。
+- 每步都可断点续传：中断后重跑同一命令，或 `--from N`（同一组 `--markets` 下的步骤号）接着跑。
+- 默认不请求东方财富（A 股、港股日线用 `--source tencent`）；A 股北交所名单只有东方财富一个来源（1 次请求），要避开就先从数据包解出 `cn/raw/meta/`（数据包默认带着）。
+- SEC 需要 User-Agent：自己写一行「组织名 联系邮箱」到 `research-py/.secrets/sec_user_agent`（已在 .gitignore），或设环境变量 `SEC_USER_AGENT`；没有就跳过 SEC 三步，美股基本面不可用，价格类因子不受影响。代码里不写任何个人信息。
+- 重下的数据与原机器有出入（数据源修订、下载日期不同），快照哈希会不同；探索 / 验证可以用，锁箱确认不行。各数据源细节见 `DATA-CN-HK.md`、`DATA-US.md`。
