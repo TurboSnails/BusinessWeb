@@ -4,6 +4,7 @@ export const RADAR_NAV = [
   { id: 'mr-conclusion', label: '结论' },
   { id: 'mr-overview', label: '总览' },
   { id: 'mr-indicators', label: '指标' },
+  { id: 'mr-style', label: '风格' },
   { id: 'mr-backtest', label: '历史检验' },
 ] as const
 

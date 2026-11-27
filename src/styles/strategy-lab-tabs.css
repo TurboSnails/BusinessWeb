@@ -118,3 +118,6 @@
 @media (prefers-reduced-motion: reduce) {
   .lab-rcard__btn { transition: none; }
 }
+
+/* 风格轮动影子读数（L-042） */
+.lab-style-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 8px 0; }

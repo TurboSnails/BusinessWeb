@@ -1357,3 +1357,10 @@ button.mr-zoom__key[aria-pressed="false"] i { opacity: 0.35; }
 
 .mr-zoom__endlabel { fill: var(--ov); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .mr-zoom__scale[aria-pressed="true"] { border-color: var(--text-secondary); }
+
+/* 风格雷达（L-042） */
+.mr-style { margin: 0 0 28px; }
+.mr-style__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 8px 0; }
+.mr-style__table { width: 100%; }
+.mr-style__caption { text-align: left; font-weight: 600; padding: 0 0 6px; color: var(--text-primary, inherit); }
+.mr-style__etf { margin-left: 6px; font-size: 0.8rem; color: var(--text-tertiary, var(--text-secondary)); }

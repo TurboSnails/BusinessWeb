@@ -59,12 +59,21 @@ jobs:
           code=$?
           if [ "$code" -eq 2 ]; then exit 1; fi
           if [ "$code" -ne 0 ]; then echo "::warning::Sector-rotation shadow refresh failed"; fi
+      # 风格轮动影子运行与风格雷达读数（L-042）：同样只在冻结行被改写时失败
+      - name: Update style-rotation ETF shadow run (frozen months are never rewritten)
+        shell: bash
+        run: |
+          set +e
+          node scripts/style-rotation-shadow.mjs
+          code=$?
+          if [ "$code" -eq 2 ]; then exit 1; fi
+          if [ "$code" -ne 0 ]; then echo "::warning::Style-rotation shadow refresh failed"; fi
       - name: Commit if changed
         id: commit
         shell: bash
         run: |
           set -euo pipefail
-          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json public/data/late-cycle-shadow.json public/data/defensive-tilt-shadow.json data-raw/defensive-tilt-shadow/ public/data/sector-rotation-shadow.json data-raw/sector-rotation-shadow/
+          git add public/data/macro-us.json public/data/macro-cn.json public/data/macro-hk.json public/data/index-history.json public/data/market-cycle.json public/data/macro-posture.json public/data/macro-posture-candidates.json data-raw/macro-posture-vintages/ data-raw/macro-posture-vintage-history/ public/data/macro-posture-market.json data-raw/macro-posture-market/ public/data/macro-posture-daily.json data-raw/macro-posture-daily/ public/data/market-radar.json public/data/combined-strategy.json data-raw/market-radar/ public/data/vol-target-shadow.json public/data/late-cycle-shadow.json public/data/defensive-tilt-shadow.json data-raw/defensive-tilt-shadow/ public/data/sector-rotation-shadow.json data-raw/sector-rotation-shadow/ public/data/style-rotation-shadow.json data-raw/style-rotation-shadow/
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0

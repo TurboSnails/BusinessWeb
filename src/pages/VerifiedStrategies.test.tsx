@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import recheck from '../features/strategy-lab/data/daily-recheck.json'
 import sector from '../features/strategy-lab/data/sector-rotation.json'
+import style from '../features/strategy-lab/data/style-rotation.json'
 import StrategyLab, { LAB_STUDIES } from './StrategyLab'
 import VerifiedStrategies, { VERIFIED, VERIFIED_LEAD } from './VerifiedStrategies'
 
@@ -20,6 +21,19 @@ function renderAt(path: string): void {
       </Routes>
     </MemoryRouter>,
   )
+}
+
+
+const legs = (a: string[]) => ({ 'V+': a[0], 'V-': a[1], 'M+': a[2], 'P+': a[3], 'S+': a[4], MKT: a[5] })
+const reading = { mom: { 'V+': 0.16, 'V-': 0.08, 'M+': 0.12, 'P+': 0.14, 'S+': 0.2, MKT: 0.12 }, r1: ['S+', 'V+'], r2: { 'V+': 0.2, 'V-': 0, 'M+': 0.2, 'P+': 0.2, 'S+': 0.2, MKT: 0.2 } }
+const emptyRet = { R1: null, R2: null, EW6: null, STATIC: null, MKT: null }
+const STYLE_BODY = {
+  since: '2026-12', until: '2027-11',
+  groups: { us: { label: '美国', legs: legs(['IVE', 'IVW', 'MTUM', 'QUAL', 'IJR', 'IVV']) }, intl: { label: '海外发达市场', legs: legs(['EFV', 'EFG', 'IMTM', 'IQLT', 'SCZ', 'EFA']) } },
+  legNames: { 'V+': '价值', 'V-': '成长', 'M+': '动量', 'P+': '高盈利', 'S+': '小盘', MKT: '大盘' },
+  radar: { month: '2026-11', us: reading, intl: null },
+  rows: [],
+  summary: { through: null, us: { months: 0, cumulative: emptyRet }, intl: { months: 0, cumulative: emptyRet } },
 }
 
 afterEach(() => vi.unstubAllGlobals())
@@ -92,5 +106,26 @@ describe('通过检验页', () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
     renderAt('/invest/strategy-lab?tab=sector#lab-sector-rotation')
     expect(screen.getByTestId('lab-sector-rotation')).toBeTruthy()
+  })
+
+  it('风格轮动页签：两个候选都通过，但写明一直持有正向腿几乎一样好；没有按日复核', () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
+    renderAt('/invest/verified?tab=style')
+    expect(screen.getByTestId('verified-panel-style')).toBeTruthy()
+    expect(screen.getByTestId('lab-style-rotation-table').textContent).toContain(style.markets.dxus.R1.sharpe.toFixed(3))
+    expect(screen.getByTestId('lab-style-rotation-static').textContent).toContain(style.posthoc.dxus.static.sharpe.toFixed(3))
+    expect(style.candidates.R1.verdict).toBe('通过')
+    expect(screen.getByTestId('verified-why').textContent).toContain('轮动本身没有多赚')
+    expect(screen.queryByTestId('verified-recheck-sector')).toBeNull()
+  })
+
+  it('风格轮动影子：显示当月读数表，缺数据的一组给提示', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(STYLE_BODY) })))
+    renderAt('/invest/verified?tab=style')
+    const table = await screen.findByTestId('mr-style-us')
+    expect(within(table).getAllByRole('row')[1].textContent).toContain('小盘')
+    expect(within(table).getAllByRole('row')[1].textContent).toContain('入选')
+    expect(screen.getByTestId('mr-style-intl').textContent).toContain('暂无读数')
+    expect(screen.getByTestId('lab-style-shadow').textContent).toContain('还没有完整月份')
   })
 })

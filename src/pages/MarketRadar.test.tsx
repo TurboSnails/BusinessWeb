@@ -101,6 +101,7 @@ describe('MarketRadar 页面', () => {
     expect(within(nav).getByRole('link', { name: '结论' }).getAttribute('href')).toBe('#mr-conclusion')
     expect(within(nav).getByRole('link', { name: '总览' }).getAttribute('href')).toBe('#mr-overview')
     expect(within(nav).getByRole('link', { name: '指标' }).getAttribute('href')).toBe('#mr-indicators')
+    expect(within(nav).getByRole('link', { name: '风格' }).getAttribute('href')).toBe('#mr-style')
     expect(within(nav).getByRole('link', { name: '历史检验' }).getAttribute('href')).toBe('#mr-backtest')
     expect(within(nav).queryByRole('link', { name: '市场综合' })).toBeNull()
     expect(document.getElementById('mp-market')).toBeNull()

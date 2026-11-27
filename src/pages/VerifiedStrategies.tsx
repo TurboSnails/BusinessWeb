@@ -6,6 +6,7 @@ import TrioNav from '../features/combined-strategy/TrioNav'
 import DailyRecheck from '../features/strategy-lab/DailyRecheck'
 import DefensiveTiltStudy from '../features/strategy-lab/DefensiveTiltStudy'
 import SectorRotationStudy from '../features/strategy-lab/SectorRotationStudy'
+import StyleRotationStudy from '../features/strategy-lab/StyleRotationStudy'
 import '../styles/combined-strategy.css'
 import '../styles/strategy-spec.css'
 import '../styles/strategy-lab.css'
@@ -14,7 +15,7 @@ import '../styles/strategy-lab-tabs.css'
 export const VERIFIED_LEAD =
   '预注册检验通过的策略放在这里。通过检验不等于写进仓位规则：下面每一项都没有加入综合策略，理由逐条写在各页签开头；目前都在做影子记录，期满后再决定。文中「L-0xx」是本站研究登记簿的编号，同一编号在说明书、研究中、通过检验三页指同一次检验。'
 
-export type VerifiedTab = 'sector' | 'tilt'
+export type VerifiedTab = 'sector' | 'tilt' | 'style'
 
 interface VerifiedItem {
   id: VerifiedTab
@@ -51,6 +52,18 @@ export const VERIFIED: VerifiedItem[] = [
       '研究用的是行业组合，还没验证可交易 ETF 能不能跟上研究口径，所以先做 ETF 影子记录。',
     ],
     shadow: '2026-12 至 2027-11，XLP、XLV、XLU 等权与 USMV 各占股票部分 30%，只看执行与研究口径是否一致，2027-12 复盘。',
+  },
+  {
+    id: 'style',
+    label: '风格轮动',
+    anchor: 'lab-style-rotation',
+    Component: StyleRotationStudy,
+    reasons: [
+      '轮动本身没有多赚：看完结果后补算「一直持有价值、动量、高盈利、保守投资、小盘」，夏普和 R1 打平、比 R2 高，每年换手约 0.12 倍，R1 约 3.9 倍。好处主要来自风格溢价，不是按过去 12 个月挑。',
+      '2009–2019 年基本没有优势；风格溢价在文献发表后普遍打折，2023-11 以后的数据留在因子实验室锁箱里还没看。',
+      '综合策略只决定美股放多少，风格轮动是决定买什么；国内能买到的海外风格 ETF 很少，QDII 的费用和溢价会吃掉大部分差别。',
+    ],
+    shadow: '2026-12 至 2027-11，美国（IVE、IVW、MTUM、QUAL、IJR、IVV）与海外（EFV、EFG、IMTM、IQLT、SCZ、EFA）两组 ETF 每月记录 R1、R2、一直持有正向腿与大盘，2027-12 复盘；当月读数同时显示在市场雷达的「风格雷达」。',
   },
 ]
 
@@ -90,7 +103,7 @@ export default function VerifiedStrategies(): JSX.Element {
           </ul>
           <p className="ss-p"><strong>影子记录：</strong>{item.shadow}现行仓位仍只按宏观攻守的档位定，股票部分仍买宽基。</p>
         </section>
-        <DailyRecheck tab={item.id} />
+        {item.id !== 'style' && <DailyRecheck tab={item.id} />}
         <item.Component />
       </div>
 

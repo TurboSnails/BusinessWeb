@@ -5,6 +5,7 @@ import BacktestPanel from './BacktestPanel'
 import ConclusionPanel from './ConclusionPanel'
 import IndicatorTable from './IndicatorTable'
 import OverviewPanel from './OverviewPanel'
+import StylePanel from './StylePanel'
 import { filterIndicators, useRadarView } from './useRadarView'
 import type { RadarState } from './load'
 import { STALE_DATA_MESSAGE } from './load'
@@ -66,6 +67,7 @@ function RadarReady({ data }: { data: import('./types').RadarFile }): JSX.Elemen
       />
       <OverviewPanel indicators={overviewItems} onSelect={openIndicator} />
       <IndicatorTable allIndicators={data.indicators} view={view} />
+      <StylePanel />
       <BacktestPanel data={data} />
     </div>
   )
