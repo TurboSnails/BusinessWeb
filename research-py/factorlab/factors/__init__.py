@@ -9,3 +9,4 @@ from . import composite  # noqa: F401
 from . import surprise  # noqa: F401
 from . import composite_r8  # noqa: F401
 from . import composite_r10  # noqa: F401
+from . import r11  # noqa: F401
