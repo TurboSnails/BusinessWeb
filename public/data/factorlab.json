@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T02:14:09+00:00",
+  "generatedAt": "2026-11-27T02:56:23+00:00",
   "data": [
     {
       "market": "cn",
@@ -97,12 +97,12 @@
   ],
   "ledger": {
     "cn": {
-      "records": 49,
-      "trials": 49,
-      "distinct": 30,
+      "records": 60,
+      "trials": 60,
+      "distinct": 34,
       "byMode": {
-        "explore": 45,
-        "validate": 4
+        "explore": 50,
+        "validate": 10
       },
       "factors": [
         "amihud_20d",
@@ -119,6 +119,8 @@
         "cn_quality",
         "cn_roe_ttm",
         "cn_sp_ttm",
+        "cn_sue",
+        "cn_sur",
         "cn_value_lowvol",
         "cn_value_rev_lowvol",
         "high_52w",
@@ -136,14 +138,15 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-27T02:08:11+00:00"
+      "last": "2026-11-27T02:52:21+00:00"
     },
     "hk": {
-      "records": 20,
-      "trials": 20,
+      "records": 21,
+      "trials": 21,
       "distinct": 16,
       "byMode": {
-        "explore": 20
+        "explore": 20,
+        "validate": 1
       },
       "factors": [
         "amihud_20d",
@@ -163,14 +166,14 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-26T21:40:23+00:00"
+      "last": "2026-11-27T02:29:03+00:00"
     },
     "us": {
-      "records": 18,
-      "trials": 18,
-      "distinct": 18,
+      "records": 20,
+      "trials": 20,
+      "distinct": 20,
       "byMode": {
-        "explore": 18
+        "explore": 20
       },
       "factors": [
         "accruals",
@@ -188,10 +191,12 @@
         "size",
         "turnover_20d",
         "us_investment",
+        "us_sue",
+        "us_sur",
         "us_value_profit",
         "vol_60d"
       ],
-      "last": "2026-11-27T02:10:48+00:00"
+      "last": "2026-11-27T02:36:59+00:00"
     }
   },
   "guard": {
@@ -254,6 +259,40 @@
       "candidates": {
         "cn": [],
         "us": []
+      }
+    },
+    {
+      "id": "R4",
+      "file": "docs/research/factorlab/rounds/R4-2026-11-27.md",
+      "status": "已完成",
+      "summary": "看过 R1–R3 后才想到的「中小盘等权只做多」口径（整轮标事后想到，以没动过的验证区为准）。A 股换手波动过了第 1–3 关（等权超额探索 t 3.0、验证 t 3.1），但 94% 能被低换手解释；价值+反转+低波组合在验证区 t 1.8 未过；扣非净利润增速修正回测起点后第 2 关 t 1.55 未过。港股 52 周高点过了第 1–3 关，但 A 股同名因子方向相反，交叉验证不过，不进锁箱。",
+      "candidates": {
+        "cn": [
+          "turnover_vol_20d"
+        ],
+        "hk": []
+      }
+    },
+    {
+      "id": "R5",
+      "file": "docs/research/factorlab/rounds/R5-2026-11-27.md",
+      "status": "已完成",
+      "summary": "盈余惊喜（SUE）与营收惊喜（SUR）。A 股两个都过了第 1–3 关：市值加权只做多超额每月 +0.33% / +0.37%（探索 t 2.6 / 2.4，验证区方向一致但 t 只有 1.3），扣掉规模、反转、波动、换手后截距 t 都超过 4，是本项目目前最强的增量信号；独立重写的实现与引擎逐值一致，未发现前视。美股两个第 1 关都没过。",
+      "candidates": {
+        "cn": [
+          "cn_sue",
+          "cn_sur"
+        ],
+        "us": []
+      }
+    },
+    {
+      "id": "R6",
+      "file": "docs/research/factorlab/rounds/R6-2026-11-27.md",
+      "status": "已完成",
+      "summary": "A 股价值因子做行业 + 市值中性：EP 的截面排序与市值加权只做多超额都变强（探索 t 2.30、验证 t 2.15），但扣掉规模、反转、波动、换手后截距 t 1.54，没有过增量性；BP 第 1 关未过。港股换手率 2022 年前大多缺失，换手类因子未测；调查后确认巨潮的港股财报接口可用（2003 年起、带公告日），下一步用它建港股点时财报。",
+      "candidates": {
+        "cn": []
       }
     }
   ]

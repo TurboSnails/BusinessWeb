@@ -26,6 +26,7 @@ export interface FactorLabData {
 }
 
 const MARKET_LABEL: Record<string, string> = { cn: 'A 股', hk: '港股', us: '美股', us_kf: '美国因子组合' }
+const FACTOR_LABEL: Record<string, string> = { cn_sue: '盈余惊喜', cn_sur: '营收惊喜', turnover_vol_20d: '换手波动' }
 const MODE_LABEL: Record<string, string> = { explore: '探索', validate: '截面验证', confirm: '锁箱确认', forward: '前推' }
 const fmtInt = (v: number | null | undefined): string => (v == null ? '—' : v.toLocaleString('zh-CN'))
 
@@ -85,11 +86,15 @@ export default function FactorLab(): JSX.Element {
                   <li key={r.id}>
                     <strong>{r.id}</strong>（{r.status}）{r.summary ? `：${r.summary}` : ''}
                     {r.candidates && Object.entries(r.candidates).map(([m, list]) => (
-                      <span key={m}> · {MARKET_LABEL[m] ?? m}候选：{list.length ? list.join('、') : '无'}</span>
+                      <span key={m}> · {MARKET_LABEL[m] ?? m}候选：{list.length ? list.map(f => (FACTOR_LABEL[f] ? `${FACTOR_LABEL[f]}（${f}）` : f)).join('、') : '无'}</span>
                     ))}
                   </li>
                 ))}
               </ul>
+              <p className="ss-p" data-testid="fl-pending">
+                A 股第一批锁箱确认已预注册（盈余惊喜、营收惊喜、换手波动 3 个候选，门槛写定后不改）：锁箱到 2026-11-30，
+                12 月补齐行情后一次性解封确认。三年锁箱功效低，即使因子真实有效，「通过」的概率也只有一到两成。
+              </p>
             </section>
 
             <section className="ss-section" aria-labelledby="fl-guard-title">
