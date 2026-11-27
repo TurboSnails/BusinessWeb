@@ -18,7 +18,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384617+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.713245+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -34,7 +34,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "14.66×；一致预期口径待核，不等于研究者正常化盈利"
+        "14.62×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -102,7 +102,7 @@
       "HPC收入占比、3nm/2nm利用率、CoWoS扩产、毛利率及资本开支",
       "补齐正常化每ADS EPS与股权现金流DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384617+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，TIFRS，期末2026-06-30；公告2026-07-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.713245+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，TIFRS，期末2026-06-30；公告2026-07-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -190,12 +190,12 @@
     "researchReport": "research/adr-2026-10-07/TSM.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384617+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384617+00:00",
+      "checkedAt": "2026-11-27T10:45:29.713245+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.713245+00:00",
       "priceDate": "2026-11-25",
       "price": 342.34,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，TIFRS，期末2026-06-30；公告2026-07-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -221,7 +221,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -305,7 +305,7 @@
       "系统收入、服务收入、订单、积压与毛利率",
       "补齐周期正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP；实际期末6月28日，期末2026-06-28；公告2026-07-15；[STALE] 期末距研究日101天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP；实际期末6月28日，期末2026-06-28；公告2026-07-15；[STALE] 期末距研究日101天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -393,12 +393,12 @@
     "researchReport": "research/adr-2026-10-07/ASML.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 1303.08,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP；实际期末6月28日，期末2026-06-28；公告2026-07-15；[STALE] 期末距研究日101天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -424,7 +424,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.526338+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.790307+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -508,7 +508,7 @@
       "Ozempic/Wegovy销售、量价、美国净价格、研发及指引",
       "补齐产品DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.526338+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/调整后分列，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.790307+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/调整后分列，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -596,12 +596,12 @@
     "researchReport": "research/adr-2026-10-07/NVO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.526338+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.526338+00:00",
+      "checkedAt": "2026-11-27T10:45:28.790307+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.790307+00:00",
       "priceDate": "2026-11-25",
       "price": 40.97,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/调整后分列，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -627,7 +627,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.996643+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.205122+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -643,7 +643,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "21.97×；一致预期口径待核，不等于研究者正常化盈利"
+        "22.02×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -711,7 +711,7 @@
       "当前云积压、云收入、IFRS利润、FCF和SBC",
       "补齐EPS与扣SBC后的股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.996643+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/non-IFRS，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.205122+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/non-IFRS，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -799,12 +799,12 @@
     "researchReport": "research/adr-2026-10-07/SAP.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.996643+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.996643+00:00",
+      "checkedAt": "2026-11-27T10:45:29.205122+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.205122+00:00",
       "priceDate": "2026-11-25",
       "price": 209.37,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/non-IFRS，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -830,7 +830,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384118+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.699786+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -914,7 +914,7 @@
       "销量、汽车营业利润、汇率敏感性、金融信用成本",
       "补齐汽车DCF加金融SOTP与中周期EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384118+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.699786+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -1002,12 +1002,12 @@
     "researchReport": "research/adr-2026-10-07/TM.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384118+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384118+00:00",
+      "checkedAt": "2026-11-27T10:45:29.699786+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.699786+00:00",
       "priceDate": "2026-11-25",
       "price": 215.79,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -1033,7 +1033,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -1117,7 +1117,7 @@
       "G&NS利润、音乐利润、I&SS毛利率、分拆后持续经营EPS",
       "补齐分部SOTP与持续经营DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -1205,12 +1205,12 @@
     "researchReport": "research/adr-2026-10-07/SONY.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 28.49,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -1236,7 +1236,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -1320,7 +1320,7 @@
       "产品收入、恒汇率增长、reported/core EPS桥接、研发",
       "补齐产品DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1及Q2，reported/core，期末2026-06-30；公告2026-07-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1及Q2，reported/core，期末2026-06-30；公告2026-07-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -1408,12 +1408,12 @@
     "researchReport": "research/adr-2026-10-07/AZN.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 184.21,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1及Q2，reported/core，期末2026-06-30；公告2026-07-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -1439,7 +1439,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.671127+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.986280+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -1523,7 +1523,7 @@
       "产品销量、core/IFRS盈利桥接、FCF、专利时间",
       "补齐产品DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.671127+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/core，期末2026-06-30；公告2026-07-21；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.986280+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/core，期末2026-06-30；公告2026-07-21；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -1611,12 +1611,12 @@
     "researchReport": "research/adr-2026-10-07/NVS.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.671127+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.671127+00:00",
+      "checkedAt": "2026-11-27T10:45:28.986280+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.986280+00:00",
       "priceDate": "2026-11-25",
       "price": 155.29,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/core，期末2026-06-30；公告2026-07-21；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -1642,7 +1642,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -1726,7 +1726,7 @@
       "Dupixent收入、疫苗、持续经营IFRS/business EPS、净债务",
       "补齐产品DCF与持续经营EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS/business，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS/business，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -1814,12 +1814,12 @@
     "researchReport": "research/adr-2026-10-07/SNY.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 54.39,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS/business，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -1845,7 +1845,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.577974+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.769420+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -1929,7 +1929,7 @@
       "产品销售、reported/core EPS、诉讼拨备、现金分派覆盖",
       "补齐产品DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.577974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，reported/core，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.769420+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，reported/core，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -2017,12 +2017,12 @@
     "researchReport": "research/adr-2026-10-07/GSK.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.577974+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.577974+00:00",
+      "checkedAt": "2026-11-27T10:45:27.769420+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.769420+00:00",
       "priceDate": "2026-11-25",
       "price": 50.76,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，reported/core，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -2048,7 +2048,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -2132,7 +2132,7 @@
       "LNG产量、realised价格、CFFO、现金资本开支、净债务",
       "补齐中周期DCF与分部SOTP及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -2220,12 +2220,12 @@
     "researchReport": "research/adr-2026-10-07/SHEL.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 94.13,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -2251,7 +2251,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384617+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.713245+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -2335,7 +2335,7 @@
       "产量、adjusted net income与IFRS、现金流、净债务",
       "补齐中周期DCF与分部SOTP及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384617+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.713245+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -2423,12 +2423,12 @@
     "researchReport": "research/adr-2026-10-07/TTE.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384617+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384617+00:00",
+      "checkedAt": "2026-11-27T10:45:29.713245+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.713245+00:00",
       "priceDate": "2026-11-25",
       "price": 85.59,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -2454,7 +2454,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.528518+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.837862+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -2538,7 +2538,7 @@
       "underlying RC利润桥接、净债务、CFFO、资本开支",
       "补齐中周期DCF与分部SOTP及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.528518+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/underlying RC，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.837862+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/underlying RC，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -2626,12 +2626,12 @@
     "researchReport": "research/adr-2026-10-07/BP.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.528518+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.528518+00:00",
+      "checkedAt": "2026-11-27T10:45:26.837862+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.837862+00:00",
       "priceDate": "2026-11-25",
       "price": 43,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/underlying RC，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -2657,7 +2657,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.817861+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.082974+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -2745,7 +2745,7 @@
       "普通股RoTE、NIM、预期信用损失、CET1、普通股BVPS",
       "补齐普通股ROE-PB与受资本约束DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.817861+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.082974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -2833,12 +2833,12 @@
     "researchReport": "research/adr-2026-10-07/HSBC.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.817861+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.817861+00:00",
+      "checkedAt": "2026-11-27T10:45:28.082974+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.082974+00:00",
       "priceDate": "2026-11-25",
       "price": 81.81,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -2864,7 +2864,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.526338+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.790307+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -2948,7 +2948,7 @@
       "净利息收入、信用成本、普通股ROE、CET1",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.526338+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-08-03；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.790307+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-08-03；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -3036,12 +3036,12 @@
     "researchReport": "research/adr-2026-10-07/MUFG.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.526338+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.526338+00:00",
+      "checkedAt": "2026-11-27T10:45:28.790307+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.790307+00:00",
       "priceDate": "2026-11-25",
       "price": 19.56,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-08-03；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -3067,7 +3067,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -3151,7 +3151,7 @@
       "NIM、信用成本、普通股ROE、CET1与股数",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -3239,12 +3239,12 @@
     "researchReport": "research/adr-2026-10-07/SMFG.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 22.59,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2026Q1，2026年4–6月；日本准则，期末2026-06-30；公告2026-07-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -3270,7 +3270,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384118+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.699786+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -3358,7 +3358,7 @@
       "reported/adjusted EPS桥接、美国资产、费用、CET1",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384118+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.699786+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
     "scenarios": [
       {
         "name": "悲观",
@@ -3446,12 +3446,12 @@
     "researchReport": "research/adr-2026-10-07/TD.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384118+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384118+00:00",
+      "checkedAt": "2026-11-27T10:45:29.699786+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.699786+00:00",
       "priceDate": "2026-11-25",
       "price": 116.06,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -3477,7 +3477,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.996643+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.205122+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -3561,7 +3561,7 @@
       "分部利润、信用成本、CET1、reported/adjusted EPS",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.996643+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.205122+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
     "scenarios": [
       {
         "name": "悲观",
@@ -3649,12 +3649,12 @@
     "researchReport": "research/adr-2026-10-07/RY.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.996643+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.996643+00:00",
+      "checkedAt": "2026-11-27T10:45:29.205122+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.205122+00:00",
       "priceDate": "2026-11-25",
       "price": 189.42,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q3，2026年5–7月；IFRS，期末2026-07-31；公告2026-08-27",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -3680,7 +3680,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -3764,7 +3764,7 @@
       "GMV、merchant/subscription收入、FCF、SBC、投资损益",
       "补齐扣投资重估EPS与扣SBC股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -3852,12 +3852,12 @@
     "researchReport": "research/adr-2026-10-07/SHOP.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 133.4,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -3883,7 +3883,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -3967,7 +3967,7 @@
       "付费用户、ARPU、毛利率、operating income及FCF",
       "补齐正常化EPS与扣SBC股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -4055,12 +4055,12 @@
     "researchReport": "research/adr-2026-10-07/SPOT.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 616.46,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -4086,7 +4086,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -4170,7 +4170,7 @@
       "royalty/licensing、Armv9占比、GAAP与adjusted盈利、SBC",
       "补齐授权/版税DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；FY2027Q1，2026年4–6月；US GAAP，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；FY2027Q1，2026年4–6月；US GAAP，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -4258,12 +4258,12 @@
     "researchReport": "research/adr-2026-10-07/ARM.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 161.51,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；FY2027Q1，2026年4–6月；US GAAP，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -4289,7 +4289,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.577974+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.769420+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -4298,6 +4298,10 @@
       [
         "本轮供应商估值时间",
         "2026-11-25T16:00:02-05:00；与腾讯报价可能有时点差异，未混算为公司原件指标"
+      ],
+      [
+        "本轮供应商 Forward PE",
+        "6.79×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -4365,7 +4369,7 @@
       "摩托车/汽车利润、资本开支、金融信用成本",
       "补齐制造DCF加金融SOTP与中周期EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.577974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.769420+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -4453,12 +4457,12 @@
     "researchReport": "research/adr-2026-10-07/HMC.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.577974+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.577974+00:00",
+      "checkedAt": "2026-11-27T10:45:27.769420+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.769420+00:00",
       "priceDate": "2026-11-25",
       "price": 33.66,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；FY2027Q1，2026年4–6月；IFRS，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -4484,7 +4488,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.113557+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.374925+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -4568,7 +4572,7 @@
       "产量、adjusted/IFRS利润、现金资本开支与净债务",
       "补齐中周期DCF与分部SOTP及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.113557+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.374925+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -4656,12 +4660,12 @@
     "researchReport": "research/adr-2026-10-07/E.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.113557+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.113557+00:00",
+      "checkedAt": "2026-11-27T10:45:27.374925+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.374925+00:00",
       "priceDate": "2026-11-25",
       "price": 52.39,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -4687,7 +4691,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.541209+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.843310+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -4703,7 +4707,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "19.71×；一致预期口径待核，不等于研究者正常化盈利"
+        "19.70×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -4771,7 +4775,7 @@
       "RTM、price/mix、operating ratio、FCF",
       "补齐正常化EPS与FCF贴现及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.541209+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，US GAAP，加元，期末2026-06-30；公告2026-07-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.843310+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，US GAAP，加元，期末2026-06-30；公告2026-07-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -4859,12 +4863,12 @@
     "researchReport": "research/adr-2026-10-07/CNI.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.541209+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.541209+00:00",
+      "checkedAt": "2026-11-27T10:45:26.843310+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.843310+00:00",
       "priceDate": "2026-11-25",
       "price": 126.4,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，US GAAP，加元，期末2026-06-30；公告2026-07-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -4890,7 +4894,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.965839+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.292059+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -4974,7 +4978,7 @@
       "NIM、汽车金融拨备、RoTE、CET1及普通股BVPS",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.965839+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.292059+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -5062,12 +5066,12 @@
     "researchReport": "research/adr-2026-10-07/LYG.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.965839+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.965839+00:00",
+      "checkedAt": "2026-11-27T10:45:28.292059+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.292059+00:00",
       "priceDate": "2026-11-25",
       "price": 4.98,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -5093,7 +5097,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -5109,7 +5113,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "9.45×；一致预期口径待核，不等于研究者正常化盈利"
+        "9.43×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -5177,7 +5181,7 @@
       "电商EBITA、云外部收入、即时零售亏损、FCF、SBC",
       "补齐分部SOTP与扣SBC股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:05:20 UTC；FY2027Q1，2026年6月季度；US GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:05:20 UTC；FY2027Q1，2026年6月季度；US GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -5265,12 +5269,12 @@
     "researchReport": "research/adr-2026-10-07/BABA.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 86.26,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:05:20 UTC；FY2027Q1，2026年6月季度；US GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -5296,7 +5300,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.671127+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.986280+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -5380,7 +5384,7 @@
       "交易服务/营销收入、营业利润、商户补贴、现金受限",
       "补齐正常化EPS与股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:39.671127+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.986280+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -5468,12 +5472,12 @@
     "researchReport": "research/adr-2026-10-07/PDD.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.671127+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.671127+00:00",
+      "checkedAt": "2026-11-27T10:45:28.986280+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.986280+00:00",
       "priceDate": "2026-11-25",
       "price": 87.42,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -5499,7 +5503,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.959855+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.263629+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -5515,7 +5519,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "6.27×；一致预期口径待核，不等于研究者正常化盈利"
+        "6.53×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -5583,7 +5587,7 @@
       "JD Retail利润、物流外部收入、新业务亏损、FCF",
       "补齐分部SOTP与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:38.959855+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.263629+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -5671,12 +5675,12 @@
     "researchReport": "research/adr-2026-10-07/JD.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.959855+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.959855+00:00",
+      "checkedAt": "2026-11-27T10:45:28.263629+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.263629+00:00",
       "priceDate": "2026-11-25",
       "price": 26.38,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -5702,7 +5706,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.528518+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.837862+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -5786,7 +5790,7 @@
       "core收入、云收入、广告、FCF与SBC",
       "补齐分部SOTP与扣SBC股权DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:37.528518+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:26.837862+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -5874,12 +5878,12 @@
     "researchReport": "research/adr-2026-10-07/BIDU.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.528518+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.528518+00:00",
+      "checkedAt": "2026-11-27T10:45:26.837862+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.837862+00:00",
       "priceDate": "2026-11-25",
       "price": 63.49,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -5905,7 +5909,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.526338+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.790307+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -5989,7 +5993,7 @@
       "游戏净收入、递延收入、毛利率、经营现金流",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:39.526338+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.790307+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -6077,12 +6081,12 @@
     "researchReport": "research/adr-2026-10-07/NTES.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.526338+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.526338+00:00",
+      "checkedAt": "2026-11-27T10:45:28.790307+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.790307+00:00",
       "priceDate": "2026-11-25",
       "price": 104.26,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -6108,7 +6112,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384118+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.699786+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -6192,7 +6196,7 @@
       "国内/国际预订、reported/adjusted净利、处罚现金和整改",
       "补齐正常化EPS与扣处罚现金DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.384118+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-09-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.699786+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-09-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -6280,12 +6284,12 @@
     "researchReport": "research/adr-2026-10-07/TCOM.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384118+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384118+00:00",
+      "checkedAt": "2026-11-27T10:45:29.699786+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.699786+00:00",
       "priceDate": "2026-11-25",
       "price": 40.88,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2及H1，US GAAP/non-GAAP，期末2026-06-30；公告2026-09-16；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -6311,7 +6315,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.940889+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:30.208099+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -6395,7 +6399,7 @@
       "KFC/Pizza Hut同店、净开店、餐厅利润率、现金回报",
       "补齐正常化EPS与含租赁DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.940889+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/core，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:30.208099+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/core，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -6483,12 +6487,12 @@
     "researchReport": "research/adr-2026-10-07/YUMC.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.940889+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.940889+00:00",
+      "checkedAt": "2026-11-27T10:45:30.208099+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:30.208099+00:00",
       "priceDate": "2026-11-25",
       "price": 52.34,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/core，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -6514,7 +6518,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.526338+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.790307+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -6594,7 +6598,7 @@
       "交付、车辆毛利、GAAP/adjusted利润、自由现金流",
       "补齐车型DCF与净现金/资产压力及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.526338+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-09-01；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.790307+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-09-01；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -6682,12 +6686,12 @@
     "researchReport": "research/adr-2026-10-07/NIO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.526338+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.526338+00:00",
+      "checkedAt": "2026-11-27T10:45:28.790307+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.790307+00:00",
       "priceDate": "2026-11-25",
       "price": 2.69,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-09-01；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -6713,7 +6717,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.940889+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:30.208099+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -6789,7 +6793,7 @@
       "交付、汽车毛利、技术服务、GAAP利润与现金",
       "补齐车型DCF与净现金/资产压力及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.940889+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:30.208099+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -6877,12 +6881,12 @@
     "researchReport": "research/adr-2026-10-07/XPEV.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.940889+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.940889+00:00",
+      "checkedAt": "2026-11-27T10:45:30.208099+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:30.208099+00:00",
       "priceDate": "2026-11-25",
       "price": 8.99,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -6908,7 +6912,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.965839+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.292059+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -6920,7 +6924,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "30.69×；一致预期口径待核，不等于研究者正常化盈利"
+        "82.36×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -6988,7 +6992,7 @@
       "交付、车辆毛利、GAAP利润、库存和FCF",
       "补齐车型DCF与净现金/资产压力及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:38.965839+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-26；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.292059+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-26；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -7076,12 +7080,12 @@
     "researchReport": "research/adr-2026-10-07/LI.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.965839+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.965839+00:00",
+      "checkedAt": "2026-11-27T10:45:28.292059+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.292059+00:00",
       "priceDate": "2026-11-25",
       "price": 11.88,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-26；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -7107,7 +7111,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.940889+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:30.208099+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -7123,7 +7127,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "8.75×；一致预期口径待核，不等于研究者正常化盈利"
+        "8.77×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -7191,7 +7195,7 @@
       "包裹量、单票价格/成本、毛利率、OCF及资本开支",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.940889+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-19；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:30.208099+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-19；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -7279,12 +7283,12 @@
     "researchReport": "research/adr-2026-10-07/ZTO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.940889+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.940889+00:00",
+      "checkedAt": "2026-11-27T10:45:30.208099+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:30.208099+00:00",
       "priceDate": "2026-11-25",
       "price": 19.63,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-19；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -7310,7 +7314,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -7394,7 +7398,7 @@
       "存量/新房GTV、收入确认、家装利润和FCF",
       "补齐分部SOTP与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -7482,12 +7486,12 @@
     "researchReport": "research/adr-2026-10-07/BEKE.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 18.24,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -7513,7 +7517,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384118+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.699786+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -7529,7 +7533,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "9.52×；一致预期口径待核，不等于研究者正常化盈利"
+        "9.57×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -7597,7 +7601,7 @@
       "付费用户、ARPPU、在线音乐/社交收入、SBC和FCF",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384118+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，IFRS/non-IFRS，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.699786+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，IFRS/non-IFRS，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -7685,12 +7689,12 @@
     "researchReport": "research/adr-2026-10-07/TME.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384118+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384118+00:00",
+      "checkedAt": "2026-11-27T10:45:29.699786+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.699786+00:00",
       "priceDate": "2026-11-25",
       "price": 9.54,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2，IFRS/non-IFRS，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -7716,7 +7720,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.712115+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.897562+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -7800,7 +7804,7 @@
       "活跃客户、GMV、利润率、库存与FCF",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.712115+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.897562+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -7888,12 +7892,12 @@
     "researchReport": "research/adr-2026-10-07/VIPS.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.712115+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.712115+00:00",
+      "checkedAt": "2026-11-27T10:45:29.897562+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.897562+00:00",
       "priceDate": "2026-11-25",
       "price": 13.01,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-25；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -7919,7 +7923,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.528518+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.837862+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -8003,7 +8007,7 @@
       "广告/游戏收入、DAU、GAAP营业利润、SBC和OCF",
       "补齐分部DCF与正常化利润压力及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:37.528518+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:26.837862+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -8091,12 +8095,12 @@
     "researchReport": "research/adr-2026-10-07/BILI.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.528518+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.528518+00:00",
+      "checkedAt": "2026-11-27T10:45:26.837862+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.837862+00:00",
       "priceDate": "2026-11-25",
       "price": 11.43,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-27；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -8122,7 +8126,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.286215+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.500979+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -8206,7 +8210,7 @@
       "海外同店、门店数、TOP TOY收入、现金/并购债务",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.286215+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.500979+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -8294,12 +8298,12 @@
     "researchReport": "research/adr-2026-10-07/MNSO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.286215+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.286215+00:00",
+      "checkedAt": "2026-11-27T10:45:28.500979+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.500979+00:00",
       "priceDate": "2026-11-25",
       "price": 10.46,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-31；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -8325,7 +8329,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.817861+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.082974+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -8409,7 +8413,7 @@
       "RevPAR、ADR/入住率、开店、经营现金与租赁",
       "补齐正常化EPS与含租赁DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:38.817861+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-17；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.082974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-17；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -8497,12 +8501,12 @@
     "researchReport": "research/adr-2026-10-07/HTHT.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.817861+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.817861+00:00",
+      "checkedAt": "2026-11-27T10:45:28.082974+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.082974+00:00",
       "priceDate": "2026-11-25",
       "price": 51.73,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-17；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -8528,7 +8532,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.254973+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.560865+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -8612,7 +8616,7 @@
       "付费客户、客户资产、佣金/利息、资本约束",
       "补齐正常化EPS与资本约束DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:38.254973+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:27.560865+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -8700,12 +8704,12 @@
     "researchReport": "research/adr-2026-10-07/FUTU.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.254973+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.254973+00:00",
+      "checkedAt": "2026-11-27T10:45:27.560865+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.560865+00:00",
       "priceDate": "2026-11-25",
       "price": 87.94,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP/non-GAAP，期末2026-06-30；公告2026-08-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -8731,7 +8735,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384118+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.699786+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -8815,7 +8819,7 @@
       "学习服务收入、内容毛利、GAAP/adjusted利润、SBC",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384118+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-30；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.699786+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-30；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -8903,12 +8907,12 @@
     "researchReport": "research/adr-2026-10-07/TAL.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384118+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384118+00:00",
+      "checkedAt": "2026-11-27T10:45:29.699786+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.699786+00:00",
       "priceDate": "2026-11-25",
       "price": 9.98,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-30；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -8934,7 +8938,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.113557+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.374925+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -9018,7 +9022,7 @@
       "分部收入、GAAP/adjusted利润、中心数、OCF",
       "补齐教育DCF加持股SOTP与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.113557+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q4及全年，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-29；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.374925+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q4及全年，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-29；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -9106,12 +9110,12 @@
     "researchReport": "research/adr-2026-10-07/EDU.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.113557+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.113557+00:00",
+      "checkedAt": "2026-11-27T10:45:27.374925+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.374925+00:00",
       "priceDate": "2026-11-25",
       "price": 50.55,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026Q4及全年，US GAAP/non-GAAP，期末2026-05-31；公告2026-07-29；[STALE] 期末距研究日129天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -9137,7 +9141,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.577974+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.769420+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -9221,7 +9225,7 @@
       "出行/配送EBITDA、GAAP利润、金融贷款与损失",
       "补齐分部DCF与正常化营业利润及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:38.577974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:27.769420+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -9309,12 +9313,12 @@
     "researchReport": "research/adr-2026-10-07/GRAB.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.577974+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.577974+00:00",
+      "checkedAt": "2026-11-27T10:45:27.769420+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.769420+00:00",
       "priceDate": "2026-11-25",
       "price": 2.84,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2，IFRS/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -9340,7 +9344,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.996643+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.205122+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -9424,7 +9428,7 @@
       "GMV、分部营业利润、贷款/逾期、bookings",
       "补齐分部SOTP与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.996643+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.205122+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -9512,12 +9516,12 @@
     "researchReport": "research/adr-2026-10-07/SE.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.996643+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.996643+00:00",
+      "checkedAt": "2026-11-27T10:45:29.205122+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.205122+00:00",
       "priceDate": "2026-11-25",
       "price": 66.88,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP/adjusted，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -9543,7 +9547,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.286215+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.500979+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -9627,7 +9631,7 @@
       "GMV、TPV、信用组合、NPL、营业利润和现金",
       "补齐电商DCF加金融SOTP与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:39.286215+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.500979+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -9715,12 +9719,12 @@
     "researchReport": "research/adr-2026-10-07/MELI.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.286215+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.286215+00:00",
+      "checkedAt": "2026-11-27T10:45:28.500979+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.500979+00:00",
       "priceDate": "2026-11-25",
       "price": 1467.3,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:01 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -9746,7 +9750,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.526338+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.790307+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -9830,7 +9834,7 @@
       "活跃客户、ARPAC、信用损失、ROE与资本",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.526338+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS及管理层补充口径，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.790307+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS及管理层补充口径，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -9918,12 +9922,12 @@
     "researchReport": "research/adr-2026-10-07/NU.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.526338+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.526338+00:00",
+      "checkedAt": "2026-11-27T10:45:28.790307+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.790307+00:00",
       "priceDate": "2026-11-25",
       "price": 12.36,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS及管理层补充口径，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -9949,7 +9953,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.868385+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.068571+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10029,7 +10033,7 @@
       "Product Commerce利润、Developing Offerings亏损、FCF",
       "补齐分部DCF与正常化EPS及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.868385+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.068571+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -10117,12 +10121,12 @@
     "researchReport": "research/adr-2026-10-07/CPNG.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.868385+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.868385+00:00",
+      "checkedAt": "2026-11-27T10:45:27.068571+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.068571+00:00",
       "priceDate": "2026-11-25",
       "price": 16.09,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，US GAAP，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -10148,7 +10152,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.817861+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.082974+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10232,7 +10236,7 @@
       "恒汇率收入、订单TCV、利润率、员工利用率",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.817861+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，IFRS美元合并口径，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.082974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，IFRS美元合并口径，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -10320,12 +10324,12 @@
     "researchReport": "research/adr-2026-10-07/INFY.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.817861+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.817861+00:00",
+      "checkedAt": "2026-11-27T10:45:28.082974+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.082974+00:00",
       "priceDate": "2026-11-25",
       "price": 13.02,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，IFRS美元合并口径，期末2026-06-30；公告2026-07-23；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -10351,7 +10355,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.577974+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.769420+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10435,7 +10439,7 @@
       "NIM、贷款/存款、NPA、CET1、普通股ROE",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.577974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.769420+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -10523,12 +10527,12 @@
     "researchReport": "research/adr-2026-10-07/HDB.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.577974+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.577974+00:00",
+      "checkedAt": "2026-11-27T10:45:27.769420+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.769420+00:00",
       "priceDate": "2026-11-25",
       "price": 28.35,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-20；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -10554,7 +10558,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.817861+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.082974+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10638,7 +10642,7 @@
       "NIM、NPA、贷款/存款、普通股ROE及CET1",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.817861+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-22；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.082974+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-22；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -10726,12 +10730,12 @@
     "researchReport": "research/adr-2026-10-07/IBN.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.817861+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.817861+00:00",
+      "checkedAt": "2026-11-27T10:45:28.082974+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.082974+00:00",
       "priceDate": "2026-11-25",
       "price": 36.5,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2027Q1，印度准则；单体/合并分列，期末2026-06-30；公告2026-07-22；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -10757,7 +10761,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.712115+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.897562+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10841,7 +10845,7 @@
       "销量、实现价格、C1成本、赔偿现金与净债务",
       "补齐中周期DCF与矿山NAV及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.712115+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS；8月修订版，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.897562+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS；8月修订版，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -10929,12 +10933,12 @@
     "researchReport": "research/adr-2026-10-07/VALE.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.712115+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.712115+00:00",
+      "checkedAt": "2026-11-27T10:45:29.897562+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.897562+00:00",
       "priceDate": "2026-11-25",
       "price": 9.81,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，IFRS；8月修订版，期末2026-06-30；公告2026-08-24；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -10960,7 +10964,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.671127+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.986280+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -10972,7 +10976,7 @@
       ],
       [
         "本轮供应商 TTM PE",
-        "3.84×；供应商滚动口径，需核实原文"
+        "3.80×；供应商滚动口径，需核实原文"
       ],
       [
         "本轮供应商 Forward PE",
@@ -11044,7 +11048,7 @@
       "产量、FCF、资本开支、净债务与股息覆盖",
       "补齐中周期DCF与NAV及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.671127+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.986280+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -11132,12 +11136,12 @@
     "researchReport": "research/adr-2026-10-07/PBR.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.671127+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.671127+00:00",
+      "checkedAt": "2026-11-27T10:45:28.986280+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.986280+00:00",
       "priceDate": "2026-11-25",
       "price": 16.05,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:03 UTC；2026Q2及H1，IFRS/adjusted，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -11163,7 +11167,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.959855+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.263629+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -11247,7 +11251,7 @@
       "recurring/IFRS利润桥接、NPL、ROE、资本",
       "补齐普通股ROE-PB与DDM及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.959855+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，BRGAAP/IFRS/managerial，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.263629+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，BRGAAP/IFRS/managerial，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -11335,12 +11339,12 @@
     "researchReport": "research/adr-2026-10-07/ITUB.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.959855+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.959855+00:00",
+      "checkedAt": "2026-11-27T10:45:28.263629+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.263629+00:00",
       "priceDate": "2026-11-25",
       "price": 6.88,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2及H1，BRGAAP/IFRS/managerial，期末2026-06-30；公告2026-08-07；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -11366,7 +11370,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -11450,7 +11454,7 @@
       "TPV、take rate、贷款逾期、持续经营利润",
       "补齐正常化EPS与资本约束DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS持续/终止经营，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS持续/终止经营，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -11538,12 +11542,12 @@
     "researchReport": "research/adr-2026-10-07/STNE.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 7.72,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，IFRS持续/终止经营，期末2026-06-30；公告2026-08-13；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -11569,7 +11573,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.671127+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.986280+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -11653,7 +11657,7 @@
       "TPV、银行客户、信贷损失、净利润/现金",
       "补齐正常化EPS与资本约束DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.671127+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS/non-GAAP，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:28.986280+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS/non-GAAP，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -11741,12 +11745,12 @@
     "researchReport": "research/adr-2026-10-07/PAGS.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.671127+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.671127+00:00",
+      "checkedAt": "2026-11-27T10:45:28.986280+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.986280+00:00",
       "priceDate": "2026-11-25",
       "price": 7.7,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026Q2，IFRS/non-GAAP，期末2026-06-30；公告2026-08-11；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -11772,7 +11776,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -11856,7 +11860,7 @@
       "HBM收入、DRAM/NAND价格、资本开支、ADS股数",
       "补齐中周期EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，K-IFRS；7月上市后事项，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，K-IFRS；7月上市后事项，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -11944,12 +11948,12 @@
     "researchReport": "research/adr-2026-10-07/SKHY.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 111.14,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，K-IFRS；7月上市后事项，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -11975,7 +11979,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -12059,7 +12063,7 @@
       "分部收入、现金资本开支、SBC、普通股总数与关联交易",
       "补齐分部DCF与SOTP及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -12147,12 +12151,12 @@
     "researchReport": "research/adr-2026-10-07/SPCX.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 127.44,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP/adjusted，期末2026-06-30；公告2026-08-04；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -12178,7 +12182,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.401290+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.664785+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -12194,7 +12198,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "13.85×；一致预期口径待核，不等于研究者正常化盈利"
+        "14.15×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -12262,7 +12266,7 @@
       "铁矿/铜产量、unit cost、FCF、钾肥项目及净债务",
       "补齐中周期DCF与矿山NAV及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.401290+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.664785+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -12350,12 +12354,12 @@
     "researchReport": "research/adr-2026-10-07/BHP.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.401290+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.401290+00:00",
+      "checkedAt": "2026-11-27T10:45:26.664785+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.664785+00:00",
       "priceDate": "2026-11-25",
       "price": 70.77,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS，期末2026-06-30；公告2026-08-18；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -12381,7 +12385,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.996643+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.205122+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -12465,7 +12469,7 @@
       "Pilbara产量、实现价格、FCF、Simandou进度和债务",
       "补齐中周期DCF与矿山NAV及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:39.996643+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.205122+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -12553,12 +12557,12 @@
     "researchReport": "research/adr-2026-10-07/RIO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.996643+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.996643+00:00",
+      "checkedAt": "2026-11-27T10:45:29.205122+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.205122+00:00",
       "priceDate": "2026-11-25",
       "price": 74.58,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying，期末2026-06-30；公告2026-07-29；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -12584,7 +12588,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.384617+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.713245+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -12668,7 +12672,7 @@
       "USG量价、分部利润、持续经营EPS、现金分派覆盖",
       "补齐持续经营EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:40.384617+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying持续经营，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:29.713245+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying持续经营，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -12756,12 +12760,12 @@
     "researchReport": "research/adr-2026-10-07/UL.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.384617+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.384617+00:00",
+      "checkedAt": "2026-11-27T10:45:29.713245+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.713245+00:00",
       "priceDate": "2026-11-25",
       "price": 66.85,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/underlying持续经营，期末2026-06-30；公告2026-07-28；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -12787,7 +12791,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:38.113557+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:27.374925+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -12871,7 +12875,7 @@
       "有机量价、地区销售、库存、FCF和净债务",
       "补齐中周期EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:38.113557+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS/例外前口径，期末2026-06-30；公告2026-08-06；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:27.374925+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS/例外前口径，期末2026-06-30；公告2026-08-06；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -12959,12 +12963,12 @@
     "researchReport": "research/adr-2026-10-07/DEO.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:38.113557+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:38.113557+00:00",
+      "checkedAt": "2026-11-27T10:45:27.374925+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:27.374925+00:00",
       "priceDate": "2026-11-25",
       "price": 101.76,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；FY2026全年，IFRS/例外前口径，期末2026-06-30；公告2026-08-06；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -12990,7 +12994,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:37.528518+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:26.837862+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -13074,7 +13078,7 @@
       "销量/价格、新品类利润、adjusted/IFRS EPS、FCF",
       "补齐正常化EPS与DCF及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T04:13:37.528518+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:03:52-05:00；核验 2026-11-27T10:45:26.837862+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -13162,12 +13166,12 @@
     "researchReport": "research/adr-2026-10-07/BTI.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:37.528518+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:37.528518+00:00",
+      "checkedAt": "2026-11-27T10:45:26.837862+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:26.837862+00:00",
       "priceDate": "2026-11-25",
       "price": 60.43,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:02 UTC；2026H1，IFRS/adjusted，期末2026-06-30；公告2026-07-30；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -13193,7 +13197,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:39.671127+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:28.986280+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -13277,7 +13281,7 @@
       "BRUKINSA收入、GAAP营业利润、研发、SBC与现金",
       "补齐产品DCF加管线rNPV与净现金及股本、现金、FX桥接再讨论买入区"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:39.671127+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:28.986280+00:00。原研究：研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
     "scenarios": [
       {
         "name": "悲观",
@@ -13365,12 +13369,12 @@
     "researchReport": "research/adr-2026-10-07/ONC.html",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:39.671127+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:39.671127+00:00",
+      "checkedAt": "2026-11-27T10:45:28.986280+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:28.986280+00:00",
       "priceDate": "2026-11-25",
       "price": 414.79,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06 20:00:00 UTC；2026Q2及H1，US GAAP，期末2026-06-30；公告2026-08-05；[STALE] 期末距研究日99天，保留本次核读期次，不代表已有更晚业绩",
       "programmatic": false,
       "tradability": "no-known-restriction",
@@ -13393,7 +13397,7 @@
       ],
       [
         "行情核验时间",
-        "2026-11-27T04:13:40.234499+00:00；原始证据 research/data-refresh-2026-11-26/tencent-quotes.json"
+        "2026-11-27T10:45:29.501173+00:00；原始证据 research/data-refresh-2026-11-27/tencent-quotes.json"
       ],
       [
         "研究与模型状态",
@@ -13409,7 +13413,7 @@
       ],
       [
         "本轮供应商 Forward PE",
-        "14.60×；一致预期口径待核，不等于研究者正常化盈利"
+        "14.53×；一致预期口径待核，不等于研究者正常化盈利"
       ],
       [
         "本轮供应商52周区间",
@@ -13486,17 +13490,17 @@
       "验证阈值：Q3 调整后 EPS≥$0.15、个人贷款净冲销率≤3.0%、净息差≥5.8%、FY2026 指引不下调；Q4/FY2026 披露时核对全年调整后 EPS 是否≥$0.55",
       "2027 年底：验证调整后 EPS 是否达到 Base $0.80、TBVPS 是否达到约 $8.4、稀释股数是否≤14.5 亿"
     ],
-    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T04:13:40.234499+00:00。原研究：研究2026-10-07；价格2026-10-06收盘（aktools第三方）；财报期2026Q2（期末2026-06-30，SEC 8-K/10-Q原件）",
+    "asOf": "行情 2026-11-25T16:00:02-05:00；核验 2026-11-27T10:45:29.501173+00:00。原研究：研究2026-10-07；价格2026-10-06收盘（aktools第三方）；财报期2026Q2（期末2026-06-30，SEC 8-K/10-Q原件）",
     "researchReport": "research/sofi-2026-10-07/SOFI.html",
     "ratioNote": "旧情景未重估；Bear/Base/Bull 关键估值输入未完成认证，本轮不认证赔率。",
     "marketRefresh": {
       "adapterVersion": 6,
-      "checkedAt": "2026-11-27T04:13:40.234499+00:00",
-      "evidenceCheckedAt": "2026-11-27T04:13:40.234499+00:00",
+      "checkedAt": "2026-11-27T10:45:29.501173+00:00",
+      "evidenceCheckedAt": "2026-11-27T10:45:29.501173+00:00",
       "priceDate": "2026-11-25",
       "price": 13.07,
       "currency": "USD",
-      "source": "research/data-refresh-2026-11-26/tencent-quotes.json",
+      "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
       "originalAsOf": "研究2026-10-07；价格2026-10-06收盘（aktools第三方）；财报期2026Q2（期末2026-06-30，SEC 8-K/10-Q原件）",
       "programmatic": false,
       "tradability": "no-known-restriction",

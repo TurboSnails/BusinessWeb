@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-11-26",
+  "asOf": "2026-11-27",
   "generatedBy": "scripts/build-company-valuations-us.py",
   "records": [
     {
@@ -10,7 +10,7 @@
       "name": "Alnylam",
       "sector": "医疗保健",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 164.73,
         "date": "2026-11-25",
@@ -153,7 +153,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-11-26"
+          "asOf": "2026-11-27"
         }
       ],
       "review": {
@@ -177,7 +177,7 @@
       "name": "Astera Labs",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 190.34,
         "date": "2026-11-25",
@@ -321,7 +321,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-11-26"
+          "asOf": "2026-11-27"
         }
       ],
       "review": {
@@ -345,7 +345,7 @@
       "name": "可口可乐欧洲太平洋",
       "sector": "日常消费",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 117.99,
         "date": "2026-11-25",
@@ -494,7 +494,7 @@
       "name": "CoreWeave",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 42.57,
         "date": "2026-11-25",
@@ -615,7 +615,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-11-26"
+          "asOf": "2026-11-27"
         }
       ],
       "review": {
@@ -639,7 +639,7 @@
       "name": "Ferrovial",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 59.12,
         "date": "2026-11-25",
@@ -789,7 +789,7 @@
       "name": "霍尼韦尔航空航天",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 157.84,
         "date": "2026-11-25",
@@ -938,7 +938,7 @@
       "name": "Strategy（MicroStrategy）",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 79.96,
         "date": "2026-11-25",
@@ -1059,7 +1059,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-11-26"
+          "asOf": "2026-11-27"
         }
       ],
       "review": {
@@ -1083,7 +1083,7 @@
       "name": "Nebius",
       "sector": "信息技术",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 84.99,
         "date": "2026-11-25",
@@ -1210,7 +1210,7 @@
       "name": "Rocket Lab",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 47.02,
         "date": "2026-11-25",
@@ -1331,7 +1331,7 @@
           "id": "dcf-prefill",
           "title": "DCF 预取财报（历史收入、利润、股数、资产负债项）",
           "url": "data/dcf-prefill.json",
-          "asOf": "2026-11-26"
+          "asOf": "2026-11-27"
         }
       ],
       "review": {
@@ -1355,7 +1355,7 @@
       "name": "汤森路透",
       "sector": "工业",
       "currency": "USD",
-      "asOf": "2026-11-26",
+      "asOf": "2026-11-27",
       "price": {
         "value": 109.35,
         "date": "2026-11-25",

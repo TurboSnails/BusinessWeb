@@ -210,7 +210,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 63.7,
+      "price": 64.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -255,7 +255,7 @@
           "price": 91.74
         }
       ],
-      "ratio": 0.13137996219281667,
+      "ratio": 0.10526315789473688,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -334,7 +334,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 7.29,
+      "price": 7.24,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -379,7 +379,7 @@
           "price": 4.82
         }
       ],
-      "ratio": -0.75098814229249,
+      "ratio": -0.7485029940119761,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -396,7 +396,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 129.3,
+      "price": 129.9,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -425,7 +425,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 129.3,
+        "latestPrice": 129.9,
         "vendorPrice": 145.7,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 5.87
@@ -433,24 +433,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.54%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.52%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 67.09
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.54%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.52%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 117.4
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.54%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0005.HK dividendRate=5.87 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=USD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.52%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 154.09
         }
       ],
-      "ratio": -0.1912875743449607,
+      "ratio": -0.1990128960356631,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -467,7 +467,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 65.35,
+      "price": 64.8,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -512,7 +512,7 @@
           "price": 42.16
         }
       ],
-      "ratio": -0.759825327510917,
+      "ratio": -0.7569060773480663,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -529,7 +529,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 28.44,
+      "price": 28.4,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -574,7 +574,7 @@
           "price": 29.97
         }
       ],
-      "ratio": -0.48154869933454325,
+      "ratio": -0.48029108550636745,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -591,7 +591,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 107.3,
+      "price": 107.7,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -636,7 +636,7 @@
           "price": 141.62
         }
       ],
-      "ratio": -0.2066666666666665,
+      "ratio": -0.21284046692606998,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -653,7 +653,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 32.82,
+      "price": 33.22,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -698,7 +698,7 @@
           "price": 48.25
         }
       ],
-      "ratio": 0.10726351351351378,
+      "ratio": 0.0710784313725494,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -715,7 +715,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 32.1,
+      "price": 32.22,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -760,7 +760,7 @@
           "price": 29.54
         }
       ],
-      "ratio": -0.583073727933541,
+      "ratio": -0.5856553147574819,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -777,7 +777,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 6.035,
+      "price": 6.115,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -822,7 +822,7 @@
           "price": 9.83
         }
       ],
-      "ratio": 0.31764705882352934,
+      "ratio": 0.2698412698412697,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -839,7 +839,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 13.07,
+      "price": 13.35,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -901,7 +901,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 2.76,
+      "price": 2.835,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -946,7 +946,7 @@
           "price": 4.95
         }
       ],
-      "ratio": 0.971428571428572,
+      "ratio": 0.7806451612903227,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -963,7 +963,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 11.94,
+      "price": 11.97,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1025,7 +1025,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 7.835,
+      "price": 7.96,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1070,7 +1070,7 @@
           "price": 7.32
         }
       ],
-      "ratio": -0.574869109947644,
+      "ratio": -0.5857142857142857,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1087,7 +1087,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 18.19,
+      "price": 18.54,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1149,7 +1149,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 6.75,
+      "price": 6.795,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1211,7 +1211,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 21.24,
+      "price": 21.22,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1256,7 +1256,7 @@
           "price": 44.13
         }
       ],
-      "ratio": 4.848780487804885,
+      "ratio": 4.9064039408867055,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -1273,7 +1273,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 100.3,
+      "price": 100.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1318,7 +1318,7 @@
           "price": 166.9
         }
       ],
-      "ratio": 0.6354129102055536,
+      "ratio": 0.6413318856315596,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1335,7 +1335,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 150.2,
+      "price": 152.0,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1397,7 +1397,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 12.8,
+      "price": 12.94,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1442,7 +1442,7 @@
           "price": 21.32
         }
       ],
-      "ratio": 0.6430594900849855,
+      "ratio": 0.580381471389646,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1459,7 +1459,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 4.445,
+      "price": 4.48,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1504,7 +1504,7 @@
           "price": 9.22
         }
       ],
-      "ratio": 2.3935483870967724,
+      "ratio": 2.2469135802469116,
       "rating": "观察",
       "capReason": "周期行业封顶",
       "missing": null,
@@ -1521,7 +1521,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 355.6,
+      "price": 363.4,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1550,7 +1550,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 355.6,
+        "latestPrice": 363.4,
         "vendorPrice": 372.4,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 14.86
@@ -1558,24 +1558,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.18%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.09%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 169.83
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.18%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.09%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 297.2
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.18%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 0388.HK dividendRate=14.86 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=HKD，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.09%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 390.08
         }
       ],
-      "ratio": -0.3143672282930507,
+      "ratio": -0.34199514387560054,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1592,7 +1592,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 2.665,
+      "price": 2.73,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1654,7 +1654,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 84.95,
+      "price": 86.7,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1699,7 +1699,7 @@
           "price": 134.31
         }
       ],
-      "ratio": 0.2938733125649012,
+      "ratio": 0.2199738903394254,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1716,7 +1716,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 133.3,
+      "price": 134.8,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1840,7 +1840,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 345.6,
+      "price": 352.0,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1902,7 +1902,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 4.375,
+      "price": 4.39,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -1947,7 +1947,7 @@
           "price": 6.36
         }
       ],
-      "ratio": 0.16491228070175462,
+      "ratio": 0.15277777777777826,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -1964,7 +1964,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 5.22,
+      "price": 5.28,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2026,7 +2026,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 8.09,
+      "price": 8.165,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2088,7 +2088,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 19.68,
+      "price": 19.66,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2133,7 +2133,7 @@
           "price": 35.63
         }
       ],
-      "ratio": 1.9430379746835444,
+      "ratio": 1.9617834394904456,
       "rating": "条件关注",
       "capReason": "ratio在1至2",
       "missing": null,
@@ -2150,7 +2150,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 9.7,
+      "price": 9.705,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2195,7 +2195,7 @@
           "price": 21.02
         }
       ],
-      "ratio": 3.477611940298508,
+      "ratio": 3.4609665427509273,
       "rating": "观察",
       "capReason": "周期行业封顶",
       "missing": null,
@@ -2212,7 +2212,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 7.705,
+      "price": 7.815,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2274,7 +2274,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 1.625,
+      "price": 1.655,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2302,7 +2302,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 21.28,
+      "price": 21.42,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2364,7 +2364,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 17.22,
+      "price": 17.29,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2409,7 +2409,7 @@
           "price": 39.07
         }
       ],
-      "ratio": 5.609467455621304,
+      "ratio": 5.34659090909091,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -2426,7 +2426,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 10.31,
+      "price": 10.13,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2550,7 +2550,7 @@
           "price": 18.02
         }
       ],
-      "ratio": 0.4151785714285713,
+      "ratio": 0.47441860465116253,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -2567,7 +2567,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 77.9,
+      "price": 77.75,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2612,7 +2612,7 @@
           "price": 117.86
         }
       ],
-      "ratio": 0.3227194492254732,
+      "ratio": 0.33131225638804696,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -2629,7 +2629,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 3.48,
+      "price": 3.57,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2657,7 +2657,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 1.685,
+      "price": 1.73,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2702,7 +2702,7 @@
           "price": 3.21
         }
       ],
-      "ratio": 1.2469135802469133,
+      "ratio": 1.0222222222222221,
       "rating": "条件关注",
       "capReason": "ratio在1至2",
       "missing": null,
@@ -2719,7 +2719,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 49.56,
+      "price": 53.4,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2781,7 +2781,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 17.88,
+      "price": 18.3,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2843,7 +2843,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 20.28,
+      "price": 20.96,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2905,7 +2905,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 70.4,
+      "price": 70.25,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -2950,7 +2950,7 @@
           "price": 45.56
         }
       ],
-      "ratio": -0.7586766795210066,
+      "ratio": -0.7579397394136806,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -2967,7 +2967,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 20.72,
+      "price": 20.88,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3029,7 +3029,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 38.6,
+      "price": 39.1,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3074,7 +3074,7 @@
           "price": 61.45
         }
       ],
-      "ratio": 0.2392378263937897,
+      "ratio": 0.19700068166325838,
       "rating": "观察",
       "capReason": "周期行业封顶",
       "missing": null,
@@ -3091,7 +3091,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 7.84,
+      "price": 8.035,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3136,7 +3136,7 @@
           "price": 17.94
         }
       ],
-      "ratio": 13.257142857142872,
+      "ratio": 8.155963302752296,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -3277,7 +3277,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 48.26,
+      "price": 48.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3322,7 +3322,7 @@
           "price": 61.51
         }
       ],
-      "ratio": -0.2620747585048297,
+      "ratio": -0.26021052631578945,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -3339,7 +3339,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 10.41,
+      "price": 10.68,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3384,10 +3384,10 @@
           "price": 26.81
         }
       ],
-      "ratio": null,
+      "ratio": 382.0000000000082,
       "rating": "观察",
-      "capReason": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
-      "missing": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
+      "capReason": "ratio>8，压力情景不足",
+      "missing": null,
       "oldRating": "观察"
     },
     {
@@ -3401,7 +3401,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 5.58,
+      "price": 5.685,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3446,7 +3446,7 @@
           "price": 8.47
         }
       ],
-      "ratio": 0.15196078431372528,
+      "ratio": 0.09557109557109562,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -3463,7 +3463,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 3.705,
+      "price": 3.78,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3525,7 +3525,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 37.84,
+      "price": 38.28,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3570,7 +3570,7 @@
           "price": 46.64
         }
       ],
-      "ratio": -0.30932642487046635,
+      "ratio": -0.32472137791286726,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -3587,7 +3587,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 57.8,
+      "price": 59.0,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3632,7 +3632,7 @@
           "price": 121.11
         }
       ],
-      "ratio": 2.5828157349896492,
+      "ratio": 2.186924493554328,
       "rating": "观察",
       "capReason": "周期行业封顶",
       "missing": null,
@@ -3649,7 +3649,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 6.61,
+      "price": 6.495,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3773,7 +3773,7 @@
           "price": 10.75
         }
       ],
-      "ratio": 0.20766773162939278,
+      "ratio": 0.253731343283582,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -3790,7 +3790,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 74.1,
+      "price": 75.05,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3819,7 +3819,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 74.1,
+        "latestPrice": 75.05,
         "vendorPrice": 72.9,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
       },
@@ -3841,7 +3841,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 34.66,
+      "price": 36.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3870,7 +3870,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 34.66,
+        "latestPrice": 36.2,
         "vendorPrice": 40.82,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 1.71
@@ -3878,24 +3878,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.93%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.72%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 19.54
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.93%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.72%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 34.2
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.93%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 1336.HK dividendRate=1.71 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.72%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 44.89
         }
       ],
-      "ratio": -0.030423280423280016,
+      "ratio": -0.12004801920768304,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -3912,7 +3912,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 71.1,
+      "price": 78.15,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -3974,7 +3974,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 17.09,
+      "price": 17.29,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4036,7 +4036,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 19.09,
+      "price": 20.7,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4081,10 +4081,10 @@
           "price": 48.11
         }
       ],
-      "ratio": null,
+      "ratio": 20.596774193548352,
       "rating": "观察",
-      "capReason": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
-      "missing": "悲观价不低于现价，盈亏比异常；保留情景但评级观察",
+      "capReason": "ratio>8，压力情景不足",
+      "missing": null,
       "oldRating": "观察"
     },
     {
@@ -4098,7 +4098,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 7.72,
+      "price": 7.625,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4222,7 +4222,7 @@
           "price": 14.63
         }
       ],
-      "ratio": 0.7281879194630876,
+      "ratio": 0.7850953206239171,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4239,7 +4239,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 5.565,
+      "price": 5.475,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4363,7 +4363,7 @@
           "price": 10.19
         }
       ],
-      "ratio": 0.49090909090909074,
+      "ratio": 0.547169811320755,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4380,7 +4380,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 19.67,
+      "price": 20.36,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4442,7 +4442,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 27.54,
+      "price": 28.06,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4487,7 +4487,7 @@
           "price": 20.34
         }
       ],
-      "ratio": -0.7014388489208632,
+      "ratio": -0.7092092092092093,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4504,7 +4504,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 3.11,
+      "price": 3.15,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4566,7 +4566,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 85.6,
+      "price": 87.45,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4611,7 +4611,7 @@
           "price": 67.97
         }
       ],
-      "ratio": -0.6695788921894111,
+      "ratio": -0.6799255247122546,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4628,7 +4628,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 27.02,
+      "price": 27.8,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4673,7 +4673,7 @@
           "price": 41.4
         }
       ],
-      "ratio": 0.18275154004106792,
+      "ratio": 0.09505703422053233,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4690,7 +4690,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 6.215,
+      "price": 6.26,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4752,7 +4752,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 9.455,
+      "price": 9.63,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4814,7 +4814,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 16.95,
+      "price": 17.15,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4859,7 +4859,7 @@
           "price": 27.74
         }
       ],
-      "ratio": 0.33783783783783783,
+      "ratio": 0.2941176470588237,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -4876,7 +4876,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 10.3,
+      "price": 10.5,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4938,7 +4938,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 11.55,
+      "price": 11.65,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -4983,9 +4983,9 @@
           "price": 20.33
         }
       ],
-      "ratio": 1.0369003690036893,
-      "rating": "条件关注",
-      "capReason": "ratio在1至2",
+      "ratio": 0.9644128113878998,
+      "rating": "观察",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察"
     },
@@ -5000,7 +5000,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 0.545,
+      "price": 0.565,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5028,7 +5028,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 32.72,
+      "price": 32.64,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5056,7 +5056,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 47.12,
+      "price": 48.36,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5084,7 +5084,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 81.8,
+      "price": 82.4,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5129,7 +5129,7 @@
           "price": 142.94
         }
       ],
-      "ratio": 0.976590330788804,
+      "ratio": 0.9180246913580238,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -5146,7 +5146,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 160.6,
+      "price": 160.8,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5191,7 +5191,7 @@
           "price": 338.94
         }
       ],
-      "ratio": 2.7447795823665917,
+      "ratio": 2.7160399079048347,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -5208,7 +5208,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 14.93,
+      "price": 15.34,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5270,7 +5270,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 1.78,
+      "price": 1.82,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5298,7 +5298,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 41.74,
+      "price": 42.0,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5343,7 +5343,7 @@
           "price": 91.3
         }
       ],
-      "ratio": 11.10243902439022,
+      "ratio": 9.74025974025973,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -5360,7 +5360,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 50.5,
+      "price": 51.65,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5389,7 +5389,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 50.5,
+        "latestPrice": 51.65,
         "vendorPrice": 49.58,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 3.14
@@ -5397,24 +5397,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.22%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.08%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 35.89
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.22%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.08%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 62.8
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.22%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2318.HK dividendRate=3.14 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.08%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 82.43
         }
       ],
-      "ratio": 0.841889117043121,
+      "ratio": 0.7074873096446701,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -5431,7 +5431,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 21.46,
+      "price": 21.36,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5476,7 +5476,7 @@
           "price": 36.17
         }
       ],
-      "ratio": 0.7125435540069686,
+      "ratio": 0.7429078014184402,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -5493,7 +5493,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 12.83,
+      "price": 12.82,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5538,7 +5538,7 @@
           "price": 27.6
         }
       ],
-      "ratio": 8.036144578313252,
+      "ratio": 8.14634146341463,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -5555,7 +5555,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 5.57,
+      "price": 5.645,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5617,7 +5617,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 97.35,
+      "price": 98.0,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5646,7 +5646,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 97.35,
+        "latestPrice": 98.0,
         "vendorPrice": 92.65,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
       },
@@ -5668,7 +5668,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 63.05,
+      "price": 64.75,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5713,7 +5713,7 @@
           "price": 132.88
         }
       ],
-      "ratio": 3.872200263504613,
+      "ratio": 2.9806243272335844,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -5730,7 +5730,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 45.58,
+      "price": 45.6,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5759,7 +5759,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 45.58,
+        "latestPrice": 45.6,
         "vendorPrice": 50.4,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 2.13
@@ -5784,7 +5784,7 @@
           "price": 55.91
         }
       ],
-      "ratio": -0.14030131826741982,
+      "ratio": -0.14111006585136404,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -5801,7 +5801,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 6.09,
+      "price": 6.205,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5863,7 +5863,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 26.16,
+      "price": 26.56,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5892,7 +5892,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 26.16,
+        "latestPrice": 26.56,
         "vendorPrice": 26.16,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 1.81
@@ -5900,24 +5900,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.81%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 20.69
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.81%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 36.2
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.92%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2601.HK dividendRate=1.81 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.81%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 47.51
         }
       ],
-      "ratio": 1.8354661791590503,
+      "ratio": 1.642248722316867,
       "rating": "条件关注",
       "capReason": "ratio在1至2",
       "missing": null,
@@ -5934,7 +5934,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 8.76,
+      "price": 8.89,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -5996,7 +5996,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 22.08,
+      "price": 23.26,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6025,7 +6025,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 22.08,
+        "latestPrice": 23.26,
         "vendorPrice": 23.12,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 1.13
@@ -6033,24 +6033,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.12%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.86%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 12.91
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.12%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.86%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 22.6
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 5.12%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 2628.HK dividendRate=1.13 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.86%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 29.66
         }
       ],
-      "ratio": 0.05670665212649981,
+      "ratio": -0.063768115942029,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6067,7 +6067,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 49.2,
+      "price": 49.36,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6129,7 +6129,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 24.14,
+      "price": 24.76,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6191,7 +6191,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 2.45,
+      "price": 2.5,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6219,7 +6219,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 9.05,
+      "price": 8.845,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6343,7 +6343,7 @@
           "price": 13.53
         }
       ],
-      "ratio": -0.045368620037807214,
+      "ratio": -0.006882989183874167,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6360,7 +6360,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 51.45,
+      "price": 51.8,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6405,7 +6405,7 @@
           "price": 97.08
         }
       ],
-      "ratio": 1.1570762052877135,
+      "ratio": 1.0999242997729,
       "rating": "观察",
       "capReason": "周期行业封顶",
       "missing": null,
@@ -6422,7 +6422,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 65.65,
+      "price": 67.85,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6450,7 +6450,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 32.98,
+      "price": 33.48,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6495,7 +6495,7 @@
           "price": 35.4
         }
       ],
-      "ratio": -0.45879120879120877,
+      "ratio": -0.4732620320855615,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6512,7 +6512,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 20.46,
+      "price": 21.08,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6557,7 +6557,7 @@
           "price": 29.46
         }
       ],
-      "ratio": 0.004901960784313621,
+      "ratio": -0.0660592255125283,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6574,7 +6574,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 14.55,
+      "price": 15.45,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6603,7 +6603,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 14.55,
+        "latestPrice": 15.45,
         "vendorPrice": 18.78,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
       },
@@ -6625,7 +6625,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 52.2,
+      "price": 52.05,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6749,7 +6749,7 @@
           "price": 79.66
         }
       ],
-      "ratio": 0.1423641069887833,
+      "ratio": 0.14980460269214083,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6766,7 +6766,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 6.215,
+      "price": 6.14,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6890,7 +6890,7 @@
           "price": 9.99
         }
       ],
-      "ratio": 0.13343799058084765,
+      "ratio": 0.1607717041800643,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6907,7 +6907,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 18.97,
+      "price": 20.26,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -6936,7 +6936,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 18.97,
+        "latestPrice": 20.26,
         "vendorPrice": 22.26,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 0.79
@@ -6944,24 +6944,24 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.16%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.90%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 9.03
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.16%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.90%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 15.8
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 4.16%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6030.HK dividendRate=0.79 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 3.90%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 20.74
         }
       ],
-      "ratio": -0.3189134808853117,
+      "ratio": -0.39715048975957257,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -6978,7 +6978,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 8.295,
+      "price": 8.575,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7007,7 +7007,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 8.295,
+        "latestPrice": 8.575,
         "vendorPrice": 9.35,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验"
       },
@@ -7029,7 +7029,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 4.84,
+      "price": 4.87,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7091,7 +7091,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 252.8,
+      "price": 256.6,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7153,7 +7153,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 2.785,
+      "price": 2.825,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7198,7 +7198,7 @@
           "price": 6.17
         }
       ],
-      "ratio": 15.000000000000004,
+      "ratio": 10.586206896551724,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -7215,7 +7215,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 35.9,
+      "price": 36.68,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7260,7 +7260,7 @@
           "price": 79.15
         }
       ],
-      "ratio": 6.699300699300702,
+      "ratio": 5.049450549450549,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -7277,7 +7277,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 21.48,
+      "price": 21.62,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7339,7 +7339,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 9.635,
+      "price": 9.745,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7384,9 +7384,9 @@
           "price": 20.92
         }
       ],
-      "ratio": 9.616822429906538,
-      "rating": "观察",
-      "capReason": "ratio>8，压力情景不足",
+      "ratio": 7.806201550387602,
+      "rating": "条件关注",
+      "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
       "oldRating": "观察"
     },
@@ -7401,7 +7401,7 @@
       ],
       "cyclical": false,
       "financial": true,
-      "price": 6.045,
+      "price": 6.41,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7430,7 +7430,7 @@
           1.0,
           1.05
         ],
-        "latestPrice": 6.045,
+        "latestPrice": 6.41,
         "vendorPrice": 7.12,
         "specialDividendCheck": "仅排查供应商股息率>8%异常；特别股息未经公司公告核验",
         "dpsHKD": 0.4
@@ -7438,26 +7438,26 @@
       "scenarios": [
         {
           "name": "悲观",
-          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.62%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 0.8（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.24%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 7%（单一股息率方法，研究假设）",
           "price": 4.57
         },
         {
           "name": "基准",
-          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.62%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.24%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 5%（单一股息率方法，研究假设）",
           "price": 8.0
         },
         {
           "name": "乐观",
-          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.62%；是否含特别股息未经公司公告核验",
+          "assumption": "yahoo-quote-batch.json 6881.HK dividendRate=0.4 HKD/股 × 1.05（供应商前瞻年化股息，非公司指引）；currency=HKD，financialCurrency=CNY，股息已为报价币种、汇率1，不再按财报币种折算；最新价股息率 6.24%；是否含特别股息未经公司公告核验",
           "multiple": "目标股息率 4%（单一股息率方法，研究假设）",
           "price": 10.5
         }
       ],
-      "ratio": 1.3254237288135597,
-      "rating": "条件关注",
-      "capReason": "ratio在1至2",
+      "ratio": 0.8641304347826086,
+      "rating": "观察",
+      "capReason": "ratio<1",
       "missing": null,
       "oldRating": "观察（净利含股市高位的周期因素）"
     },
@@ -7472,7 +7472,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 103.1,
+      "price": 106.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7534,7 +7534,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 92.2,
+      "price": 95.6,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7579,7 +7579,7 @@
           "price": 197.34
         }
       ],
-      "ratio": 3.100363636363637,
+      "ratio": 2.287463556851314,
       "rating": "条件关注",
       "capReason": "单一方法，优先关注封顶条件关注",
       "missing": null,
@@ -7596,7 +7596,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 46.3,
+      "price": 46.08,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7641,7 +7641,7 @@
           "price": 45.27
         }
       ],
-      "ratio": -0.5379413974455296,
+      "ratio": -0.5340909090909091,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -7658,7 +7658,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 12.78,
+      "price": 13.48,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7703,7 +7703,7 @@
           "price": 6.24
         }
       ],
-      "ratio": -0.8290766208251473,
+      "ratio": -0.8400735294117647,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -7720,7 +7720,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 22.04,
+      "price": 22.44,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7748,7 +7748,7 @@
       ],
       "cyclical": true,
       "financial": false,
-      "price": 35.7,
+      "price": 36.62,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7776,7 +7776,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 61.15,
+      "price": 62.65,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7804,7 +7804,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 310.6,
+      "price": 315.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7849,7 +7849,7 @@
           "price": 697.15
         }
       ],
-      "ratio": 24.292389853137486,
+      "ratio": 14.669148056244863,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -7866,7 +7866,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 406.8,
+      "price": 406.6,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7928,7 +7928,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 85.2,
+      "price": 88.3,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -7973,7 +7973,7 @@
           "price": 195.51
         }
       ],
-      "ratio": 278.6315789473717,
+      "ratio": 15.1489361702128,
       "rating": "观察",
       "capReason": "ratio>8，压力情景不足",
       "missing": null,
@@ -7990,7 +7990,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 140.8,
+      "price": 141.2,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -8035,7 +8035,7 @@
           "price": 254.0
         }
       ],
-      "ratio": 1.272637471188672,
+      "ratio": 1.2430939226519344,
       "rating": "条件关注",
       "capReason": "ratio在1至2",
       "missing": null,
@@ -8052,7 +8052,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 165.0,
+      "price": 167.6,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -8114,7 +8114,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 42.86,
+      "price": 44.02,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -8159,7 +8159,7 @@
           "price": 58.36
         }
       ],
-      "ratio": -0.12216216216216205,
+      "ratio": -0.17395727365208552,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -8176,7 +8176,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 192.5,
+      "price": 195.7,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -8221,7 +8221,7 @@
           "price": 280.15
         }
       ],
-      "ratio": 0.03162630673547687,
+      "ratio": -0.010283102704075188,
       "rating": "观察",
       "capReason": "ratio<1",
       "missing": null,
@@ -8238,7 +8238,7 @@
       ],
       "cyclical": false,
       "financial": false,
-      "price": 39.5,
+      "price": 39.34,
       "priceDate": "2026-11-27",
       "priceSource": "腾讯延迟行情",
       "currency": "HKD",
@@ -8372,7 +8372,7 @@
           "price": 50.07
         }
       ],
-      "ratio": -0.22681215900233803,
+      "ratio": -0.21704814522494079,
       "rating": "观察",
       "capReason": "供应商TTM EPS负值与10-07复核评级冲突，待核读",
       "missing": null,
@@ -8380,8 +8380,8 @@
     }
   ],
   "ratingDistribution": {
-    "观察": 110,
-    "条件关注": 12,
+    "观察": 111,
+    "条件关注": 11,
     "回避": 5
   }
 }
