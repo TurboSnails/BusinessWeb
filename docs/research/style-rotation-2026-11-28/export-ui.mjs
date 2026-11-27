@@ -24,5 +24,11 @@ out.posthoc.sub = Object.fromEntries(Object.entries(post.dxus.sub).map(([s, v]) 
 for (const key of ['cost0.3', 'L1', 'L6']) out.report[key] = Object.fromEntries(W.map(w => [w, { R1: r(res.report[key][w].R1), R2: r(res.report[key][w].R2) }]))
 for (const key of ['top2', 'top4']) out.report[key] = Object.fromEntries(W.map(w => [w, r(res.report[key][w])]))
 out.report.ls = Object.fromEntries(Object.entries(res.report.ls_tsmom).map(([g, v]) => [g, { tsm: r(v.sharpe_tsm), ew: r(v.sharpe_ew), dS: r(v.dS) }]))
+const conf = JSON.parse(readFileSync(here('./confirm/results.json'), 'utf8'))
+out.confirm = {
+  hold: conf.hold,
+  verdicts: Object.fromEntries(Object.entries(conf.verdicts).map(([k, v]) => [k, { verdict: v.verdict, avg: r(v.avg_dS), threshold: r(v.threshold), C1: v.C1, C2: v.C2, pHolm: r(v.p_holm, 3) }])),
+  markets: Object.fromEntries(W.map(w => [w, Object.fromEntries(Object.entries(conf.markets[w]).map(([k, v]) => [k, { sharpe: r(v.sharpe), cum: r(v.cum), ...(v.dS != null ? { dS: r(v.dS), dS_static: r(v.dS_static) } : {}), ...(v.dS_mkt != null ? { dS_mkt: r(v.dS_mkt) } : {}) }]))])),
+}
 writeFileSync(here('../../../src/features/strategy-lab/data/style-rotation.json'), `${JSON.stringify(out, null, 2)}\n`)
 console.log('ok')

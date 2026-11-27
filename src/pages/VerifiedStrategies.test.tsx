@@ -117,6 +117,8 @@ describe('通过检验页', () => {
     expect(style.candidates.R1.verdict).toBe('通过')
     expect(screen.getByTestId('verified-why').textContent).toContain('轮动本身没有多赚')
     expect(screen.queryByTestId('verified-recheck-sector')).toBeNull()
+    expect(screen.getByTestId('lab-style-lockbox-verdict').textContent).toContain(`R2「${style.confirm.verdicts.R2.verdict}」`)
+    expect(screen.getByTestId('lab-style-lockbox').textContent).toContain(style.confirm.markets.us.R1.sharpe.toFixed(3))
   })
 
   it('风格轮动影子：显示当月读数表，缺数据的一组给提示', async () => {

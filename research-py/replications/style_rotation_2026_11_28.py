@@ -2,6 +2,8 @@
 
 只依据 docs/research/style-rotation-2026-11-28/PREREG.md 与 inputs/ 写成，出数前未读 run.py。
 运行：cd research-py && uv run python replications/style_rotation_2026_11_28.py --json <out>
+锁箱确认：... --inputs-dir ../docs/research/style-rotation-2026-11-28/confirm --suffix _full \
+          --hold 2023-11 2026-09 --json <out>（按 confirm/MANIFEST.json 校验）
 
 约定：
 - t 月末信号用 t-11..t 共 12 个月收益，决定 t+1 月权重。
@@ -167,10 +169,111 @@ def holm(p: dict) -> dict:
     return adj
 
 
+# ---------------------------------------------------------------- 锁箱确认（PREREG-confirm）
+IN_SAMPLE_DS = {
+    "R1": {"dxus": 0.0950688, "em": 0.0881890, "us": 0.0854170},
+    "R2": {"dxus": 0.0580540, "em": 0.0684730, "us": 0.0629520},
+}
+MARKETS = ("dxus", "em", "us")
+
+
+def weights_static(lb: np.ndarray) -> np.ndarray:
+    w = np.zeros(10)
+    w[[0, 2, 4, 6, 8]] = 0.2
+    return w
+
+
+def run_confirm(inputs_dir: Path, suffix: str, hold: tuple[str, str], manifest: Path | None) -> dict:
+    if manifest is not None:
+        want = json.loads(manifest.read_text())
+        for mk in MARKETS:
+            name = f"legs_{mk}{suffix}.csv"
+            got = hashlib.sha256((inputs_dir / name).read_bytes()).hexdigest()
+            if got != want[name]:
+                raise SystemExit(f"sha256 mismatch for {name}: {got} != {want[name]}")
+    start, end = hold
+    res: dict = {"inputs_dir": str(inputs_dir), "suffix": suffix, "hold": [start, end],
+                 "r2_zero_mode": "exact (pair sum rounded to 1e-10)", "markets": {}}
+    for mk in MARKETS:
+        df = pd.read_csv(inputs_dir / f"legs_{mk}{suffix}.csv", dtype={"month": str}).set_index("month")
+        assert list(df.columns) == LEGS + ["RF", "MKT"]
+        df = df.astype(float)
+        months = list(df.index)
+        n = months.index(end) - months.index(start) + 1
+        hm, W, R, rf, mkt, r2z = build_weights(df, start, end, n)
+        W["STATIC"] = np.tile(weights_static(None), (n, 1))
+        out: dict = {"n": n, "first": hm[0], "last": hm[-1], "r2_exact_zero_pair_months": r2z,
+                     "sharpe": {}, "cumret": {}, "sharpe_c03": {}, "share_months_selected": {}}
+        nets = {}
+        for st in ("B0", "R1", "R2", "STATIC"):
+            net, _, _ = simulate(W[st], R, COST)
+            net3, _, _ = simulate(W[st], R, COST_HI)
+            nets[st] = net
+            out["sharpe"][st] = sharpe(net, rf)
+            out["sharpe_c03"][st] = sharpe(net3, rf)
+            out["cumret"][st] = float(np.prod(1 + net) - 1)
+        out["sharpe"]["MKT"] = sharpe(mkt, rf)
+        out["sharpe_c03"]["MKT"] = out["sharpe"]["MKT"]
+        out["cumret"]["MKT"] = float(np.prod(1 + mkt) - 1)
+        S, S3 = out["sharpe"], out["sharpe_c03"]
+        out["dS"] = {
+            "R1_vs_B0": S["R1"] - S["B0"], "R2_vs_B0": S["R2"] - S["B0"],
+            "R1_vs_STATIC": S["R1"] - S["STATIC"], "R2_vs_STATIC": S["R2"] - S["STATIC"],
+            "STATIC_vs_MKT": S["STATIC"] - S["MKT"],
+        }
+        out["dS_c03"] = {
+            "R1_vs_B0": S3["R1"] - S3["B0"], "R2_vs_B0": S3["R2"] - S3["B0"],
+            "R1_vs_STATIC": S3["R1"] - S3["STATIC"], "R2_vs_STATIC": S3["R2"] - S3["STATIC"],
+            "STATIC_vs_MKT": S3["STATIC"] - S3["MKT"],
+        }
+        for c in ("R1", "R2"):
+            out["share_months_selected"][c] = dict(zip(LEGS, (W[c] > 0).mean(axis=0).tolist()))
+        res["markets"][mk] = out
+    res["candidates"] = {}
+    for c in ("R1", "R2"):
+        ds = {mk: res["markets"][mk]["dS"][f"{c}_vs_B0"] for mk in MARKETS}
+        avg = float(np.mean([ds[mk] for mk in MARKETS]))
+        is_avg = float(np.mean(list(IN_SAMPLE_DS[c].values())))
+        thr = is_avg / 4
+        c1, c2 = avg >= thr, ds["dxus"] > 0
+        if c1 and c2:
+            v = "锁箱确认"
+        elif avg > 0:
+            v = "方向一致，幅度不足"
+        else:
+            v = "锁箱未确认"
+        res["candidates"][c] = {"dS_vs_B0": ds, "avg_dS": avg, "in_sample_avg": is_avg, "threshold": thr,
+                                "threshold_prereg_rounded": {"R1": 0.0224, "R2": 0.0158}[c],
+                                "C1": c1, "C1_with_rounded_threshold": avg >= {"R1": 0.0224, "R2": 0.0158}[c],
+                                "C2": c2, "verdict": v}
+    for mk in MARKETS:
+        o = res["markets"][mk]
+        print(f"== {mk} n={o['n']} {o['first']}..{o['last']} r2_zero={o['r2_exact_zero_pair_months']}")
+        print("  sharpe " + " ".join(f"{k}={v:.10f}" for k, v in o["sharpe"].items()))
+        print("  dS     " + " ".join(f"{k}={v:+.10f}" for k, v in o["dS"].items()))
+    for c, d in res["candidates"].items():
+        print(f"== {c}: avg={d['avg_dS']:+.10f} thr={d['threshold']:.10f} C1={d['C1']} C2={d['C2']} -> {d['verdict']}")
+    return res
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", type=Path, default=None)
+    ap.add_argument("--inputs-dir", type=Path, default=None,
+                    help="锁箱确认：输入目录（如 docs/research/style-rotation-2026-11-28/confirm）")
+    ap.add_argument("--suffix", default="", help="输入文件后缀，如 _full")
+    ap.add_argument("--hold", nargs=2, default=None, metavar=("START", "END"), help="持有月区间，如 2023-11 2026-09")
+    ap.add_argument("--manifest", type=Path, default=None, help="校验用 MANIFEST.json（默认 <inputs-dir>/MANIFEST.json）")
     args = ap.parse_args()
+    if args.inputs_dir is not None or args.hold is not None:
+        if args.inputs_dir is None or args.hold is None:
+            raise SystemExit("--inputs-dir 与 --hold 需同时给出")
+        manifest = args.manifest or (args.inputs_dir / "MANIFEST.json")
+        res = run_confirm(args.inputs_dir.resolve(), args.suffix, tuple(args.hold), manifest)
+        if args.json:
+            args.json.parent.mkdir(parents=True, exist_ok=True)
+            args.json.write_text(json.dumps(res, ensure_ascii=False, indent=2, default=float))
+        return
     sha = verify_inputs()
     global R2_MODE
     sens = {}
