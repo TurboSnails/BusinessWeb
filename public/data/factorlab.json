@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T22:10:11+00:00",
+  "generatedAt": "2026-11-27T01:57:45+00:00",
   "data": [
     {
       "market": "cn",
@@ -97,16 +97,26 @@
   ],
   "ledger": {
     "cn": {
-      "records": 25,
-      "trials": 25,
-      "distinct": 16,
+      "records": 45,
+      "trials": 45,
+      "distinct": 26,
       "byMode": {
-        "explore": 21,
+        "explore": 41,
         "validate": 4
       },
       "factors": [
         "amihud_20d",
         "beta_252d",
+        "cn_accruals",
+        "cn_asset_growth",
+        "cn_bp",
+        "cn_cfp_ttm",
+        "cn_ep_ded_ttm",
+        "cn_ep_ttm",
+        "cn_gpa_ttm",
+        "cn_np_growth_yoy",
+        "cn_roe_ttm",
+        "cn_sp_ttm",
         "high_52w",
         "idio_vol_60d",
         "low_price",
@@ -122,7 +132,7 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-26T21:42:48+00:00"
+      "last": "2026-11-27T01:54:40+00:00"
     },
     "hk": {
       "records": 20,
@@ -219,6 +229,15 @@
         "cn": [],
         "hk": [],
         "us": []
+      }
+    },
+    {
+      "id": "R2",
+      "file": "docs/research/factorlab/rounds/R2-2026-11-27.md",
+      "status": "已完成",
+      "summary": "A 股 10 个文献基本面因子（价值 5、盈利 2、应计、资产增长、单季扣非同比），财报按公告日点时生效。5 个价值因子与扣非同比的截面排序显著（RankIC t 3.8–5.1、两段方向一致），但剔除微盘、市值加权只做多的超额 t 只有 1.1–1.75，10 个都没过第 1 关；盈利、应计、资产增长更弱。没有候选进入锁箱确认，确认名额未动用。盈利收益率与 CH-4 VMG 相关 0.81，管道核对通过。",
+      "candidates": {
+        "cn": []
       }
     }
   ]

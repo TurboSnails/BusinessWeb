@@ -28,7 +28,8 @@ DERIVED = {"open_adj": ("open", "close", "close_adj")}
 # 不在日线 prices.parquet 里、按可见范围现算的字段：market → 模块（须有 PROVIDES、NEEDS、available()、
 # snapshot()、panel_fields(fields, panel, end_ex, hidden)）。美股：SEC 点时基本面与「股本 × 不复权价」市值
 # （prices.parquet 的 mcap_float / mcap_total / turnover 全空，改由这里提供），见 fundamentals_us.py。
-EXTRA_PROVIDERS = {"us": "factorlab.fundamentals_us"}
+# A 股：cn_fin 点时财报（fin_pit.parquet）→ 月末 TTM / 平均 / 同比等字段（fin_*），见 fundamentals_cn.py。
+EXTRA_PROVIDERS = {"us": "factorlab.fundamentals_us", "cn": "factorlab.fundamentals_cn"}
 
 
 def extra_provider(market: str):
@@ -149,6 +150,11 @@ def load_market(market: str, fields, mode: str = "explore", token: UnsealToken |
         if f not in extra:
             raw |= set(DERIVED.get(f, (f,)))
     helper = set(prov.NEEDS) - raw if extra else set()
+    if helper:  # 提供方的辅助字段只取日线文件里有的列（例如测试数据没有 industry）
+        import pyarrow.parquet as pq
+
+        have = set(pq.read_schema(store.market_dir(market) / "prices.parquet").names)
+        helper = {h for h in helper if h in have}
     panel = store.load_panel(market, sorted(raw | helper), start=start,
                              end=None if end_ex is None else end_ex - pd.Timedelta(days=1), raw=True)
     panel = restrict_codes(truncate_panel(panel, end_ex, hidden), mode, lb.explore_frac)
