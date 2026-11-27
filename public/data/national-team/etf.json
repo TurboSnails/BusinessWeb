@@ -168,10 +168,10 @@
         "mv": 43384641.3
       }
     ],
-    "checkedAt": "2026-11-27T10:45:33.232994+00:00",
+    "checkedAt": "2026-11-27T22:30:15.120499+00:00",
     "holderFreshnessNote": "实名榜单源最新仍为2025-12-31。本轮已核510300、510500、510050的2026H1原件，仅披露匿名持有人结构；其他基金实名字段逐项原件仍待核。旧份额按现价折算只作历史持仓重估，不代表当前持仓市值，不能推断国家队清仓。",
     "priceAsOf": "2026-11-27",
-    "priceCheckedAt": "2026-11-27T10:45:32.433897+00:00"
+    "priceCheckedAt": "2026-11-27T22:30:14.099748+00:00"
   },
   "etfs": [
     {
@@ -629,7 +629,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -971,7 +971,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -1403,7 +1403,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -1856,7 +1856,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -2379,7 +2379,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -2841,7 +2841,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -3035,7 +3035,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -3377,7 +3377,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -3524,7 +3524,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -3646,7 +3646,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -3806,7 +3806,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -4261,7 +4261,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -4522,7 +4522,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -4644,7 +4644,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -4931,7 +4931,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -5312,7 +5312,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6150,7 +6150,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6319,7 +6319,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6528,7 +6528,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6676,7 +6676,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6894,7 +6894,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -6992,7 +6992,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -7249,7 +7249,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -7388,7 +7388,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -7525,7 +7525,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -7787,7 +7787,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -7923,7 +7923,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8140,7 +8140,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8279,7 +8279,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8451,7 +8451,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.554508+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077048+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8619,7 +8619,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8711,7 +8711,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8789,7 +8789,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -8868,7 +8868,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9007,7 +9007,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9125,7 +9125,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9274,7 +9274,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9448,7 +9448,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9562,7 +9562,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9690,7 +9690,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9825,7 +9825,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -9953,7 +9953,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10044,7 +10044,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10191,7 +10191,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10307,7 +10307,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10353,7 +10353,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10442,7 +10442,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10535,7 +10535,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10655,7 +10655,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10781,7 +10781,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10849,7 +10849,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -10982,7 +10982,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -11158,7 +11158,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -11311,7 +11311,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     },
     {
@@ -11443,7 +11443,7 @@
         }
       ],
       "priceDate": "2026-11-27",
-      "priceCheckedAt": "2026-11-27T10:45:31.555167+00:00",
+      "priceCheckedAt": "2026-11-27T22:30:13.077661+00:00",
       "priceSource": "research/data-refresh-2026-11-27/etf-quotes.json"
     }
   ]

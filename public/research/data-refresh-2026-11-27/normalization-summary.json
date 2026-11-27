@@ -1,22 +1,23 @@
 {
   "auditDate": "2026-11-27",
-  "normalizedAt": "2026-11-27T10:45:33.241212+00:00",
+  "normalizedAt": "2026-11-27T22:30:15.129489+00:00",
   "mcpInfoSuccess": 0,
   "mcpInfoErrors": 0,
-  "quoteSymbols": 1868,
-  "companyRecordsCovered": 1538,
-  "companyRecordsRequested": 1538,
+  "quoteSymbols": 1878,
+  "companyRecordsCovered": 1556,
+  "companyRecordsRequested": 1556,
   "macroUpdatedFields": {
     "us": [
+      "curve",
+      "hy",
+      "tenYear",
       "dxy",
       "gold",
       "silver",
       "wti"
     ],
     "cn": [],
-    "hk": [
-      "south"
-    ]
+    "hk": []
   },
   "futureUpdated": 625,
   "solidListingsUpdated": 68,

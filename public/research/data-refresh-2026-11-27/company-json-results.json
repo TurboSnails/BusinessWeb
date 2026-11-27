@@ -1,21 +1,21 @@
 {
   "us": {
-    "total": 294,
-    "changed": 294,
+    "total": 298,
+    "changed": 298,
     "quoteDates": [
-      "2026-11-25"
+      "2026-11-27"
     ]
   },
   "cn": {
-    "total": 811,
-    "changed": 811,
+    "total": 812,
+    "changed": 812,
     "quoteDates": [
       "2026-11-27"
     ]
   },
   "hk": {
-    "total": 127,
-    "changed": 127,
+    "total": 140,
+    "changed": 140,
     "quoteDates": [
       "2026-11-27"
     ]
@@ -24,7 +24,7 @@
     "total": 67,
     "changed": 67,
     "quoteDates": [
-      "2026-11-25"
+      "2026-11-27"
     ]
   }
 }

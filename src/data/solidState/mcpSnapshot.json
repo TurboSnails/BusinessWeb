@@ -52,7 +52,7 @@
           "price": 33.59,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.575268+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.136860+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 10.562893,
           "marketCap": 70427967488,
@@ -90,7 +90,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.575268+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.136860+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:45+08:00"
         },
@@ -103,7 +103,7 @@
           "price": 20.36,
           "marketTime": "2026-11-27T16:09:01+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.480292+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.151654+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 5.6398897,
           "marketCap": 42688700416,
@@ -141,7 +141,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.480292+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.151654+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -237,7 +237,7 @@
           "price": 40.7,
           "marketTime": "2026-11-27T16:14:40+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:24.351646+00:00",
+          "retrievedAt": "2026-11-27T22:30:04.646646+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 7142040064,
@@ -275,7 +275,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:24.351646+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:04.646646+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -380,7 +380,7 @@
           "price": 13.02,
           "marketTime": "2026-11-27T16:14:54+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.694263+00:00",
+          "retrievedAt": "2026-11-27T22:30:01.425829+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 28.304348,
           "marketCap": 9548000256,
@@ -418,7 +418,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.694263+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:01.425829+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:55+08:00"
         }
@@ -514,9 +514,9 @@
           "price": 11.93,
           "marketTime": "2026-11-27T16:14:33+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.208982+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.965106+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 23.392159,
+          "peTtm": 23.86,
           "marketCap": 9332230144,
           "businessSummary": "Guangdong Dowstone Technology Co., Ltd. produces and sells lithium batteries, carbon, and ceramic materials in China and internationally. The company offers solid state battery materials, such as silicon-carbon anode, single walled carbon nanotube powder/slurry, and solid-state electrolyte; AI intelligent computing products; carbon materials, including single walled carbon, Oligowalled carbon, and multi-walled nanotube powder and conductive pastes, as well as silicon carbon negative electrode; lithium battery materials, such as triple precursor body and cobalt salts; and ceramic materials. Guangdong Dowstone Technology Co., Ltd. was founded in 2007 and is based in Enping, China.",
           "website": "https://www.dowstone.com.cn",
@@ -552,7 +552,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.208982+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.965106+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:34+08:00"
         }
@@ -648,7 +648,7 @@
           "price": 31.48,
           "marketTime": "2026-11-27T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.977271+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.613111+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 22.169014,
           "marketCap": 17134365696,
@@ -686,7 +686,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.977271+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.613111+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:49+08:00"
         }
@@ -814,7 +814,7 @@
           "price": 15.84,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.069483+00:00",
+          "retrievedAt": "2026-11-27T22:30:05.470773+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 11319561216,
@@ -852,7 +852,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.069483+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:05.470773+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -957,9 +957,9 @@
           "price": 6.0,
           "marketTime": "2026-11-27T16:14:47+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:26.121382+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.484070+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 16.216215,
+          "peTtm": 15.384616,
           "marketCap": 11575321600,
           "businessSummary": "Minmetals New Energy Materials(Hunan)Co.,Ltd. is involved in the research, development, production, and sale of battery materials. The company offers ternary cathode materials, multi-material precursors, multi-material positive electrode materials, multi-component cathode materials, lithium iron phosphate, lithium cobalt oxide and other lithium battery cathode materials, spherical nickel and nickel-metal hydride battery cathode materials. It also offers processing services. The company was formerly known as Hunan Changyuan Lico Co.,Ltd. and changed its name to Minmetals New Energy Materials(Hunan)Co.,Ltd. in August 2025. The company was founded in 2002 and is based in Changsha, China.",
           "website": "https://www.cylico.com",
@@ -995,7 +995,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.121382+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.484070+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -1091,7 +1091,7 @@
           "price": 32.71,
           "marketTime": "2026-11-27T16:14:41+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:26.121382+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.484070+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 17.398935,
           "marketCap": 16508444672,
@@ -1129,7 +1129,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.121382+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.484070+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -1257,7 +1257,7 @@
           "price": 16.85,
           "marketTime": "2026-11-27T15:32:31+08:00",
           "timezone": null,
-          "retrievedAt": "2026-11-27T10:45:26.121382+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.484070+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": null,
@@ -1293,7 +1293,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.121382+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.484070+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": null
         },
@@ -1342,7 +1342,7 @@
           },
           "source": "research/solid-state-core-review-2026-10-09/yfinance-info-835185.BJ.json",
           "issue": "旧北交所代码不作为当前证券；同日09:00占位行情未采纳",
-          "checkedAt": "2026-11-27T10:45:30.926933+00:00"
+          "checkedAt": "2026-11-27T22:30:12.370168+00:00"
         }
       ],
       "financials": {
@@ -1397,7 +1397,7 @@
           "price": 9.37,
           "marketTime": "2026-11-27T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:23.293771+00:00",
+          "retrievedAt": "2026-11-27T22:30:03.444884+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 14.196969,
           "marketCap": 21041639424,
@@ -1435,7 +1435,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:23.293771+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:03.444884+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -1540,7 +1540,7 @@
           "price": 17.87,
           "marketTime": "2026-11-27T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:24.755914+00:00",
+          "retrievedAt": "2026-11-27T22:30:05.018284+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 12.764287,
           "marketCap": 38144692224,
@@ -1578,7 +1578,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:24.755914+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:05.018284+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -1697,9 +1697,9 @@
           "price": 41.24,
           "marketTime": "2026-11-27T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 20.117075,
+          "peTtm": 19.922707,
           "marketCap": 40469577728,
           "businessSummary": "Yunnan Energy New Material (Group) Co., Ltd., together with its subsidiaries, provides film products in China and internationally. The company offers lithium-ion battery separator; BOPP films comprising cigarette film, flat film and special film; as well as special paper products, such as laser transfer anti-counterfeiting paper, direct-plated paper, and glassine paper. It also provides packaging printing products, including cigarette label and aseptic packaging products; and paper packaging, comprising special paper, holographic anti-counterfeiting anodized aluminum, and other products. In addition, the company offers investment and technical services; engages in trading activities; buys and sells real estate; and produces and sales new materials. The company was formerly known as Yunnan Energy New Material Co., Ltd. and changed its name to Yunnan Energy New Material (Group) Co., Ltd. in January 2026. Yunnan Energy New Material (Group) Co., Ltd. was founded in 1996 and is headquartered in Yuxi, China.",
           "website": "https://www.semcorp.com",
@@ -1735,7 +1735,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:48+08:00"
         }
@@ -1840,7 +1840,7 @@
           "price": 10.81,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.208982+00:00",
+          "retrievedAt": "2026-11-27T22:30:01.420806+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 56.89474,
           "marketCap": 16205580288,
@@ -1878,7 +1878,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.208982+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:01.420806+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:46+08:00"
         }
@@ -1983,7 +1983,7 @@
           "price": 28.77,
           "marketTime": "2026-11-27T16:14:49+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.224571+00:00",
+          "retrievedAt": "2026-11-27T22:30:05.472945+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 41.100002,
           "marketCap": 10545127424,
@@ -2006,7 +2006,7 @@
             "earningsGrowth": 0.387,
             "dividendYield": 0.24,
             "fiftyTwoWeekLow": 25.55,
-            "fiftyTwoWeekHigh": 52.77,
+            "fiftyTwoWeekHigh": 52.69,
             "sharesOutstanding": 366532051
           },
           "summary": {
@@ -2021,7 +2021,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.224571+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:05.472945+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -2140,7 +2140,7 @@
           "price": 215.89,
           "marketTime": "2026-11-27T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.515088+00:00",
+          "retrievedAt": "2026-11-27T22:30:01.420806+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 11.215065,
           "marketCap": 998976913408,
@@ -2149,7 +2149,7 @@
           "industry": "Electrical Equipment & Parts",
           "country": "China",
           "valuation": {
-            "forwardPE": 9.410745,
+            "forwardPE": 9.413165,
             "priceToBook": 3.6091783,
             "priceToSalesTrailing12Months": 2.6407487,
             "enterpriseValue": 1061963431936,
@@ -2178,7 +2178,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.515088+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:01.420806+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:07+08:00"
         },
@@ -2191,9 +2191,9 @@
           "price": 314.2,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:21.875631+00:00",
+          "retrievedAt": "2026-11-27T22:30:01.806199+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 14.393038,
+          "peTtm": 14.159532,
           "marketCap": 1453881950208,
           "businessSummary": "Contemporary Amperex Technology Co., Limited, together with its subsidiaries, engages in the research, development, production, and sale of electric vehicle and energy storage system batteries in China and internationally. The company offers power battery systems, including cells, modules/battery boxes, and battery packs, as well as lithium iron phosphate, ternary high-voltage medium-nickel, ternary high-nickel, super hybrid, sodium-ion, and condensed matter batteries; energy storage battery systems, such as cells, battery cabinets, energy storage containers, and system integration; and battery material products comprising lithium salts, precursors, and cathode materials. It also processes, purifies, and synthesizes metal materials, which include nickel, cobalt, manganese, lithium, phosphorus, iron, aluminum, copper, and other materials from spent batteries. In addition, the company provides passenger vehicles solutions, such as electric private and operating vehicles, as well as hybrid; commercial application solutions comprising road passenger transport, urban delivery, heavy-duty transport, urban street cleaning, construction machinery, two-wheeled vehicle, vessel, and special vehicle; energy storage solutions on power generation, transmission and distribution, and consumption; and battery recycling solutions. Further, it is involved in investment activities. The company was incorporated in 2011 and is headquartered in Ningde, China.",
           "website": "https://www.catl.com",
@@ -2229,7 +2229,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.875631+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:01.806199+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -2348,9 +2348,9 @@
           "price": 76.13,
           "marketTime": "2026-11-27T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.575268+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.136860+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 21.93948,
+          "peTtm": 22.130814,
           "marketCap": 694092234752,
           "businessSummary": "BYD Company Limited, together with its subsidiaries, engages in automobiles and batteries business in the People's Republic of China, Hong Kong, Macau, Taiwan, and internationally. It operates in two segments, Mobile Handset Components, Assembly Service and Other Products; and Automobiles and Related Products and Other Products. The Mobile Handset Components, Assembly Service and Other Products segment manufactures and sells mobile handset components, such as housings and electronic components, and provides assembly services. Its Automobiles and Related Products and Other Products segment is involved in the manufacturing and sale of automobiles, and auto-related molds and components; provision of automobile leasing and after sales services, automobile power batteries, lithium-ion batteries, photovoltaic, and iron battery products; and rail transport and related business. The company develops urban rail transportation business. BYD Company Limited was founded in 1994 and is headquartered in Shenzhen, China.",
           "website": "https://www.bydglobal.com",
@@ -2386,7 +2386,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.575268+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.136860+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:57+08:00"
         },
@@ -2399,9 +2399,9 @@
           "price": 59.0,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.480292+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.151654+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 14.974619,
+          "peTtm": 15.206185,
           "marketCap": 537914638336,
           "businessSummary": "BYD Company Limited, together with its subsidiaries, engages in automobiles and batteries business in the People's Republic of China, Hong Kong, Macau, Taiwan, and internationally. It operates in two segments, Mobile Handset Components, Assembly Service and Other Products; and Automobiles and Related Products and Other Products. The Mobile Handset Components, Assembly Service and Other Products segment manufactures and sells mobile handset components, such as housings and electronic components, and provides assembly services. Its Automobiles and Related Products and Other Products segment is involved in the manufacturing and sale of automobiles, and auto-related molds and components; provision of automobile leasing and after sales services, automobile power batteries, lithium-ion batteries, photovoltaic, and iron battery products; and rail transport and related business. The company develops urban rail transportation business. BYD Company Limited was founded in 1994 and is headquartered in Shenzhen, China.",
           "website": "https://www.bydglobal.com",
@@ -2437,7 +2437,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.480292+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.151654+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -2533,7 +2533,7 @@
           "price": 21.72,
           "marketTime": "2026-11-27T16:14:51+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.394455+00:00",
+          "retrievedAt": "2026-11-27T22:29:58.973839+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 55.692307,
           "marketCap": 39415832576,
@@ -2571,7 +2571,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.394455+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:58.973839+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:51+08:00"
         }
@@ -2667,7 +2667,7 @@
           "price": 8.24,
           "marketTime": "2026-11-27T16:14:56+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.790422+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.288612+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 10070135808,
@@ -2690,7 +2690,7 @@
             "earningsGrowth": null,
             "dividendYield": 0.0,
             "fiftyTwoWeekLow": 7.54,
-            "fiftyTwoWeekHigh": 17.14,
+            "fiftyTwoWeekHigh": 17,
             "sharesOutstanding": 1222103885
           },
           "summary": {
@@ -2705,7 +2705,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.790422+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.288612+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -2801,7 +2801,7 @@
           "price": 45.68,
           "marketTime": "2026-11-27T16:14:33+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.977271+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.613111+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 14.735484,
           "marketCap": 100849303552,
@@ -2839,7 +2839,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.977271+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.613111+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:34+08:00"
         }
@@ -2944,7 +2944,7 @@
           "price": 15.56,
           "marketTime": "2026-11-27T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.989792+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.798269+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 111.14286,
           "marketCap": 28746516480,
@@ -2982,7 +2982,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.989792+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.798269+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:04+08:00"
         }
@@ -3123,7 +3123,7 @@
           "price": 27.24,
           "marketTime": "2026-11-27T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.208982+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.965106+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 22.699999,
           "marketCap": 45605789696,
@@ -3161,7 +3161,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.208982+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.965106+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:13+08:00"
         },
@@ -3174,7 +3174,7 @@
           "price": 18.83,
           "marketTime": "2026-11-27T16:08:58+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.276369+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.982772+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 13.845588,
           "marketCap": 31525588992,
@@ -3212,7 +3212,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.276369+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.982772+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -3331,7 +3331,7 @@
           "price": 16.07,
           "marketTime": "2026-11-27T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:21.208982+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.965106+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 15.01869,
           "marketCap": 10366224384,
@@ -3369,7 +3369,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:21.208982+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.965106+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:58+08:00"
         }
@@ -3497,9 +3497,9 @@
           "price": 32.33,
           "marketTime": "2026-11-27T16:14:55+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.790422+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.288612+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 47.54412,
+          "peTtm": 48.253735,
           "marketCap": 8010050048,
           "businessSummary": "Hymson Laser Technology Group Co.,Ltd. manufactures and sells lasers and automation equipment in China and internationally. The company offers coating and calendaring and slitting, high-speed laser notching intelligent, high speed laser ablation, and high speed winding machine, as well as intelligent solutions for assembly line, solutions for the top-cover assembly of the battery, auto battery baking solutions, and EV battery module/pack for EV battery applications; 3C battery, transformer, VCM, electronic atomization, PCB/SMT, precision structural parts, brittle material, dispensing, and new display machines for consumer electronic applications. It also provides photovoltaic machines for cell, PV cell module, PV glass, battery energy storge, inverter, and solar mounting machines; kitchen and bathroom processing equipment, fitness equipment, home display, household energy storage and small power battery solutions, and intelligent household chain products for smart home applications; medical equipment; and BAPV, BIPV, elevator, modern business display technology, security monitoring, and UPS. In addition, the company offers body sheet metal processing, automobile electronic module, and automotive display module solutions for transportation applications; and sheet metal laser cutting, tube laser cutting, 3D five-axis cutting, automatic production line, and laser welding solutions for sheet-metal working applications. Hymson Laser Technology Group Co.,Ltd. was founded in 2008 and is headquartered in Shenzhen, China.",
           "website": "https://www.hymson.com",
@@ -3535,7 +3535,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.790422+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.288612+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -3631,7 +3631,7 @@
           "price": 32.05,
           "marketTime": "2026-11-27T16:14:58+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.790422+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.288612+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 94.2647,
           "marketCap": 5407748608,
@@ -3669,7 +3669,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.790422+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.288612+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -3762,19 +3762,19 @@
           "providerName": "NIO Inc.",
           "currency": "USD",
           "financialCurrency": "CNY",
-          "price": 2.69,
-          "marketTime": "2026-11-25T16:03:52-05:00",
+          "price": 2.85,
+          "marketTime": "2026-11-27T13:03:43-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:28.790307+00:00",
+          "retrievedAt": "2026-11-27T22:30:09.735883+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 6740244480,
+          "marketCap": 7141150720,
           "businessSummary": "NIO Inc. designs, develops, manufactures, and sells smart electric vehicles in China, Europe, and internationally. It offers five and six-seater electric SUVs, as well as smart electric sedans. The company also offers power solutions, including Power Home, a home charging solution; Power Swap, a battery-swapping service; Power Charger and Destination Charger; Power Mobile, a mobile charging service through charging vans; Power Map, an application that provides access to a network of public chargers and their real-time information; and One Click for power valet service. In addition, it provides repair, maintenance, car beauty, and inspection services through its service centers and authorized third-party service centers; vehicle transportation and delivery, pre-delivery inspections, guidance on vehicle features, assistance with vehicle registration, and insurance processing services; insurance, maintenance, repairs, accident rescue, car washing, chauffeur services, and valet parking services; and remote monitoring and real-time diagnostics services, as well as technical, warranty, and auto financing arrangements. Further, the company is involved in the provision of energy and service packages to its users; design and technology development activities; manufacture of electric powertrains, battery packs, and components; and sales and after-sales management activities. Additionally, it operates in app NIO Auto Mall where users can select from various accessories and value added services; and online auction platform. The company was formerly known as NextEV Inc. and changed its name to NIO Inc. in July 2017. NIO Inc. was incorporated in 2014 and is headquartered in Shanghai, China.",
           "website": "https://www.nio.com",
           "industry": "Auto Manufacturers",
           "country": "China",
           "valuation": {
-            "forwardPE": 27.225729,
+            "forwardPE": 28.8451,
             "priceToBook": 14.84474,
             "priceToSalesTrailing12Months": 0.07911121,
             "enterpriseValue": 4625707008,
@@ -3803,9 +3803,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:28.790307+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:09.735883+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:01:55-05:00"
+          "valuationMarketTime": "2026-11-27T13:01:34-05:00"
         },
         {
           "symbol": "9866.HK",
@@ -3816,7 +3816,7 @@
           "price": 22.44,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:26.124760+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.674291+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 56530292736,
@@ -3854,7 +3854,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.124760+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.674291+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -3968,7 +3968,7 @@
           "price": 9.79,
           "marketTime": "2026-11-27T16:14:59+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:22.083181+00:00",
+          "retrievedAt": "2026-11-27T22:30:01.980903+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 14.611939,
           "marketCap": 112538763264,
@@ -4006,7 +4006,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:22.083181+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:01.980903+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -4111,7 +4111,7 @@
           "price": 3384,
           "marketTime": "2026-11-27T15:30:00+09:00",
           "timezone": "Asia/Tokyo",
-          "retrievedAt": "2026-11-27T10:45:15.027Z",
+          "retrievedAt": "2026-11-27T22:29:54.972Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
           "peTtm": 9.804433,
           "marketCap": 39714786639872,
@@ -4149,7 +4149,7 @@
           },
           "source": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:15.027Z",
+          "marketCheckedAt": "2026-11-27T22:29:54.972Z",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:30:00+09:00"
         }
@@ -4251,19 +4251,19 @@
           "providerName": "QuantumScape Corporation",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 2.94,
-          "marketTime": "2026-11-25T16:00:02-05:00",
+          "price": 3.0,
+          "marketTime": "2026-11-27T13:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:28.993641+00:00",
+          "retrievedAt": "2026-11-27T22:30:10.302098+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 1828852992,
+          "marketCap": 1866176512,
           "businessSummary": "QuantumScape Corporation, together with its subsidiaries, develops solid-state lithium-metal battery technology for electric vehicles and other applications in the United States. The company was founded in 2010 and is headquartered in San Jose, California.",
           "website": "https://www.quantumscape.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -4.6068506,
+            "forwardPE": -4.700868,
             "priceToBook": 2.6923215,
             "priceToSalesTrailing12Months": null,
             "enterpriseValue": 2043655808,
@@ -4292,9 +4292,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:28.993641+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:10.302098+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:00:02-05:00"
+          "valuationMarketTime": "2026-11-27T13:00:00-05:00"
         }
       ],
       "financials": {
@@ -4397,7 +4397,7 @@
           "price": 7.12,
           "marketTime": "2026-11-27T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 28.48,
           "marketCap": 4447145472,
@@ -4435,7 +4435,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:27+08:00"
         }
@@ -4531,7 +4531,7 @@
           "price": 18.74,
           "marketTime": "2026-11-27T16:14:53+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:25.453034+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.032049+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 21.295454,
           "marketCap": 12366663680,
@@ -4569,7 +4569,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:25.453034+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.032049+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -4674,7 +4674,7 @@
           "price": 8.61,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 86.1,
           "marketCap": 3616145152,
@@ -4712,7 +4712,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:06+08:00"
         }
@@ -4808,7 +4808,7 @@
           "price": 22.64,
           "marketTime": "2026-11-27T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:18.532275+00:00",
+          "retrievedAt": "2026-11-27T22:29:57.427926+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 9.278688,
           "marketCap": 119801200640,
@@ -4846,7 +4846,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:18.532275+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:57.427926+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:36+08:00"
         }
@@ -4951,9 +4951,9 @@
           "price": 62.92,
           "marketTime": "2026-11-27T16:14:36+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:18.531286+00:00",
+          "retrievedAt": "2026-11-27T22:29:57.426920+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 13.387234,
+          "peTtm": 13.678261,
           "marketCap": 98716114944,
           "businessSummary": "Zangge Mining Company Limited, together with its subsidiaries, researches, develops, manufactures, and sells potassium chloride and lithium carbonate in China and internationally. The company is also involved in mineral product development; investment activities; trade business; research and development of lithium extraction technology; and import and export of goods activities. In addition, it engages in the mining of copper, silver, and molybdenum deposits. The company was formerly known as Zangge Holding Company Limited and changed its name to Zangge Mining Company Limited in December 2021. Zangge Mining Company Limited was founded in 1996 and is headquartered in Golmud, China.",
           "website": "https://www.zanggekuangye.com",
@@ -4989,7 +4989,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:18.531286+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:57.426920+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:36+08:00"
         }
@@ -5085,7 +5085,7 @@
           "price": 16.39,
           "marketTime": "2026-11-27T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:18.532275+00:00",
+          "retrievedAt": "2026-11-27T22:29:57.427926+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 136.58333,
           "marketCap": 8536226816,
@@ -5123,7 +5123,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:18.532275+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:57.427926+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:03+08:00"
         }
@@ -5228,7 +5228,7 @@
           "price": 32.61,
           "marketTime": "2026-11-27T16:14:12+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 11.482395,
           "marketCap": 17580101632,
@@ -5266,7 +5266,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:12+08:00"
         }
@@ -5362,7 +5362,7 @@
           "price": 32.63,
           "marketTime": "2026-11-27T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.575268+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.136860+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 9.568915,
           "marketCap": 55898624000,
@@ -5400,7 +5400,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.575268+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.136860+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:15+08:00"
         },
@@ -5413,7 +5413,7 @@
           "price": 20.76,
           "marketTime": "2026-11-27T16:09:03+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:26.121382+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.674291+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 5.3643413,
           "marketCap": 35566411776,
@@ -5451,7 +5451,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.121382+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.674291+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -5556,7 +5556,7 @@
           "price": 32.28,
           "marketTime": "2026-11-27T16:15:00+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 12.415384,
           "marketCap": 23544543232,
@@ -5594,7 +5594,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:00+08:00"
         }
@@ -5690,7 +5690,7 @@
           "price": 41.95,
           "marketTime": "2026-11-27T16:14:51+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.402218+00:00",
+          "retrievedAt": "2026-11-27T22:29:58.974323+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 6.77706,
           "marketCap": 10892535808,
@@ -5728,7 +5728,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.402218+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:58.974323+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:51+08:00"
         }
@@ -5833,7 +5833,7 @@
           "price": 11.48,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.575268+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.136860+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 7.3121014,
           "marketCap": 13231417344,
@@ -5871,7 +5871,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.575268+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.136860+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:06+08:00"
         }
@@ -5976,9 +5976,9 @@
           "price": 17.04,
           "marketTime": "2026-11-27T16:14:42+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.402218+00:00",
+          "retrievedAt": "2026-11-27T22:29:58.974323+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 14.2,
+          "peTtm": 13.209304,
           "marketCap": 15596608512,
           "businessSummary": "Chengxin Lithium Group Co., Ltd. engages in the mining, production, and sale of lithium salt and metal, and timber products in China and internationally. It operates through Timber planting and sales, and Lithium product processing and sales segments. The company offers lithium chloride, carbonate, hydroxide, spodumene, and other lithium metals. Its products are used in lithium-ion power batteries, energy storage, petrochemical, pharmaceutical, and other fields. The company was formerly known as Shenzhen Chengxin Lithium Group Co., Ltd. and changed its name to Chengxin Lithium Group Co., Ltd. in September 2021. Chengxin Lithium Group Co., Ltd. was incorporated in 1997 and is headquartered in Shenzhen, China.",
           "website": "https://en.cxlithium.com",
@@ -6014,7 +6014,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.402218+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:58.974323+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:42+08:00"
         }
@@ -6107,19 +6107,19 @@
           "providerName": "Sociedad Química y Minera de Chile S.A.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 47.84,
-          "marketTime": "2026-11-25T16:03:52-05:00",
+          "price": 48.7,
+          "marketTime": "2026-11-27T13:03:43-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:29.501173+00:00",
+          "retrievedAt": "2026-11-27T22:30:10.741386+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 7.804241,
-          "marketCap": 13664913408,
+          "peTtm": 7.9445353,
+          "marketCap": 13910561792,
           "businessSummary": "Sociedad Química y Minera de Chile S.A. produces and sells specialty plant nutrients, and iodine and its derivatives in Chile, Latin America, the Caribbean, Europe, North America, Asia, and internationally. It offers potassium nitrate, sodium nitrate, specialty blends, and other specialty fertilizers under the Ultrasol, Qrop, Speedfol, Allganic, Ultrasoline, Prop, and Prohydric brands. The company also provides iodine and its derivatives for use in medical, agricultural, industrial, and human and animal nutrition products comprising x-ray contrast media, biocides, antiseptics and disinfectants, pharmaceutical intermediates, polarizing films for LCD and LED screens, chemicals, organic compounds, and pigments, as well as added to edible salt to prevent iodine deficiency disorders. In addition, it produces lithium carbonate and lithium hydroxide which are used in the production of cathode material for, secondary batteries; lithium chloride; and basic lithium chemicals and lithium derivatives used in lubricating greases for heat-resistant glass, chips for the ceramic and glazing industry, and air conditioning chemicals, as well as other pharmaceutical syntheses and metal alloys. Further, the company produces potassium sulfate; and potassium chloride which are used to nourish various crops. Additionally, it produces and markets industrial chemicals, such as sodium nitrate mainly used in the production of glass and explosives, metal processing and recycling, and production of insulating materials and adhesives; potassium nitrate used as a raw material to produce frits and special ty glass, as well as in the enamel, metal treatment, and pyrotechnic sectors; solar salts used as a thermal storage medium in solar power generation plants; and potassium chloride as an additive in oil drilling and food processing sectors, as well as sells third-party fertilizers. Sociedad Química y Minera de Chile S.A. was founded in 1926 and is headquartered in Santiago, Chile.",
           "website": "https://www.sqm.com",
           "industry": "Specialty Chemicals",
           "country": "Chile",
           "valuation": {
-            "forwardPE": 8.151942,
+            "forwardPE": 8.298487,
             "priceToBook": 2.924191,
             "priceToSalesTrailing12Months": 2.7440703,
             "enterpriseValue": 21759619072,
@@ -6148,9 +6148,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:29.501173+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:10.741386+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:00:02-05:00"
+          "valuationMarketTime": "2026-11-27T13:00:02-05:00"
         }
       ],
       "financials": {
@@ -6250,19 +6250,19 @@
           "providerName": "Albemarle Corporation",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 81.5,
-          "marketTime": "2026-11-25T16:03:52-05:00",
+          "price": 82.93,
+          "marketTime": "2026-11-27T13:03:43-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:26.332758+00:00",
+          "retrievedAt": "2026-11-27T22:30:07.043426+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 19.638554,
-          "marketCap": 9617802240,
+          "peTtm": 19.983131,
+          "marketCap": 9786556416,
           "businessSummary": "Albemarle Corporation provides energy storage solutions worldwide. It operates through three segments: Energy Storage, Specialties, and Ketjen. The Energy Storage segment offers lithium compounds, including lithium carbonate, lithium hydroxide, and lithium chloride for use in lithium batteries used in consumer electronics and electric vehicles; power grids and solar panels; high-performance greases; and specialty glass used in consumer appliances and electronics. The Specialties segment provides bromine and highly specialized lithium solutions for various industries, such as energy, mobility, connectivity, and health comprising fire safety compounds; bromine-based specialty chemical products, including elemental bromine, alkyl bromides, inorganic bromides, brominated powdered activated carbon, and various bromine fine chemicals; lithium specialties, such as butyllithium and lithium aluminum hydride; cesium products for the chemical and pharmaceutical industries; and zirconium, barium, and titanium products for pyrotechnical applications, including airbag initiators. This segment also provides organic synthesis processes in the areas of steroid chemistry and vitamins, and various life science applications, as well as intermediates for the pharmaceutical industry; technical services, including handling and use of reactive lithium products; and recycling services for lithium-containing by-products. The Ketjen segment offers clean fuels technologies, including hydroprocessing catalysts together with isomerization and alkylation catalysts; fluidized catalytic cracking catalysts and additives; and performance catalyst solutions comprising organometallics and curatives. It serves the grid storage, automotive, aerospace, conventional energy, electronics, construction, agriculture and food, pharmaceuticals, and medical device industries. Albemarle Corporation was founded in 1887 and is headquartered in Charlotte, North Carolina.",
           "website": "https://www.albemarle.com",
           "industry": "Specialty Chemicals",
           "country": "United States",
           "valuation": {
-            "forwardPE": 10.635855,
+            "forwardPE": 10.822472,
             "priceToBook": 1.502128,
             "priceToSalesTrailing12Months": 2.0444489,
             "enterpriseValue": 14909356032,
@@ -6291,9 +6291,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.332758+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:07.043426+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:00:02-05:00"
+          "valuationMarketTime": "2026-11-27T13:00:02-05:00"
         }
       ],
       "financials": {
@@ -6396,7 +6396,7 @@
           "price": 2.64,
           "marketTime": "2026-11-27T16:10:10+11:00",
           "timezone": "Australia/Sydney",
-          "retrievedAt": "2026-11-27T10:45:15.269Z",
+          "retrievedAt": "2026-11-27T22:29:55.326Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
           "peTtm": 16.500002,
           "marketCap": 8516499968,
@@ -6434,7 +6434,7 @@
           },
           "source": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:15.269Z",
+          "marketCheckedAt": "2026-11-27T22:29:55.326Z",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:10:10+11:00"
         }
@@ -6484,7 +6484,7 @@
           "price": 32.68,
           "marketTime": "2026-11-27T16:14:40+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:24.755914+00:00",
+          "retrievedAt": "2026-11-27T22:30:05.018284+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 10.4743595,
           "marketCap": 61880479744,
@@ -6522,7 +6522,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:24.755914+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:05.018284+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -6618,7 +6618,7 @@
           "price": 5.48,
           "marketTime": "2026-11-27T16:14:15+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.415703+00:00",
+          "retrievedAt": "2026-11-27T22:29:58.974870+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 16.60606,
           "marketCap": 27960930304,
@@ -6656,7 +6656,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.415703+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:58.974870+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:03+08:00"
         }
@@ -6752,7 +6752,7 @@
           "price": 15.12,
           "marketTime": "2026-11-27T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:19.394455+00:00",
+          "retrievedAt": "2026-11-27T22:29:58.973839+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 137.45454,
           "marketCap": 6081766400,
@@ -6790,7 +6790,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:19.394455+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:58.973839+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:48+08:00"
         }
@@ -6813,7 +6813,7 @@
           "price": 41.14,
           "marketTime": "2026-11-27T16:14:57+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:23.468106+00:00",
+          "retrievedAt": "2026-11-27T22:30:03.632675+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 242,
           "marketCap": 71665262592,
@@ -6851,7 +6851,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:23.468106+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:03.632675+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:01+08:00"
         }
@@ -6947,7 +6947,7 @@
           "price": 13.35,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.125065+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.794113+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 7.716763,
           "marketCap": 143996370944,
@@ -6985,7 +6985,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.125065+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.794113+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -7054,7 +7054,7 @@
           "price": 4.47,
           "marketTime": "2026-11-27T16:14:44+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:23.888136+00:00",
+          "retrievedAt": "2026-11-27T22:30:04.006338+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 45580881920,
@@ -7092,7 +7092,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:23.888136+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:04.006338+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         },
@@ -7105,7 +7105,7 @@
           "price": 1.82,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.824146+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.605477+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 18558660608,
@@ -7143,7 +7143,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.824146+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.605477+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -7236,19 +7236,19 @@
           "providerName": "Mercedes-Benz Group AG",
           "currency": "EUR",
           "financialCurrency": "EUR",
-          "price": 38.845,
-          "marketTime": "2026-11-27T11:30:09+01:00",
+          "price": 38.95,
+          "marketTime": "2026-11-27T17:38:17+01:00",
           "timezone": "Europe/Berlin",
-          "retrievedAt": "2026-11-27T10:45:15.215Z",
+          "retrievedAt": "2026-11-27T22:29:55.214Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
-          "peTtm": 6.720588,
-          "marketCap": 36872929280,
+          "peTtm": 6.7387543,
+          "marketCap": 36972601344,
           "businessSummary": "Mercedes-Benz Group AG operates as an automotive company in Europe, Germany, North America, the United States, Asia, China, and internationally. It operates through Mercedes-Benz Cars, Mercedes-Benz Vans, and Mercedes-Benz Financial Services segments. The company develops, manufactures, and sells cars and vans under the Mercedes-Benz, Mercedes-AMG, Mercedes-Maybach, G-Class brands, as well as related spare parts and accessories. It also provides financing, leasing, vehicle subscription and rental, fleet management, insurance, and digital services related to charging electric vehicles. The company was formerly known as Daimler AG and changed its name to Mercedes-Benz Group AG in February 2022. Mercedes-Benz Group AG was founded in 1886 and is headquartered in Stuttgart, Germany.",
           "website": "https://group.mercedes-benz.com",
           "industry": "Auto Manufacturers",
           "country": "Germany",
           "valuation": {
-            "forwardPE": 6.6600833,
+            "forwardPE": 6.6780853,
             "priceToBook": 0.40412387,
             "priceToSalesTrailing12Months": 0.29393217,
             "enterpriseValue": 122769367040,
@@ -7277,9 +7277,9 @@
           },
           "source": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:15.215Z",
+          "marketCheckedAt": "2026-11-27T22:29:55.214Z",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-27T11:30:09+01:00"
+          "valuationMarketTime": "2026-11-27T17:38:17+01:00"
         }
       ],
       "financials": {
@@ -7370,19 +7370,19 @@
           "providerName": "Bayerische Motoren Werke Aktiengesellschaft",
           "currency": "EUR",
           "financialCurrency": "EUR",
-          "price": 58.48,
-          "marketTime": "2026-11-27T11:30:09+01:00",
+          "price": 58.66,
+          "marketTime": "2026-11-27T17:35:58+01:00",
           "timezone": "Europe/Berlin",
-          "retrievedAt": "2026-11-27T10:45:15.106Z",
+          "retrievedAt": "2026-11-27T22:29:55.058Z",
           "quoteStatus": "供应商常规交易时段最后报价，非交易所认证收盘",
-          "peTtm": 5.784372,
-          "marketCap": 34569498624,
+          "peTtm": 5.8021765,
+          "marketCap": 34675904512,
           "businessSummary": "Bayerische Motoren Werke Aktiengesellschaft develops, manufactures, and sells automobiles and motorcycles, spare parts, and accessories worldwide. It operates through Automotive, Motorcycles, and Financial Services segments. The company offers automobiles under the BMW, MINI, and Rolls-Royce brands. It also develops, manufactures, and sells scooters, and motorcycles for private use and special-purpose vehicles for operational use under the BMW Motorrad brand. In addition, the company provides car rentals; credit financing; leasing that include insurance and service products; financing for dealership and customer deposits; vehicle fleet financing services for corporate car fleets under the Alphabet brand; and financial services for the automotive sector. It sells its products through retail outlet, agent, and independent dealerships. Bayerische Motoren Werke Aktiengesellschaft was founded in 1916 and is headquartered in Munich, Germany.",
           "website": "https://www.bmwgroup.com",
           "industry": "Auto Manufacturers",
           "country": "Germany",
           "valuation": {
-            "forwardPE": 7.2956367,
+            "forwardPE": 7.3180923,
             "priceToBook": 0.33853596,
             "priceToSalesTrailing12Months": 0.25198948,
             "enterpriseValue": 134488326144,
@@ -7411,9 +7411,9 @@
           },
           "source": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:15.106Z",
+          "marketCheckedAt": "2026-11-27T22:29:55.058Z",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-27T11:30:09+01:00"
+          "valuationMarketTime": "2026-11-27T17:35:58+01:00"
         }
       ],
       "financials": {
@@ -7507,7 +7507,7 @@
           "price": 77.26,
           "marketTime": "2026-11-27T16:14:45+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.989792+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.798269+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 19.266832,
           "marketCap": 160176324608,
@@ -7530,7 +7530,7 @@
             "earningsGrowth": -0.235,
             "dividendYield": 1.65,
             "fiftyTwoWeekLow": 62,
-            "fiftyTwoWeekHigh": 192.88,
+            "fiftyTwoWeekHigh": 191.71,
             "sharesOutstanding": 2073211424
           },
           "summary": {
@@ -7545,7 +7545,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.989792+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.798269+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:46+08:00"
         }
@@ -7650,7 +7650,7 @@
           "price": 2.37,
           "marketTime": "2026-11-27T16:14:21+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.977271+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.613111+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 2129130368,
@@ -7688,7 +7688,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.977271+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.613111+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:22+08:00"
         }
@@ -7781,19 +7781,19 @@
           "providerName": "Tesla, Inc.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 380.14,
-          "marketTime": "2026-11-25T16:00:02-05:00",
+          "price": 400.0,
+          "marketTime": "2026-11-27T13:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:29.713245+00:00",
+          "retrievedAt": "2026-11-27T22:30:10.742688+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 417.73627,
-          "marketCap": 1502601543680,
+          "peTtm": 439.56042,
+          "marketCap": 1581103185920,
           "businessSummary": "Tesla, Inc. designs, develops, manufactures, leases, and sells electric vehicles, and energy generation and storage systems in the United States, China, and internationally. The company operates in two segments, Automotive; and Energy Generation and Storage. The company offers electric vehicles, as well as sells automotive regulatory credits; and non-warranty maintenance services and collision, automotive insurance services, as well as part sales and retail merchandise sale. It also provides sedans and sport utility vehicles through direct and used vehicle sales, a network of Tesla Superchargers, and in-app upgrades; purchase financing and leasing services; services for electric vehicles through its company-owned service locations and Tesla mobile service technicians; and vehicle limited warranties and extended service plans. In addition, the company engages in the design, manufacture, installation, sale, and leasing of solar energy generation and energy storage products, and related services to residential, commercial, and industrial customers and utilities through its website, stores, and galleries, as well as through a network of channel partners. Further, it provides services and repairs to its energy product customers, including under warranty and extended service plans; and various financing options to its residential customers; lithium-ion battery energy storage products, such as Powerwall and Megapack; energy generation products, including solar panels and solar roof; self-driving development and artificial intelligence software, vehicle control and infotainment software, and battery and powertrain. The company was formerly known as Tesla Motors, Inc. and changed its name to Tesla, Inc. in February 2017. Tesla, Inc. was incorporated in 2003 and is headquartered in Austin, Texas.",
           "website": "https://www.tesla.com",
           "industry": "Auto Manufacturers",
           "country": "United States",
           "valuation": {
-            "forwardPE": 175.6833,
+            "forwardPE": 185.25209,
             "priceToBook": 17.653572,
             "priceToSalesTrailing12Months": 14.800096,
             "enterpriseValue": 1454297317376,
@@ -7822,9 +7822,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:29.713245+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:10.742688+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:00:02-05:00"
+          "valuationMarketTime": "2026-11-27T13:00:00-05:00"
         }
       ],
       "financials": {
@@ -7927,16 +7927,16 @@
           "price": 27.8,
           "marketTime": "2026-11-27T16:09:01+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:20.480292+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.605477+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
-          "peTtm": 21.060604,
+          "peTtm": 20.441175,
           "marketCap": 715048943616,
           "businessSummary": "Xiaomi Corporation, an investment holding company, engages in the development and sales of smartphones in Mainland China and internationally. It operates through Smartphones, IoT and Lifestyle Products, Internet Services, and smart electric vehicles segments. The company also offers internet of things (IoT) and lifestyle products comprising smart large home appliances, smart TVs, tablets, wearables and other IoT and lifestyle products; hardware repairment services for products; installation services for certain IoT products; and sale of materials. In addition, it provides internet services, such as advertising, online game, and fintech services; and development, manufacture, and sales of smart electric vehicles. Further, the company in the wholesale and retail of smartphones and ecosystem partners' products; investment activities; sales of smart hardware; software and hardware development; procurement and sales of smartphones, ecosystem partners' products and spare parts, and raw materials; operation of retail stores; and commercial factoring and e-commerce business. Additionally, it provides intra-group capital supervision, collection, remittance, credit guarantee, and interest rate risk management; customer; software related; promotion; electronic payment technology; and technical services. Xiaomi Corporation was incorporated in 2010 and is headquartered in Beijing, the People's Republic of China.",
           "website": "https://www.mi.com",
           "industry": "Consumer Electronics",
           "country": "China",
           "valuation": {
-            "forwardPE": 19.14992,
+            "forwardPE": 19.503521,
             "priceToBook": 2.1138368,
             "priceToSalesTrailing12Months": 1.5256593,
             "enterpriseValue": 530875908096,
@@ -7965,7 +7965,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.480292+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.605477+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -8061,7 +8061,7 @@
           "price": 59.35,
           "marketTime": "2026-11-27T16:09:05+08:00",
           "timezone": "Asia/Hong_Kong",
-          "retrievedAt": "2026-11-27T10:45:26.124760+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.674291+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": 30316812288,
@@ -8099,7 +8099,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.124760+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.674291+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T16:08:56+08:00"
         }
@@ -8119,19 +8119,19 @@
           "providerName": "Solid Power, Inc.",
           "currency": "USD",
           "financialCurrency": "USD",
-          "price": 1.4,
-          "marketTime": "2026-11-25T16:00:02-05:00",
+          "price": 1.43,
+          "marketTime": "2026-11-27T13:00:01-05:00",
           "timezone": "America/New_York",
-          "retrievedAt": "2026-11-27T10:45:29.501173+00:00",
+          "retrievedAt": "2026-11-27T22:30:10.554847+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
-          "marketCap": 320863680,
+          "marketCap": 327739296,
           "businessSummary": "Solid Power, Inc., a research and development-stage company, develops solid-state battery technologies for the electric vehicles markets in the United States. It engages in the development of sulfide-based solid electrolytes. The company was founded in 2011 and is headquartered in Louisville, Colorado.",
           "website": "https://www.solidpowerbattery.com",
           "industry": "Auto Parts",
           "country": "United States",
           "valuation": {
-            "forwardPE": -3.076923,
+            "forwardPE": -3.1428568,
             "priceToBook": 1.0824276,
             "priceToSalesTrailing12Months": 73.62178,
             "enterpriseValue": 317468544,
@@ -8160,9 +8160,9 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:29.501173+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:10.554847+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
-          "valuationMarketTime": "2026-11-25T16:00:01-05:00"
+          "valuationMarketTime": "2026-11-27T13:00:00-05:00"
         }
       ],
       "financials": {
@@ -8265,7 +8265,7 @@
           "price": 49.22,
           "marketTime": "2026-11-27T16:14:48+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.977271+00:00",
+          "retrievedAt": "2026-11-27T22:30:00.613111+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 20.338842,
           "marketCap": 37106302976,
@@ -8303,7 +8303,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.977271+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:00.613111+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:49+08:00"
         }
@@ -8431,7 +8431,7 @@
           "price": 23.98,
           "marketTime": "2026-11-27T16:14:30+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:20.120513+00:00",
+          "retrievedAt": "2026-11-27T22:29:59.791086+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 9.950207,
           "marketCap": 48884711424,
@@ -8469,7 +8469,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:20.120513+00:00",
+          "marketCheckedAt": "2026-11-27T22:29:59.791086+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:04:03+08:00"
         }
@@ -8574,7 +8574,7 @@
           "price": 26.62,
           "marketTime": "2026-11-27T16:14:50+08:00",
           "timezone": "Asia/Shanghai",
-          "retrievedAt": "2026-11-27T10:45:24.755914+00:00",
+          "retrievedAt": "2026-11-27T22:30:05.018284+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": 88.73333,
           "marketCap": 15800837120,
@@ -8583,7 +8583,7 @@
           "industry": "Specialty Chemicals",
           "country": "China",
           "valuation": {
-            "forwardPE": 26.62,
+            "forwardPE": 31.690477,
             "priceToBook": 16.365875,
             "priceToSalesTrailing12Months": 20.297358,
             "enterpriseValue": 24954611712,
@@ -8612,7 +8612,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:24.755914+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:05.018284+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": "2026-11-27T15:00:02+08:00"
         }
@@ -8708,7 +8708,7 @@
           "price": 15.08,
           "marketTime": "2026-11-27T15:32:31+08:00",
           "timezone": null,
-          "retrievedAt": "2026-11-27T10:45:26.121382+00:00",
+          "retrievedAt": "2026-11-27T22:30:06.484070+00:00",
           "quoteStatus": "供应商最后报价，非交易所认证收盘",
           "peTtm": null,
           "marketCap": null,
@@ -8744,7 +8744,7 @@
           },
           "source": "research/data-refresh-2026-11-27/tencent-quotes.json",
           "issue": null,
-          "marketCheckedAt": "2026-11-27T10:45:26.121382+00:00",
+          "marketCheckedAt": "2026-11-27T22:30:06.484070+00:00",
           "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
           "valuationMarketTime": null
         },
@@ -8793,13 +8793,13 @@
           },
           "source": "research/solid-state-core-review-2026-10-09/yfinance-info-832522.BJ.json",
           "issue": "旧北交所代码不作为当前证券；同日09:00占位行情未采纳",
-          "checkedAt": "2026-11-27T10:45:30.926933+00:00"
+          "checkedAt": "2026-11-27T22:30:12.370168+00:00"
         }
       ],
       "financials": null,
       "latestFinancialTables": null
     }
   ],
-  "marketCheckedAt": "2026-11-27T10:45:15.367Z",
+  "marketCheckedAt": "2026-11-27T22:29:55.449Z",
   "priceAsOf": "2026-11-27"
 }
