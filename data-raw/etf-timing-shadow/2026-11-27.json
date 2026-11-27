@@ -1,6 +1,6 @@
 {
  "asOf": "2026-11-27",
- "generatedAt": "2026-11-27T10:43:00.658Z",
+ "generatedAt": "2026-11-27T18:32:17.965Z",
  "universeVersion": "2026-11-15",
  "timing": {
   "hs300Bull": true,
@@ -15,11 +15,11 @@
  "sources": {
   "benchmarks": {
    "159915": "tencent",
-   "510300": "em",
-   "510880": "em"
+   "510300": "tencent",
+   "510880": "tencent"
   },
-  "tencent": 47,
-  "em": 29
+  "tencent": 43,
+  "em": 33
  },
  "items": [
   {
@@ -186,8 +186,8 @@
   {
    "code": "159636",
    "name": "港股通科技30ETF工银",
-   "close": 0.401,
-   "date": "2026-11-26",
+   "close": 0.422,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -209,23 +209,23 @@
   {
    "code": "159667",
    "name": "工业母机ETF国泰",
-   "close": 0.429,
-   "date": "2026-11-26",
+   "close": 0.472,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-09-28",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    },
    "cyb": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-07-02",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    }
   },
@@ -393,8 +393,8 @@
   {
    "code": "159851",
    "name": "金融科技ETF华宝",
-   "close": 0.488,
-   "date": "2026-11-26",
+   "close": 0.537,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -554,8 +554,8 @@
   {
    "code": "159901",
    "name": "深证100ETF易方达",
-   "close": 2.635,
-   "date": "2026-11-26",
+   "close": 2.823,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -577,8 +577,8 @@
   {
    "code": "159928",
    "name": "消费ETF汇添富",
-   "close": 0.693,
-   "date": "2026-11-26",
+   "close": 0.695,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -600,8 +600,8 @@
   {
    "code": "159939",
    "name": "信息技术ETF广发",
-   "close": 0.752,
-   "date": "2026-11-26",
+   "close": 0.827,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": true,
@@ -623,8 +623,8 @@
   {
    "code": "159967",
    "name": "创业板成长ETF华夏",
-   "close": 0.437,
-   "date": "2026-11-26",
+   "close": 0.505,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -692,8 +692,8 @@
   {
    "code": "512010",
    "name": "医药ETF易方达",
-   "close": 0.375,
-   "date": "2026-11-26",
+   "close": 0.388,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -715,31 +715,31 @@
   {
    "code": "512070",
    "name": "证券保险ETF易方达",
-   "close": 0.735,
-   "date": "2026-11-26",
+   "close": 0.769,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-05-15",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    },
    "cyb": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-05-15",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    }
   },
   {
    "code": "512170",
    "name": "医疗ETF华宝",
-   "close": 0.318,
-   "date": "2026-11-26",
+   "close": 0.334,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -761,8 +761,8 @@
   {
    "code": "512200",
    "name": "房地产ETF南方",
-   "close": 0.984,
-   "date": "2026-11-26",
+   "close": 1.031,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -784,8 +784,8 @@
   {
    "code": "512400",
    "name": "有色金属ETF南方",
-   "close": 1.233,
-   "date": "2026-11-26",
+   "close": 1.31,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -807,23 +807,23 @@
   {
    "code": "512480",
    "name": "半导体ETF国联安",
-   "close": 0.696,
-   "date": "2026-11-26",
+   "close": 0.766,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-11-26",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    },
    "cyb": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-07-07",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    }
   },
@@ -853,8 +853,8 @@
   {
    "code": "512670",
    "name": "国防ETF鹏华",
-   "close": 0.603,
-   "date": "2026-11-26",
+   "close": 0.651,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -876,8 +876,8 @@
   {
    "code": "512690",
    "name": "酒ETF鹏华",
-   "close": 0.43,
-   "date": "2026-11-26",
+   "close": 0.437,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -899,8 +899,8 @@
   {
    "code": "512720",
    "name": "计算机ETF国泰",
-   "close": 0.877,
-   "date": "2026-11-26",
+   "close": 0.964,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -922,31 +922,31 @@
   {
    "code": "512760",
    "name": "芯片ETF国泰",
-   "close": 0.753,
-   "date": "2026-11-26",
+   "close": 0.828,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-11-26",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    },
    "cyb": {
     "holding": false,
-    "pending": null,
+    "pending": "buy",
     "lastSignal": {
-     "date": "2026-07-06",
-     "side": "sell"
+     "date": "2026-11-27",
+     "side": "buy"
     }
    }
   },
   {
    "code": "512800",
    "name": "银行ETF华宝",
-   "close": 0.927,
-   "date": "2026-11-26",
+   "close": 0.913,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -991,8 +991,8 @@
   {
    "code": "512890",
    "name": "红利低波ETF华泰柏瑞",
-   "close": 1.261,
-   "date": "2026-11-26",
+   "close": 1.247,
+   "date": "2026-11-27",
    "src": "tencent",
    "hs": {
     "holding": false,
@@ -1016,7 +1016,7 @@
    "name": "央企改革ETF华夏",
    "close": 1.413,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": "buy",
@@ -1039,7 +1039,7 @@
    "name": "传媒ETF广发",
    "close": 0.753,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1062,7 +1062,7 @@
    "name": "中概互联网ETF易方达",
    "close": 0.891,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
@@ -1085,7 +1085,7 @@
    "name": "香港证券ETF易方达",
    "close": 1.504,
    "date": "2026-11-27",
-   "src": "tencent",
+   "src": "em",
    "hs": {
     "holding": false,
     "pending": null,
