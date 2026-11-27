@@ -63,7 +63,9 @@ for (const market of ['hk', 'adr'] as const) {
         modified[up] = { ...modified[up], price: snapshot[up].price * 1.3, date: '2026-11-20', trailingPE: 999, forwardPE: 999 }
         modified[down] = { ...modified[down], price: snapshot[down].price * 0.7, date: '2026-10-01' }
         const changed = run(modified)
-        expect(changed.audit.priceDate).toBe('2026-10-01～2026-11-20')
+        const dates = rows.map(row => modified[`${market}:${row.code}`]?.date).filter((d): d is string => Boolean(d)).sort()
+        expect(dates[0]).toBe('2026-10-01')
+        expect(changed.audit.priceDate).toBe(`2026-10-01～${dates[dates.length - 1]}`)
         expect(baseline.details[up].rating).toBe('条件关注')
         expect(changed.details[up].rating).toBe('观察')
         expect(baseline.details[down].rating).toBe('观察')
