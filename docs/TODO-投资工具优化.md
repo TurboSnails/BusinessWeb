@@ -292,6 +292,11 @@
 - [x] v0：`research-py/factorlab/` 核心引擎（股票池、因子注册、预处理、评估、回测、护栏）、A 股 / 港股 / 美股 / Ken French 数据适配器、试下载与审计；设计经独立评审修订（锁箱固定区间与终身预算、数据层强制、截面验证、市值加权主口径、次日开盘执行、成本表）。
 - [x] 全量数据（2026-11-27）：A 股 5,897 只含退市（等级 A）、港股 2,745 只、美股 5,262 只（等级 B）、Ken French 94 个数据集、SEC 点时财报 5,027 家；A 股点时 ST（沪深北）、行业、总股本已补。校验见 docs/research/factorlab/VALIDATION.md。
 - [x] v1：经典因子复现校验引擎——美股动量对 Ken French UMD 相关 0.91，A 股规模对 CH-4 SMB 相关 0.93，港股合理性检查通过。
-- [ ] 下一步：开始正式探索（每个市场先从文献因子与基本面因子起，走「探索 → 截面验证 → 预注册 → 季度批量解封」）；数据每月增量更新（各 fetch 加 --refresh）。
-- [ ] v2：基本面因子（A 股财报按公告日、SEC 按申报日点时生效）。
+- [x] 正式探索 R1–R7（2026-11-27，三市场共 107 次试验，见 `docs/research/factorlab/rounds/`）：A 股盈余惊喜、营收惊喜、换手波动过第 1–3 关，已预注册锁箱确认（L-038，`docs/research/factorlab-confirm-2026Q4/PREREG.md`）；其余没有候选。
+- [x] v2：基本面因子（A 股财报按公告日、SEC 按申报日、港股巨潮点时财报）。
+- [x] 换电脑：`factorlab.datapack`（打包 / 解包校验 / 状态核对 / 从零全量拉取），README「在另一台电脑上」。
+- [ ] **A 股行情增量更新** `factorlab.sources.cn update`：只补最后一个交易日之后的行情与复权因子，不动 `fin_pit.parquet`（PREREG 冻结了它的 sha256）；用合成数据测「增量 = 全量重建」。**12 月锁箱确认前必须完成**（现在只能 `cn fetch --refresh` 全量重下，要几个小时）。
+- [ ] **前推记录脚本** `factorlab.forward run --market cn`：3 个候选从 2026-12 起按月记账（K1/K2 判主口径、K3 判等权），写 `docs/research/factorlab-confirm-2026Q4/forward.json`，连续 24 个月 t < −1 撤下；同时写 12 月确认的逐步操作清单 `RUNBOOK.md`（核对冻结哈希 → 增量补行情 → 解封 2026Q4 → 逐个确认一次 → Holm → 按三档判定 → 更新 LEDGER 与页面）。
+- [ ] **多重检验总报告** `factorlab.multiple`：按收益相关聚类算有效试验数，3 个候选的 DSR，CSCV 的 PBO，「靠运气能过 t≥2 的有几个」；写 `docs/research/factorlab/MULTIPLE-TESTING.md`，并在因子实验室页面加「试了这么多次，会不会是运气」一节。
+- [ ] 2026-12 上旬：按 RUNBOOK 做 A 股锁箱确认（每个候选只确认一次），结果写 L-038、页面与更新说明。
 - [ ] 登记簿体积：每次试验存约 20KB 收益序列进 git，试验多了要改压缩存储。
