@@ -40,3 +40,6 @@ data-raw/portfolio-explore/work/**/trade-log.csv
 data-raw/portfolio-explore/work/**/*.log
 data-raw/portfolio-explore/work/longrun-stress/*_*.json
 data-raw/masters-rebalance/drivers.json
+
+# L-039 加密研究原始下载只留本机；来源、时间与校验值见 data-raw/crypto-trend/SOURCES.md
+data-raw/crypto-trend/raw/

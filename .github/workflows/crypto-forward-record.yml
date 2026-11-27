@@ -1,0 +1,37 @@
+name: Record L-039 BTC signals
+
+on:
+  schedule:
+    - cron: '30 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data-publish
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Record daily BTC signals
+        run: node scripts/crypto-forward-record.mjs
+      - name: Commit if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f public/data/crypto-forward/l039.jsonl ]]; then exit 0; fi
+          git add -- public/data/crypto-forward/l039.jsonl
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "data(crypto): L-039 信号留档 $(date -u +%Y-%m-%d)"
+          bash scripts/git-push-retry.sh
