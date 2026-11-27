@@ -2,6 +2,7 @@ import React from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import recheck from '../features/strategy-lab/data/daily-recheck.json'
 import sector from '../features/strategy-lab/data/sector-rotation.json'
 import StrategyLab, { LAB_STUDIES } from './StrategyLab'
 import VerifiedStrategies, { VERIFIED, VERIFIED_LEAD } from './VerifiedStrategies'
@@ -48,6 +49,27 @@ describe('通过检验页', () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(body) })))
     renderAt('/invest/verified')
     expect(await screen.findByText(/2026-12 入选——S1：能源（XLE）、科技（XLK）、原材料（XLB）；S2：待上月底数据。/)).toBeTruthy()
+  })
+
+  it('按日复核：板块轮动页签列出 7 条门槛的月末与日线夏普差和大跌表，结论来自 L-040 结果', () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
+    renderAt('/invest/verified')
+    const sec = screen.getByTestId('verified-recheck')
+    expect(sec.textContent).toContain(`S1 ${recheck.sector.S1.verdict}`)
+    expect(within(screen.getByTestId('verified-recheck-sector')).getAllByRole('row')).toHaveLength(8)
+    const crash = within(screen.getByTestId('verified-recheck-crashes')).getAllByRole('row')
+    expect(crash).toHaveLength(6)
+    expect(crash[5].textContent).toContain('2020')
+    expect(crash[5].textContent).toContain('−20% / −34%')
+  })
+
+  it('按日复核：防守倾斜页签显示 P2 结论与 G2 余量', () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
+    renderAt('/invest/verified?tab=tilt')
+    const sec = screen.getByTestId('verified-recheck')
+    expect(sec.textContent).toContain(`P2 ${recheck.tilt.P2.verdict}`)
+    expect(sec.textContent).toContain('只深 0.34 个百分点')
+    expect(within(screen.getByTestId('verified-recheck-tilt')).getAllByRole('row')).toHaveLength(6)
   })
 
   it('切到防守倾斜页签', () => {

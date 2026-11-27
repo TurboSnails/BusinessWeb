@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Page } from '../components/ui'
 import { PageTabs } from '../components/ui/PageTabs'
 import TrioNav from '../features/combined-strategy/TrioNav'
+import DailyRecheck from '../features/strategy-lab/DailyRecheck'
 import DefensiveTiltStudy from '../features/strategy-lab/DefensiveTiltStudy'
 import SectorRotationStudy from '../features/strategy-lab/SectorRotationStudy'
 import '../styles/combined-strategy.css'
@@ -89,6 +90,7 @@ export default function VerifiedStrategies(): JSX.Element {
           </ul>
           <p className="ss-p"><strong>影子记录：</strong>{item.shadow}现行仓位仍只按宏观攻守的档位定，股票部分仍买宽基。</p>
         </section>
+        <DailyRecheck tab={item.id} />
         <item.Component />
       </div>
 
