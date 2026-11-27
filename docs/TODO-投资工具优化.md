@@ -308,6 +308,6 @@
 - [x] 换电脑：`factorlab.datapack`（打包 / 解包校验 / 状态核对 / 从零全量拉取），README「在另一台电脑上」。
 - [x] **A 股行情增量更新**（2026-11-27 完成，模块名改为 `factorlab.sources.cn_update`，不改后台下载在用的 `cn.py`：合成数据写入真实缓存后跑真实 `build_cn`，截尾再增量，逐列一致，含除权日落在新增区间、跨月末两种情况；3 只真实股票联网演练一致；全市场增量等本机行情下完再跑）`factorlab.sources.cn update`：只补最后一个交易日之后的行情与复权因子，不动 `fin_pit.parquet`（PREREG 冻结了它的 sha256）；用合成数据测「增量 = 全量重建」。**12 月锁箱确认前必须完成**（现在只能 `cn fetch --refresh` 全量重下，要几个小时）。
 - [x] **前推记录脚本**（2026-11-27 完成：`factorlab.forward run|status|holm`，运行前核对 3 个候选的源码 / 参数 / 配置哈希与预注册逐位一致；`RUNBOOK.md` 写好 7 步与不可回头点；尚未在真实行情上跑，等 12 月）`factorlab.forward run --market cn`：3 个候选从 2026-12 起按月记账（K1/K2 判主口径、K3 判等权），写 `docs/research/factorlab-confirm-2026Q4/forward.json`，连续 24 个月 t < −1 撤下；同时写 12 月确认的逐步操作清单 `RUNBOOK.md`（核对冻结哈希 → 增量补行情 → 解封 2026Q4 → 逐个确认一次 → Holm → 按三档判定 → 更新 LEDGER 与页面）。
-- [ ] **多重检验总报告** `factorlab.multiple`：按收益相关聚类算有效试验数，3 个候选的 DSR，CSCV 的 PBO，「靠运气能过 t≥2 的有几个」；写 `docs/research/factorlab/MULTIPLE-TESTING.md`，并在因子实验室页面加「试了这么多次，会不会是运气」一节。
+- [x] **多重检验总报告**（2026-11-27 完成并上线：A 股 t≥2 实际 8 个对运气 0–4，但 A 股 PBO 0.64、三个候选 DSR 0.66–0.71 都低于 0.95）`factorlab.multiple`：按收益相关聚类算有效试验数，3 个候选的 DSR，CSCV 的 PBO，「靠运气能过 t≥2 的有几个」；写 `docs/research/factorlab/MULTIPLE-TESTING.md`，并在因子实验室页面加「试了这么多次，会不会是运气」一节。
 - [ ] 2026-12 上旬：按 RUNBOOK 做 A 股锁箱确认（每个候选只确认一次），结果写 L-038、页面与更新说明。
 - [ ] 登记簿体积：每次试验存约 20KB 收益序列进 git，试验多了要改压缩存储。
