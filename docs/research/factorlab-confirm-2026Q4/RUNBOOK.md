@@ -242,3 +242,20 @@ uv run python -m factorlab.forward status --market cn
 | Holm 三档 | `uv run python -m factorlab.forward holm --market cn --batch 2026Q4-cn` |
 | 前推 | `uv run python -m factorlab.forward run --market cn` |
 | 站点 | `uv run python -m factorlab.export_site` |
+
+---
+
+## 附：港股 2026Q4 批次（L-045，`PREREG-L045-hk.md`，提交 `6dc801f9`）
+
+港股与 A 股分属不同市场，各自一季一批，互不影响。港股没有增量更新：
+
+```bash
+uv run python -m factorlab.sources.hk fetch --refresh     # 全量重下日线（数小时）
+uv run python -m factorlab.sources.hk build
+uv run python -m factorlab.datapack status                 # PREREG-L045-hk.md 冻结项须全部 OK（fin_pit 不重建）
+uv run python -m factorlab.cli unseal --market hk --batch 2026Q4-hk --prereg 6dc801f9 --candidate hk_vqs52 --execution open
+uv run python -m factorlab.cli eval --market hk --factor hk_vqs52 --mode confirm --batch 2026Q4-hk --json ../docs/research/factorlab-confirm-2026Q4/confirm-hk_vqs52.json
+```
+
+判定：`tmu_ew` 均值 ≥ 0.00268 且单边 p < 0.05 → 通过（仍只进「研究中」，等级 B）；均值 ≥ 0.00268 不显著 → 方向一致、证据不足；否则不通过。
+
