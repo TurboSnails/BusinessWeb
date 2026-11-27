@@ -121,3 +121,11 @@
 | `cmc-20220410.html` | <https://coinmarketcap.com/historical/20220410/> | 2026-11-27T16:18:59Z | 200 | 20 | 2022-04-10 → 2022-04-10 | `fea430c3f1c9e8b3bea9279b7305e3827a7bb1c6d1e0605585fb42fa65364b3d` |
 | `cmc-20220612.html` | <https://coinmarketcap.com/historical/20220612/> | 2026-11-27T16:22:55Z | 200 | 20 | 2022-06-12 → 2022-06-12 | `5b60253b9c8c09cb77e64240a145d5b7a9f2340114716e8e2449e726c8f52bc1` |
 | `cmc-20221106.html` | <https://coinmarketcap.com/historical/20221106/> | 2026-11-27T16:19:01Z | 200 | 20 | 2022-11-06 → 2022-11-06 | `1ae660c3a81572d4027ca937f0c43bfac6af7aef5cd2a926c4e13a4652a084e3` |
+
+## 冻结后补录（2026-11-27，manager 授权）
+
+仅用于现金利率敏感性。SHA-256 针对完整 CSV 原始字节，行数和日期范围含缺失读数行。
+
+| 本机文件 | 公开 URL 与参数 | 下载时间 UTC | HTTP | 行数 | 最早 → 最晚 | SHA-256 |
+|---|---|---|---:|---:|---|---|
+| `fred-DGS3MO.csv` | <https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS3MO> | 2026-11-27T16:47:20Z | 200 | 11801 | 1981-09-01 → 2026-11-24 | `6817303bfaab24e5d0515a04ac1ad9da879abc9b635b5e8824b1a37c5385db07` |

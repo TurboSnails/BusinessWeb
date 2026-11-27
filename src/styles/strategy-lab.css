@@ -191,3 +191,33 @@
 .lab-cols__title { margin: 0 0 4px; font-size: 0.95rem; }
 
 .lab-shadow { margin: 8px 0 12px; font-size: 0.9rem; line-height: 1.6; }
+
+.lab-crypto-appendix {
+  margin-block: 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+.lab-crypto-appendix > summary {
+  cursor: pointer;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.lab-crypto-cost { white-space: nowrap; }
+#lab-crypto-l039 .lab-table time { white-space: nowrap; }
+
+@media (max-width: 560px) {
+  #lab-crypto-l039 .lab-table th,
+  #lab-crypto-l039 .lab-table td {
+    padding: 8px 6px;
+    font-size: 0.78rem;
+  }
+
+  #lab-crypto-l039 .lab-table th {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  #lab-crypto-l039 .lab-rule { font-size: 0.7rem; }
+}

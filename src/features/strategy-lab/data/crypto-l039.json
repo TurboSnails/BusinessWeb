@@ -1,0 +1,833 @@
+{
+  "generatedFrom": "docs/research/crypto-trend-2026-11-27/results.json",
+  "ledger": "L-039",
+  "title": "BTC 单币择时研究（L-039）",
+  "units": "decimal fractions",
+  "verdict": "旧史不通过",
+  "verdictRisk": {
+    "sigma": 0.8262244802743408,
+    "mdd": 0.7262080047653493
+  },
+  "disclaimer": "即使通过，波动仍远高于美股；本研究不评估把 BTC 加入组合的影响，不构成配置或杠杆建议。",
+  "asOf": {
+    "marketDate": "2026-11-26",
+    "trend": false,
+    "ma200": 71919.78325,
+    "close": 60492.37,
+    "marketSource": "Bitstamp BTC/USD",
+    "mvrvDate": "2026-11-26",
+    "mvrv": 1.1391995277471378,
+    "mvrvSource": "Coin Metrics"
+  },
+  "history": {
+    "base": {
+      "coverage": {
+        "start": "2012-03-05",
+        "end": "2018-01-01",
+        "days": 2128,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 2126,
+          "zero_volume_close": 3
+        },
+        "terminalMark": 13880,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": 0.060372762008547465,
+        "mddVsM": 0.08938799632594985,
+        "mddVsB0": 0.12225014501438636,
+        "sigmaReductionVsB0": 0.077898483699265
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": true,
+        "mddVsM": true,
+        "mddVsB0": true,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.8262244802743408,
+        "mdd": 0.7262080047653493,
+        "cer": 0.6798097151253926,
+        "sharpe": 2.0621272953163694,
+        "cvar95": 0.09904636920763552,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.8670569564080295,
+        "trades": 29,
+        "turnover": 28.913437327551303,
+        "exposure": 0.7720864661654135
+      },
+      "B0": {
+        "sigma": 0.8960233398042425,
+        "mdd": 0.8484581497797357,
+        "cer": 0.5735275939357104,
+        "sharpe": 1.9841160973943375,
+        "cvar95": 0.10670419261744934,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.918388272280365,
+        "trades": 1,
+        "turnover": 0.9925435168298162,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.8259645487652687,
+        "mdd": 0.8155960010912991,
+        "cer": 0.6194369531168451,
+        "sharpe": 1.9889026826855056,
+        "cvar95": 0.0982089767017466,
+        "worst30": 0.4895997574938473,
+        "cagr": 2.6421945080761633,
+        "trades": 70,
+        "turnover": 1.8995179694382165,
+        "exposure": 0.9205568844555675,
+        "weight": 0.9179,
+        "matchError": 0.000010245386802498757,
+        "mismatch": false
+      }
+    },
+    "lateOneDay": {
+      "coverage": {
+        "start": "2012-03-05",
+        "end": "2018-01-01",
+        "days": 2128,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 2126,
+          "zero_volume_close": 3
+        },
+        "terminalMark": 13880,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": 0.08754778948710229,
+        "mddVsM": 0.10440206224769955,
+        "mddVsB0": 0.136491222637253,
+        "sigmaReductionVsB0": 0.0762005312387436
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": true,
+        "mddVsM": true,
+        "mddVsB0": true,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.827745885308846,
+        "mdd": 0.7119669271424827,
+        "cer": 0.7061624324389217,
+        "sharpe": 2.094733829767767,
+        "cvar95": 0.09904636920763552,
+        "worst30": 0.5109635712413733,
+        "cagr": 2.9802639716901482,
+        "trades": 29,
+        "turnover": 28.913437327551303,
+        "exposure": 0.7716165413533834
+      },
+      "B0": {
+        "sigma": 0.8960233398042425,
+        "mdd": 0.8484581497797357,
+        "cer": 0.5735275939357104,
+        "sharpe": 1.9841160973943375,
+        "cvar95": 0.10670419261744934,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.918388272280365,
+        "trades": 1,
+        "turnover": 0.9925435168298162,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.8274848016668657,
+        "mdd": 0.8163689893901822,
+        "cer": 0.6186146429518194,
+        "sharpe": 1.9888114985570924,
+        "cvar95": 0.09839439076929138,
+        "worst30": 0.4900853956774677,
+        "cagr": 2.648228753086896,
+        "trades": 70,
+        "turnover": 1.8812622997825765,
+        "exposure": 0.9222996241807846,
+        "weight": 0.9197,
+        "matchError": 0.000020458247541044194,
+        "mismatch": false
+      }
+    },
+    "doubleCost": {
+      "coverage": {
+        "start": "2012-03-05",
+        "end": "2018-01-01",
+        "days": 2128,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 2126,
+          "zero_volume_close": 3
+        },
+        "terminalMark": 13880,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": 0.03255386380511305,
+        "mddVsM": 0.06168293254407453,
+        "mddVsB0": 0.09433626465611067,
+        "sigmaReductionVsB0": 0.0773750634981154
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": true,
+        "mddVsM": true,
+        "mddVsB0": false,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.8266593012192369,
+        "mdd": 0.754121885123625,
+        "cer": 0.6499809103188845,
+        "sharpe": 2.026263187611638,
+        "cvar95": 0.09904636920763552,
+        "worst30": 0.5109635712413733,
+        "cagr": 2.7565777592852,
+        "trades": 29,
+        "turnover": 28.827740705968,
+        "exposure": 0.7720864661654135
+      },
+      "B0": {
+        "sigma": 0.8959862979137551,
+        "mdd": 0.8484581497797357,
+        "cer": 0.5723103035328027,
+        "sharpe": 1.9827283929933461,
+        "cvar95": 0.10670419261744934,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.913382068655917,
+        "trades": 1,
+        "turnover": 0.9851731441800896,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.8259341067478733,
+        "mdd": 0.8158048176676995,
+        "cer": 0.6174270465137714,
+        "sharpe": 1.986451166192995,
+        "cvar95": 0.09821503293806821,
+        "worst30": 0.4896760008365345,
+        "cagr": 2.634719122850776,
+        "trades": 70,
+        "turnover": 1.8949944540356147,
+        "exposure": 0.9205568844555675,
+        "weight": 0.9179,
+        "matchError": 0.000010245386802498757,
+        "mismatch": false
+      }
+    }
+  },
+  "historicalDisclosure": {
+    "historicalDisclosureOnly": true,
+    "cerDeltaLower95": -0.14693760282332127,
+    "resamples": 20000,
+    "blockDays": 90
+  },
+  "dailyRebalanceDisclosure": {
+    "sigma": 0.8258702596861045,
+    "mdd": 0.818293130015004,
+    "cer": 0.6119507861061596,
+    "sharpe": 1.9797822910811618,
+    "cvar95": 0.09837704394509658,
+    "worst30": 0.47621206748189215,
+    "cagr": 2.6188117007956704,
+    "trades": 2112,
+    "turnover": 5.124492728717089,
+    "exposure": 0.9218045130350341,
+    "weight": 0.9218,
+    "matchError": 0.000003896738186126569,
+    "mismatch": false
+  },
+  "segments": {
+    "early": {
+      "coverage": {
+        "start": "2012-03-05",
+        "end": "2015-01-01",
+        "days": 1032,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 1033
+        },
+        "terminalMark": 321,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": -0.009621115050973295,
+        "mddVsM": -0.016075261994401346,
+        "mddVsB0": 0.015743870170402796,
+        "sigmaReductionVsB0": 0.06355233510373803
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": false,
+        "mddVsM": false,
+        "mddVsB0": false,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.974235225201142,
+        "mdd": 0.7101592135300377,
+        "cer": 0.49216341835954924,
+        "sharpe": 1.9665320857168525,
+        "cvar95": 0.11716249328830677,
+        "worst30": 0.5109635712413734,
+        "cagr": 3.13857732964099,
+        "trades": 24,
+        "turnover": 23.923908153483477,
+        "exposure": 0.7548449612403101
+      },
+      "B0": {
+        "sigma": 1.0403520257686436,
+        "mdd": 0.7259030837004405,
+        "cer": 0.42232183760165865,
+        "sharpe": 1.9664693230846793,
+        "cvar95": 0.1232353510280383,
+        "worst30": 0.5109635712413734,
+        "cagr": 3.4097466308075894,
+        "trades": 1,
+        "turnover": 0.9925435168298162,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.9737428469607167,
+        "mdd": 0.6940839515356364,
+        "cer": 0.5017845334105225,
+        "sharpe": 1.9759295150939231,
+        "cvar95": 0.11500022760273686,
+        "worst30": 0.4931690679322901,
+        "cagr": 3.1860729046033747,
+        "trades": 34,
+        "turnover": 1.3976754911269702,
+        "exposure": 0.9329403956911683,
+        "weight": 0.9312,
+        "matchError": 0.0000068498263253724545,
+        "mismatch": false
+      }
+    },
+    "late": {
+      "coverage": {
+        "start": "2015-01-01",
+        "end": "2018-01-01",
+        "days": 1096,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 1094,
+          "zero_volume_close": 3
+        },
+        "terminalMark": 13880,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": 0.14226795948970783,
+        "mddVsM": 0.06723966745431287,
+        "mddVsB0": 0.1165166507996317,
+        "sigmaReductionVsB0": 0.10560545834020352
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": true,
+        "mddVsM": true,
+        "mddVsB0": true,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.65736819698044,
+        "mdd": 0.3508562298805442,
+        "cer": 0.8558803691689291,
+        "sharpe": 2.2880324841994972,
+        "cvar95": 0.0818280359986044,
+        "worst30": 0.24083746556473806,
+        "cagr": 2.627696686780932,
+        "trades": 5,
+        "turnover": 4.989529174067829,
+        "exposure": 0.7883211678832117
+      },
+      "B0": {
+        "sigma": 0.7349868166240275,
+        "mdd": 0.4673728806801759,
+        "cer": 0.7132064372301912,
+        "sharpe": 2.0728465241658984,
+        "cvar95": 0.09107473375652893,
+        "worst30": 0.3052068064495571,
+        "cagr": 2.4988986050018966,
+        "trades": 1,
+        "turnover": 0.9940308447771136,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.6574222649139028,
+        "mdd": 0.4180958973348571,
+        "cer": 0.7136124096792212,
+        "sharpe": 2.0716037986093596,
+        "cvar95": 0.08173183879190118,
+        "worst30": 0.2721947550056094,
+        "cagr": 2.142620650108812,
+        "trades": 36,
+        "turnover": 1.4159437463674225,
+        "exposure": 0.8980638923218951,
+        "weight": 0.894,
+        "matchError": 0.000016377719435300975,
+        "mismatch": false
+      }
+    }
+  },
+  "sensitivities": {
+    "positiveVolume": {
+      "standard": {
+        "coverage": {
+          "start": "2012-07-19",
+          "end": "2018-01-01",
+          "days": 1992,
+          "maxMissingValuationDays": 0,
+          "valuations": {
+            "venue_open": 1990,
+            "zero_volume_close": 3
+          },
+          "terminalMark": 13880,
+          "terminalSource": "venue_open"
+        },
+        "deltas": {
+          "cerVsM": 0.06918668083641333,
+          "mddVsM": 0.08891441882218087,
+          "mddVsB0": 0.12225014501438647,
+          "sigmaReductionVsB0": 0.07906658319481297
+        },
+        "gates": {
+          "match": true,
+          "cerVsM": true,
+          "mddVsM": true,
+          "mddVsB0": true,
+          "sigmaReductionVsB0": false
+        },
+        "pass": false,
+        "K1": {
+          "sigma": 0.8459935936563683,
+          "mdd": 0.7262080047653492,
+          "cer": 0.6352992436622221,
+          "sharpe": 2.0199408095255182,
+          "cvar95": 0.10208866666915627,
+          "worst30": 0.5109635712413734,
+          "cagr": 2.8209032416841007,
+          "trades": 25,
+          "turnover": 24.92835029389167,
+          "exposure": 0.7595381526104418
+        },
+        "B0": {
+          "sigma": 0.9186262309724923,
+          "mdd": 0.8484581497797357,
+          "cer": 0.5099022226067479,
+          "sharpe": 1.9330097389805656,
+          "cvar95": 0.10968247375213602,
+          "worst30": 0.5109635712413734,
+          "cagr": 2.828680905124578,
+          "trades": 1,
+          "turnover": 0.9925435168298162,
+          "exposure": 1
+        },
+        "M": {
+          "sigma": 0.8457818270025218,
+          "mdd": 0.8151224235875301,
+          "cer": 0.5661125628258088,
+          "sharpe": 1.9380091399770725,
+          "cvar95": 0.10081683080605996,
+          "worst30": 0.4893025784844216,
+          "cagr": 2.5678248208835184,
+          "trades": 66,
+          "turnover": 1.8671658867377825,
+          "exposure": 0.9192731207930209,
+          "weight": 0.9168,
+          "matchError": 0.000017205766012939883,
+          "mismatch": false
+        }
+      },
+      "positiveOnly": {
+        "coverage": {
+          "start": "2012-07-19",
+          "end": "2018-01-01",
+          "days": 1992,
+          "maxMissingValuationDays": 0,
+          "valuations": {
+            "venue_open": 1990,
+            "zero_volume_close": 3
+          },
+          "terminalMark": 13880,
+          "terminalSource": "venue_open"
+        },
+        "deltas": {
+          "cerVsM": 0.06918668083641333,
+          "mddVsM": 0.08891441882218087,
+          "mddVsB0": 0.12225014501438647,
+          "sigmaReductionVsB0": 0.07906658319481297
+        },
+        "gates": {
+          "match": true,
+          "cerVsM": true,
+          "mddVsM": true,
+          "mddVsB0": true,
+          "sigmaReductionVsB0": false
+        },
+        "pass": false,
+        "K1": {
+          "sigma": 0.8459935936563683,
+          "mdd": 0.7262080047653492,
+          "cer": 0.6352992436622221,
+          "sharpe": 2.0199408095255182,
+          "cvar95": 0.10208866666915627,
+          "worst30": 0.5109635712413734,
+          "cagr": 2.8209032416841007,
+          "trades": 25,
+          "turnover": 24.92835029389167,
+          "exposure": 0.7595381526104418
+        },
+        "B0": {
+          "sigma": 0.9186262309724923,
+          "mdd": 0.8484581497797357,
+          "cer": 0.5099022226067479,
+          "sharpe": 1.9330097389805656,
+          "cvar95": 0.10968247375213602,
+          "worst30": 0.5109635712413734,
+          "cagr": 2.828680905124578,
+          "trades": 1,
+          "turnover": 0.9925435168298162,
+          "exposure": 1
+        },
+        "M": {
+          "sigma": 0.8457818270025218,
+          "mdd": 0.8151224235875301,
+          "cer": 0.5661125628258088,
+          "sharpe": 1.9380091399770725,
+          "cvar95": 0.10081683080605996,
+          "worst30": 0.4893025784844216,
+          "cagr": 2.5678248208835184,
+          "trades": 66,
+          "turnover": 1.8671658867377825,
+          "exposure": 0.9192731207930209,
+          "weight": 0.9168,
+          "matchError": 0.000017205766012939883,
+          "mismatch": false
+        }
+      }
+    },
+    "cashRate": {
+      "coverage": {
+        "start": "2012-03-05",
+        "end": "2018-01-01",
+        "days": 2128,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 2126,
+          "zero_volume_close": 3
+        },
+        "terminalMark": 13880,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": 0.060243632073789466,
+        "mddVsM": 0.08946894115844639,
+        "mddVsB0": 0.12233777243535948,
+        "sigmaReductionVsB0": 0.07789886981543837
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": true,
+        "mddVsM": true,
+        "mddVsB0": true,
+        "sigmaReductionVsB0": false
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.8262241343052376,
+        "mdd": 0.7261203773443762,
+        "cer": 0.6798681684593498,
+        "sharpe": 2.0621978684449185,
+        "cvar95": 0.09904636920763552,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.867279754634744,
+        "trades": 29,
+        "turnover": 28.913437327551303,
+        "exposure": 0.7720864661654135
+      },
+      "B0": {
+        "sigma": 0.8960233398042425,
+        "mdd": 0.8484581497797357,
+        "cer": 0.5735275939357104,
+        "sharpe": 1.9841160973943375,
+        "cvar95": 0.10670419261744934,
+        "worst30": 0.5109635712413734,
+        "cagr": 2.918388272280365,
+        "trades": 1,
+        "turnover": 0.9925435168298162,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.8259589407982441,
+        "mdd": 0.8155893185028226,
+        "cer": 0.6196245363855604,
+        "sharpe": 1.9891264723456932,
+        "cvar95": 0.09820739968202856,
+        "worst30": 0.48959801305701267,
+        "cagr": 2.6428420250092883,
+        "trades": 70,
+        "turnover": 1.8991891364201188,
+        "exposure": 0.920549970111448,
+        "weight": 0.9179,
+        "matchError": 0.000004962924550766523,
+        "mismatch": false
+      }
+    }
+  },
+  "replay": {
+    "BTC": {
+      "coverage": {
+        "start": "2018-01-01",
+        "end": "2026-11-26",
+        "days": 3251,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 3252
+        },
+        "terminalMark": 60381.88,
+        "terminalSource": "venue_open"
+      },
+      "deltas": {
+        "cerVsM": -0.010691904689790387,
+        "mddVsM": 0.021282846452034376,
+        "mddVsB0": 0.1575588811306201,
+        "sigmaReductionVsB0": 0.28859531442375674
+      },
+      "gates": {
+        "match": true,
+        "cerVsM": false,
+        "mddVsM": false,
+        "mddVsB0": true,
+        "sigmaReductionVsB0": true
+      },
+      "pass": false,
+      "K1": {
+        "sigma": 0.4583850834649917,
+        "mdd": 0.6568874954915974,
+        "cer": -0.06088395553150049,
+        "sharpe": 0.5547549009690488,
+        "cvar95": 0.06079662006005799,
+        "worst30": 0.598735418490844,
+        "cagr": 0.16079785858288353,
+        "trades": 70,
+        "turnover": 69.87784036412465,
+        "exposure": 0.5349123346662565
+      },
+      "B0": {
+        "sigma": 0.6443380157015641,
+        "mdd": 0.8144463766222175,
+        "cer": -0.24763416082314552,
+        "sharpe": 0.5821836485710981,
+        "cvar95": 0.0783167110081409,
+        "worst30": 0.598735418490844,
+        "cagr": 0.17901097867762594,
+        "trades": 1,
+        "turnover": 0.9965097246892761,
+        "exposure": 1
+      },
+      "M": {
+        "sigma": 0.4583048207067813,
+        "mdd": 0.6781703419436318,
+        "cer": -0.050192050841710106,
+        "sharpe": 0.5779404889837833,
+        "cvar95": 0.05566432234428567,
+        "worst30": 0.46778281991717163,
+        "cagr": 0.17240824988773507,
+        "trades": 107,
+        "turnover": 3.8533581900669467,
+        "exposure": 0.7159820159628184,
+        "weight": 0.7148,
+        "matchError": 0.00002214220719098936,
+        "mismatch": false
+      }
+    },
+    "ETH": {
+      "coverage": {
+        "start": "2018-03-05",
+        "end": "2026-11-26",
+        "days": 3188,
+        "maxMissingValuationDays": 0,
+        "valuations": {
+          "venue_open": 3189
+        },
+        "terminalMark": 1692.65,
+        "terminalSource": "venue_open"
+      },
+      "K1": {
+        "sigma": 0.5908126458423001,
+        "mdd": 0.7406634868175609,
+        "cer": -0.10154812998443431,
+        "sharpe": 0.7143402341103338,
+        "cvar95": 0.0753294134331666,
+        "worst30": 0.6231111933288906,
+        "cagr": 0.2742533226917321,
+        "trades": 56,
+        "turnover": 55.94408388813982,
+        "exposure": 0.5106649937264742
+      },
+      "B0": {
+        "sigma": 0.8269284069667435,
+        "mdd": 0.9035520581167789,
+        "cer": -0.6026072875086014,
+        "sharpe": 0.5116629133787262,
+        "cvar95": 0.09939188058523693,
+        "worst30": 0.5884959969500572,
+        "cagr": 0.07941477754059267,
+        "trades": 1,
+        "turnover": 0.9980029960049943,
+        "exposure": 1
+      }
+    },
+    "fiveCoinExactReplication": false
+  },
+  "chainOverlay": {
+    "history": {
+      "sigma": 0.8336548378544223,
+      "mdd": 0.7296407211715287,
+      "cer": 0.6796464597621477,
+      "sharpe": 2.06574347629468,
+      "cvar95": 0.09985177652576512,
+      "worst30": 0.5109635712413733,
+      "cagr": 2.9138074286455478,
+      "trades": 39,
+      "turnover": 28.321701604110064,
+      "exposure": 0.8314589205566373,
+      "requiredMvrv": 485,
+      "missingMvrv": 0,
+      "incomplete": false
+    },
+    "replay": {
+      "sigma": 0.4701366960994903,
+      "mdd": 0.7005153807485465,
+      "cer": -0.052328189818119965,
+      "sharpe": 0.5939008420899982,
+      "cvar95": 0.06145032249814973,
+      "worst30": 0.598735418490844,
+      "cagr": 0.1836340105167431,
+      "trades": 79,
+      "turnover": 70.6038649074645,
+      "exposure": 0.5890294380644602,
+      "requiredMvrv": 1512,
+      "missingMvrv": 0,
+      "incomplete": false
+    }
+  },
+  "leverageAppendix": {
+    "collapsedByDefault": true,
+    "start": "2019-12-24",
+    "end": "2026-11-26",
+    "maintenanceMargin": 0.005,
+    "fundingMarkSources": {
+      "funding_event_mark": 3366,
+      "mark_8h_open": 4222
+    },
+    "wholeAccountLiquidation": null,
+    "base": {
+      "trend2x": {
+        "minFundingBalance": {
+          "mdd": 0.8805317786197996,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.8805317786197996,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        }
+      },
+      "trend3x": {
+        "minFundingBalance": {
+          "mdd": 0.9420469839865974,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.9420469839865974,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        }
+      },
+      "halfEquityProxy": {
+        "minFundingBalance": {
+          "mdd": 0.7692825280436023,
+          "touchesByLeg": {
+            "trend": 0,
+            "bottom": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.7692825280436023,
+          "touchesByLeg": {
+            "trend": 0,
+            "bottom": 0
+          }
+        }
+      }
+    },
+    "doubleCost": {
+      "trend2x": {
+        "minFundingBalance": {
+          "mdd": 0.8901735706384293,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.8901735706384293,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        }
+      },
+      "trend3x": {
+        "minFundingBalance": {
+          "mdd": 0.9491933842201647,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.9491933842201647,
+          "touchesByLeg": {
+            "trend": 0
+          }
+        }
+      },
+      "halfEquityProxy": {
+        "minFundingBalance": {
+          "mdd": 0.7747288753818335,
+          "touchesByLeg": {
+            "trend": 0,
+            "bottom": 0
+          }
+        },
+        "maxFundingBalance": {
+          "mdd": 0.7747288753818335,
+          "touchesByLeg": {
+            "trend": 0,
+            "bottom": 0
+          }
+        }
+      }
+    }
+  },
+  "forward": {
+    "start": "2026-12-01",
+    "end": "2029-12-01",
+    "state": "awaiting_archive",
+    "revealed": false
+  }
+}

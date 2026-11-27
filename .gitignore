@@ -43,3 +43,7 @@ data-raw/masters-rebalance/drivers.json
 
 # L-039 加密研究原始下载只留本机；来源、时间与校验值见 data-raw/crypto-trend/SOURCES.md
 data-raw/crypto-trend/raw/
+# L-039 逐日明细与自助抽样索引可由 run.py / replication/run.mjs 确定性重新生成，校验值见研究 README
+docs/research/crypto-trend-2026-11-27/results-daily.json
+docs/research/crypto-trend-2026-11-27/bootstrap-indices.json
+docs/research/crypto-trend-2026-11-27/replication/results-daily.json
