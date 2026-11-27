@@ -73,10 +73,15 @@ uv run python -m factorlab.datapack status                              # 数据
 uv run python -m factorlab.cli list-factors
 uv run python -m factorlab.cli eval --market cn --factor mom_12_1      # 自动记入 factor-ledger/cn.jsonl
 uv run python -m factorlab.cli ledger --market cn
+# A 股行情增量（只补 prices 最后交易日之后；不碰 fin_pit；腾讯日线 + 新浪复权因子）
+uv run python -m factorlab.sources.cn_update --dry-run                  # 报告每只要补几天、预计请求数
+uv run python -m factorlab.sources.cn_update --codes 600000,000001      # 指定股票
+uv run python -m factorlab.sources.cn_update --until 2026-12-01         # 补到指定日（含）
 ```
 
 - 数据在 `research-py/factor-data/`（不进 git，约 11 GB，其中 raw/ 下载缓存约 9 GB）；试验登记簿 `research-py/factor-ledger/` 与锁箱配置 `factorlab/lockbox.json` 进 git。
 - 锁箱 2023-11-01 至 2026-11-30 在数据层强制：`store.read_prices` / `load_panel` 默认就截掉锁箱，解封只能走 `factorlab.cli unseal`（按季度批次、终身 24 个候选）。
+- 确认 / 每月前推只需补日线时用 `cn_update`（重叠日 close/close_adj 校验失败会跳过该股并提示全量重下）；**不要** `cn fetch --refresh` 全量重下，以免改写已冻结的 `fin_pit.parquet`。
 
 ### 在另一台电脑上
 

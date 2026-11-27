@@ -111,21 +111,53 @@ def rounds_summary() -> list[dict]:
     return out
 
 
+def multiple_testing_summary() -> dict | None:
+    """多重检验摘要；登记簿或序列缺失时返回 None，页面应隐藏该节。"""
+    try:
+        from .multiple import build, site_summary
+        return site_summary(build())
+    except Exception as e:  # noqa: BLE001 — 导出页不能因审计失败而整页空白
+        return {"error": str(e), "unavailable": True}
+
+
+def _merge_data(fresh: list[dict]) -> list[dict]:
+    """本机缺 MANIFEST 时保留已有 factorlab.json 里的数据集，避免导出把页面数据抹掉。"""
+    if not OUT.exists():
+        return fresh
+    try:
+        old = json.loads(OUT.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return fresh
+    by = {d["market"]: d for d in old.get("data") or [] if isinstance(d, dict) and d.get("market")}
+    for d in fresh:
+        by[d["market"]] = d
+    order = [m for m, *_ in MARKETS] + ["us_sec"]
+    out = [by[m] for m in order if m in by]
+    out.extend(v for k, v in by.items() if k not in order)
+    return out
+
+
 def build() -> dict:
-    return {
+    data = _merge_data(data_summary())
+    out = {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "data": data_summary(),
+        "data": data,
         "validation": VALIDATION,
         "ledger": ledger_summary(),
         "guard": guard_summary(),
         "rounds": rounds_summary(),
     }
+    mt = multiple_testing_summary()
+    if mt is not None:
+        out["multipleTesting"] = mt
+    return out
 
 
 def main() -> None:
     d = build()
     OUT.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"已写 {OUT.relative_to(ROOT)}：{len(d['data'])} 个数据集，登记簿 {sum(v['trials'] for v in d['ledger'].values())} 次试验")
+    mt = "有" if d.get("multipleTesting") and not d["multipleTesting"].get("unavailable") else "无"
+    print(f"已写 {OUT.relative_to(ROOT)}：{len(d['data'])} 个数据集，登记簿 {sum(v['trials'] for v in d['ledger'].values())} 次试验，多重检验摘要 {mt}")
 
 
 if __name__ == "__main__":

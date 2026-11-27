@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'factor-lab-multiple-testing',
+    date: '2026-11-27',
+    title: '因子实验室：试了 107 次，会不会是运气',
+    description: '因子实验室新增一节，回答「试了这么多次，挑出来的会不会只是运气」。A 股能过显著性门槛的写法有 8 个，而纯靠运气预计只有 0 到 4 个，说明样本里确有规律；但在 A 股挑「样本里最好的」并不可靠，换一段样本后反而常常不如中位数，三个待确认因子扣掉试验次数后的可信度也都没到常用门槛。所以能不能用，只看 12 月用从未打开的数据做的一次性确认，以及之后的逐月前推记录；这两件事的工具和逐步操作清单已经准备好。',
+    href: '/invest/factor-lab',
+  },
+  {
     id: 'factor-lab-r4-r6',
     date: '2026-11-27',
     title: '因子实验室：第四到六轮完成，3 个 A 股因子进入锁箱确认',

@@ -1,0 +1,1455 @@
+{
+ "generatedBy": "count.mjs",
+ "note": "只数事件次数；不含任何信号之后的收益、回撤或绩效。",
+ "capeCheck": {
+  "n": 642,
+  "maxAbs": 0.32826979239493426,
+  "meanAbs": 0.07192051472196256,
+  "tierMatch": "646/646",
+  "baaMatch": "646/646"
+ },
+ "proxyDiagM": {
+  "k": 1,
+  "r4PanicMonths": 31,
+  "proxyMonths": 29,
+  "r4Episodes": 17,
+  "proxyEpisodes": 13,
+  "r4CaughtByProxy": 8,
+  "proxyEpisodeStarts": [
+   "1973-11",
+   "1974-09",
+   "1980-03",
+   "1981-10",
+   "1987-10",
+   "1990-09",
+   "1994-05",
+   "2001-03",
+   "2008-10",
+   "2011-08",
+   "2020-03",
+   "2022-07",
+   "2025-05"
+  ]
+ },
+ "proxyDiagD": {
+  "proxyMonths": 62,
+  "proxyEpisodes": 28,
+  "r4CaughtByProxy": 14
+ },
+ "samples": [
+  {
+   "name": "美国 1973–2026（利差 + VIX/已实现波动，r4 口径）",
+   "range": [
+    "1973-01",
+    "2026-10"
+   ],
+   "panicMonths": 31,
+   "panicEpisodes": [
+    {
+     "start": "1974-09",
+     "end": "1974-10",
+     "months": 2,
+     "capePctAtStart": 0.08614564831261101,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1975-02",
+     "capePctAtRecross": 0.1184792219274978,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1979-10",
+     "end": "1979-11",
+     "months": 2,
+     "capePctAtStart": 0.08340353833192923,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1980-05",
+     "capePctAtRecross": 0.07035175879396985,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1980-03",
+     "end": "1980-04",
+     "months": 2,
+     "capePctAtStart": 0.06795302013422819,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1980-05",
+     "capePctAtRecross": 0.07035175879396985,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1982-02",
+     "end": "1982-02",
+     "months": 1,
+     "capePctAtStart": 0.04691358024691358,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1982-08",
+     "end": "1982-11",
+     "months": 4,
+     "capePctAtStart": 0.04095004095004095,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1982-09",
+     "capePctAtRecross": 0.057283142389525366,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1984-03",
+     "end": "1984-03",
+     "months": 1,
+     "capePctAtStart": 0.14193548387096774,
+     "anyVinEpisode": true,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "1984-08",
+     "capePctAtRecross": 0.15903614457831325,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "1984-08",
+     "end": "1984-08",
+     "months": 1,
+     "capePctAtStart": 0.15903614457831325,
+     "anyVinEpisode": true,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "1984-08",
+     "capePctAtRecross": 0.15903614457831325,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "1990-09",
+     "end": "1990-10",
+     "months": 2,
+     "capePctAtStart": 0.5508345978755691,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1991-02",
+     "capePctAtRecross": 0.7195767195767195,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "2008-09",
+     "end": "2008-12",
+     "months": 4,
+     "capePctAtStart": 0.788787483702738,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "2009-06",
+     "capePctAtRecross": 0.5554115359688918,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "2010-06",
+     "end": "2010-06",
+     "months": 1,
+     "capePctAtStart": 0.760128617363344,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "2010-09",
+     "capePctAtRecross": 0.7875481386392811,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2011-09",
+     "end": "2011-11",
+     "months": 3,
+     "capePctAtStart": 0.7445859872611464,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "2012-01",
+     "capePctAtRecross": 0.8132147395171537,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2015-01",
+     "end": "2015-01",
+     "months": 1,
+     "capePctAtStart": 0.9397515527950311,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-offense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2015-08",
+     "end": "2015-09",
+     "months": 2,
+     "capePctAtStart": 0.9189857761286333,
+     "anyVinEpisode": false,
+     "tierAtStart": "neutral",
+     "firstRecrossWithin6": "2015-11",
+     "capePctAtRecross": 0.9308641975308642,
+     "tierAtRecross": "neutral"
+    },
+    {
+     "start": "2016-01",
+     "end": "2016-01",
+     "months": 1,
+     "capePctAtStart": 0.8908754623921085,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "2016-03",
+     "capePctAtRecross": 0.9100985221674877,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2018-12",
+     "end": "2018-12",
+     "months": 1,
+     "capePctAtStart": 0.9456849728424864,
+     "anyVinEpisode": false,
+     "tierAtStart": "neutral",
+     "firstRecrossWithin6": "2019-02",
+     "capePctAtRecross": 0.9529837251356239,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2020-03",
+     "end": "2020-04",
+     "months": 2,
+     "capePctAtStart": 0.8720095693779905,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "2020-06",
+     "capePctAtRecross": 0.9438805970149253,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "2022-05",
+     "end": "2022-05",
+     "months": 1,
+     "capePctAtStart": 0.947585394581861,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    }
+   ],
+   "recrosses": 33,
+   "vMonthsShare": 0.27102803738317754,
+   "grid": {
+    "V<50 W=3": {
+     "events": 3,
+     "defense": 3,
+     "tierKnown": 3
+    },
+    "V<50 W=6": {
+     "events": 4,
+     "defense": 4,
+     "tierKnown": 4
+    },
+    "V<50 W=12": {
+     "events": 4,
+     "defense": 4,
+     "tierKnown": 4
+    },
+    "V<60 W=3": {
+     "events": 3,
+     "defense": 3,
+     "tierKnown": 3
+    },
+    "V<60 W=6": {
+     "events": 5,
+     "defense": 5,
+     "tierKnown": 5
+    },
+    "V<60 W=12": {
+     "events": 5,
+     "defense": 5,
+     "tierKnown": 5
+    },
+    "无V W=3": {
+     "events": 8,
+     "defense": 4,
+     "tierKnown": 8
+    },
+    "无V W=6": {
+     "events": 11,
+     "defense": 7,
+     "tierKnown": 11
+    },
+    "无V W=12": {
+     "events": 12,
+     "defense": 7,
+     "tierKnown": 12
+    }
+   },
+   "primary": [
+    {
+     "date": "1975-02",
+     "months": [
+      "1975-02"
+     ],
+     "tier": "defense",
+     "panic": [
+      "1974-09",
+      "1974-10"
+     ],
+     "capePct": 0.1184792219274978,
+     "defenseRun": 5
+    },
+    {
+     "date": "1980-05",
+     "months": [
+      "1980-05"
+     ],
+     "tier": "defense",
+     "panic": [
+      "1979-11",
+      "1980-03",
+      "1980-04"
+     ],
+     "capePct": 0.07035175879396985,
+     "defenseRun": 11
+    },
+    {
+     "date": "1982-09",
+     "months": [
+      "1982-09"
+     ],
+     "tier": "defense",
+     "panic": [
+      "1982-08",
+      "1982-09"
+     ],
+     "capePct": 0.057283142389525366,
+     "defenseRun": 5
+    },
+    {
+     "date": "1984-08",
+     "months": [
+      "1984-08"
+     ],
+     "tier": "lean-defense",
+     "panic": [
+      "1984-03",
+      "1984-08"
+     ],
+     "capePct": 0.15903614457831325,
+     "defenseRun": 3
+    }
+   ],
+   "noV6": [
+    {
+     "date": "1975-02",
+     "tier": "defense",
+     "capePct": 0.1184792219274978,
+     "defenseRun": 5
+    },
+    {
+     "date": "1980-05",
+     "tier": "defense",
+     "capePct": 0.07035175879396985,
+     "defenseRun": 11
+    },
+    {
+     "date": "1982-09",
+     "tier": "defense",
+     "capePct": 0.057283142389525366,
+     "defenseRun": 5
+    },
+    {
+     "date": "1984-08",
+     "tier": "lean-defense",
+     "capePct": 0.15903614457831325,
+     "defenseRun": 3
+    },
+    {
+     "date": "1991-02",
+     "tier": "defense",
+     "capePct": 0.7195767195767195,
+     "defenseRun": 1
+    },
+    {
+     "date": "2009-06",
+     "tier": "lean-defense",
+     "capePct": 0.5554115359688918,
+     "defenseRun": 1
+    },
+    {
+     "date": "2010-09",
+     "tier": "lean-offense",
+     "capePct": 0.7875481386392811,
+     "defenseRun": null
+    },
+    {
+     "date": "2012-01",
+     "tier": "lean-offense",
+     "capePct": 0.8132147395171537,
+     "defenseRun": null
+    },
+    {
+     "date": "2015-11",
+     "tier": "neutral",
+     "capePct": 0.9308641975308642,
+     "defenseRun": null
+    },
+    {
+     "date": "2019-02",
+     "tier": "lean-offense",
+     "capePct": 0.9529837251356239,
+     "defenseRun": null
+    },
+    {
+     "date": "2020-06",
+     "tier": "lean-defense",
+     "capePct": 0.9438805970149253,
+     "defenseRun": 2
+    }
+   ]
+  },
+  {
+   "name": "美国 1950–1972（利差 + 已实现波动，r4 口径；档位 1959-09 起）",
+   "range": [
+    "1950-01",
+    "1972-12"
+   ],
+   "panicMonths": 6,
+   "panicEpisodes": [
+    {
+     "start": "1957-11",
+     "end": "1957-12",
+     "months": 2,
+     "capePctAtStart": 0.44805194805194803,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1958-05",
+     "capePctAtRecross": 0.4935483870967742,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1966-07",
+     "end": "1966-10",
+     "months": 3,
+     "capePctAtStart": 0.9134241245136187,
+     "anyVinEpisode": false,
+     "tierAtStart": "neutral",
+     "firstRecrossWithin6": "1967-01",
+     "capePctAtRecross": 0.8829787234042553,
+     "tierAtRecross": "neutral"
+    },
+    {
+     "start": "1969-08",
+     "end": "1969-08",
+     "months": 1,
+     "capePctAtStart": 0.7586854460093897,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    }
+   ],
+   "recrosses": 15,
+   "vMonthsShare": 0.2572463768115942,
+   "grid": {
+    "V<50 W=3": {
+     "events": 0,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "V<50 W=6": {
+     "events": 1,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "V<50 W=12": {
+     "events": 1,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "V<60 W=3": {
+     "events": 0,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "V<60 W=6": {
+     "events": 1,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "V<60 W=12": {
+     "events": 1,
+     "defense": 0,
+     "tierKnown": 0
+    },
+    "无V W=3": {
+     "events": 1,
+     "defense": 0,
+     "tierKnown": 1
+    },
+    "无V W=6": {
+     "events": 2,
+     "defense": 0,
+     "tierKnown": 1
+    },
+    "无V W=12": {
+     "events": 2,
+     "defense": 0,
+     "tierKnown": 1
+    }
+   },
+   "primary": [
+    {
+     "date": "1958-05",
+     "months": [
+      "1958-05"
+     ],
+     "tier": null,
+     "panic": [
+      "1957-11",
+      "1957-12"
+     ],
+     "capePct": 0.4935483870967742,
+     "defenseRun": null
+    }
+   ],
+   "noV6": [
+    {
+     "date": "1958-05",
+     "tier": null,
+     "capePct": 0.4935483870967742,
+     "defenseRun": null
+    },
+    {
+     "date": "1967-01",
+     "tier": "neutral",
+     "capePct": 0.8829787234042553,
+     "defenseRun": null
+    }
+   ]
+  },
+  {
+   "name": "美国 1871–1934（CAPE + 席勒月均价；恐慌 = 代用 M）",
+   "range": [
+    "1872-01",
+    "1934-12"
+   ],
+   "panicMonths": 35,
+   "panicEpisodes": [
+    {
+     "start": "1873-09",
+     "end": "1873-12",
+     "months": 4,
+     "capePctAtStart": null,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1874-02",
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1875-06",
+     "end": "1875-07",
+     "months": 2,
+     "capePctAtStart": null,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1876-01",
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1876-09",
+     "end": "1876-10",
+     "months": 2,
+     "capePctAtStart": null,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1877-04",
+     "end": "1877-04",
+     "months": 1,
+     "capePctAtStart": null,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1877-09",
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1884-05",
+     "end": "1884-07",
+     "months": 3,
+     "capePctAtStart": null,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1890-11",
+     "end": "1891-01",
+     "months": 3,
+     "capePctAtStart": 0.18333333333333332,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1893-03",
+     "end": "1893-09",
+     "months": 6,
+     "capePctAtStart": 0.6216216216216216,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1894-03",
+     "capePctAtRecross": 0.7125,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1896-08",
+     "end": "1896-09",
+     "months": 2,
+     "capePctAtStart": 0.36507936507936506,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1896-11",
+     "capePctAtRecross": 0.6875,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1907-03",
+     "end": "1907-05",
+     "months": 3,
+     "capePctAtStart": 0.07278481012658228,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1910-07",
+     "end": "1910-08",
+     "months": 2,
+     "capePctAtStart": 0.02247191011235955,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1910-11",
+     "capePctAtRecross": 0.11666666666666667,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1911-10",
+     "end": "1911-10",
+     "months": 1,
+     "capePctAtStart": 0.05121293800539083,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1912-03",
+     "capePctAtRecross": 0.09042553191489362,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1913-02",
+     "end": "1913-02",
+     "months": 1,
+     "capePctAtStart": 0.028423772609819122,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1917-02",
+     "end": "1917-02",
+     "months": 1,
+     "capePctAtStart": 0.0022988505747126436,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1929-11",
+     "end": "1930-01",
+     "months": 3,
+     "capePctAtStart": 0.9200680272108843,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1930-04",
+     "capePctAtRecross": 0.9831365935919055,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1932-08",
+     "end": "1932-08",
+     "months": 1,
+     "capePctAtStart": 0.14814814814814814,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "1932-08",
+     "capePctAtRecross": 0.14814814814814814,
+     "tierAtRecross": null
+    }
+   ],
+   "recrosses": 44,
+   "vMonthsShare": 0.5644067796610169,
+   "grid": {
+    "V<50 W=3": {
+     "events": 2,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<50 W=6": {
+     "events": 3,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<50 W=12": {
+     "events": 5,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=3": {
+     "events": 2,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=6": {
+     "events": 3,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=12": {
+     "events": 7,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=3": {
+     "events": 5,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=6": {
+     "events": 9,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=12": {
+     "events": 13,
+     "defense": null,
+     "tierKnown": null
+    }
+   },
+   "primary": [
+    {
+     "date": "1910-11",
+     "months": [
+      "1910-11",
+      "1911-01"
+     ],
+     "tier": null,
+     "panic": [
+      "1910-07",
+      "1910-08"
+     ],
+     "capePct": 0.11666666666666667,
+     "defenseRun": null
+    },
+    {
+     "date": "1912-03",
+     "months": [
+      "1912-03"
+     ],
+     "tier": null,
+     "panic": [
+      "1911-10"
+     ],
+     "capePct": 0.09042553191489362,
+     "defenseRun": null
+    },
+    {
+     "date": "1932-08",
+     "months": [
+      "1932-08"
+     ],
+     "tier": null,
+     "panic": [
+      "1932-08"
+     ],
+     "capePct": 0.14814814814814814,
+     "defenseRun": null
+    }
+   ],
+   "noV6": [
+    {
+     "date": "1874-02",
+     "tier": null,
+     "capePct": null,
+     "defenseRun": null
+    },
+    {
+     "date": "1876-01",
+     "tier": null,
+     "capePct": null,
+     "defenseRun": null
+    },
+    {
+     "date": "1877-09",
+     "tier": null,
+     "capePct": null,
+     "defenseRun": null
+    },
+    {
+     "date": "1894-03",
+     "tier": null,
+     "capePct": 0.7125,
+     "defenseRun": null
+    },
+    {
+     "date": "1896-11",
+     "tier": null,
+     "capePct": 0.6875,
+     "defenseRun": null
+    },
+    {
+     "date": "1910-11",
+     "tier": null,
+     "capePct": 0.11666666666666667,
+     "defenseRun": null
+    },
+    {
+     "date": "1912-03",
+     "tier": null,
+     "capePct": 0.09042553191489362,
+     "defenseRun": null
+    },
+    {
+     "date": "1930-04",
+     "tier": null,
+     "capePct": 0.9831365935919055,
+     "defenseRun": null
+    },
+    {
+     "date": "1932-08",
+     "tier": null,
+     "capePct": 0.14814814814814814,
+     "defenseRun": null
+    }
+   ]
+  },
+  {
+   "name": "美国 1973–2026（只用代用 M，对照）",
+   "range": [
+    "1973-01",
+    "2026-10"
+   ],
+   "panicMonths": 29,
+   "panicEpisodes": [
+    {
+     "start": "1973-11",
+     "end": "1974-01",
+     "months": 3,
+     "capePctAtStart": 0.4390681003584229,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1974-09",
+     "end": "1974-09",
+     "months": 1,
+     "capePctAtStart": 0.08614564831261101,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1975-02",
+     "capePctAtRecross": 0.1184792219274978,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1980-03",
+     "end": "1980-04",
+     "months": 2,
+     "capePctAtStart": 0.06795302013422819,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1980-05",
+     "capePctAtRecross": 0.07035175879396985,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1981-10",
+     "end": "1981-11",
+     "months": 2,
+     "capePctAtStart": 0.05697770437654831,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "1987-10",
+     "end": "1987-12",
+     "months": 3,
+     "capePctAtStart": 0.5728760717069369,
+     "anyVinEpisode": true,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "1988-06",
+     "capePctAtRecross": 0.5135553834237025,
+     "tierAtRecross": "neutral"
+    },
+    {
+     "start": "1990-09",
+     "end": "1990-10",
+     "months": 2,
+     "capePctAtStart": 0.5508345978755691,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "1991-02",
+     "capePctAtRecross": 0.7195767195767195,
+     "tierAtRecross": "defense"
+    },
+    {
+     "start": "1994-05",
+     "end": "1994-06",
+     "months": 2,
+     "capePctAtStart": 0.8766519823788547,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-offense",
+     "firstRecrossWithin6": "1994-08",
+     "capePctAtRecross": 0.8901098901098901,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2001-03",
+     "end": "2001-05",
+     "months": 3,
+     "capePctAtStart": 0.9695290858725761,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2008-10",
+     "end": "2008-12",
+     "months": 3,
+     "capePctAtStart": 0.5485342019543974,
+     "anyVinEpisode": true,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": "2009-06",
+     "capePctAtRecross": 0.5554115359688918,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "2011-08",
+     "end": "2011-10",
+     "months": 3,
+     "capePctAtStart": 0.7660930528999362,
+     "anyVinEpisode": false,
+     "tierAtStart": "neutral",
+     "firstRecrossWithin6": "2012-01",
+     "capePctAtRecross": 0.8132147395171537,
+     "tierAtRecross": "lean-offense"
+    },
+    {
+     "start": "2020-03",
+     "end": "2020-05",
+     "months": 3,
+     "capePctAtStart": 0.8720095693779905,
+     "anyVinEpisode": false,
+     "tierAtStart": "lean-defense",
+     "firstRecrossWithin6": "2020-06",
+     "capePctAtRecross": 0.9438805970149253,
+     "tierAtRecross": "lean-defense"
+    },
+    {
+     "start": "2022-07",
+     "end": "2022-07",
+     "months": 1,
+     "capePctAtStart": 0.9305882352941176,
+     "anyVinEpisode": false,
+     "tierAtStart": "defense",
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2025-05",
+     "end": "2025-05",
+     "months": 1,
+     "capePctAtStart": 0.9688581314878892,
+     "anyVinEpisode": false,
+     "tierAtStart": "neutral",
+     "firstRecrossWithin6": "2025-05",
+     "capePctAtRecross": 0.9688581314878892,
+     "tierAtRecross": "neutral"
+    }
+   ],
+   "recrosses": 33,
+   "vMonthsShare": 0.27102803738317754,
+   "grid": {
+    "V<50 W=3": {
+     "events": 1,
+     "defense": 1,
+     "tierKnown": 1
+    },
+    "V<50 W=6": {
+     "events": 2,
+     "defense": 2,
+     "tierKnown": 2
+    },
+    "V<50 W=12": {
+     "events": 3,
+     "defense": 3,
+     "tierKnown": 3
+    },
+    "V<60 W=3": {
+     "events": 1,
+     "defense": 1,
+     "tierKnown": 1
+    },
+    "V<60 W=6": {
+     "events": 4,
+     "defense": 3,
+     "tierKnown": 4
+    },
+    "V<60 W=12": {
+     "events": 5,
+     "defense": 4,
+     "tierKnown": 5
+    },
+    "无V W=3": {
+     "events": 5,
+     "defense": 2,
+     "tierKnown": 5
+    },
+    "无V W=6": {
+     "events": 9,
+     "defense": 5,
+     "tierKnown": 9
+    },
+    "无V W=12": {
+     "events": 12,
+     "defense": 7,
+     "tierKnown": 12
+    }
+   },
+   "primary": [
+    {
+     "date": "1975-02",
+     "months": [
+      "1975-02"
+     ],
+     "tier": "defense",
+     "panic": [
+      "1974-09"
+     ],
+     "capePct": 0.1184792219274978,
+     "defenseRun": 5
+    },
+    {
+     "date": "1980-05",
+     "months": [
+      "1980-05"
+     ],
+     "tier": "defense",
+     "panic": [
+      "1980-03",
+      "1980-04"
+     ],
+     "capePct": 0.07035175879396985,
+     "defenseRun": 11
+    }
+   ],
+   "noV6": [
+    {
+     "date": "1975-02",
+     "tier": "defense",
+     "capePct": 0.1184792219274978,
+     "defenseRun": 5
+    },
+    {
+     "date": "1980-05",
+     "tier": "defense",
+     "capePct": 0.07035175879396985,
+     "defenseRun": 11
+    },
+    {
+     "date": "1988-06",
+     "tier": "neutral",
+     "capePct": 0.5135553834237025,
+     "defenseRun": null
+    },
+    {
+     "date": "1991-02",
+     "tier": "defense",
+     "capePct": 0.7195767195767195,
+     "defenseRun": 1
+    },
+    {
+     "date": "1994-08",
+     "tier": "lean-offense",
+     "capePct": 0.8901098901098901,
+     "defenseRun": null
+    },
+    {
+     "date": "2009-06",
+     "tier": "lean-defense",
+     "capePct": 0.5554115359688918,
+     "defenseRun": 1
+    },
+    {
+     "date": "2012-01",
+     "tier": "lean-offense",
+     "capePct": 0.8132147395171537,
+     "defenseRun": null
+    },
+    {
+     "date": "2020-06",
+     "tier": "lean-defense",
+     "capePct": 0.9438805970149253,
+     "defenseRun": 2
+    },
+    {
+     "date": "2025-05",
+     "tier": "neutral",
+     "capePct": 0.9688581314878892,
+     "defenseRun": null
+    }
+   ]
+  },
+  {
+   "name": "A 股 2005–2026（沪深 300；估值 = 股债利差；恐慌 = 代用 D）",
+   "range": [
+    "2005-04",
+    "2026-10"
+   ],
+   "panicMonths": 25,
+   "panicEpisodes": [
+    {
+     "start": "2008-02",
+     "end": "2008-05",
+     "months": 3,
+     "capePctAtStart": 0.7428571428571429,
+     "anyVinEpisode": false,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2010-05",
+     "end": "2010-06",
+     "months": 2,
+     "capePctAtStart": 0.29032258064516125,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2010-10",
+     "capePctAtRecross": 0.3731343283582089,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2011-09",
+     "end": "2011-10",
+     "months": 2,
+     "capePctAtStart": 0.05128205128205132,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2012-10",
+     "end": "2012-12",
+     "months": 2,
+     "capePctAtStart": 0.02197802197802201,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2013-01",
+     "capePctAtRecross": 0.0957446808510638,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2013-07",
+     "end": "2013-07",
+     "months": 1,
+     "capePctAtStart": 0,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2015-09",
+     "end": "2015-09",
+     "months": 1,
+     "capePctAtStart": 0.2936507936507936,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2018-04",
+     "end": "2018-11",
+     "months": 4,
+     "capePctAtStart": 0.5095541401273885,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2019-02",
+     "capePctAtRecross": 0.2574850299401198,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2020-03",
+     "end": "2020-04",
+     "months": 2,
+     "capePctAtStart": 0.16666666666666663,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2020-06",
+     "capePctAtRecross": 0.30601092896174864,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2022-03",
+     "end": "2022-05",
+     "months": 3,
+     "capePctAtStart": 0.22549019607843135,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2022-11",
+     "end": "2022-11",
+     "months": 1,
+     "capePctAtStart": 0.089622641509434,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2023-01",
+     "capePctAtRecross": 0.17757009345794394,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2023-08",
+     "end": "2023-08",
+     "months": 1,
+     "capePctAtStart": 0.13122171945701355,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2024-02",
+     "end": "2024-02",
+     "months": 1,
+     "capePctAtStart": 0.08810572687224671,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": "2024-05",
+     "capePctAtRecross": 0.19999999999999996,
+     "tierAtRecross": null
+    },
+    {
+     "start": "2026-07",
+     "end": "2026-08",
+     "months": 2,
+     "capePctAtStart": 0.37890625,
+     "anyVinEpisode": true,
+     "tierAtStart": null,
+     "firstRecrossWithin6": null,
+     "capePctAtRecross": null,
+     "tierAtRecross": null
+    }
+   ],
+   "recrosses": 12,
+   "vMonthsShare": 0.7669491525423728,
+   "grid": {
+    "V<50 W=3": {
+     "events": 5,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<50 W=6": {
+     "events": 6,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<50 W=12": {
+     "events": 8,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=3": {
+     "events": 5,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=6": {
+     "events": 6,
+     "defense": null,
+     "tierKnown": null
+    },
+    "V<60 W=12": {
+     "events": 8,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=3": {
+     "events": 5,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=6": {
+     "events": 6,
+     "defense": null,
+     "tierKnown": null
+    },
+    "无V W=12": {
+     "events": 8,
+     "defense": null,
+     "tierKnown": null
+    }
+   },
+   "primary": [
+    {
+     "date": "2010-10",
+     "months": [
+      "2010-10"
+     ],
+     "tier": null,
+     "panic": [
+      "2010-05",
+      "2010-06"
+     ],
+     "capePct": 0.3731343283582089,
+     "defenseRun": null
+    },
+    {
+     "date": "2013-01",
+     "months": [
+      "2013-01"
+     ],
+     "tier": null,
+     "panic": [
+      "2012-10",
+      "2012-12"
+     ],
+     "capePct": 0.0957446808510638,
+     "defenseRun": null
+    },
+    {
+     "date": "2019-02",
+     "months": [
+      "2019-02"
+     ],
+     "tier": null,
+     "panic": [
+      "2018-10",
+      "2018-11"
+     ],
+     "capePct": 0.2574850299401198,
+     "defenseRun": null
+    },
+    {
+     "date": "2020-06",
+     "months": [
+      "2020-06"
+     ],
+     "tier": null,
+     "panic": [
+      "2020-03",
+      "2020-04"
+     ],
+     "capePct": 0.30601092896174864,
+     "defenseRun": null
+    },
+    {
+     "date": "2023-01",
+     "months": [
+      "2023-01",
+      "2023-04"
+     ],
+     "tier": null,
+     "panic": [
+      "2022-11"
+     ],
+     "capePct": 0.17757009345794394,
+     "defenseRun": null
+    },
+    {
+     "date": "2024-05",
+     "months": [
+      "2024-05"
+     ],
+     "tier": null,
+     "panic": [
+      "2024-02"
+     ],
+     "capePct": 0.19999999999999996,
+     "defenseRun": null
+    }
+   ],
+   "noV6": [
+    {
+     "date": "2010-10",
+     "tier": null,
+     "capePct": 0.3731343283582089,
+     "defenseRun": null
+    },
+    {
+     "date": "2013-01",
+     "tier": null,
+     "capePct": 0.0957446808510638,
+     "defenseRun": null
+    },
+    {
+     "date": "2019-02",
+     "tier": null,
+     "capePct": 0.2574850299401198,
+     "defenseRun": null
+    },
+    {
+     "date": "2020-06",
+     "tier": null,
+     "capePct": 0.30601092896174864,
+     "defenseRun": null
+    },
+    {
+     "date": "2023-01",
+     "tier": null,
+     "capePct": 0.17757009345794394,
+     "defenseRun": null
+    },
+    {
+     "date": "2024-05",
+     "tier": null,
+     "capePct": 0.19999999999999996,
+     "defenseRun": null
+    }
+   ]
+  }
+ ]
+}

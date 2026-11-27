@@ -17,6 +17,12 @@ const mean = xs => xs.reduce((s, x) => s + x, 0) / xs.length
 const round = (x, digits = 4) => (x == null ? null : Math.round(x * 10 ** digits) / 10 ** digits)
 export const monthAfter = (m, k) => { const [y, mo] = m.split('-').map(Number); const t = y * 12 + (mo - 1) + k; return `${Math.floor(t / 12)}-${String((t % 12) + 1).padStart(2, '0')}` }
 
+/** L-022 / r4-episodes：利差半年扩大 ≥ 0.20 且 VIX 趋势 ≥ +20% */
+export const PANIC_BAA_MIN = 0.20
+export const PANIC_VOL_MIN = 0.20
+/** CAPE 历史分位起点（market-radar shillerCape 样本自 1900-01） */
+export const CAPE_PERCENTILE_SINCE = '1900-01'
+
 /** [[日期, 值], ...] → Map(月 → 月均值) */
 export function monthlyMean(rows) {
   const g = new Map()
@@ -25,6 +31,44 @@ export function monthlyMean(rows) {
 }
 /** [[日期, 收盘], ...] 升序 → Map(月 → 当月最后一个收盘) */
 export function lastByMonth(rows) { const m = new Map(); for (const [d, v] of rows) if (Number.isFinite(v)) m.set(d.slice(0, 7), v); return m }
+
+/** CAPE 历史序列 → Map(月 → 值)；只保留 CAPE_PERCENTILE_SINCE 起的正值。 */
+export function capeByMonth(rows) {
+  const m = new Map()
+  for (const [d, v] of rows ?? []) {
+    if (!Number.isFinite(v) || v <= 0) continue
+    const month = d.slice(0, 7)
+    if (month < CAPE_PERCENTILE_SINCE) continue
+    m.set(month, v)
+  }
+  return m
+}
+
+/**
+ * 当月 CAPE 及其历史分位：只用当月及以前的样本（与 panel.mjs percentile 同式，无未来数据）。
+ * cape：Map(月 → CAPE)。缺当月或样本不足 2 点时返回 null。
+ */
+export function capePercentileAt(t, cape) {
+  const value = cape?.get(t)
+  if (value == null || Number.isNaN(value)) return { cape: null, percentile: null }
+  const sample = [...cape.entries()].filter(([m]) => m <= t).map(([, v]) => v)
+  if (sample.length < 2) return { cape: value, percentile: null }
+  const below = sample.filter(x => x < value).length
+  const equal = sample.filter(x => x === value).length
+  return { cape: value, percentile: (below + equal / 2) / sample.length * 100 }
+}
+
+/**
+ * r4-episodes / L-022 恐慌极值：Baa−Aaa 半年变化与 VIX 月均相对前 6 个月均值。
+ * 与 readingFor 的 C1/C2 同源；阈值 0.20 / 0.20（C1/C2 影子裂缝仍用 0.10）。
+ */
+export function panicReading(t, { baa, vix }) {
+  const baaChange = baa?.get(t) ?? null
+  const prior = [1, 2, 3, 4, 5, 6].map(k => vix?.get(monthAfter(t, -k)))
+  const volTrend = vix?.has(t) && prior.every(x => x != null) ? vix.get(t) / mean(prior) - 1 : null
+  const hit = baaChange == null || volTrend == null ? null : baaChange >= PANIC_BAA_MIN && volTrend >= PANIC_VOL_MIN
+  return { baaChange: round(baaChange, 2), volTrend: round(volTrend), hit }
+}
 
 /**
  * 某月的读数。inputs：
@@ -35,8 +79,9 @@ export function lastByMonth(rows) { const m = new Map(); for (const [d, v] of ro
  * - highs：Map(月 → 49 行业中处于 12 个月新高的占比 %)
  * - industry：Map(月 → 49 行业月收益 %)
  * - avgPrice：Map(月 → 标普日收盘月均价)，用于 L-027 C2 破位封顶的影子读数
+ * - cape：Map(月 → CAPE)，来自 market-radar shillerCape（1900-01 起）
  */
-export function readingFor(t, { tier, heat, baa, vix, close, highs, industry, avgPrice }) {
+export function readingFor(t, { tier, heat, baa, vix, close, highs, industry, avgPrice, cape }) {
   const missing = []
   const need = (name, v) => { if (v == null || Number.isNaN(v)) missing.push(name); return v ?? null }
   need('档位', tier); need('冷热', heat)
@@ -78,16 +123,45 @@ export function readingFor(t, { tier, heat, baa, vix, close, highs, industry, av
   const avg = Array.from({ length: 10 }, (_, k) => avgPrice?.get(monthAfter(t, -k)))
   const trendBelow = avg.every(x => x != null) ? avg[0] < mean(avg) : null
   const TIERS = ['offense', 'lean-offense', 'neutral', 'lean-defense', 'defense']
+  const ma10 = avg.every(x => x != null) ? mean(avg) : null
   const trendCap = {
     below: trendBelow,
     triggerPrice: avg.slice(1).every(x => x != null) ? round(mean(avg.slice(1)), 2) : null,
     monthAvg: avg[0] != null ? round(avg[0], 2) : null,
     c2Tier: tier == null || trendBelow == null ? null : trendBelow ? TIERS[Math.max(TIERS.indexOf(tier), 3)] : tier,
   }
+
+  // 恐慌 + 估值 + 趋势：只记录。缺失只进 panicValueTrend.missing，不碰顶层 missing（冻结条件不变）。
+  const panic = panicReading(t, { baa, vix })
+  const { cape: capeValue, percentile: capePct } = capePercentileAt(t, cape ?? new Map())
+  const pvtMissing = []
+  if (panic.baaChange == null) pvtMissing.push('恐慌利差')
+  if (panic.volTrend == null) pvtMissing.push('恐慌VIX')
+  if (capeValue == null || Number.isNaN(capeValue)) pvtMissing.push('CAPE')
+  else if (capePct == null) pvtMissing.push('CAPE分位')
+  if (trendBelow == null) pvtMissing.push('趋势均线')
+  const panicValueTrend = {
+    panic,
+    valuation: {
+      cape: capeValue == null ? null : round(capeValue, 2),
+      percentile: capePct == null ? null : round(capePct, 2),
+      percentileSince: CAPE_PERCENTILE_SINCE,
+      source: 'market-radar.shillerCape',
+    },
+    trend: {
+      below: trendBelow,
+      monthAvg: trendCap.monthAvg,
+      ma10: ma10 == null ? null : round(ma10, 2),
+      close: c0 == null ? null : round(c0, 2),
+    },
+    macroTier: tier ?? null,
+    missing: pvtMissing,
+  }
+
   return {
     month: t, tier: tier ?? null, heat: heat ?? null, G, H,
     values: { baaChange: round(baaChange, 2), volTrend: round(volTrend), nearHigh: round(nearHigh), highsLatest: c3ok ? round(hs[0], 1) : null, highsMax12: c3ok ? round(Math.max(...hs), 1) : null, defRel3m: round(defRel3m), spx6m: round(spx6m), spx2m: round(spx2m) },
-    cracks, counts, flags, trendCap, missing,
+    cracks, counts, flags, trendCap, panicValueTrend, missing,
   }
 }
 
@@ -118,8 +192,21 @@ export function buildShadow({ previous, timeline = [], estimateTier = null, seri
   }
 }
 
-/** 已冻结的行不能改、不能删：返回违规的月份列表。 */
+/** 比较用：旧行若无 panicValueTrend，则忽略新行同名字段（不回填、缺新字段不算改写）。 */
+function freezeKey(row, baseline) {
+  if (baseline && !('panicValueTrend' in baseline) && row && 'panicValueTrend' in row) {
+    const { panicValueTrend: _, ...rest } = row
+    return JSON.stringify(rest)
+  }
+  return JSON.stringify(row)
+}
+
+/** 已冻结的行不能改、不能删：返回违规的月份列表。旧行缺 panicValueTrend 时，新行多出该字段不算改写。 */
 export function frozenViolations(previous, next) {
-  const after = new Map((next?.rows ?? []).map(r => [r.month, JSON.stringify(r)]))
-  return (previous?.rows ?? []).filter(r => after.get(r.month) !== JSON.stringify(r)).map(r => r.month)
+  const after = new Map((next?.rows ?? []).map(r => [r.month, r]))
+  return (previous?.rows ?? []).filter(r => {
+    const n = after.get(r.month)
+    if (n == null) return true
+    return freezeKey(n, r) !== freezeKey(r, r)
+  }).map(r => r.month)
 }

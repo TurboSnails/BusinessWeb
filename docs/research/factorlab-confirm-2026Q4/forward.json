@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-11-27T00:00:00+00:00",
+  "market": "cn",
+  "prereg": "001087bd",
+  "lockbox_end": "2026-11-30",
+  "note": "还没有前推月份可记账。锁箱结束于 2026-11-30；需行情补到其后第一个交易日且至少跑完一期调仓（约 2026-12 月末）。今日（写文件时）仍在锁箱期内，未对真实数据跑 evaluate。",
+  "rule": "前推区（锁箱 end 之后）按月冻结；累计 ≥24 期且 NW t < -1.0 撤下",
+  "candidates": {
+    "cn_sue": {
+      "id": "K1",
+      "metric": "tmu_cap",
+      "source_hash": "5e60044b630a",
+      "params_hash": "2f0d6888b739",
+      "config_hash": "efc06e526d76",
+      "withdrawn": false,
+      "rows": []
+    },
+    "cn_sur": {
+      "id": "K2",
+      "metric": "tmu_cap",
+      "source_hash": "e4013d23f458",
+      "params_hash": "8f32cce74a31",
+      "config_hash": "efc06e526d76",
+      "withdrawn": false,
+      "rows": []
+    },
+    "turnover_vol_20d": {
+      "id": "K3",
+      "metric": "tmu_ew",
+      "source_hash": "864ea3375908",
+      "params_hash": "ba71e90221ca",
+      "config_hash": "97643c4fdcb6",
+      "withdrawn": false,
+      "rows": []
+    }
+  }
+}

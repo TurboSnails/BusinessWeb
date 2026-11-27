@@ -16,6 +16,27 @@ interface Validation { market: string; check: string; value: number | null; unit
 interface LedgerRow { records: number; trials: number; distinct: number; byMode: Record<string, number>; factors: string[]; last: string | null }
 interface GuardMarket { start: string; end: string; used: number; batches: number }
 interface Round { id: string; file: string; status: string; summary?: string; candidates?: Record<string, string[]> }
+interface MultipleMarket {
+  market: string
+  label: string
+  trials: number
+  effectiveTrials: number
+  pbo: number | null
+  tGe2Actual: number
+  tGe2Expected: number | null
+  tGe2Ci90: [number, number] | null
+}
+interface MultipleCandidate { id: string; label: string; factor: string; dsr: number | null; nwT: number | null; srPeriod: number | null }
+export interface MultipleTesting {
+  generatedAt?: string
+  totalTrials?: number
+  totalExploreDistinct?: number
+  markets?: MultipleMarket[]
+  candidates?: MultipleCandidate[]
+  headline?: string
+  caveat?: string
+  unavailable?: boolean
+}
 export interface FactorLabData {
   generatedAt: string
   data: DataRow[]
@@ -23,12 +44,18 @@ export interface FactorLabData {
   ledger: Record<string, LedgerRow>
   guard: { budget: number; exploreFrac: number; embargoMonths: number; markets: Record<string, GuardMarket> }
   rounds: Round[]
+  multipleTesting?: MultipleTesting
 }
 
 const MARKET_LABEL: Record<string, string> = { cn: 'A 股', hk: '港股', us: '美股', us_kf: '美国因子组合' }
 const FACTOR_LABEL: Record<string, string> = { cn_sue: '盈余惊喜', cn_sur: '营收惊喜', turnover_vol_20d: '换手波动' }
 const MODE_LABEL: Record<string, string> = { explore: '探索', validate: '截面验证', confirm: '锁箱确认', forward: '前推' }
 const fmtInt = (v: number | null | undefined): string => (v == null ? '—' : v.toLocaleString('zh-CN'))
+const fmtNum = (v: number | null | undefined, d = 2): string => (v == null || Number.isNaN(v) ? '—' : v.toFixed(d))
+
+function hasMultipleTesting(mt: MultipleTesting | undefined): mt is MultipleTesting {
+  return !!mt && !mt.unavailable && Array.isArray(mt.markets) && mt.markets.length > 0
+}
 
 type Load = { state: 'loading' } | { state: 'error' } | { state: 'ok'; data: FactorLabData }
 
@@ -128,6 +155,75 @@ export default function FactorLab(): JSX.Element {
                 </table>
               </TableWrap>
             </section>
+
+            {hasMultipleTesting(load.data.multipleTesting) ? (
+              <section className="ss-section" aria-labelledby="fl-luck-title" data-testid="fl-luck">
+                <h2 id="fl-luck-title">试了这么多次，会不会是运气</h2>
+                <p className="ss-p">{load.data.multipleTesting.headline}</p>
+                <p className="ss-p">
+                  探索区一共试过 {fmtInt(load.data.multipleTesting.totalExploreDistinct)} 种写法
+                  （登记 {fmtInt(load.data.multipleTesting.totalTrials)} 次）。
+                  写法彼此相关，按月度收益抱团后「有效试验数」更少；过拟合概率衡量「样本里看起来最好的，换一段样本是否还好」——接近 0.5 表示挑选几乎没信息，明显低于 0.5 才像有货。
+                  t 值衡量收益离 0 有多远：t 值 ≥ 2 大约相当于纯属偶然的概率不到 2.5%。
+                  紧缩夏普则是：单个写法的夏普，扣掉「试这么多次后纯运气也能摸到的最好水平」，常用门槛 0.95。
+                </p>
+                <TableWrap label="各市场多重检验摘要" className="lab-wrap">
+                  <table className="cs-table lab-table" data-testid="fl-luck-markets">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="lab-sticky">市场</th>
+                        <th scope="col" className="num">探索写法</th>
+                        <th scope="col" className="num">有效试验数</th>
+                        <th scope="col" className="num">过拟合概率</th>
+                        <th scope="col" className="num">t 值 ≥ 2 的写法</th>
+                        <th scope="col" className="num">运气预期</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {load.data.multipleTesting.markets!.map(m => (
+                        <tr key={m.market}>
+                          <th scope="row" className="lab-sticky">{m.label}</th>
+                          <td className="num">{fmtInt(m.trials)}</td>
+                          <td className="num">{fmtInt(m.effectiveTrials)}</td>
+                          <td className="num">{fmtNum(m.pbo, 2)}</td>
+                          <td className="num">{fmtInt(m.tGe2Actual)}</td>
+                          <td className="num">
+                            {fmtNum(m.tGe2Expected, 1)}
+                            {m.tGe2Ci90 ? `（${fmtNum(m.tGe2Ci90[0], 0)}–${fmtNum(m.tGe2Ci90[1], 0)}）` : ''}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrap>
+                {load.data.multipleTesting.candidates && load.data.multipleTesting.candidates.length > 0 ? (
+                  <>
+                    <p className="ss-p">三个已进锁箱确认的 A 股候选，按有效试验数校正后的紧缩夏普：</p>
+                    <TableWrap label="锁箱候选紧缩夏普" className="lab-wrap">
+                      <table className="cs-table lab-table" data-testid="fl-luck-candidates">
+                        <thead>
+                          <tr>
+                            <th scope="col" className="lab-sticky">候选</th>
+                            <th scope="col" className="num">t 值</th>
+                            <th scope="col" className="num">紧缩夏普</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {load.data.multipleTesting.candidates.map(c => (
+                            <tr key={c.id}>
+                              <th scope="row" className="lab-sticky">{c.label}</th>
+                              <td className="num">{fmtNum(c.nwT, 2)}</td>
+                              <td className="num">{fmtNum(c.dsr, 2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </TableWrap>
+                  </>
+                ) : null}
+                {load.data.multipleTesting.caveat ? <p className="ss-p lab-rule">{load.data.multipleTesting.caveat}</p> : null}
+              </section>
+            ) : null}
 
             <section className="ss-section" aria-labelledby="fl-data-title">
               <h2 id="fl-data-title">数据</h2>
