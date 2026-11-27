@@ -5,3 +5,4 @@ from . import fundamental_cn  # noqa: F401
 from . import price  # noqa: F401
 from . import price2  # noqa: F401
 from . import composite  # noqa: F401
+from . import surprise  # noqa: F401

@@ -26,6 +26,17 @@
   且 d 时的股本期末晚于 12 个月前的。
 - turnover（日度）：成交量 / 当日已知的拆股调整后股本（同上口径），供 turnover_20d 使用。
 
+盈余惊喜（R5 计划 docs/research/factorlab/rounds/R5-2026-11-27.md；另建 derived/surprise.parquet 与
+SURPRISE_MANIFEST.json，不改上面任何字段，也不改 snapshot()）：
+- fund_ni_sue / fund_rev_sur：在该公司每个知识时点 t（NetIncomeLoss 或收入科目的生效日）用截至 t 已生效的快照
+  还原单季（与 sec.quarterize 同一规则：直接披露的 3 个月期间优先；否则同一财年起点的累计值相减，Q2 = H1 − Q1、
+  Q3 = 9M − H1、Q4 = 年度 − 9M，两期末相差 80–100 天）。季度按「期末 − 15 天」所在的自然季度归档（容纳 52/53 周
+  财年与非日历财年）；q = 快照里该科目流量期间（3/6/9/12 个月）的最晚期末所在季度；SUE = (X_q − X_{q−4}) / σ，
+  σ = 同比差 X_{q−j} − X_{q−4−j}（j = 0…7）的样本标准差（ddof = 1），至少 4 个有值；σ = 0 → 空。
+- 收入：Revenues → RevenueFromContractWithCustomerExcludingAssessedTax → SalesRevenueNet（sec.DEFAULT_CONCEPTS 的
+  顺序），逐季取第一个有值的科目；q 取三个科目里最晚的期末。
+- 面板：月末 d 取 t ≤ d 的最新状态；q 的期末早于 d 超过 SUE_STALE_DAYS（200 天）→ 空。
+
 ticker 会被重复使用：代码 → CIK 用 company_tickers.json 的当前快照，只能保证「现在的代码属于现在这家公司」；
 Yahoo 的价格历史跟随当前证券，所以按 CIK 对上的财报与价格属于同一家公司，但若某代码曾属于别的公司、
 Yahoo 又把旧历史接在一起，会错配（无法从免费数据核实，写明）。
@@ -51,7 +62,12 @@ PRICE_MARKET = "us"
 FIELDS_MONTHLY = ("mcap_total", "mcap_float", "fund_be", "fund_ni_ttm", "fund_cfo_ttm", "fund_gp_ttm",
                   "fund_assets", "fund_assets_lag", "fund_accruals", "fund_net_issuance")
 FIELDS_DAILY = ("turnover",)
-PROVIDES = FIELDS_MONTHLY + FIELDS_DAILY
+FIELDS_SURPRISE = ("fund_ni_sue", "fund_rev_sur")
+PROVIDES = FIELDS_MONTHLY + FIELDS_DAILY + FIELDS_SURPRISE
+SURPRISE_VERSION = "sue-us-v1"
+SUE_STALE_DAYS = 200
+SUE_N, SUE_MIN = 8, 4
+REV_CONCEPTS = ("Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet")
 NEEDS = ("close", "volume")   # 计算上述字段要用的日线字段（不复权收盘、成交量）
 
 USD, SHARES = "USD", "shares"
@@ -233,6 +249,113 @@ def _to_dt(a: np.ndarray) -> pd.Series:
     return out
 
 
+# ================================================================ 盈余惊喜（R5）：单家公司
+def quarters_at(c: _Con | None, idx: np.ndarray) -> dict[int, float]:
+    """一个科目在一个快照（idx = 截至 t 每个期间的最新版本）里的单季值 {季末（天数）: 值}；
+    规则与 sec._quarters_from_snapshot 相同（测试核对），用数组实现以便逐个知识时点重算。"""
+    out: dict[int, float] = {}
+    if c is None or len(idx) == 0:
+        return out
+    idx = np.sort(idx[c.s[idx] != _NAT])
+    if len(idx) == 0:
+        return out
+    s, e, v = c.s[idx], c.e[idx], c.v[idx]
+    k = _cls(e - s + 1)
+    direct = set()
+    for j in np.flatnonzero(k == 1):
+        out[int(e[j])] = float(v[j])
+        direct.add(int(e[j]))
+    sel = np.flatnonzero(k > 0)
+    for st in np.unique(s[sel]):
+        g = sel[s[sel] == st]
+        g = g[np.argsort(e[g], kind="stable")]
+        ytd = {int(k[j]): j for j in g}                     # 每个长度类取期末最晚的一条
+        for cur, prv in ((2, 1), (3, 2), (4, 3)):
+            if cur in ytd and prv in ytd:
+                a, b = ytd[cur], ytd[prv]
+                if int(e[a]) in direct:
+                    continue
+                if not 80 <= e[a] - e[b] <= 100:
+                    continue
+                out[int(e[a])] = float(v[a]) - float(v[b])
+    return out
+
+
+def _qbucket(end_day: int) -> int:
+    """季末（自 1970 起的天数）→ 「期末 − 15 天」所在的自然季度序号。"""
+    d = np.datetime64(int(end_day) - 15, "D").astype("datetime64[M]").astype(int)   # 自 1970-01 起的月数
+    return int(d // 3)
+
+
+def _bucketed(q: dict[int, float]) -> dict[int, tuple[float, int]]:
+    out: dict[int, tuple[float, int]] = {}
+    for e, v in q.items():
+        b = _qbucket(e)
+        if b not in out or e > out[b][1]:
+            out[b] = (v, e)
+    return out
+
+
+def _latest_flow_end(c: _Con | None, idx: np.ndarray) -> int:
+    if c is None or len(idx) == 0:
+        return _NAT
+    idx = idx[c.s[idx] != _NAT]
+    if len(idx) == 0:
+        return _NAT
+    k = _cls(c.e[idx] - c.s[idx] + 1)
+    return int(c.e[idx][k > 0].max()) if (k > 0).any() else _NAT
+
+
+def sue_from_quarters(qb: dict[int, tuple[float, int]], q_last: int) -> float:
+    """按季度序号的单季值 → SUE（q = q_last 所在季度；规则见模块说明）。"""
+    if q_last == _NAT:
+        return np.nan
+    from .fundamentals_cn import _sue_stats
+
+    b = _qbucket(q_last)
+    x = {k: v for k, (v, _) in qb.items()}
+    G = np.array([[x.get(b - j, np.nan) - x.get(b - j - 4, np.nan) for j in range(SUE_N)]])
+    num, sd, n = _sue_stats(G)
+    if n[0] < SUE_MIN or np.isnan(num[0]) or not sd[0] > 0:
+        return np.nan
+    return float(num[0] / sd[0])
+
+
+SURPRISE_COLS = ["cik", "t", "ni_sue", "ni_q_end", "rev_sur", "rev_q_end"]
+
+
+def firm_surprise(vint: pd.DataFrame) -> pd.DataFrame:
+    """一家公司的 vintage 表 → 每个知识时点 t 一行 SUE / SUR 状态（只用生效日 ≤ t 的数据）。"""
+    cik = int(vint["cik"].iloc[0]) if len(vint) and "cik" in vint else 0
+    ni = _con(vint, "NetIncomeLoss", USD)
+    revs = [_con(vint, c, USD) for c in REV_CONCEPTS]
+    cons = [c for c in [ni, *revs] if c is not None]
+    times = np.unique(np.concatenate([c.eff for c in cons] or [np.empty(0, np.int64)]))
+    rows = []
+    for t in times:
+        if ni is not None:
+            sn = ni.snapshot(t)
+            ni_end = _latest_flow_end(ni, sn)
+            ni_sue = sue_from_quarters(_bucketed(quarters_at(ni, sn)), ni_end)
+        else:
+            ni_end, ni_sue = _NAT, np.nan
+        merged: dict[int, tuple[float, int]] = {}
+        rev_end = _NAT
+        for c in revs:                                  # 逐季取顺序里第一个有值的科目
+            if c is None:
+                continue
+            sn = c.snapshot(t)
+            rev_end = max(rev_end, _latest_flow_end(c, sn))
+            for b, ve in _bucketed(quarters_at(c, sn)).items():
+                merged.setdefault(b, ve)
+        rev_sur = sue_from_quarters(merged, rev_end)
+        rows.append((cik, t, ni_sue, ni_end, rev_sur, rev_end))
+    ev = pd.DataFrame(rows, columns=SURPRISE_COLS)
+    for c in ("t", "ni_q_end", "rev_q_end"):
+        ev[c] = _to_dt(ev[c].to_numpy(np.int64))
+    return ev
+
+
 # ================================================================ 离线构建
 def derived_dir() -> Path:
     d = store.market_dir(SEC_MARKET) / "derived"
@@ -273,6 +396,42 @@ def build(processes: int = 4) -> dict:
            "sha256": {"events.parquet": store._sha256(out)}}
     (derived_dir() / "MANIFEST.json").write_text(json.dumps(man, ensure_ascii=False, indent=2, default=str) + "\n",
                                                  encoding="utf-8")
+    return man
+
+
+def _one_surprise(path: str) -> pd.DataFrame | None:
+    try:
+        v = pd.read_parquet(path)
+        if v.empty:
+            return None
+        return firm_surprise(v)
+    except Exception as e:  # 单家公司出错只记录
+        return pd.DataFrame({"cik": [int(Path(path).name[3:13])], "error": [f"{type(e).__name__}: {e}"[:200]]})
+
+
+def build_surprise(processes: int = 4) -> dict:
+    """全部 pit 文件 → derived/surprise.parquet + SURPRISE_MANIFEST.json（不动 events.parquet 与 MANIFEST.json）。"""
+    from multiprocessing import Pool
+
+    pit = store.market_dir(SEC_MARKET) / "pit"
+    paths = sorted(str(p) for p in pit.glob("CIK*.parquet"))
+    with Pool(processes) as pool:
+        parts = pool.map(_one_surprise, paths, chunksize=20)
+    errs = [p for p in parts if p is not None and "error" in p]
+    evs = [p for p in parts if p is not None and "error" not in p and len(p)]
+    ev = pd.concat(evs, ignore_index=True)
+    out = derived_dir() / "surprise.parquet"
+    ev.to_parquet(out, index=False)
+    h = hashlib.sha256()
+    for p in paths:
+        st = os.stat(p)
+        h.update(f"{Path(p).name}:{st.st_size}".encode())
+    man = {"version": SURPRISE_VERSION, "built_from": f"{len(paths)} pit files", "pit_fingerprint": h.hexdigest()[:16],
+           "rows": len(ev), "ciks": int(ev["cik"].nunique()), "errors": len(errs),
+           "error_examples": [p.iloc[0].to_dict() for p in errs[:5]],
+           "sha256": {"surprise.parquet": store._sha256(out)}}
+    (derived_dir() / "SURPRISE_MANIFEST.json").write_text(
+        json.dumps(man, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
     return man
 
 
@@ -544,11 +703,51 @@ def compute_fields(ev: pd.DataFrame, fields, close: pd.DataFrame, volume: pd.Dat
     return {k: v for k, v in out.items() if k in fields}
 
 
+def read_surprise(end_ex: pd.Timestamp | None = None, hidden: tuple | None = None) -> pd.DataFrame:
+    """读盈余惊喜状态表并按可见范围删掉 t 不早于 end_ex、或落在 hidden 的行（每行只用生效日 ≤ t 的数据）。"""
+    p = derived_dir() / "surprise.parquet"
+    if not p.exists():
+        raise FileNotFoundError(f"缺 {p}：先运行 python -m factorlab.fundamentals_us build-surprise")
+    return guard_surprise(pd.read_parquet(p), end_ex, hidden)
+
+
+def guard_surprise(sev: pd.DataFrame, end_ex: pd.Timestamp | None, hidden: tuple | None) -> pd.DataFrame:
+    keep = np.ones(len(sev), dtype=bool)
+    if end_ex is not None:
+        keep &= (sev["t"] < end_ex).to_numpy()
+    if hidden is not None:
+        keep &= ~((sev["t"] >= hidden[0]) & (sev["t"] < hidden[1])).to_numpy()
+    return sev.loc[keep]
+
+
+def surprise_panel(sev: pd.DataFrame, fields, close: pd.DataFrame, cmap: pd.Series) -> dict[str, pd.DataFrame]:
+    """盈余惊喜状态表（已按可见范围删过）→ 月末字段；q 的期末早于 d 超过 200 天为空。"""
+    codes = close.columns
+    cmap = cmap[cmap.index.isin(codes)]
+    mdates = month_rows(close.index)
+    st = _state_at(sev[SURPRISE_COLS], mdates, cmap)
+    out = {}
+    for name, col, end in (("fund_ni_sue", "ni_sue", "ni_q_end"), ("fund_rev_sur", "rev_sur", "rev_q_end")):
+        if name in fields:
+            v = st[col].astype(float).reindex(columns=codes)
+            e = st[end].reindex(columns=codes)
+            age = (mdates.values[:, None] - e.to_numpy("datetime64[ns]")) / np.timedelta64(1, "D")
+            out[name] = v.where(age <= SUE_STALE_DAYS)
+    return out
+
+
 def panel_fields(fields, panel: dict, end_ex: pd.Timestamp | None, hidden: tuple | None) -> dict[str, pd.DataFrame]:
     """data.load_market 的钩子：panel 至少含不复权 close（turnover 还要 volume），已按可见范围截断。"""
-    ev = read_events(end_ex, hidden)
-    splits = read_splits(end_ex, hidden)
-    return compute_fields(ev, fields, panel["close"], panel.get("volume"), splits, code_cik_map())
+    out: dict[str, pd.DataFrame] = {}
+    base = [f for f in fields if f not in FIELDS_SURPRISE]
+    if base:
+        ev = read_events(end_ex, hidden)
+        splits = read_splits(end_ex, hidden)
+        out.update(compute_fields(ev, base, panel["close"], panel.get("volume"), splits, code_cik_map()))
+    sue = [f for f in fields if f in FIELDS_SURPRISE]
+    if sue:
+        out.update(surprise_panel(read_surprise(end_ex, hidden), sue, panel["close"], code_cik_map()))
+    return out
 
 
 def main(argv=None) -> int:
@@ -559,9 +758,13 @@ def main(argv=None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
     b.add_argument("--processes", type=int, default=4)
+    bs = sub.add_parser("build-surprise")
+    bs.add_argument("--processes", type=int, default=4)
     a = ap.parse_args(argv)
     if a.cmd == "build":
         print(json.dumps(build(a.processes), ensure_ascii=False, default=str))
+    if a.cmd == "build-surprise":
+        print(json.dumps(build_surprise(a.processes), ensure_ascii=False, default=str))
     return 0
 
 
