@@ -64,14 +64,7 @@
   "chg5": 2.06,
   "score": 4,
   "level": "强",
-  "rsi": 48,
-  "checks": [
-   true,
-   true,
-   true,
-   false,
-   true
-  ]
+  "rsi": 48
  },
  "vane": {
   "stocks": [
@@ -2418,7 +2411,7 @@
    "days": 1,
    "times": 1,
    "firstSeal": "13:03",
-   "opens": 14,
+   "opens": 13,
    "fund": 0.04,
    "fcb": 0.01,
    "sector": "IT服务Ⅱ",
@@ -2598,7 +2591,7 @@
    "days": 1,
    "times": 1,
    "firstSeal": "13:04",
-   "opens": 7,
+   "opens": 6,
    "fund": 0.31,
    "fcb": 0.04,
    "sector": "半导体",
@@ -2613,7 +2606,7 @@
    "days": 1,
    "times": 1,
    "firstSeal": "13:05",
-   "opens": 13,
+   "opens": 12,
    "fund": 0.11,
    "fcb": 0.02,
    "sector": "软件开发",
@@ -2643,7 +2636,7 @@
    "days": 1,
    "times": 1,
    "firstSeal": "13:06",
-   "opens": 6,
+   "opens": 7,
    "fund": 0.47,
    "fcb": 0.06,
    "sector": "橡胶",
