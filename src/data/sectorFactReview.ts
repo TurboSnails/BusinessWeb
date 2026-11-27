@@ -30,9 +30,9 @@ const nextera: Review = {
   withdraw: true,
 }
 const paramount: Review = {
-  evidence: '2026-02-27 PSKY/WBD 签署协议：每股 WBD 现金对价 $31；若 9/30 尚未交割，每季度 $0.25/股 ticking fee 按日计算至交割。公告条款已核实，截至复核日最终交割状态 [MISSING]；现金对价不能视为保证兑现的市价。',
+  evidence: '2026-02-27 SKYD（原 PSKY）/WBD 签署协议：每股 WBD 现金对价 $31；若 9/30 尚未交割，每季度 $0.25/股 ticking fee 按日计算至交割。公告条款已核实，截至复核日最终交割状态 [MISSING]；现金对价不能视为保证兑现的市价。',
   sources: ['https://ir.paramount.com/news-releases/news-release-details/paramount-acquire-warner-bros-discovery-form-next-generation'],
-  next: '核对最新交割公告、监管与融资条件；WBD 重建现金交割/延迟/失败情景，PSKY 核对新股发行、杠杆与整合现金流。',
+  next: '核对最新交割公告、监管与融资条件；WBD 重建现金交割/延迟/失败情景，SKYD（原 PSKY）核对新股发行、杠杆与整合现金流。',
   withdraw: true,
 }
 
@@ -43,7 +43,7 @@ export const sectorFactReviews: Record<string, Review> = {
   NEE: { ...nextera, patch: { headline: '观察（并购待核）：拟与 Dominion 合并；需桥接发行股数、融资与盈利，旧模型暂不认证' } },
   D: { ...nextera, patch: { headline: '观察（事件研究）：拟按 0.8138 股 NEE 加现金分配换股；旧独立 PE 情景暂不认证' } },
   WBD: { ...paramount, patch: { headline: '观察（事件研究）：已签署每股 $31 现金收购协议及延迟交割费；最终交割状态待确认' } },
-  PSKY: { ...paramount, patch: { headline: '观察（并购与盈利待核）：已签署收购 WBD 协议；须核对融资、摊薄及交易完成状态' } },
+  SKYD: { ...paramount, patch: { headline: '观察（并购与盈利待核）：已签署收购 WBD 协议；须核对融资、摊薄及交易完成状态' } },
   OXY: {
     evidence: 'OxyChem 已于 2026-01-02 售予伯克希尔；初公告现金价 $9.7bn，Q2 10-Q 披露调整后售价 $9.5bn，仍受后续交割调整影响。2026 上半年终止经营税后净利 $3.119bn，包含出售收益；旧 TTM 不能直接当归一化持续盈利，不以终止经营总额机械扣减普通股 EPS。',
     sources: ['https://www.oxy.com/siteassets/documents/news-releases/pr-010226_occidental-completes-oxychem.pdf', 'https://www.oxy.com/siteassets/documents/investors/2025-annual-report.pdf', 'https://www.sec.gov/Archives/edgar/data/797468/000162828026053388/oxy-20260630.htm'],

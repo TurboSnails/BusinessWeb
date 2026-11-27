@@ -428,7 +428,7 @@
 "us:PPG":{"n":"PPG工业","r":"观察","q":{"price":124.61,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
 "us:PPL":{"n":"PPL能源","r":"观察","q":{"price":35.38,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
 "us:PSA":{"n":"大众仓储","r":"观察","q":{"price":337.98,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
-"us:PSKY":{"n":"Paramount Skydance Corporation","r":"观察（待重建）","q":{"price":9.78,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
+"us:SKYD":{"n":"Skydance Corporation","r":"观察（待重建）","q":{"price":9.78,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
 "us:PSX":{"n":"Phillips 66","r":"观察","q":{"price":236.08,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":false},
 "us:PWR":{"n":"广达服务","r":"观察","q":{"price":565.47,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":true},
 "us:Q":{"n":"Qnity Electronics","r":"观察","q":{"price":108.42,"priceDate":"2026-11-25","currency":"USD","source":"research/data-refresh-2026-11-27/tencent-quotes.json","tradability":"no-known-restriction"},"v":false},

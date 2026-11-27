@@ -9437,7 +9437,7 @@
     "mcpStatus": "MCP未取回完整资料；使用独立批量行情，财报未重核",
     "symbol": "PSA"
   },
-  "us:PSKY": {
+  "us:SKYD": {
     "price": 9.78,
     "currency": "USD",
     "marketTime": "2026-11-25T09:30:00-05:00",
@@ -9457,7 +9457,7 @@
     "valuationMarketTime": null,
     "valuationSource": "research/data-refresh-2026-11-27/yahoo-quote-batch.json",
     "mcpStatus": "MCP未取回完整资料；使用独立批量行情，财报未重核",
-    "symbol": "PSKY"
+    "symbol": "SKYD"
   },
   "us:PSX": {
     "price": 236.08,
