@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T01:57:45+00:00",
+  "generatedAt": "2026-11-27T02:14:09+00:00",
   "data": [
     {
       "market": "cn",
@@ -97,11 +97,11 @@
   ],
   "ledger": {
     "cn": {
-      "records": 45,
-      "trials": 45,
-      "distinct": 26,
+      "records": 49,
+      "trials": 49,
+      "distinct": 30,
       "byMode": {
-        "explore": 41,
+        "explore": 45,
         "validate": 4
       },
       "factors": [
@@ -112,11 +112,15 @@
         "cn_bp",
         "cn_cfp_ttm",
         "cn_ep_ded_ttm",
+        "cn_ep_resid",
         "cn_ep_ttm",
         "cn_gpa_ttm",
         "cn_np_growth_yoy",
+        "cn_quality",
         "cn_roe_ttm",
         "cn_sp_ttm",
+        "cn_value_lowvol",
+        "cn_value_rev_lowvol",
         "high_52w",
         "idio_vol_60d",
         "low_price",
@@ -132,7 +136,7 @@
         "turnover_vol_20d",
         "vol_60d"
       ],
-      "last": "2026-11-27T01:54:40+00:00"
+      "last": "2026-11-27T02:08:11+00:00"
     },
     "hk": {
       "records": 20,
@@ -162,11 +166,11 @@
       "last": "2026-11-26T21:40:23+00:00"
     },
     "us": {
-      "records": 16,
-      "trials": 16,
-      "distinct": 16,
+      "records": 18,
+      "trials": 18,
+      "distinct": 18,
       "byMode": {
-        "explore": 16
+        "explore": 18
       },
       "factors": [
         "accruals",
@@ -183,9 +187,11 @@
         "roe",
         "size",
         "turnover_20d",
+        "us_investment",
+        "us_value_profit",
         "vol_60d"
       ],
-      "last": "2026-11-26T22:06:02+00:00"
+      "last": "2026-11-27T02:10:48+00:00"
     }
   },
   "guard": {
@@ -238,6 +244,16 @@
       "summary": "A 股 10 个文献基本面因子（价值 5、盈利 2、应计、资产增长、单季扣非同比），财报按公告日点时生效。5 个价值因子与扣非同比的截面排序显著（RankIC t 3.8–5.1、两段方向一致），但剔除微盘、市值加权只做多的超额 t 只有 1.1–1.75，10 个都没过第 1 关；盈利、应计、资产增长更弱。没有候选进入锁箱确认，确认名额未动用。盈利收益率与 CH-4 VMG 相关 0.81，管道核对通过。",
       "candidates": {
         "cn": []
+      }
+    },
+    {
+      "id": "R3",
+      "file": "docs/research/factorlab/rounds/R3-2026-11-27.md",
+      "status": "已完成",
+      "summary": "6 个组合因子（A 股：价值+低波、价值+反转+低波+低换手、质量、盈利收益率对规模与波动的截面残差；美股：价值+盈利、投资），其中 A 股残差与美股投资两项是事后想到的。A 股组合把截面排序做强了（RankIC t 最高 10.1），但剔除微盘、市值加权只做多的超额 t 都不到 1.8；美股投资只做多超额 t 2.2，但截面排序 t 2.5 不够 3。6 个都没过第 1 关，没有候选进入锁箱确认，确认名额未动用。",
+      "candidates": {
+        "cn": [],
+        "us": []
       }
     }
   ]

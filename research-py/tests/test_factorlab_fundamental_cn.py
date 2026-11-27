@@ -124,7 +124,8 @@ def test_registered_factors_pass_engine_lookahead_check():
     core = fc.core_fields(_fin(_base_rows()), dates, [CODE])
     f = fc.compute_fields(core, fc.PROVIDES, close, close, None, None)
     panel = {"close_adj": close, "close": close, **f}
-    names = [n for n, s in registry.FACTORS.items() if s.markets == ("cn",) and n.startswith("cn_")]
+    names = [n for n, s in registry.FACTORS.items()
+             if s.markets == ("cn",) and s.func.__module__.endswith(".fundamental_cn")]   # R2 的 10 个（R3 组合另测）
     assert len(names) == 10
     for name in names:
         assert registry.check_no_lookahead(registry.get(name), panel, dates[6:], n_check=6), name
