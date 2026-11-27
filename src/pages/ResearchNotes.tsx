@@ -153,7 +153,6 @@ export default function ResearchNotes(): JSX.Element {
   const setActiveTab = (t: TabId): void => updateParams({ tab: t, n: null }, false)
   // 切换市场时顺带清空筛选，避免上一个市场的评级/类型让新市场列表为空
   const setCatMarket = (m: Market): void => updateParams({ tab: 'companies', m, v: null, ...clearListFilters() }, true)
-  const [showBackToTop, setShowBackToTop] = useState(false)
   const [zoomImg, setZoomImg] = useState<{ src: string; title: string } | null>(null)
 
   useEffect(() => {
@@ -168,9 +167,6 @@ export default function ResearchNotes(): JSX.Element {
       }
     } catch { /* 隐私模式或旧格式忽略 */ }
     window.scrollTo(0, y)
-    const handleScroll = () => setShowBackToTop(window.scrollY > 400)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const hint = (children: React.ReactNode): JSX.Element => <p className="rn-hint">{children}</p>
@@ -303,7 +299,19 @@ export default function ResearchNotes(): JSX.Element {
   // 慢加载时不要冒充「共 0 家 · 没有符合条件」（M2）
   const emptyHint = (n: number): React.ReactNode => {
     if (combinedLoading && n === 0) {
-      return <div className="rn-empty" role="status">正在加载{marketLabel(catMarket)}公司…</div>
+      return (
+        <div className="rn-list-skel" role="status" aria-busy="true" aria-label={`正在加载${marketLabel(catMarket)}公司`}>
+          <div className="skeleton-line rn-list-skel__heading" />
+          {Array.from({ length: 10 }, (_, i) => (
+            <div key={i} className="rn-list-skel__row">
+              <div className="skeleton-line rn-list-skel__cell rn-list-skel__cell--code" />
+              <div className="skeleton-line rn-list-skel__cell rn-list-skel__cell--name" />
+              <div className="skeleton-line rn-list-skel__cell rn-list-skel__cell--rating" />
+              <div className="skeleton-line rn-list-skel__cell rn-list-skel__cell--wide" />
+            </div>
+          ))}
+        </div>
+      )
     }
     if (n !== 0) return null
     return (
@@ -824,7 +832,7 @@ export default function ResearchNotes(): JSX.Element {
 
             {catMarket === 'cn' && (
               <div>
-                {view === 'list' && renderProgress()}
+                {view === 'list' && (combinedLoading && !progList.length ? emptyHint(0) : renderProgress())}
                 {view === 'lynch' && renderLynch()}
                 {view === 'combined' && <CompanyCombined key={catMarket} companies={progList} lynch={lynch} ratingOf={ratingOf} loading={combinedLoading} isCandidate={isCand} onToggleCandidate={toggleCand} />}
                 {view === 'overview' && (<div>
@@ -933,12 +941,6 @@ export default function ResearchNotes(): JSX.Element {
         </div>
       )}
 
-      {/* 回到顶部 */}
-      {showBackToTop && (
-        <button type="button" className="rn-top" aria-label="回到顶部" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          ↑
-        </button>
-      )}
     </Page>
   )
 }

@@ -194,7 +194,7 @@ describe('林奇分组、港股、导出', () => {
 
   it('详情页渲染林奇分类卡与护城河证据', async () => {
     renderAt('/research-notes/us/ACN')
-    await waitFor(() => expect(screen.getByText(/林奇分类：/)).toBeTruthy(), { timeout: 8000 })
+    await waitFor(() => expect(document.querySelector('#cd-lynch')?.textContent).toMatch(/林奇分类：/), { timeout: 8000 })
     expect(screen.getAllByText('定价权').length).toBeGreaterThan(0)
   })
 

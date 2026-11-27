@@ -6,7 +6,7 @@ import KplRank from './KplRank'
 import { rankFixture } from '../../features/kpl-rank/fixtures'
 import { asKplRank } from '../../features/kpl-rank/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/rank']}><KplRank /></MemoryRouter>)
+const renderPage = (path = '/market-mood/rank') => render(<MemoryRouter initialEntries={[path]}><KplRank /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -102,6 +102,13 @@ describe('开盘啦 · 人气排行页', () => {
     stub({ version: 1, asOf: '2026-11-17' })
     renderPage()
     expect(await screen.findByText('数据文件格式不对')).toBeTruthy()
+  })
+
+  it('人气榜视图写入 URL：?view=surge 刷新后仍是飙升榜', async () => {
+    stub(rankFixture())
+    renderPage('/market-mood/rank?view=surge')
+    expect(await screen.findByRole('region', { name: '人气飙升榜' })).toBeTruthy()
+    expect(within(screen.getByRole('group', { name: '人气榜视图' })).getByText('飙升榜').closest('button')?.getAttribute('aria-pressed')).toBe('true')
   })
 
   it('校验器：坏行被过滤，缺失部分为 null', () => {

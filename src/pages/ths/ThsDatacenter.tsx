@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import { asThsDatacenter, fixed, md, METHOD, money, pct, shares, tone, type BuybackRow, type CoveredStock, type HolderRank, type HolderRow, type IpoCal, type LiftRow, type ReportsBlock, type StockReport, type SubNew, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
 import '../../styles/market-mood.css'
@@ -123,7 +124,7 @@ function TopPanel({ d }: { d: Data }): JSX.Element {
 /* ---------- 新股与次新 ---------- */
 const STATUS_CLS: Record<IpoCal['status'], string> = { 待申购: 'is-wait', 待上市: 'is-pending', 已上市: 'is-listed' }
 function IpoCard({ d }: { d: Data }): JSX.Element {
-  const [view, setView] = useState<'cal' | 'recent' | 'sub'>('cal')
+  const [view, setView] = useUrlTab('ipo', ['cal', 'recent', 'sub'] as const, 'cal')
   const [subSort, setSubSort] = useState<'date' | 'cum' | 'broke'>('date')
   const s = d.ipo.subNew
   const subRows = useMemo(() => {
@@ -232,7 +233,7 @@ function LiftCard({ d }: { d: Data }): JSX.Element {
 
 /* ---------- 股东增减持 ---------- */
 function HoldersCard({ d }: { d: Data }): JSX.Element {
-  const [view, setView] = useState<'list' | 'inc' | 'dec'>('list')
+  const [view, setView] = useUrlTab('chg', ['list', 'inc', 'dec'] as const, 'list')
   const [dir, setDir] = useState<'all' | '增持' | '减持'>('all')
   const h = d.holders
   const list = useMemo(() => (dir === 'all' ? h.rows : h.rows.filter(r => r.dir === dir)), [h.rows, dir])
@@ -371,7 +372,7 @@ function reportCols(withDate: boolean, closeDate: string | null): Array<Col<Stoc
   ]
 }
 function ReportsCard({ r, error }: { r: ReportsBlock | null; error: string | null }): JSX.Element {
-  const [view, setView] = useState<'day' | 'up' | 'covered' | 'industry'>('day')
+  const [view, setView] = useUrlTab('reports', ['day', 'up', 'covered', 'industry'] as const, 'day')
   const [indAll, setIndAll] = useState(false)
   if (!r) {
     return (

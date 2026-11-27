@@ -6,7 +6,7 @@ import ThsDatacenter from './ThsDatacenter'
 import { datacenterFixture, reportsFixture } from '../../features/ths-datacenter/fixtures'
 import { asReports, asThsDatacenter, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/ths-mood/datacenter']}><ThsDatacenter /></MemoryRouter>)
+const renderPage = (path = '/ths-mood/datacenter') => render(<MemoryRouter initialEntries={[path]}><ThsDatacenter /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
 const card = (title: string): HTMLElement => screen.getByRole('heading', { name: title }).closest('section') as HTMLElement
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
@@ -205,5 +205,14 @@ describe('研报评级段校验', () => {
     expect(d).not.toBeNull()
     expect(d?.reports).toBeNull()
     expect(d?.reportsError).toBeNull()
+  })
+
+  it('主视图写入 URL：ipo/chg/reports 刷新后仍选中', async () => {
+    stub(datacenterFixture())
+    renderPage('/ths-mood/datacenter?ipo=sub&chg=inc&reports=covered')
+    await screen.findByLabelText('数据中心总览')
+    expect(within(card('新股与次新')).getByRole('button', { name: '次新股' }).getAttribute('aria-pressed')).toBe('true')
+    expect(within(card('重要股东增减持')).getByRole('button', { name: '净增持排行' }).getAttribute('aria-pressed')).toBe('true')
+    expect(within(card('研报评级')).getByRole('button', { name: '覆盖最多' }).getAttribute('aria-pressed')).toBe('true')
   })
 })

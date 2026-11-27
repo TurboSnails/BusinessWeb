@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, StatusLegend, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
 import { asJixingTable } from '../../features/jixing-table/model'
@@ -64,7 +65,7 @@ export default function JixingMap(): JSX.Element {
   const [attempt, setAttempt] = useState(0)
   const retry = () => { setLoading(true); setError(null); setCells(null); setAttempt(n => n + 1) }
   const [group, setGroup] = useState<MapGroupFilter>('all')
-  const [view, setView] = useState<'map' | 'table'>('map')
+  const [view, setView] = useUrlTab('view', ['map', 'table'] as const, 'map')
 
   useEffect(() => {
     const c = new AbortController()

@@ -8,7 +8,7 @@ import JixingGlobal from './JixingGlobal'
 import { globalFixture } from '../../features/jixing-global/fixtures'
 import { asJixingGlobal, chartValue } from '../../features/jixing-global/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/jixing/global']}><JixingGlobal /></MemoryRouter>)
+const renderPage = (path = '/jixing/global') => render(<MemoryRouter initialEntries={[path]}><JixingGlobal /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -91,6 +91,13 @@ describe('今天几星 · 港股全球', () => {
     expect(chartValue(row, -5)).toBeNull()
     expect(chartValue(row, 250)).toBeNull()
     expect(chartValue(row, 12)).toBe(12)
+  })
+
+  it('分区写入 URL：刷新仍保留 section=gold', async () => {
+    stub(globalFixture())
+    renderPage('/jixing/global?section=gold')
+    expect(await screen.findByText(/黄金估值为本站自定/)).toBeTruthy()
+    expect(within(screen.getByRole('group', { name: '港股全球分区' })).getByRole('button', { name: '黄金' }).getAttribute('aria-pressed')).toBe('true')
   })
 
   it('真实数据文件（如有）通过校验', () => {

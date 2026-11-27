@@ -54,7 +54,21 @@ const baseCache: Partial<Record<Market, Promise<Company[]>>> = {}
 // 只存完整结果（补全 JSON 有效）；部分结果不进此缓存
 const genCache: Partial<Record<Market, Promise<Company[]>>> = {}
 const resolved: Partial<Record<Market, Company[]>> = {}
-const coreOf = (market: Market) => import('./companyCore').then(m => m.resolveMarket(market))
+const coreOf = (market: Market, codes?: readonly string[]) =>
+  import('./companyCore').then(m => m.resolveMarket(market, codes ? { codes } : undefined))
+
+// 估值表按市场只解析一次；详情/列表共享，避免重复 JSON.parse
+const valuationCache: Partial<Record<Market, Promise<Map<string, CompanyValuation>>>> = {}
+const valuationsOf = (market: Market): Promise<Map<string, CompanyValuation>> => {
+  const cached = valuationCache[market]
+  if (cached) return cached
+  const p = loadCompanyValuations(market)
+  valuationCache[market] = p
+  const evict = () => { if (valuationCache[market] === p) delete valuationCache[market] }
+  // 估值加载器在请求或校验失败时返回空表，后续访问仍可以重试。
+  p.then(map => { if (!map.size) evict() }, evict)
+  return p
+}
 
 // 加载失败（如分包下载中断）时清掉缓存，下次调用可以重试，而不是永远拿到同一个失败结果
 function remember(cache: Partial<Record<Market, Promise<Company[]>>>, market: Market, p: Promise<Company[]>): Promise<Company[]> {
@@ -63,7 +77,7 @@ function remember(cache: Partial<Record<Market, Promise<Company[]>>>, market: Ma
   return p
 }
 
-// 只含手工研究页（不拉取程序化补全 JSON）
+// 只含手工研究页（不拉取程序化补全 JSON）；全量分册，供列表与其它入口
 export const loadBaseCompanies = (market: Market): Promise<Company[]> =>
   baseCache[market] ?? remember(baseCache, market, coreOf(market).then(r => r.base))
 
@@ -100,6 +114,23 @@ const fetchGenerated = async (market: Market): Promise<Company[]> => {
   return data as Company[]
 }
 
+// 同一 SPA 中切换沪深详情和公司库时复用下载与解析，失败后允许重试。
+let cnGenerated: Promise<Company[]> | undefined
+const generatedOf = (market: Market): Promise<Company[]> => {
+  if (market !== 'cn') return fetchGenerated(market)
+  if (!cnGenerated) {
+    const pending = fetchGenerated(market)
+    cnGenerated = pending
+    pending.catch(() => { if (cnGenerated === pending) cnGenerated = undefined })
+  }
+  return cnGenerated
+}
+
+const generatedResult = (market: Market) => generatedOf(market).then(
+  list => ({ ok: true as const, list }),
+  (e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message : String(e) }),
+)
+
 // 进行中或已完整的结果；部分结果结算后立即移出，下次调用会重新请求补全 JSON
 const resultCache: Partial<Record<Market, Promise<CompaniesResult>>> = {}
 // 最近一次部分结果：仅用于重新挂载时先显示手工公司，不当作完整数据
@@ -108,11 +139,7 @@ const partialResolved: Partial<Record<Market, Company[]>> = {}
 export const loadCompaniesResult = (market: Market): Promise<CompaniesResult> => {
   const cached = resultCache[market]
   if (cached) return cached
-  const gen = fetchGenerated(market).then(
-    list => ({ ok: true as const, list }),
-    (e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message : String(e) }),
-  )
-  const p: Promise<CompaniesResult> = Promise.all([coreOf(market), gen, loadCompanyValuations(market)]).then(([core, g, valuations]) => {
+  const p: Promise<CompaniesResult> = Promise.all([coreOf(market), generatedResult(market), valuationsOf(market)]).then(([core, g, valuations]) => {
     const list = core.merge(g.ok ? g.list : []).map(c => ({ ...c, valuation: valuations.get(c.code) }))
     if (g.ok) {
       resolved[market] = list
@@ -145,24 +172,56 @@ export interface UseCompaniesState {
   retry: () => void
 }
 
-export const useCompanies = (market: Market, enabled = true): UseCompaniesState => {
-  const [list, setList] = useState<Company[]>(() => resolved[market] ?? partialResolved[market] ?? [])
+export const useCompanies = (market: Market, enabled = true): UseCompaniesState =>
+  useMarketCompanies(market, enabled)
+
+export const useCompanyDetailCompanies = (market: Market, enabled: boolean, code?: string): UseCompaniesState =>
+  useMarketCompanies(market, enabled, market === 'cn' ? code : undefined)
+
+function useMarketCompanies(market: Market, enabled: boolean, focusCode?: string): UseCompaniesState {
+  const [list, setList] = useState<Company[]>(() => resolved[market] ?? (focusCode ? [] : partialResolved[market] ?? []))
   const [loading, setLoading] = useState(enabled && !resolved[market])
   const [failed, setFailed] = useState(false)
-  const [partial, setPartial] = useState(() => !resolved[market] && !!partialResolved[market])
+  const [partial, setPartial] = useState(() => !focusCode && !resolved[market] && !!partialResolved[market])
   const [attempt, setAttempt] = useState(0)
+  const requestKey = focusCode ? `${market}:${focusCode}` : market
+  const [activeKey, setActiveKey] = useState<string | undefined>(enabled ? requestKey : undefined)
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) { setActiveKey(undefined); return }
     let alive = true
+    setActiveKey(requestKey)
     if (resolved[market]) { setList(resolved[market]!); setLoading(false); setFailed(false); setPartial(false); return }
     setLoading(true)
-    loadCompaniesResult(market).then(
-      r => { if (alive) { setList(r.list); setLoading(false); setFailed(false); setPartial(r.partial) } },
-      () => { if (alive) { setLoading(false); setFailed(true) } },
-    )
+    setFailed(false)
+
+    const commit = (result: CompaniesResult) => {
+      if (!alive) return
+      setList(result.list)
+      setLoading(false)
+      setPartial(result.partial)
+    }
+    const fail = () => { if (alive) { setLoading(false); setFailed(true) } }
+    if (focusCode) {
+      // 先渲染正文，再补估值。窄分册的结果留在详情页，避免写入全市场缓存。
+      setList([])
+      setPartial(false)
+      Promise.all([coreOf(market, [focusCode]), generatedResult(market)]).then(([core, g]) => {
+        if (!alive) return
+        const generated = g.ok ? g.list.find(company => company.code === focusCode) : undefined
+        const list = core.merge(generated ? [generated] : [])
+        commit({ list, partial: !g.ok })
+        if (!list.length) return
+        valuationsOf(market).then(valuations => {
+          commit({ list: list.map(company => ({ ...company, valuation: valuations.get(company.code) })), partial: !g.ok })
+        }, fail)
+      }).catch(fail)
+    } else {
+      loadCompaniesResult(market).then(commit, fail)
+    }
     return () => { alive = false }
-  }, [market, enabled, attempt])
+  }, [market, enabled, attempt, focusCode, requestKey])
   const retry = useCallback(() => setAttempt(a => a + 1), [])
+  if (enabled && requestKey !== activeKey) return { list: [], loading: enabled, failed: false, partial: false, retry }
   return { list, loading, failed, partial, retry }
 }
 

@@ -73,19 +73,25 @@ describe('公司库 URL 筛选与返回（H1 / L8 / M2 / L6）', () => {
     expect(back.getAttribute('href')).toContain('tab=companies')
   }, 30_000)
 
-  it('加载中显示加载提示，不显示假空状态；候选计数有 aria-live', async () => {
+  it('切到沪深先显示骨架，不显示零家或假空状态；候选计数有 aria-live', async () => {
     let release!: () => void
     const gate = new Promise<void>(r => { release = r })
     vi.stubGlobal('fetch', async (url: string) => {
       const rel = String(url).replace(/^.*?data\//, '')
-      if (rel === 'us.json') await gate
+      if (rel === 'cn.json') await gate
       return fileResponse(rel)
     })
     await mount('/research-notes?tab=companies')
     await screen.findByRole('heading', { level: 1, name: '公司研究' }, { timeout: 20_000 })
-    expect(screen.getByRole('status').textContent).toMatch(/正在加载/)
-    expect(screen.queryByRole('button', { name: '清除筛选' })).toBeNull()
-    expect(document.querySelector('.rn-info-bar__links [aria-live="polite"]')).toBeTruthy()
-    await act(async () => { release() })
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: '沪深' })) })
+    try {
+      const status = screen.getByRole('status', { name: '正在加载沪深公司' })
+      expect(status.querySelectorAll('.skeleton-line').length).toBeGreaterThan(1)
+      expect(screen.queryByText(/共 0 家/)).toBeNull()
+      expect(screen.queryByRole('button', { name: '清除筛选' })).toBeNull()
+      expect(document.querySelector('.rn-info-bar__links [aria-live="polite"]')).toBeTruthy()
+    } finally {
+      await act(async () => { release() })
+    }
   }, 30_000)
 })

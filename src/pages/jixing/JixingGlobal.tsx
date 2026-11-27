@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -12,7 +13,8 @@ import '../../styles/jixing-global.css'
 
 const BASE = import.meta.env.BASE_URL
 const ym = (d: string): string => `${d.slice(2, 4)}/${Number(d.slice(5, 7))}`
-type Section = 'hk' | 'global' | 'gold'
+const SECTIONS = ['hk', 'global', 'gold'] as const
+type Section = (typeof SECTIONS)[number]
 
 function StateBadge({ state, distorted }: { state: ValState | null; distorted?: boolean }): JSX.Element {
   if (state) return <StatusBadge status={state} />
@@ -133,7 +135,7 @@ export default function JixingGlobal(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
   const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
-  const [section, setSection] = useState<Section>('hk')
+  const [section, setSection] = useUrlTab<Section>('section', SECTIONS, 'hk')
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/jixing-global.json`, { cache: 'no-cache', signal: controller.signal })

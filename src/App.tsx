@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
 import RouteSeo from './components/RouteSeo'
 import ScrollToHash from './components/ScrollToHash'
+import BackToTop from './components/BackToTop'
 import { CommandPaletteProvider } from './components/CommandPalette'
 import { useTrackRecent } from './features/recent-pages/useTrackRecent'
 import NotFound from './pages/NotFound'
@@ -291,6 +292,7 @@ export default function App(): JSX.Element {
         </Suspense>
         </RoutedBoundary>
         <Footer />
+        <BackToTop />
         </CommandPaletteProvider>
       </BrowserRouter>
     </div>

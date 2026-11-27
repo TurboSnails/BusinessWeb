@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import StockTable, { type Col } from '../../features/kpl-daban/StockTable'
 import {
@@ -121,7 +122,7 @@ function IndustryTable({ label, rows }: { label: string; rows: MarginIndustry[] 
 }
 function MarginCard({ d }: { d: Data }): JSX.Element {
   const m = d.margin
-  const [view, setView] = useState<MarginKey>('buy')
+  const [view, setView] = useUrlTab('margin', ['buy', 'sell', 'buy5', 'sell5', 'growth', 'ratio', 'industry'] as const, 'buy')
   return (
     <Card title="融资融券个股排行" as="section" className="mm-card"
       description={m ? `${m.date} 交易所两融数据（次一交易日早上公布）` : undefined}
@@ -156,7 +157,7 @@ const fundInitial: Record<Exclude<FundKey, 'industry'>, { key: string; dir: 'asc
 }
 function FundsCard({ d }: { d: Data }): JSX.Element {
   const f = d.funds
-  const [view, setView] = useState<FundKey>('add')
+  const [view, setView] = useUrlTab('funds', ['add', 'cut', 'fresh', 'top', 'industry'] as const, 'add')
   const [indSort, setIndSort] = useState<'value' | 'change'>('value')
   const inds = useMemo<FundIndustry[]>(() => (f ? [...f.industries].sort((a, b) => (indSort === 'value' ? b.value - a.value : b.changeValue - a.changeValue)).slice(0, 30) : []), [f, indSort])
   const mixed = f && f.prevFull !== null && f.full !== f.prevFull

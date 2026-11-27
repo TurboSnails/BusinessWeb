@@ -76,7 +76,6 @@
   --rel-c2: #c26a1b;
   --rel-c3: #3d8a5a;
 }
-@media (prefers-color-scheme: dark) { .rel-perf { --rel-c1: #7fb0ec; --rel-c2: #eaa25f; --rel-c3: #7cc79a; } }
 :root[data-theme="dark"] .rel-perf { --rel-c1: #7fb0ec; --rel-c2: #eaa25f; --rel-c3: #7cc79a; }
 :root[data-theme="light"] .rel-perf { --rel-c1: #2f6db5; --rel-c2: #c26a1b; --rel-c3: #3d8a5a; }
 .rel-perf__overlay { margin-top: .75rem; padding-top: .65rem; border-top: 1px solid var(--border-subtle); font-size: .84rem; }

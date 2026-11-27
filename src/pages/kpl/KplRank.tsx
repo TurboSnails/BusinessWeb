@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import {
@@ -59,7 +60,7 @@ const Name = ({ name, code }: { name: string | null; code: string }): JSX.Elemen
 /* ---------- 1. 人气榜 ---------- */
 function PopularityCard({ d }: { d: Data }): JSX.Element {
   const p = d.popularity
-  const [view, setView] = useState<'top' | 'surge'>('top')
+  const [view, setView] = useUrlTab('view', ['top', 'surge'] as const, 'top')
   const [all, setAll] = useState(false)
   if (!p) {
     return (

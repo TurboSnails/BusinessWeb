@@ -120,7 +120,7 @@ export interface ResearchRef { key: string; code: string }
  * 研究索引的键形如「中国:688256」「中国:0700.HK」「海外:NVDA」，代码可能带「/」分隔的第二上市地。
  * 美股按公司库判断属于标普、纳指还是非标普；无法对应到四个市场（如台股、韩股）的返回 null。
  */
-export function researchToCandidate(ref: ResearchRef, usLists: { us: Set<string>; ndx: Set<string>; adr: Set<string> }): { market: CandidateMarket; code: string } | null {
+export function researchToCandidate(ref: ResearchRef, usLists: { us: Set<string>; ndx: Set<string> }): { market: CandidateMarket; code: string } | null {
   const region = ref.key.split(':')[0]
   const primary = ref.code.split(/\s*[/（(]\s*/)[0].trim().toUpperCase()
   if (region === '中国') {

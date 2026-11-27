@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import type { Company } from '../data/companies'
 import { valuationReliability } from '../features/company-valuation/model'
-import { researchForCode, researchPath } from '../data/futureTrendsResearch'
 import type { SyncState } from '../features/candidates/useCandidates'
 import { DECISION_ACTIONS, MAX_NOTE } from '../features/candidates/validation'
 import type { CandidateAlertRule, CandidateItem, DecisionRecord, DecisionSnapshot } from '../features/candidates/validation'
@@ -21,6 +20,8 @@ import '../styles/candidates.css'
 interface Props {
   items: CandidateItem[]
   companies: Company[]
+  /** 池内市场公司库仍在加载时为 true：此时不拉研究索引做名称回退，避免误下整包 */
+  companiesLoading?: boolean
   /** 本机已保存的 DCF、估值报告与网格记录，用来显示每家公司做到哪一步 */
   tools?: ToolSources
   state: SyncState
@@ -155,7 +156,7 @@ function ReviewSummary({ item, today }: { item: CandidateItem; today: string }):
   )
 }
 
-export default function CandidatePool({ items, companies, tools = NO_TOOLS, state, message, localError = '', onRetryLocal, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
+export default function CandidatePool({ items, companies, companiesLoading = false, tools = NO_TOOLS, state, message, localError = '', onRetryLocal, onMove, onRemove, onDecision, onNote, onClear, onConnect, onRetry, onAlert, alertStates }: Props): JSX.Element {
   const [dragFrom, setDragFrom] = useState<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
   const [token, setToken] = useState('')
@@ -170,14 +171,31 @@ export default function CandidatePool({ items, companies, tools = NO_TOOLS, stat
   const today = localDay()
   const recordCount = items.reduce((n, i) => n + (i.decisions?.length ?? 0), 0)
   const byKey = new Map(companies.map(c => [`${c.market}:${c.code}`, c]))
+  // 研究索引按需动态加载：等公司库就绪后再判断缺口，避免加载中误拉整包
+  const [researchLookup, setResearchLookup] = useState<typeof import('../data/futureTrendsResearch') | null>()
+  const needsResearch = !companiesLoading && items.some(i => !byKey.has(`${i.market}:${i.code}`))
+  useEffect(() => {
+    if (!needsResearch || researchLookup) return
+    let alive = true
+    void import('../data/futureTrendsResearch').then(
+      research => { if (alive) setResearchLookup(research) },
+      () => { if (alive) setResearchLookup(null) },
+    )
+    return () => { alive = false }
+  }, [needsResearch, researchLookup])
 
   // 公司库优先；不在公司库的（从研究筛出加入的）用主题研究的结论
   const describe = (i: CandidateItem): { name: string; href: string | null; rating: string; headline: string } => {
     const c = byKey.get(`${i.market}:${i.code}`)
     if (c) return { name: c.name, href: `/research-notes/${i.market}/${encodeURIComponent(i.code)}`, rating: c.rating, headline: c.headline }
-    const r = researchForCode(i.market === 'hk' ? `${Number(i.code).toString().padStart(4, '0')}.HK` : i.code)
-    if (r) return { name: r.name, href: researchPath(r.key), rating: r.rating, headline: r.headline }
-    return { name: '', href: null, rating: '—', headline: '公司数据加载中或已不在列表' }
+    if (researchLookup) {
+      const r = researchLookup.researchForCode(i.market === 'hk' ? `${Number(i.code).toString().padStart(4, '0')}.HK` : i.code)
+      if (r) return { name: r.name, href: researchLookup.researchPath(r.key), rating: r.rating, headline: r.headline }
+    }
+    const headline = companiesLoading || researchLookup === undefined
+      ? '正在加载公司资料…'
+      : researchLookup === null ? '暂时无法读取研究资料' : '公司已不在列表'
+    return { name: '', href: null, rating: '—', headline }
   }
 
   const exportJson = (): void => {

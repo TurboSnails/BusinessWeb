@@ -6,7 +6,7 @@ import KplDisclosure from './KplDisclosure'
 import { disclosureFixture } from '../../features/kpl-disclosure/fixtures'
 import { asKplDisclosure } from '../../features/kpl-disclosure/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/disclosure']}><KplDisclosure /></MemoryRouter>)
+const renderPage = (path = '/market-mood/disclosure') => render(<MemoryRouter initialEntries={[path]}><KplDisclosure /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -103,6 +103,17 @@ describe('开盘啦 · 财报避雷页', () => {
     expect(await screen.findByText('大宗交易数据暂缺')).toBeTruthy()
     expect(screen.getByText('机构调研数据暂缺')).toBeTruthy()
     expect(screen.getByRole('region', { name: '最新业绩披露' })).toBeTruthy()
+  })
+
+  it('主视图写入 URL：disclosure/risk/holders/block/survey 刷新后仍选中', async () => {
+    stub(disclosureFixture())
+    renderPage('/market-mood/disclosure?disclosure=calendar&risk=face&holders=drop&block=top&survey=long')
+    await screen.findByRole('region', { name: '财报避雷总览' })
+    expect(within(screen.getByRole('group', { name: '业绩披露视图' })).getByText('披露日历').closest('button')?.getAttribute('aria-pressed')).toBe('true')
+    expect(within(screen.getByRole('group', { name: '避雷视图' })).getByText('面值').closest('button')?.getAttribute('aria-pressed')).toBe('true')
+    expect(within(screen.getByRole('group', { name: '股东户数视图' })).getByText('最新降幅').closest('button')?.getAttribute('aria-pressed')).toBe('true')
+    expect(within(screen.getByRole('group', { name: '大宗交易视图' })).getByText('近 20 日成交').closest('button')?.getAttribute('aria-pressed')).toBe('true')
+    expect(within(screen.getByRole('group', { name: '机构调研视图' })).getByText('近 20 日').closest('button')?.getAttribute('aria-pressed')).toBe('true')
   })
 
   it('校验器：版本或日期不对返回 null', () => {

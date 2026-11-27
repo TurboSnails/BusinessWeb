@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight, CalendarClock } from 'lucide-react'
-import { useCompanies, useLynch, lynchFor, Market } from '../data/companies'
+import { useCompanyDetailCompanies, useLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
 import CompanyDetailHeader from '../components/research/CompanyDetailHeader'
@@ -45,7 +45,7 @@ export default function CompanyDetail(): JSX.Element {
   // 未知市场不回退美股；Router 已解码 code，不再 decodeURIComponent（`%25` 会解出 `%` 并抛 URIError）
   const validMarket = isMarket(market)
   const mk: Market = validMarket ? market : 'us'
-  const { list, loading, failed, partial, retry } = useCompanies(mk, validMarket)
+  const { list, loading, failed, partial, retry } = useCompanyDetailCompanies(mk, validMarket, code)
   const { data: lynchAll, loading: lynchLoading, failed: lynchFailed } = useLynch()
   const company = validMarket && code ? list.find(c => c.code === code) : undefined
   // 部分数据下切换公司（同一路由组件不会重新挂载）时自动重试一次，恢复后同一 SPA 可找回
@@ -64,14 +64,15 @@ export default function CompanyDetail(): JSX.Element {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [market, code])
+  const loadedCompanyCode = company?.code
   useEffect(() => {
-    if (hash === '#company-valuation' && company) document.getElementById('company-valuation')?.scrollIntoView?.()
-  }, [hash, company])
+    if (hash === '#company-valuation' && loadedCompanyCode) document.getElementById('company-valuation')?.scrollIntoView?.()
+  }, [hash, loadedCompanyCode, mk])
   const mainRef = useRef<HTMLDivElement>(null)
   const [tocItems, setTocItems] = useState<TocItem[]>([])
   useLayoutEffect(() => {
     setTocItems(collectTocItems(mainRef.current))
-  }, [company?.code, company?.market, loading])
+  }, [company, lynchAll, lynchLoading, lynchFailed])
 
   const row = (text: string, accent: string, key: number, warn = false): JSX.Element => (
     <div key={key} className="rn-check">
@@ -112,7 +113,23 @@ export default function CompanyDetail(): JSX.Element {
 
   if (!company) {
     const state = !validMarket ? 'invalid' : loading ? 'loading' : failed ? 'failed' : partial ? 'partial' : 'missing'
-    const title = { invalid: '无效的公司地址', loading: '正在加载…', failed: '公司数据加载失败', partial: '部分公司数据暂不可用', missing: '未找到该公司' }[state]
+    if (state === 'loading') {
+      return (
+        <Page variant="reading" title="公司研究">
+          {back}
+          <div className="rn-detail-skel" role="status" aria-busy="true" aria-label="正在加载公司研究">
+            <div className="skeleton-line rn-detail-skel__title" />
+            <div className="skeleton-line rn-detail-skel__meta" />
+            <div className="skeleton-line rn-detail-skel__line" />
+            <div className="skeleton-line rn-detail-skel__line" />
+            <div className="skeleton-line rn-detail-skel__line rn-detail-skel__line--short" />
+            <div className="skeleton-line rn-detail-skel__block" />
+            <div className="skeleton-line rn-detail-skel__block" />
+          </div>
+        </Page>
+      )
+    }
+    const title = { invalid: '无效的公司地址', failed: '公司数据加载失败', partial: '部分公司数据暂不可用', missing: '未找到该公司' }[state]
     return (
       <Page variant="reading" title={state === 'invalid' || state === 'missing' ? title : '公司研究'}>
         {back}
@@ -123,7 +140,6 @@ export default function CompanyDetail(): JSX.Element {
             : undefined}
         >
           {state === 'invalid' ? `市场「${market ?? ''}」不在公司库中（可用：标普500 us、沪深 cn、港股 hk、美股非标普 adr、纳指100 ndx）。`
-            : state === 'loading' ? '正在读取补全公司数据。'
             : state === 'failed' ? '网络中断或页面已更新，可重试；仍失败请刷新页面。'
             : state === 'partial' ? '程序化补全的公司数据这次没有取到，手工研究页仍可打开。这家公司可能在暂未加载的数据里，不代表公司库中没有它；请稍后重试。'
             : '该公司还没有整理进公司库。'}

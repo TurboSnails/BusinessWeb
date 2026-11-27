@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -160,7 +161,7 @@ const Head = (): JSX.Element => (
 
 function Billboard({ d }: { d: Data }): JSX.Element {
   const l = d.latest
-  const [view, setView] = useState<'stock' | 'reason'>('stock')
+  const [view, setView] = useUrlTab('view', ['stock', 'reason'] as const, 'stock')
   const [sort, setSort] = useState<SortKey>('net')
   const [market, setMarket] = useState<MarketKey>('all')
   const [open, setOpen] = useState<string | null>(null)

@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../components/ui'
+import { useUrlTab } from '../hooks/useUrlTab'
 import { PageTitle } from '../components/ui/PageTabs'
 import MoodChart, { type Point } from '../features/market-mood/MoodChart'
 import KplTabs, { KPL_DISCLAIMER } from '../features/market-mood/KplTabs'
@@ -196,7 +197,7 @@ function IntradayView({ l }: { l: MoodLatest }): JSX.Element {
 }
 
 function Volume({ m }: { m: MarketMood }): JSX.Element {
-  const [view, setView] = useState<'history' | 'today'>('history')
+  const [view, setView] = useUrlTab('view', ['history', 'today'] as const, 'history')
   const [market, setMarket] = useState<keyof Amount>('total')
   const [range, setRange] = useState<Range>('60')
   const points: Point[] = useMemo(() => {

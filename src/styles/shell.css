@@ -59,7 +59,7 @@
 }
 
 .site-nav__link.is-active {
-  color: var(--accent);
+  color: var(--accent-ink);
   border-bottom-color: var(--accent);
   font-weight: 600;
 }
@@ -1011,7 +1011,7 @@ a.chapter-nav__item:hover {
 }
 
 .page-tab.is-active {
-  color: var(--accent);
+  color: var(--accent-ink);
   border-bottom-color: var(--accent);
   font-weight: 600;
 }
@@ -1408,4 +1408,41 @@ a.chapter-nav__item:hover {
 .bridge-help pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* 全站回到顶部：右下角；手机在页脚底部预留空间，避开内容与横滑表 */
+.back-to-top {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap, 44px);
+  height: var(--tap, 44px);
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.14));
+  cursor: pointer;
+}
+
+.back-to-top:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .app:has(.back-to-top) .site-footer {
+    padding-bottom: calc(96px + var(--safe-bottom));
+  }
+
+  .back-to-top {
+    right: max(10px, env(safe-area-inset-right, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
 }

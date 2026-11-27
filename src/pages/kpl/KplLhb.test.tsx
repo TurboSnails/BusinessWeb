@@ -6,7 +6,7 @@ import KplLhb from './KplLhb'
 import { lhbFixture } from '../../features/kpl-lhb/fixtures'
 import { asKplLhb } from '../../features/kpl-lhb/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/lhb']}><KplLhb /></MemoryRouter>)
+const renderPage = (path = '/market-mood/lhb') => render(<MemoryRouter initialEntries={[path]}><KplLhb /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -114,6 +114,13 @@ describe('开盘啦 · 龙虎榜页', () => {
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
     expect(await screen.findByRole('region', { name: '龙虎榜总览' })).toBeTruthy()
     expect(calls).toBe(2)
+  })
+
+  it('视图写入 URL：?view=reason 刷新后按上榜原因', async () => {
+    stub(lhbFixture())
+    renderPage('/market-mood/lhb?view=reason')
+    expect(await screen.findByRole('region', { name: '连续三个交易日内，涨幅偏离值累计达到20%的证券个股' })).toBeTruthy()
+    expect(within(screen.getByRole('group', { name: '龙虎榜视图' })).getByText('按上榜原因').closest('button')?.getAttribute('aria-pressed')).toBe('true')
   })
 })
 

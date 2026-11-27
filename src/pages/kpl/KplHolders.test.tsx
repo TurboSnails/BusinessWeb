@@ -8,7 +8,7 @@ import KplHolders from './KplHolders'
 import { holdersFixture } from '../../features/kpl-holders/fixtures'
 import { asKplHolders } from '../../features/kpl-holders/model'
 
-const renderPage = () => render(<MemoryRouter initialEntries={['/market-mood/holders']}><KplHolders /></MemoryRouter>)
+const renderPage = (path = '/market-mood/holders') => render(<MemoryRouter initialEntries={[path]}><KplHolders /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -89,6 +89,14 @@ describe('开盘啦 · 持仓两融页', () => {
     const partial = asKplHolders({ ...holdersFixture(), margin: { date: 'x' } })
     expect(partial?.margin).toBeNull()
     expect(partial?.funds?.period).toBe('2026-09-30')
+  })
+
+  it('两融/基金主视图写入 URL：margin 与 funds 刷新后仍选中', async () => {
+    stub(holdersFixture())
+    renderPage('/market-mood/holders?margin=industry&funds=cut')
+    await screen.findByRole('region', { name: '持仓两融总览' })
+    expect(within(screen.getByRole('group', { name: '两融视图' })).getByText('行业').closest('button')?.getAttribute('aria-pressed')).toBe('true')
+    expect(within(screen.getByRole('group', { name: '基金持仓视图' })).getByText('减持').closest('button')?.getAttribute('aria-pressed')).toBe('true')
   })
 
   it('页面与组件没有内联样式和写死的颜色', () => {

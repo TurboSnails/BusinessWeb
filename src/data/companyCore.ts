@@ -537,9 +537,10 @@ const cnBase: Company[] = [...cnCoreBase, ...cnChain.filter(c => !cnKnown.has(c.
 
 type Apply = (company: Company) => Company
 
-// A 股分板块复核最后覆盖，只对 cn 生效；其余市场为恒等变换
-const cnSectorOf = async (market: Market): Promise<Apply> =>
-  market === 'cn' ? (await import('./cnSectorResearch')).applyCnSectorResearch : c => c
+// A 股分板块复核最后覆盖，只对 cn 生效；其余市场为恒等变换。
+// codes 有值时只动态加载所属分册（详情页）；无 codes 时拉齐全部分册（公司库）。
+const cnSectorOf = async (market: Market, codes?: readonly string[]): Promise<Apply> =>
+  market === 'cn' ? (await import('./cnSectorResearch')).loadApplyCnSectorResearch(codes) : c => c
 
 const currentMarket = marketSnapshot as Record<string, MarketRefreshQuote>
 const refreshMarket: Apply = c => applyCompanyMarketRefresh(c, currentMarket[`${c.market}:${c.code}`])
@@ -549,12 +550,14 @@ export interface ResolvedMarket {
   merge: (generated: Company[]) => Company[] // 叠加程序化补全公司
 }
 
-export const resolveMarket = async (market: Market): Promise<ResolvedMarket> => {
-  const [details, applyCnSectorResearch] = await Promise.all([loadCompanyDetails(market), cnSectorOf(market)])
+export const resolveMarket = async (market: Market, opts?: { codes?: readonly string[] }): Promise<ResolvedMarket> => {
+  const codes = opts?.codes
+  const selectedCnBase = codes ? cnBase.filter(company => codes.includes(company.code)) : cnBase
+  const [details, applyCnSectorResearch] = await Promise.all([loadCompanyDetails(market), cnSectorOf(market, codes)])
   const withDetails = (list: Company[]): Company[] => list.map(c => (details[c.market + ':' + c.code] ? { ...c, ...details[c.market + ':' + c.code] } : c))
   const base =
     market === 'us' ? withDetails(usBase).map(applySp500Reassessment).map(applySectorFactReview).map(applySectorTaxonomy).map(refreshMarket)
-    : market === 'cn' ? withDetails(cnBase).map(applyCnReassessment).map(applyCnSectorResearch).map(applySectorTaxonomy).map(refreshMarket)
+    : market === 'cn' ? withDetails(selectedCnBase).map(applyCnReassessment).map(applyCnSectorResearch).map(applySectorTaxonomy).map(refreshMarket)
     // 纳指100 新增（不在标普500 / 美股非标普池内）的公司，全部为手工研究页
     : market === 'ndx' ? withDetails(ndxBase).map(applySectorTaxonomy).map(refreshMarket)
     : []

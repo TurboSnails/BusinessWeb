@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
+import { useUrlTab } from '../../hooks/useUrlTab'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import StockTable, { type Col } from '../../features/kpl-daban/StockTable'
 import {
@@ -115,7 +116,7 @@ const yoyText = (x: DisclosureItem): string => (x.kind === 'forecast' && fin(x.y
 
 function DisclosureCard({ d }: { d: Data }): JSX.Element {
   const ds = d.disclosure
-  const [view, setView] = useState<'latest' | 'calendar'>('latest')
+  const [view, setView] = useUrlTab('disclosure', ['latest', 'calendar'] as const, 'latest')
   const [kind, setKind] = useState<KindKey>('all')
   const [limit, setLimit] = useState(PAGE)
   const rows = useMemo(() => (ds ? ds.items.filter(x => kind === 'all' || x.kind === kind) : []), [ds, kind])
@@ -173,7 +174,6 @@ function DisclosureCard({ d }: { d: Data }): JSX.Element {
 
 /* ---------- 避雷 ---------- */
 const riskItems = [{ id: 'st', label: 'ST 名单' }, { id: 'face', label: '面值' }, { id: 'cap', label: '市值' }, { id: 'annual', label: '年报财务' }, { id: 'observe', label: '季报观察' }] as const
-type RiskKey = (typeof riskItems)[number]['id']
 const flags = (r: { st: boolean; delisting?: boolean }): React.ReactNode => <>{r.st && <Tag kind="warn">ST</Tag>}{r.delisting && <Tag>退市整理</Tag>}</>
 const daysText = (r: StreakRow): string => `${r.capped ? '≥' : ''}${r.days} 日`
 const streakCols = (kind: 'face' | 'cap'): Array<Col<StreakRow>> => [
@@ -213,7 +213,7 @@ function FinView({ block, kind }: { block: FinBlock; kind: 'annual' | 'observe' 
 
 function RiskCard({ d }: { d: Data }): JSX.Element {
   const r = d.risk
-  const [view, setView] = useState<RiskKey>('st')
+  const [view, setView] = useUrlTab('risk', ['st', 'face', 'cap', 'annual', 'observe'] as const, 'st')
   const [showAll, setShowAll] = useState(false)
   return (
     <Card title="避雷" as="section" className="mm-card" description={r ? `${r.date} 收盘；只做按公开规则的机械筛选，不做主观判断` : undefined}
@@ -253,7 +253,6 @@ function RiskCard({ d }: { d: Data }): JSX.Element {
 
 /* ---------- 股东户数 ---------- */
 const holderItems = [{ id: 'falling', label: '连降 ≥3 期' }, { id: 'drop', label: '最新降幅' }, { id: 'rise', label: '最新增幅' }, { id: 'recent', label: '近 10 日披露' }] as const
-type HolderKey = (typeof holderItems)[number]['id']
 const holderCols: Array<Col<HolderRow>> = [
   { key: 'end', label: '截止日', render: r => r.end, sort: r => r.end },
   { key: 'holders', label: '户数', num: true, render: r => (fin(r.holders) ? r.holders.toLocaleString('zh-CN') : '—'), sort: r => r.holders },
@@ -264,7 +263,7 @@ const holderCols: Array<Col<HolderRow>> = [
 ]
 function HoldersCard({ d }: { d: Data }): JSX.Element {
   const h = d.holders
-  const [view, setView] = useState<HolderKey>('falling')
+  const [view, setView] = useUrlTab('holders', ['falling', 'drop', 'rise', 'recent'] as const, 'falling')
   const rows = h ? h[view] : []
   const initial = view === 'falling' ? { key: 'streak', dir: 'desc' as const } : view === 'drop' ? { key: 'change', dir: 'asc' as const } : view === 'rise' ? { key: 'change', dir: 'desc' as const } : { key: 'notice', dir: 'desc' as const }
   return (
@@ -278,7 +277,6 @@ function HoldersCard({ d }: { d: Data }): JSX.Element {
 
 /* ---------- 大宗交易 ---------- */
 const blockItems = [{ id: 'today', label: '当日明细' }, { id: 'top', label: '近 20 日成交' }, { id: 'inst', label: '机构专用买入' }] as const
-type BlockKey = (typeof blockItems)[number]['id']
 const blockStockCols: Array<Col<BlockStock>> = [
   { key: 'count', label: '笔数', num: true, render: r => `${r.count}`, sort: r => r.count },
   { key: 'amount', label: '成交额', num: true, render: r => money(r.amount), sort: r => r.amount },
@@ -288,7 +286,7 @@ const blockStockCols: Array<Col<BlockStock>> = [
 ]
 function BlockCard({ d }: { d: Data }): JSX.Element {
   const b = d.block
-  const [view, setView] = useState<BlockKey>('today')
+  const [view, setView] = useUrlTab('block', ['today', 'top', 'inst'] as const, 'today')
   const [limit, setLimit] = useState(PAGE)
   return (
     <Card title="大宗交易" as="section" className="mm-card"
@@ -323,7 +321,6 @@ function BlockCard({ d }: { d: Data }): JSX.Element {
 
 /* ---------- 机构调研 ---------- */
 const surveyItems = [{ id: 'short', label: '近 5 日' }, { id: 'long', label: '近 20 日' }, { id: 'latest', label: '当日公告' }] as const
-type SurveyKey = (typeof surveyItems)[number]['id']
 const surveyCols: Array<Col<SurveyRank>> = [
   { key: 'orgs', label: '接待机构数', num: true, render: r => (fin(r.orgs) ? `${r.orgsMissing ? '≥' : ''}${r.orgs}` : '—'), sort: r => r.orgs },
   { key: 'events', label: '调研次数', num: true, render: r => `${r.events}`, sort: r => r.events },
@@ -331,7 +328,7 @@ const surveyCols: Array<Col<SurveyRank>> = [
 ]
 function SurveyCard({ d }: { d: Data }): JSX.Element {
   const s = d.survey
-  const [view, setView] = useState<SurveyKey>('short')
+  const [view, setView] = useUrlTab('survey', ['short', 'long', 'latest'] as const, 'short')
   return (
     <Card title="机构调研" as="section" className="mm-card"
       description={s && view !== 'latest' ? `${s[view].from} 至 ${s[view].to} 公告的调研记录` : `${d.asOf} 公告的调研记录`}

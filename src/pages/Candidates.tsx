@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ListChecks, Microscope } from 'lucide-react'
 import CandidatePool from '../components/CandidatePool'
@@ -6,7 +6,7 @@ import { PageTabs, PageTitle } from '../components/ui/PageTabs'
 import { DcfCell, DcfFilterChips } from '../components/DcfCell'
 import { DCF_FILTERS, matchDcfFilter, type DcfFilterId } from '../features/dcf/filter'
 import { Page } from '../components/ui'
-import { useCompanies } from '../data/companies'
+import type { Company, Market } from '../data/companies'
 import { valuationReliability } from '../features/company-valuation/model'
 import { localDay } from '../components/DecisionDialog'
 import { isReviewDue } from '../features/candidates/store'
@@ -16,16 +16,17 @@ import CandidateAlerts from '../components/CandidateAlerts'
 import WeeklyChanges from '../components/WeeklyChanges'
 import EarningsSoonList from '../components/EarningsSoonList'
 import { useEarningsCalendar } from '../features/earnings/loadCalendar'
-import { RESEARCH_BY_KEY, RESEARCH_INDEX, type ResearchSummary } from '../data/futureTrendsResearch'
-import { poolBucket } from '../data/futureTrendsPresentation'
-import { POOL } from '../data/futureTrendsPool'
+import type { ResearchSummary } from '../data/futureTrendsResearch'
 import { useCandidates } from '../features/candidates/useCandidates'
 import { autoDcfOf, dcfOf, MARKET_LABEL, researchToCandidate, toolProgress, venueOf } from '../features/candidates/links'
 import { useToolSources } from '../features/candidates/useToolSources'
-import FutureTrendsPool from './FutureTrendsPool'
+import MarketCompaniesLoader, { type MarketCompaniesSlice } from '../features/candidates/MarketCompaniesLoader'
+import { marketsForTab, RESEARCH_US_MARKETS } from '../features/candidates/marketsNeeded'
 import '../styles/candidates.css'
 
 type TabId = 'mine' | 'research'
+
+const FutureTrendsPool = lazy(() => import('./FutureTrendsPool'))
 
 export default function Candidates(): JSX.Element {
   const [params, setParams] = useSearchParams()
@@ -34,13 +35,27 @@ export default function Candidates(): JSX.Element {
   const setTab = (next: TabId): void => setParams(next === 'mine' ? {} : { tab: 'research' }, { replace: true })
 
   const cand = useCandidates(true)
-  const { list: us, loading: usLoading, failed: usFailed } = useCompanies('us')
-  const { list: cn, loading: cnLoading, failed: cnFailed } = useCompanies('cn')
-  const { list: hk, loading: hkLoading, failed: hkFailed } = useCompanies('hk')
-  const { list: adr, loading: adrLoading, failed: adrFailed } = useCompanies('adr')
-  const { list: ndx, loading: ndxLoading, failed: ndxFailed } = useCompanies('ndx')
-  const companies = useMemo(() => [...us, ...ndx, ...adr, ...hk, ...cn], [us, ndx, adr, hk, cn])
-  const usLists = useMemo(() => ({ us: new Set(us.map(c => c.code)), ndx: new Set(ndx.map(c => c.code)), adr: new Set(adr.map(c => c.code)) }), [us, ndx, adr])
+  const neededMarkets = useMemo(() => marketsForTab(tab, cand.items), [tab, cand.items])
+  const [slices, setSlices] = useState<Partial<Record<Market, MarketCompaniesSlice>>>({})
+  const onMarketUpdate = useCallback((market: Market, slice: MarketCompaniesSlice | undefined) => {
+    setSlices(prev => (prev[market] === slice ? prev : { ...prev, [market]: slice }))
+  }, [])
+
+  const companies = useMemo(() => {
+    const out: Company[] = []
+    for (const m of neededMarkets) {
+      const list = slices[m]?.list
+      if (list) out.push(...list)
+    }
+    return out
+  }, [neededMarkets, slices])
+
+  const usLists = useMemo(() => ({
+    us: new Set((slices.us?.list ?? []).map(c => c.code)),
+    ndx: new Set((slices.ndx?.list ?? []).map(c => c.code)),
+  }), [slices.us, slices.ndx])
+
+  const usMarketsLoading = tab === 'research' && RESEARCH_US_MARKETS.some(m => slices[m]?.loading !== false)
 
   // 从估值、DCF、网格页回来时重新读取本机记录，进度立即更新
   const tools = useToolSources()
@@ -71,13 +86,8 @@ export default function Candidates(): JSX.Element {
   ]])), [cand.items, tools, anchorPrices])
   const alertStates = useMemo(() => priceAlertStates(cand.items, tools, today, anchorPrices, valuationReliabilityByCode), [cand.items, tools, today, anchorPrices, valuationReliabilityByCode])
   const pausedAlerts = [...alertStates.values()].filter(r => r.status === 'skipped' && (r.reason === 'stale' || r.reason === 'currency-mismatch' || r.reason === 'no-price' || r.reason === 'valuation-unreliable')).length
-  const poolMarkets = new Set(cand.items.map(i => i.market))
-  const libraries = [
-    ['us', usLoading, usFailed], ['cn', cnLoading, cnFailed], ['hk', hkLoading, hkFailed],
-    ['adr', adrLoading, adrFailed], ['ndx', ndxLoading, ndxFailed],
-  ] as const
-  const pendingLibraries = libraries.filter(([m, loading]) => poolMarkets.has(m) && loading).map(([m]) => MARKET_LABEL[m])
-  const failedLibraries = libraries.filter(([m, , failed]) => poolMarkets.has(m) && failed).map(([m]) => MARKET_LABEL[m])
+  const pendingLibraries = neededMarkets.filter(m => slices[m]?.loading !== false).map(m => MARKET_LABEL[m])
+  const failedLibraries = neededMarkets.filter(m => slices[m]?.failed).map(m => MARKET_LABEL[m])
   const alertCoverage = [
     pendingLibraries.length && `正在读取${pendingLibraries.join('、')}公司资料。`,
     failedLibraries.length && `${failedLibraries.join('、')}公司资料未能读取。`,
@@ -85,12 +95,6 @@ export default function Candidates(): JSX.Element {
   ].filter(Boolean).join('')
   // 财报临近：与「本周变化」的下周财报共用一次 earnings-calendar.json 请求（模块级缓存）
   const { cal: earningsCal } = useEarningsCalendar(tab === 'mine' && cand.items.length > 0)
-  // 研究全量 vs 入围池（POOL）按最新报价：页签用后者，页头两口径并陈（M13）
-  const buyableResearch = useMemo(() => RESEARCH_INDEX.filter(r => poolBucket(r) === 'buy').length, [])
-  const buyableInPool = useMemo(() => POOL.reduce((n, entry) => {
-    const r = RESEARCH_BY_KEY.get(entry.key)
-    return n + (r && poolBucket(r) === 'buy' ? 1 : 0)
-  }, 0), [])
 
   // 研究筛出按 DCF 筛选：对应不上四个市场的公司没有 DCF 记录，只在「全部」和「未算」里出现
   const dcfFilter = (r: ResearchSummary): boolean => {
@@ -117,6 +121,9 @@ export default function Candidates(): JSX.Element {
 
   return (
     <Page className="cand-page">
+      {neededMarkets.map(m => (
+        <MarketCompaniesLoader key={m} market={m} onUpdate={onMarketUpdate} />
+      ))}
       <PageTitle>候选池</PageTitle>
       <p className="cand-lead">分析筛选之后的落脚点：研究筛出的公司和你自己挑的公司都在这里。逐家估值、写下等待的条件，价格到了再按计划执行。筛选顺序见<Link to="/investment-plan-2026?tab=screening">投资计划 · 选股流程</Link>。</p>
 
@@ -126,13 +133,8 @@ export default function Candidates(): JSX.Element {
           <div><dt>已做估值</dt><dd>{valued}<small> / {cand.items.length}</small></dd></div>
           <div><dt>有决策记录</dt><dd>{recorded}<small> / {cand.items.length}</small></dd></div>
           <div className={due ? 'is-due' : undefined}><dt>到期待复查</dt><dd>{due}<small> 家</small></dd></div>
-          <div title="入围池按最新报价计数；研究全量含未进展示池的公司"><dt>满足情景门槛</dt><dd>{buyableInPool}<small> 家 · 研究全量 {buyableResearch}</small></dd></div>
         </dl>
-      ) : (
-        <p className="cand-buyable" title="入围池按最新报价；括号内为研究全量口径">
-          入围池满足情景门槛 {buyableInPool} 家（研究全量 {buyableResearch} 家）
-        </p>
-      )}
+      ) : null}
 
       <PageTabs label="候选池视图" value={tab} onChange={setTab} items={[
         { id: 'mine', label: `我的候选 · ${cand.items.length}`, icon: <ListChecks size={14} /> },
@@ -141,26 +143,31 @@ export default function Candidates(): JSX.Element {
 
       {tab === 'mine' ? (
         <>
-          {cand.items.length === 0 && (
+          {cand.items.length === 0 && (cand.state === 'syncing' ? (
+            <p className="cand-buyable" role="status">正在同步候选…</p>
+          ) : (
             <section className="cand-empty" aria-label="空候选池">
               <p>候选池还是空的。</p>
               <div className="cand-empty__actions">
                 <Link to="/research-notes" className="tool-btn tool-btn--primary">去公司研究挑公司</Link>
-                <button type="button" className="tool-btn" onClick={() => setTab('research')}>看研究筛出的公司（{RESEARCH_INDEX.length} 家）</button>
+                <button type="button" className="tool-btn" onClick={() => setTab('research')}>看研究筛出的公司</button>
               </div>
             </section>
-          )}
+          ))}
           <ol className="cand-flow" aria-label="使用流程">
             <li><strong>挑公司</strong>在<Link to="/research-notes">公司研究</Link>点「加入候选」，或在「研究筛出」里加入</li>
             <li><strong>写记录</strong>点「写决策记录」：为什么买、什么情况说明错了、下次检查日；到期会标出「待复查」</li>
             <li><strong>算价格</strong>点「估值」「DCF」，代码和市场自动带入；结果回到这里显示</li>
             <li><strong>管节奏</strong>A 股和 ETF 可以直接进「网格」回测</li>
           </ol>
+          {cand.items.length > 0 && pendingLibraries.length > 0 && (
+            <p className="cand-buyable" role="status">正在加载公司资料…</p>
+          )}
           {cand.items.length > 0 && <WeeklyChanges items={cand.items} companies={companies} observations={weeklyObservations} />}
           {cand.items.length > 0 && <EarningsSoonList items={cand.items} cal={earningsCal} today={today} />}
           {cand.items.length > 0 && <CandidateAlerts alerts={alerts} companies={companies} paused={pausedAlerts} coverage={alertCoverage}
             onSeen={a => cand.markAlertSeen(a.market, a.code)} onSnooze={a => cand.snoozeAlert(a.market, a.code, addDays(today, SNOOZE_DAYS))} />}
-          <CandidatePool items={cand.items} companies={companies} tools={tools} state={cand.state} message={cand.message} localError={cand.localError} onRetryLocal={cand.retryLocal}
+          <CandidatePool items={cand.items} companies={companies} companiesLoading={pendingLibraries.length > 0} tools={tools} state={cand.state} message={cand.message} localError={cand.localError} onRetryLocal={cand.retryLocal}
             onMove={cand.move} onRemove={i => cand.remove(i.market, i.code)} onDecision={(i, r) => cand.addDecision(i.market, i.code, r)} onNote={(i, t) => cand.setNote(i.market, i.code, t)}
             onClear={cand.clear} onConnect={cand.connect} onRetry={cand.retry}
             onAlert={(i, rule) => cand.setAlert(i.market, i.code, rule)} alertStates={alertStates} />
@@ -168,7 +175,9 @@ export default function Candidates(): JSX.Element {
       ) : (
         <div className="cand-research">
           {cand.localError && <p role="alert" className="rn-warn-text">{cand.localError} <button type="button" className="tool-btn" onClick={cand.retryLocal}>重试本机保存</button></p>}
-          <FutureTrendsPool action={addAction} filter={dcfFilter} toolbar={<div className="ui-cluster"><DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" /></div>} />
+          <Suspense fallback={<p className="cand-buyable" role="status">正在加载…</p>}>
+            <FutureTrendsPool loading={usMarketsLoading} action={addAction} filter={dcfFilter} toolbar={<div className="ui-cluster"><DcfFilterChips value={dcfF} onChange={setDcfF} className="ui-cluster" /></div>} />
+          </Suspense>
         </div>
       )}
     </Page>

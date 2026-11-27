@@ -116,6 +116,30 @@ describe('补全 JSON 失败：部分数据而非「未找到」', () => {
   }, 20_000)
 })
 
+it('沪深详情先呈现研究内容，估值加载后目录与卡片一致', async () => {
+  let releaseValuations!: () => void
+  const gate = new Promise<void>(resolve => { releaseValuations = resolve })
+  vi.stubGlobal('fetch', async (url: string) => {
+    const rel = String(url).replace(/^.*?data\//, '')
+    if (rel === 'company-valuations/cn.json') await gate
+    return fileResponse(rel)
+  })
+  await renderAt('/research-notes/cn/600519')
+  try {
+    const status = screen.getByRole('status', { name: '正在加载公司研究' })
+    expect(status.querySelectorAll('.skeleton-line').length).toBeGreaterThan(1)
+    await h1('贵州茅台')
+    expect(text('#company-valuation .ui-card__title')).toBe('综合估值 · 等待数据')
+  } finally {
+    releaseValuations()
+  }
+  await waitFor(() => {
+    const title = text('#company-valuation .ui-card__title')
+    expect(title).toMatch(/^综合估值 · (条件初稿|已复核|等待证据)$/)
+    expect(text('.cd-toc--desktop a[href="#company-valuation"]')).toBe(title)
+  })
+}, 20_000)
+
 describe('无效地址', () => {
   it('未知市场不回退美股，不打开苹果', async () => {
     await renderAt('/research-notes/invalid/AAPL')

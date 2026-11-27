@@ -20,6 +20,7 @@ vi.mock('../features/candidates/links', async importOriginal => {
 
 const seed = (items: unknown[]): void => localStorage.setItem('rn-candidates', JSON.stringify(items))
 const renderAt = (path = '/candidates') => render(<MemoryRouter initialEntries={[path]}><Candidates /></MemoryRouter>)
+const researchHeading = () => screen.findByRole('heading', { name: '研究筛出' }, { timeout: 5000 })
 
 // 页面挂载会懒加载 companyCore 及深度研究模块。先等待这些模块就绪，
 // 避免同步断言结束后，CI 仍在导入模块时就销毁测试环境。
@@ -36,14 +37,40 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('候选池页', () => {
-  it('空池：先显示两个加入入口和使用流程，隐藏个人统计与候选工具', () => {
+  const marketRequests = (paths: string[]): string[] => paths.filter(
+    path => /\/data\/(?:company-valuations\/)?(?:us|cn|hk|adr|ndx)\.json$/.test(path),
+  )
+
+  it('空候选不请求任何市场公司库', () => {
+    const fetch = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [] }))
+    vi.stubGlobal('fetch', fetch)
+    renderAt()
+
+    expect(screen.getByText('候选池还是空的。')).toBeTruthy()
+    expect(marketRequests(fetch.mock.calls.map(([url]) => String(url)))).toEqual([])
+  })
+
+  it('只有美股候选时只请求美股相关公司库', async () => {
+    seed([{ market: 'us', code: 'AAPL', addedAt: '2026-10-02T00:00:00.000Z' }])
+    const fetch = vi.fn(async (_input: RequestInfo | URL) => ({ ok: true, json: async () => [] }))
+    vi.stubGlobal('fetch', fetch)
+    renderAt()
+
+    expect(screen.getAllByRole('status').some(status => status.textContent === '正在加载公司资料…')).toBe(true)
+    expect(screen.queryByText('候选池还是空的。')).toBeNull()
+    await waitFor(() => expect(marketRequests(fetch.mock.calls.map(([url]) => String(url))))
+      .toEqual(['/data/us.json', '/data/company-valuations/us.json']))
+    await waitFor(() => expect(screen.queryByText('正在加载公司资料…')).toBeNull())
+  })
+
+  it('空池：先显示两个加入入口和使用流程，隐藏个人统计与候选工具', async () => {
     renderAt()
     expect(screen.getByRole('heading', { level: 1, name: '候选池' })).toBeTruthy()
     expect(screen.getByRole('tab', { name: /我的候选 · 0/ }).getAttribute('aria-selected')).toBe('true')
     expect(screen.getByRole('list', { name: '使用流程' })).toBeTruthy()
     expect(screen.getByText('候选池还是空的。')).toBeTruthy()
     expect(screen.getByRole('link', { name: '去公司研究挑公司' }).getAttribute('href')).toBe('/research-notes')
-    expect(screen.getByRole('button', { name: /^看研究筛出的公司（\d+ 家）$/ })).toBeTruthy()
+    expect(screen.getByRole('button', { name: '看研究筛出的公司' })).toBeTruthy()
     expect(screen.queryByText('已做估值')).toBeNull()
     expect(screen.queryByRole('button', { name: 'DCF：全部' })).toBeNull()
     expect(screen.queryByRole('button', { name: /导出 JSON/ })).toBeNull()
@@ -54,8 +81,8 @@ describe('候选池页', () => {
     expect(document.body.textContent).not.toContain('未验证身份')
     expect(document.body.textContent).not.toContain('PULSE_SYNC_TOKEN')
     expect(document.body.textContent).not.toContain('Token')
-    fireEvent.click(screen.getByRole('button', { name: /^看研究筛出的公司/ }))
-    expect(screen.getByRole('heading', { name: /^研究筛出/ })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '看研究筛出的公司' }))
+    await researchHeading()
   })
 
   it('每家公司带好参数进入估值、DCF；只有 A 股显示网格；已做的 DCF 回显在估值进度里', () => {
@@ -90,7 +117,7 @@ describe('候选池页', () => {
 
   it('研究筛出：一键加入我的池，再点一次移出', async () => {
     renderAt('/candidates?tab=research')
-    expect(screen.getByRole('heading', { name: /^研究筛出/ })).toBeTruthy()
+    await researchHeading()
     const add = screen.getAllByRole('button', { name: /^加入我的池/ })[0]
     const label = add.getAttribute('aria-label')!
     fireEvent.click(add)
@@ -108,6 +135,7 @@ describe('候选池页', () => {
 
   it('研究筛出加入候选本机失败时在当前页签显示一个 alert，可重试；切换页签不重复', async () => {
     renderAt('/candidates?tab=research')
+    await researchHeading()
     const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('quota', 'QuotaExceededError')
     })
@@ -124,16 +152,18 @@ describe('候选池页', () => {
     expect(screen.queryByRole('alert')).toBeNull()
   })
 
-  it('带筛选条件的链接可恢复 DCF 视图，空结果可一键返回全部公司', () => {
+  it('带筛选条件的链接可恢复 DCF 视图，空结果可一键返回全部公司', async () => {
     renderAt('/candidates?tab=research&view=4&market=海外&dcf=mine&q=__missing__')
+    await researchHeading()
     expect(screen.getByRole('button', { name: '我算过的' }).getAttribute('aria-pressed')).toBe('true')
     fireEvent.click(screen.getByRole('button', { name: '查看全部观察公司' }))
     expect(screen.getByRole('button', { name: 'DCF：全部' }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(20)
   })
 
-  it('研究筛出：每行有 DCF 入口，可按 DCF 筛选', () => {
+  it('研究筛出：每行有 DCF 入口，可按 DCF 筛选', async () => {
     renderAt('/candidates?tab=research&view=4')
+    await researchHeading()
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole('button', { name: '不适用/未覆盖' }))
     expect(screen.getAllByRole('link', { name: /^算 DCF/ }).length).toBeGreaterThan(0)

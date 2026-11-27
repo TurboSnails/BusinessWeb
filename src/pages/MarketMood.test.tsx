@@ -6,7 +6,7 @@ import MarketMood, { asMarginHistory } from './MarketMood'
 import { moodFixture } from '../features/market-mood/fixtures'
 import { asMarketMood, forecastSeries, previousDay } from '../features/market-mood/model'
 
-const renderPage = () => render(<MemoryRouter><MarketMood /></MemoryRouter>)
+const renderPage = (path = '/') => render(<MemoryRouter initialEntries={[path]}><MarketMood /></MemoryRouter>)
 const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
@@ -75,6 +75,13 @@ describe('开盘啦（市场情绪）页', () => {
 })
 
 describe('市场量能 · 当日', () => {
+  it('量能视图写入 URL：?view=today 刷新后仍是当日', async () => {
+    stub(moodFixture())
+    renderPage('/?view=today')
+    await screen.findByRole('region', { name: '今日总览' })
+    expect(within(screen.getByRole('group', { name: '量能视图' })).getByRole('button', { name: '当日' }).getAttribute('aria-pressed')).toBe('true')
+  })
+
   it('切到当日：实际量能、预测量能（较昨日全天 %、放量额）与预测量能曲线', async () => {
     stub(moodFixture())
     renderPage()

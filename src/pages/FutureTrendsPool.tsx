@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Segmented } from '../components/ui/PageTabs'
 import CompanyComparison from '../components/future-trends/CompanyComparison'
 import { POOL, downloadJson } from '../data/futureTrendsPool'
-import { RESEARCH_ASOF, RESEARCH_BY_KEY } from '../data/futureTrendsResearch'
+import { RESEARCH_ASOF, RESEARCH_BY_KEY, RESEARCH_INDEX } from '../data/futureTrendsResearch'
 import { byPriority, poolBucket } from '../data/futureTrendsPresentation'
 import type { ResearchSummary } from '../data/futureTrendsResearch'
 import '../styles/future-trends.css'
@@ -18,8 +18,13 @@ const companies = POOL.flatMap(entry => {
   const research = RESEARCH_BY_KEY.get(entry.key)
   return research ? [{ market: entry.market, research, bucket: poolBucket(research) }] : []
 })
-export default function FutureTrendsPool({ action, filter, toolbar }: { action?: (r: ResearchSummary) => React.ReactNode; filter?: (r: ResearchSummary) => boolean; toolbar?: React.ReactNode } = {}): JSX.Element {
+const buyableInPool = companies.filter(entry => entry.bucket === 'buy').length
+const buyableResearch = RESEARCH_INDEX.filter(research => poolBucket(research) === 'buy').length
+
+export default function FutureTrendsPool({ loading = false, action, filter, toolbar }: { loading?: boolean; action?: (r: ResearchSummary) => React.ReactNode; filter?: (r: ResearchSummary) => boolean; toolbar?: React.ReactNode } = {}): JSX.Element {
   const [params, setParams] = useSearchParams()
+  if (loading) return <p className="cand-buyable" role="status">正在加载…</p>
+
   const active = views.find(item => item.id === params.get('view')) ?? views[0]
   const market = ['中国','海外'].includes(params.get('market') ?? '') ? params.get('market')! : '全部'
   const sort = ['ratio','space'].includes(params.get('sort') ?? '') ? params.get('sort')! : 'priority'
@@ -46,6 +51,7 @@ export default function FutureTrendsPool({ action, filter, toolbar }: { action?:
     <PageDataFreshness checkedAt={rows.map(r => r.priceCheckedAt).filter(Boolean).sort().at(-1)} dataLabel="行情日期" dataDates={rows.map(r => r.priceDate)} researchAsOf={RESEARCH_ASOF} note="盈亏比按各公司的报价计算，盈利假设和情景价格沿用原研究。" />
 
     <header className="ft-heading"><div><h2>研究筛出</h2><p>在已入围公司中，筛选情景盈亏比 ≥ 0.75 且假设期望收益 ≥ 20% 的公司。期望收益采用主观概率。点开公司可核对原始假设、风险和报价日期。</p></div><button className="ft-export" type="button" onClick={() => downloadJson(`未来趋势候选研究-${RESEARCH_ASOF}.json`, rows)}>导出筛选结果 JSON</button></header>
+    <p className="cand-buyable">入围池满足情景门槛 {buyableInPool} 家（研究全量 {buyableResearch} 家），共观察 {RESEARCH_INDEX.length} 家公司。</p>
     <div className="ft-views" role="group" aria-label="候选优先级">{views.map(({ id: v, label: t, bucket: b }) => <button key={v} type="button" aria-pressed={active.id === v} onClick={() => change('view',v)}>{t}<span>{b ? matches.filter(x => x.bucket === b).length : matches.length}</span></button>)}</div>
     {toolbar}
     <div className="ft-toolbar"><Segmented label="市场" value={market} onChange={v => change('market',v)} items={['全部','中国','海外'].map(id => ({id,label:id}))} /><label className="ft-sort">排序<select aria-label="排序" value={sort} onChange={e => change('sort',e.target.value)}><option value="priority">研究跟踪顺序</option><option value="ratio">情景盈亏比</option><option value="space">基准价格空间</option></select></label><label className="ft-search"><span className="visually-hidden">搜索公司或代码</span><input type="search" name="company" autoComplete="off" spellCheck={false} placeholder="公司名称或代码…" value={query} onChange={e => change('q',e.target.value)} /></label></div>
