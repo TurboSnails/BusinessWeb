@@ -7,7 +7,7 @@ import { asJixingThreshold } from '../../features/jixing-threshold/model'
 import JixingThreshold from './JixingThreshold'
 
 function renderPage(body: unknown = thresholdFixture, ok = true) {
-  vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
   return render(<MemoryRouter initialEntries={['/jixing/threshold']}><JixingThreshold /></MemoryRouter>)
 }
 
@@ -30,9 +30,10 @@ describe('阀值表', () => {
     expect(screen.queryByText('沪深300')).toBeNull()
   })
 
-  it('空态', async () => {
+  it('空态显示 LoadError 与重试', async () => {
     renderPage(null, false)
-    expect(await screen.findByText('暂无阀值数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('校验器', () => {

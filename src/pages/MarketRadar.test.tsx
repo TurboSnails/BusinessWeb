@@ -42,7 +42,7 @@ function renderPage(
   radar: RadarState = { status: 'ready', data: radarFixture() },
   entry = '/invest/market-radar',
 ) {
-  mockedRadar.mockReturnValue(radar)
+  mockedRadar.mockReturnValue({ ...radar, retry: vi.fn() })
   return render(
     <MemoryRouter initialEntries={[entry]}>
       <MarketRadar />
@@ -67,12 +67,16 @@ describe('MarketRadar 页面', () => {
     expect(screen.getAllByRole('status').some(el => el.textContent?.includes('加载中'))).toBe(true)
     cleanup()
     renderPage({ status: 'error', message: 'HTTP 404' })
-    expect(screen.getByTestId('mr-error').textContent).toContain('市场雷达加载失败')
+    const err = screen.getByTestId('mr-error')
+    expect(err.textContent).toContain('数据暂时取不到')
+    expect(err.textContent).toContain('HTTP 404')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('旧版数据错误提示', () => {
     renderPage({ status: 'error', message: STALE_DATA_MESSAGE })
-    expect(screen.getByTestId('mr-error').textContent).toBe(STALE_DATA_MESSAGE)
+    expect(screen.getByTestId('mr-error').textContent).toContain(STALE_DATA_MESSAGE)
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('结论：首行冷热、策略链与五维度；不出现综合分与档位', () => {

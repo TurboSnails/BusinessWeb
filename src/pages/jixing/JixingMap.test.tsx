@@ -9,8 +9,9 @@ import JixingMap from './JixingMap'
 function renderPage(table: unknown = tableFixture, global: unknown = globalFixture(), ok = true) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo) => {
     const url = String(input)
-    if (url.includes('jixing-global')) return { ok, json: async () => global }
-    return { ok, json: async () => table }
+    const status = ok ? 200 : 404
+    if (url.includes('jixing-global')) return { ok, status, json: async () => global }
+    return { ok, status, json: async () => table }
   }))
   return render(<MemoryRouter initialEntries={['/jixing/map']}><JixingMap /></MemoryRouter>)
 }
@@ -37,8 +38,9 @@ describe('指数地图', () => {
     expect(screen.queryByText('沪深300', { selector: 'strong' })).toBeNull()
   })
 
-  it('空态', async () => {
+  it('空态显示 LoadError 与重试', async () => {
     renderPage(null, null, false)
-    expect(await screen.findByText('暂无地图数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 })

@@ -19,7 +19,7 @@ function renderPage(body: unknown = tableFixture, ok = true, entry = '/jixing/ta
         ? { ok: true, json: async () => tableHistFixture }
         : { ok: false, json: async () => null }
     }
-    return { ok, json: async () => body }
+    return { ok, status: ok ? 200 : 404, json: async () => body }
   }))
   return render(<MemoryRouter initialEntries={[entry]}><JixingTable /></MemoryRouter>)
 }
@@ -78,9 +78,10 @@ describe('估值表', () => {
     ])
   })
 
-  it('数据文件缺失时显示 EmptyState', async () => {
+  it('数据文件缺失时显示 LoadError 与重试', async () => {
     renderPage(null, false)
-    expect(await screen.findByText('暂无估值数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     expect(screen.queryByRole('table')).toBeNull()
   })
 

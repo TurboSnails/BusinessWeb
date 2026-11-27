@@ -1,7 +1,7 @@
 // 同花顺 · 港股通与AH（/ths-mood/hk）：南向资金、AH 溢价、港股通持股、港股卖空。公开来源、收盘后数据。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Callout, Card, EmptyState, Page, Segmented, Stat, StatGrid } from '../../components/ui'
+import { Badge, Callout, Card, EmptyState, LoadError, Page, Segmented, Stat, StatGrid } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -141,22 +141,40 @@ function ShortSection({ data }: { data: NonNullable<ThsHkData['short']> }): JSX.
 export default function ThsHk(): JSX.Element {
   const [data, setData] = useState<ThsHkData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-hk.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asThsHk(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asThsHk(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page th-page">
       <PageTitle>同花顺 · 港股通与AH</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
       <p className="mm-method">对照同花顺 App 的南下资金、AH 溢价分析、港股通持股与卖空比例异动。港股交易日历与 A 股不同，四块数据各自标注日期；恒指等指数行情见 <Link to="/pulse">全球行情</Link> 与 <Link to="/monitor">宏观温度</Link>。</p>
-      {loading ? <p role="status">正在读取港股通与 AH 数据…</p> : !data ? <EmptyState title="暂无港股通与AH数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取港股通与 AH 数据…</p> : error ? (
+        <LoadError reason="港股通与AH这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无港股通与AH数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
         <p className="mm-method">采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。某一块当天采集失败时沿用上一次的结果，以该块标注的日期为准。</p>
         {data.south ? <SouthSection data={data.south} /> : <EmptyState title="南向资金暂缺">来源未返回完整数据。</EmptyState>}
         {data.ah ? <AhSection data={data.ah} /> : <EmptyState title="AH 溢价暂缺">来源未返回完整数据。</EmptyState>}

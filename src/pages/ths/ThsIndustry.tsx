@@ -1,7 +1,7 @@
 // 同花顺 · 行业景气（/ths-mood/industry）：对照同花顺「AI 板块景气度」与指数「贡献度」，用公开数据自建行业景气表和成分股贡献排行，盘后更新。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import StockTable, { type Col } from '../../features/kpl-daban/StockTable'
@@ -88,21 +88,39 @@ function ContribCard({ data }: { data: ThsIndustryData }): JSX.Element {
 export default function ThsIndustry(): JSX.Element {
   const [data, setData] = useState<ThsIndustryData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-industry.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asThsIndustry(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asThsIndustry(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page ti-page">
       <PageTitle>同花顺 · 行业景气</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取行业景气数据…</p> : !data ? <EmptyState title="暂无行业景气数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取行业景气数据…</p> : error ? (
+        <LoadError reason="行业景气这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无行业景气数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
         <p className="mm-method">数据日期：{data.asOf}（盘后） · 采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。得分、分位与贡献均为历史统计描述，不构成投资建议。</p>
         <IndustryCard data={data} />
         <ContribCard data={data} />

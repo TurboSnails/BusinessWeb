@@ -1,7 +1,7 @@
 // 同花顺 · 可转债（/ths-mood/cbond）：对照同花顺 App 可转债专区（转债全景、选债、套利机会、打新债与抢权配债），用东财公开数据在收盘后重做。
 // 数据：public/data/ths-tab-cbond.json（scripts/ths-cbond.mjs 生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -17,8 +17,10 @@ import '../../styles/ths-cbond.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useCbond(): Load {
+function useCbond(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-cbond.json`, { cache: 'no-cache', signal: controller.signal })
@@ -33,8 +35,8 @@ function useCbond(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 /* ---------- 格式 ---------- */
@@ -272,7 +274,9 @@ export default function ThsCbond(): JSX.Element {
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="可转债数据尚未生成">交易日收盘后运行数据脚本，这里就会显示转债全景、选债表、条款进度与打新债日历。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="可转债数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="可转债这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <CbondBody d={load.data} />}
     </Page>
   )

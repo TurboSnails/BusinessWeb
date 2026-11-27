@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import KplLhb from './KplLhb'
@@ -91,11 +91,29 @@ describe('开盘啦 · 龙虎榜页', () => {
   it('数据格式不对或请求失败时提示', async () => {
     stub({ version: 2 })
     renderPage()
-    expect(await screen.findByText('数据文件格式不对')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByText('数据文件格式不对')).toBeTruthy()
     cleanup()
     stub(null, false)
     renderPage()
-    expect(await screen.findByText('HTTP 404')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByText('HTTP 404')).toBeTruthy()
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
+  })
+
+  it('失败 → 重试 → 成功', async () => {
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      calls += 1
+      if (calls === 1) return { ok: false, status: 500, json: async () => ({}) }
+      return { ok: true, status: 200, json: async () => lhbFixture() }
+    }))
+    renderPage()
+    expect(await screen.findByRole('alert')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    expect(await screen.findByRole('region', { name: '龙虎榜总览' })).toBeTruthy()
+    expect(calls).toBe(2)
   })
 })
 

@@ -9,7 +9,7 @@ import { globalFixture } from '../../features/jixing-global/fixtures'
 import { asJixingGlobal, chartValue } from '../../features/jixing-global/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/jixing/global']}><JixingGlobal /></MemoryRouter>)
-const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
+const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('今天几星 · 港股全球', () => {
@@ -69,9 +69,10 @@ describe('今天几星 · 港股全球', () => {
     expect(screen.getByRole('img', { name: /10 年期美债实际收益率/ })).toBeTruthy()
   })
 
-  it('文件缺失或结构异常时显示空状态；黄金缺失只空黄金分区', async () => {
+  it('文件缺失显示 LoadError；黄金缺失只空黄金分区', async () => {
     stub(null, false); renderPage()
-    expect(await screen.findByText('暂无港股全球数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     cleanup()
     stub({ ...globalFixture(), gold: null, goldError: '新浪超时' }); renderPage()
     await screen.findByRole('table')

@@ -1,5 +1,5 @@
 // 读取 public/data/market-radar.json（manager 维护契约）。页面只用本次加载。
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { RadarFile } from './types'
 
 export type RadarState =
@@ -55,12 +55,18 @@ export async function loadRadar(fetcher: typeof fetch = fetch): Promise<RadarFil
 
 let cache: Promise<RadarFile> | null = null
 
-/** 同一次页面会话内只请求一次；失败后允许下次重试。 */
-export function useMarketRadar(fetcher?: typeof fetch): RadarState {
+/** 同一次页面会话内只请求一次；失败后允许 retry() 再拉。 */
+export function useMarketRadar(fetcher?: typeof fetch): RadarState & { retry: () => void } {
   const [state, setState] = useState<RadarState>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = useCallback(() => {
+    cache = null
+    setState({ status: 'loading' })
+    setAttempt(n => n + 1)
+  }, [])
   useEffect(() => {
     let alive = true
-    const request = fetcher ? loadRadar(fetcher) : (cache ??= loadRadar())
+    const request = fetcher || attempt > 0 ? loadRadar(fetcher) : (cache ??= loadRadar())
     request.then(
       data => { if (alive) setState({ status: 'ready', data }) },
       (error: unknown) => {
@@ -69,8 +75,8 @@ export function useMarketRadar(fetcher?: typeof fetch): RadarState {
       },
     )
     return () => { alive = false }
-  }, [fetcher])
-  return state
+  }, [fetcher, attempt])
+  return { ...state, retry }
 }
 
 /** 测试用：清空模块级缓存 */

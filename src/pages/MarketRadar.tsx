@@ -13,7 +13,7 @@ export const MARKET_RADAR_FOOTER =
   '规则先验设定并公开历史检验；验证期只作报告、不参与挑选。读数来自公开数据源。只描述股市冷热与各维度现状，不改变仓位，不构成买卖建议。'
 
 export default function MarketRadar(): JSX.Element {
-  const radar = useMarketRadar()
+  const { retry, ...radar } = useMarketRadar()
 
   return (
     <Page className="mr-page">
@@ -26,7 +26,7 @@ export default function MarketRadar(): JSX.Element {
       </header>
 
       <VerdictBar />
-      <RadarView state={radar} />
+      <RadarView state={radar} onRetry={retry} />
 
       <footer className="mr-footer" role="note">
         <p>

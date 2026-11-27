@@ -53,15 +53,17 @@ describe('同花顺 · ETF资金页', () => {
     expect(screen.getByText(/深交所 2026-11-16 的份额取自腾讯行情/)).toBeTruthy()
     expect(screen.getByText(/仅沪市（深交所份额暂缺）/)).toBeTruthy()
   })
-  it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 EmptyState (%j)', async body => {
+  it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 LoadError (%j)', async body => {
     stub(body); renderPage()
-    expect(await screen.findByText('暂无 ETF 资金数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     expect(screen.queryByRole('table')).toBeNull()
   })
-  it('404、JSON 解析异常和网络错误显示 EmptyState', async () => {
-    for (const fetcher of [async () => ({ ok: false }), async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML') } }), async () => { throw new Error('offline') }]) {
+  it('404、JSON 解析异常和网络错误显示 LoadError 与重试', async () => {
+    for (const fetcher of [async () => ({ ok: false, status: 404 }), async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML') } }), async () => { throw new Error('offline') }]) {
       vi.stubGlobal('fetch', vi.fn(fetcher)); renderPage()
-      expect(await screen.findByText('暂无 ETF 资金数据')).toBeTruthy()
+      expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+      expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
       cleanup()
     }
   })

@@ -1,7 +1,7 @@
 // 今天几星 · 指数地图（/jixing/map）
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, StatusLegend, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
@@ -60,19 +60,27 @@ function BroadQuadrant({ cells }: { cells: MapCell[] }): JSX.Element {
 export default function JixingMap(): JSX.Element {
   const [cells, setCells] = useState<MapCell[] | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setCells(null); setAttempt(n => n + 1) }
   const [group, setGroup] = useState<MapGroupFilter>('all')
   const [view, setView] = useState<'map' | 'table'>('map')
 
   useEffect(() => {
     const c = new AbortController()
+    const loadJson = async (name: string): Promise<unknown> => {
+      const r = await fetch(`${BASE}data/${name}`, { cache: 'no-cache', signal: c.signal })
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json()
+    }
     Promise.all([
-      fetch(`${BASE}data/jixing-table.json`, { cache: 'no-cache', signal: c.signal }).then(r => r.ok ? r.json() : null),
-      fetch(`${BASE}data/jixing-global.json`, { cache: 'no-cache', signal: c.signal }).then(r => r.ok ? r.json() : null),
+      loadJson('jixing-table.json'),
+      loadJson('jixing-global.json').catch(() => null), // 全球可选；主表失败才整页报错
     ]).then(([tableBody, globalBody]) => {
       if (c.signal.aborted) return
       const table = asJixingTable(tableBody)
       const global = asJixingGlobal(globalBody)
-      if (!table) { setCells(null); return }
+      if (!table) { setError('数据文件格式不对'); setCells(null); return }
       const list: MapCell[] = table.rows.map(fromTableRow)
       if (global) {
         for (const r of global.hk.rows) {
@@ -85,10 +93,16 @@ export default function JixingMap(): JSX.Element {
         }
       }
       setCells(list)
-    }).catch(() => { if (!c.signal.aborted) setCells(null) })
+      setError(null)
+    }).catch((e: unknown) => {
+      if (!c.signal.aborted) {
+        setCells(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      }
+    })
       .finally(() => { if (!c.signal.aborted) setLoading(false) })
     return () => c.abort()
-  }, [])
+  }, [attempt])
 
   const filtered = (cells ?? []).filter(c => group === 'all' || c.group === group)
   const broad = filtered.filter(c => c.group === 'broad' && c.position)
@@ -99,7 +113,9 @@ export default function JixingMap(): JSX.Element {
       <PageTitle>今天几星 · 指数地图</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取指数地图…</p> : !cells ? (
+      {loading ? <p role="status">正在读取指数地图…</p> : error ? (
+        <LoadError reason="指数地图这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !cells ? (
         <EmptyState title="暂无地图数据">估值表发布后可查看指数地图。</EmptyState>
       ) : (
         <Card title="指数地图" as="section" className="mm-card" description="点击格子跳到估值表或港股全球。">

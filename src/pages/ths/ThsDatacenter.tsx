@@ -3,7 +3,7 @@
 // 来源东方财富数据中心公开报表与日 K）。只列客观数值与阈值说明，不做评级，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import { asThsDatacenter, fixed, md, METHOD, money, pct, shares, tone, type BuybackRow, type CoveredStock, type HolderRank, type HolderRow, type IpoCal, type LiftRow, type ReportsBlock, type StockReport, type SubNew, type ThsDatacenter as Data } from '../../features/ths-datacenter/model'
@@ -12,17 +12,31 @@ import '../../styles/ths-datacenter.css'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 
-function useData(): { loading: boolean; data: Data | null } {
-  const [state, setState] = useState<{ loading: boolean; data: Data | null }>({ loading: true, data: null })
+function useData(): { loading: boolean; data: Data | null; error: string | null; retry: () => void } {
+  const [state, setState] = useState<{ loading: boolean; data: Data | null; error: string | null }>({ loading: true, data: null, error: null })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setState({ loading: true, data: null, error: null }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-datacenter.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setState({ loading: false, data: asThsDatacenter(body) }) })
-      .catch(() => { if (!controller.signal.aborted) setState({ loading: false, data: null }) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const data = asThsDatacenter(body)
+        if (!data) { setState({ loading: false, data: null, error: '数据文件格式不对' }); return }
+        setState({ loading: false, data, error: null })
+      })
+      .catch((e: unknown) => {
+        if (!controller.signal.aborted) {
+          setState({ loading: false, data: null, error: e instanceof Error ? e.message : '网络错误' })
+        }
+      })
     return () => controller.abort()
-  }, [])
-  return state
+  }, [attempt])
+  return { ...state, retry }
 }
 
 /* ---------- 通用表格：首列名称代码吸附，超过 limit 行时可展开 ---------- */
@@ -430,13 +444,15 @@ function ReportsCard({ r, error }: { r: ReportsBlock | null; error: string | nul
 }
 
 export default function ThsDatacenter(): JSX.Element {
-  const { loading, data } = useData()
+  const { loading, data, error, retry } = useData()
   return (
     <Page className="mm-page">
       <PageTitle>同花顺 · 数据中心</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
-      {loading ? <p className="mm-empty" role="status">加载中…</p> : !data ? (
+      {loading ? <p className="mm-empty" role="status">加载中…</p> : error ? (
+        <LoadError reason="数据中心这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? (
         <EmptyState title="暂无数据中心数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示。</EmptyState>
       ) : <Body d={data} />}
     </Page>

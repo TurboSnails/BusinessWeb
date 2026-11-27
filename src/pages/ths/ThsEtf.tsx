@@ -1,7 +1,7 @@
 // 同花顺 · ETF资金（/ths-mood/etf）：交易所每日 ETF 份额推算的申购净流入、全市场 ETF 资金排行、中证指数定期调整名单。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -52,18 +52,34 @@ function RebalanceCard({ r, asOf }: { r: Rebalance; asOf: string }): JSX.Element
 export default function ThsEtf(): JSX.Element {
   const [data, setData] = useState<ThsEtfData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   const [range, setRange] = useState('60')
   const [cat, setCat] = useState<string>('宽基')
   const [win, setWin] = useState<Window>('d1')
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-etf.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => r.ok ? r.json() : null)
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asThsEtf(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asThsEtf(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   const history = data ? data.broad.history.slice(-Number(range)) : []
   const category = data?.market.categories.find(c => c.cat === cat)
   const winLabel = WINDOWS.find(w => w.id === win)?.label ?? ''
@@ -75,7 +91,9 @@ export default function ThsEtf(): JSX.Element {
       <PageTitle>同花顺 · ETF资金</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取 ETF 资金数据…</p> : !data ? <EmptyState title="暂无 ETF 资金数据">交易所公布当日 ETF 份额后（收盘后）采集；数据文件缺失或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取 ETF 资金数据…</p> : error ? (
+        <LoadError reason="ETF资金这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无 ETF 资金数据">交易所公布当日 ETF 份额后（收盘后）采集；数据文件缺失或格式异常时不展示。</EmptyState> : <>
         <p className="mm-method">数据日期：{data.asOf}（交易所公布的当日份额） · 采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。
           {data.backfill && ` ${data.backfill.from} ~ ${data.backfill.to} 的历史为一次性回补（同样取交易所带日期的每日份额与日 K 收盘价），之后每日收盘后追加。`}
           深交所 T 日晚间公布的份额为参考值，次日早间修订，脚本每次会重抓最近 6 个交易日覆盖。</p>

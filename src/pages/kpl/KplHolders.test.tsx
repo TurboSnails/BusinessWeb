@@ -82,8 +82,9 @@ describe('开盘啦 · 持仓两融页', () => {
   it('数据缺失 / HTML 回退时显示空状态；校验器拒绝错误格式', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('Unexpected token <') } })))
     renderPage()
-    expect(await screen.findByText('持仓两融数据暂不可用')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
     expect(screen.getByText('数据文件还没有生成')).toBeTruthy()
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     expect(asKplHolders({ version: 2 })).toBeNull()
     const partial = asKplHolders({ ...holdersFixture(), margin: { date: 'x' } })
     expect(partial?.margin).toBeNull()

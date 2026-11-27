@@ -3,7 +3,7 @@
 // 不是预测，也不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -19,8 +19,10 @@ import '../../styles/kpl-abnormal.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useAbnormal(): Load {
+function useAbnormal(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-abnormal.json`, { cache: 'no-cache', signal: controller.signal })
@@ -35,8 +37,8 @@ function useAbnormal(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 const days = (v: number | null, n: number | null): React.ReactNode => (v == null ? '—' : <>{pct(v)}{n ? <small>{n} 日</small> : null}</>)
@@ -415,7 +417,9 @@ export default function KplAbnormal(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="异动监管数据尚未生成">交易日收盘后（北京 15:10 之后）运行数据脚本，这里就会显示偏离值、停复牌、龙虎榜规则对照和盘口异动。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="异动监管数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="异动监管这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <Body d={load.data} />}
     </Page>
   )

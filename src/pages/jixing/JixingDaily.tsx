@@ -1,7 +1,7 @@
 // 今天几星 · 指数日报（/jixing/daily）
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge } from '../../features/jixing-tabs/StatusBadge'
@@ -17,21 +17,37 @@ const BASE = import.meta.env.BASE_URL
 export default function JixingDaily(): JSX.Element {
   const [index, setIndex] = useState<JixingDailyIndex | null>(null)
   const [fetchedReport, setFetchedReport] = useState<JixingDailyReport | null>()
+  const [reportError, setReportError] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const [reportAttempt, setReportAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setIndex(null); setAttempt(n => n + 1) }
 
   useEffect(() => {
     const c = new AbortController()
     fetch(`${BASE}data/jixing-daily.json`, { cache: 'no-cache', signal: c.signal })
-      .then(r => (r.ok ? r.json() : null))
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then((body: unknown) => {
         if (c.signal.aborted) return
-        setIndex(asJixingDailyIndex(body))
+        const parsed = asJixingDailyIndex(body)
+        if (!parsed) { setError('数据文件格式不对'); setIndex(null); return }
+        setIndex(parsed)
+        setError(null)
       })
-      .catch(() => { if (!c.signal.aborted) setIndex(null) })
+      .catch((e: unknown) => {
+        if (!c.signal.aborted) {
+          setIndex(null)
+          setError(e instanceof Error ? e.message : '网络错误')
+        }
+      })
       .finally(() => { if (!c.signal.aborted) setLoading(false) })
     return () => c.abort()
-  }, [])
+  }, [attempt])
 
   const date = selectedDate ?? index?.latest.asOf
   const inlineReport = date === index?.latest.asOf && !index?.latest.truncated ? index?.latest : undefined
@@ -41,21 +57,33 @@ export default function JixingDaily(): JSX.Element {
     if (date === next) return
     setSelectedDate(next)
     setFetchedReport(undefined)
+    setReportError(null)
   }
 
   useEffect(() => {
     if (!date || inlineReport) return
     const c = new AbortController()
+    setReportError(null)
     fetch(`${BASE}data/jixing-daily-${date}.json`, { cache: 'no-cache', signal: c.signal })
-      .then(r => (r.ok ? r.json() : null))
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then((body: unknown) => {
         if (c.signal.aborted) return
         const next = asJixingDailyReport(body)
-        setFetchedReport(next?.asOf === date ? next : null)
+        if (!next || next.asOf !== date) { setFetchedReport(null); setReportError('数据文件格式不对'); return }
+        setFetchedReport(next)
+        setReportError(null)
       })
-      .catch(() => { if (!c.signal.aborted) setFetchedReport(null) })
+      .catch((e: unknown) => {
+        if (!c.signal.aborted) {
+          setFetchedReport(null)
+          setReportError(e instanceof Error ? e.message : '网络错误')
+        }
+      })
     return () => c.abort()
-  }, [date, inlineReport])
+  }, [date, inlineReport, reportAttempt])
 
   const dates = index?.dates ?? []
   const pos = date ? dates.indexOf(date) : -1
@@ -67,7 +95,9 @@ export default function JixingDaily(): JSX.Element {
       <PageTitle>今天几星 · 指数日报</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取指数日报…</p> : !index ? (
+      {loading ? <p role="status">正在读取指数日报…</p> : error ? (
+        <LoadError reason="指数日报这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !index ? (
         <EmptyState title="暂无指数日报">交易日盘后生成；需估值表与星级已发布。</EmptyState>
       ) : (
         <>
@@ -83,7 +113,9 @@ export default function JixingDaily(): JSX.Element {
               <button type="button" className="btn-ghost" disabled={!newer} onClick={() => newer && selectDate(newer)}>下一天</button>
             </div>
           </Card>
-          {report === undefined ? <p role="status">正在读取 {date} 日报…</p> : !report ? <EmptyState title="该日日报加载失败">可换一天再试。</EmptyState> : (
+          {report === undefined && !reportError ? <p role="status">正在读取 {date} 日报…</p> : reportError ? (
+            <LoadError reason={`${date} 日报这份读数现在拿不到。`} detail={reportError} onRetry={() => { setFetchedReport(undefined); setReportError(null); setReportAttempt(n => n + 1) }} />
+          ) : !report ? <EmptyState title="该日日报加载失败">可换一天再试。</EmptyState> : (
             <>
               <Card title={`摘要 · ${report.asOf}`} as="section" className="mm-card"
                 description={report.missingPrev ? (report.note ?? '缺前一交易日快照') : `较 ${report.prevDate}`}>

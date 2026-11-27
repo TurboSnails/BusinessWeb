@@ -91,7 +91,8 @@ describe('开盘啦 · 财报避雷页', () => {
   it('文件缺失或 HTML 回退时显示空状态；单节缺失只影响该节', async () => {
     stub({}, false)
     renderPage()
-    expect(await screen.findByText('财报避雷数据暂不可用')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     cleanup()
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('Unexpected token <') } })))
     renderPage()

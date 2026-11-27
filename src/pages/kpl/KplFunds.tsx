@@ -1,6 +1,6 @@
 // 开盘啦 · 资金：公开行情的盘后统计，不接入开盘啦接口。
 import React, { useEffect, useState } from 'react'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -32,16 +32,32 @@ function RankingTable({ rows, title, industry = false }: { rows: FlowRow[]; titl
 export default function KplFunds(): JSX.Element {
   const [data, setData] = useState<KplFundsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
   const [range, setRange] = useState('60')
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-funds.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => r.ok ? r.json() : null)
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asKplFunds(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asKplFunds(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   const latest = data?.history.at(-1)
   const history = data ? range === 'all' ? data.history : data.history.slice(-Number(range)) : []
   return (
@@ -50,7 +66,9 @@ export default function KplFunds(): JSX.Element {
       <KplTabs />
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       <p className="mm-method">仅展示盘后主力资金。主力资金是数据供应商按成交单规模划分的估算，不代表可识别的机构账户资金；主力净额为大单与超大单净额之和。异动、对倒、压单、托单需要盘中逐笔或委托簿数据，本页暂不提供。</p>
-      {loading ? <p role="status">正在读取盘后资金…</p> : !data || !latest ? <EmptyState title="暂无盘后资金数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示排行。</EmptyState> : <>
+      {loading ? <p role="status">正在读取盘后资金…</p> : error ? (
+        <LoadError reason="盘后资金这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data || !latest ? <EmptyState title="暂无盘后资金数据">收盘后完整采集成功再更新；数据文件缺失、不可用或格式异常时不展示排行。</EmptyState> : <>
         <p className="mm-method">数据日期：{data.asOf}（盘后） · 采集时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）。无日期排行仅在交易日 15:10 后采集，行情可能延迟；此处不是实时资金。</p>
         <Card title="全市场主力资金净流入" as="section" className="mm-card" description="东方财富沪深汇总（上证与深证），不含北交所；金额单位：亿元。">
           <dl className="kf-summary">{([['主力净额', latest.main], ['超大单净额', latest.superLarge], ['大单净额', latest.large], ['中单净额', latest.medium], ['小单净额', latest.small]] as const).map(([label, value]) => <div key={label}><dt>{label}</dt><dd className={tone(value)}>{money(value)}</dd></div>)}</dl>

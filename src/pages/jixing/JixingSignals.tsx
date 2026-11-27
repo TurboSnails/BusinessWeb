@@ -1,7 +1,7 @@
 // 今天几星 · 牛熊信号板（/jixing/signals）：定量估值与市场情绪指标，各给当前值、历史分位与本站自定信号，公开数据收盘后更新。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Card, EmptyState, Page } from '../../components/ui'
+import { Badge, Card, EmptyState, LoadError, Page } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge } from '../../features/jixing-tabs/StatusBadge'
@@ -84,21 +84,39 @@ function SummaryLine({ data }: { data: JixingSignalsData }): JSX.Element {
 export default function JixingSignals(): JSX.Element {
   const [data, setData] = useState<JixingSignalsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/jixing-signals.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asJixingSignals(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingSignals(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page jsg-page">
       <PageTitle>今天几星 · 牛熊信号板</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取信号板数据…</p> : !data ? <EmptyState title="暂无信号板数据">收盘后采集成功才更新；数据文件缺失或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取信号板数据…</p> : error ? (
+        <LoadError reason="信号板这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无信号板数据">收盘后采集成功才更新；数据文件缺失或格式异常时不展示。</EmptyState> : <>
         <SummaryLine data={data} />
         <Group title="定量：估值" description="越便宜越接近熊市底部特征；信号为低估 / 正常 / 高估。" items={data.indicators.filter(i => i.group === 'valuation')} />
         <Group title="情绪：资金与参与度" description="越热越接近牛市特征；信号为偏牛 / 中性 / 偏熊。" items={data.indicators.filter(i => i.group === 'mood')} />

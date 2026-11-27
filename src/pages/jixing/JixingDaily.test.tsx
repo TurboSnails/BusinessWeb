@@ -10,9 +10,9 @@ function renderPage(index: unknown = dailyIndexFixture, ok = true) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo) => {
     const url = String(input)
     if (url.includes('jixing-daily-2026-11-14')) {
-      return { ok: true, json: async () => ({ ...dailyReportFixture, asOf: '2026-11-14', prevDate: null, missingPrev: true }) }
+      return { ok: true, status: 200, json: async () => ({ ...dailyReportFixture, asOf: '2026-11-14', prevDate: null, missingPrev: true }) }
     }
-    return { ok, json: async () => index }
+    return { ok, status: ok ? 200 : 404, json: async () => index }
   }))
   return render(<MemoryRouter initialEntries={['/jixing/daily']}><JixingDaily /></MemoryRouter>)
 }
@@ -55,9 +55,10 @@ describe('指数日报', () => {
     expect(summary.textContent).toContain('星级数据日 2026-11-18')
   })
 
-  it('空态', async () => {
+  it('空态显示 LoadError 与重试', async () => {
     renderPage(null, false)
-    expect(await screen.findByText('暂无指数日报')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('缺前日校验', () => {

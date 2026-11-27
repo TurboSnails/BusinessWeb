@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, PageTitle, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, PageTitle, Segmented, TableWrap } from '../../components/ui'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
 import { asStockDetail, asStockIndex, METHOD, type Band, type StockDetail, type StockIndex, type StockRow } from '../../features/kpl-stock/model'
@@ -9,10 +9,11 @@ import '../../styles/market-mood.css'
 import '../../styles/kpl-stock.css'
 
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
-type Load<T> = { state: 'loading' } | { state: 'missing' } | { state: 'ok'; data: T }
+type Load<T> = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: T }
 async function json(name: string, signal: AbortSignal): Promise<unknown> {
   const r = await fetch(`${BASE}data/${name}`, { cache: 'no-cache', signal })
-  if (!r.ok) return null
+  if (r.status === 404) return null
+  if (!r.ok) throw new Error(`HTTP ${r.status}`)
   return r.json().catch(() => null)
 }
 
@@ -86,6 +87,7 @@ function StockBody({ data }: { data: StockIndex }): JSX.Element {
   const [query, setQuery] = useState(''), [list, setList] = useState<List>('all')
   const row = data.stocks.find(r => r.code === code)
   const [load, setLoad] = useState<(Load<StockDetail> & { code: string }) | null>(null)
+  const [detailAttempt, setDetailAttempt] = useState(0)
   useEffect(() => {
     if (!row) return
     const controller = new AbortController()
@@ -95,9 +97,12 @@ function StockBody({ data }: { data: StockIndex }): JSX.Element {
       const item = body && typeof body === 'object' ? (body as Record<string, unknown>)[row.code] : null
       const detail = asStockDetail(item, row, data.asOf)
       setLoad(detail ? { state: 'ok', code: row.code, data: detail } : { state: 'missing', code: row.code })
-    }).catch(() => { if (!controller.signal.aborted) setLoad({ state: 'missing', code: row.code }) })
+    }).catch((e: unknown) => {
+      if (controller.signal.aborted) return
+      setLoad({ state: 'error', code: row.code, message: e instanceof Error ? e.message : '网络错误' })
+    })
     return () => controller.abort()
-  }, [row, data.asOf])
+  }, [row, data.asOf, detailAttempt])
   const q = query.trim().toLowerCase()
   const matches = data.stocks.filter(r => q ? r.code.includes(q) || r.name.toLowerCase().includes(q) : list === 'all' || r.lists.includes(list))
   if (!q && list === 'amount') matches.sort((a, b) => (a.rank ?? 101) - (b.rank ?? 101))
@@ -114,24 +119,34 @@ function StockBody({ data }: { data: StockIndex }): JSX.Element {
     {code && !row && <EmptyState title="股票不在本页候选池">{code} 未被最近的候选池收录，或已因 600 只上限移出。</EmptyState>}
     {row && (load?.code !== row.code || load.state === 'loading') && <p className="mm-empty">正在加载个股详情…</p>}
     {row && load?.code === row.code && load.state === 'missing' && <EmptyState title="个股详情暂不可用">详情文件缺失、格式错误或日期不匹配，请稍后重试。</EmptyState>}
+    {row && load?.code === row.code && load.state === 'error' && (
+      <LoadError reason="个股详情这份读数现在拿不到。" detail={load.message} onRetry={() => setDetailAttempt(n => n + 1)} />
+    )}
     {row && load?.code === row.code && load.state === 'ok' && <Detail d={load.data} />}
     {!code && <EmptyState title="选择一只股票查看详情">从快捷名单选择，或输入代码、名称搜索。</EmptyState>}
   </>
 }
 export default function KplStock(): JSX.Element {
   const [load, setLoad] = useState<Load<StockIndex>>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     json('kpl-stock.json', controller.signal).then(body => {
       if (controller.signal.aborted) return
       const data = asStockIndex(body)
       setLoad(data ? { state: 'ok', data } : { state: 'missing' })
-    }).catch(() => { if (!controller.signal.aborted) setLoad({ state: 'missing' }) })
+    }).catch((e: unknown) => {
+      if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' })
+    })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return <Page className="mm-page ks-page"><PageTitle>开盘啦 · 个股</PageTitle><KplTabs /><p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
     {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
     {load.state === 'missing' && <EmptyState title="个股数据尚未生成或暂不可用">交易日收盘后，涨停、炸板、龙虎榜与成交额榜齐备才发布；数据未就绪时保留上一份。</EmptyState>}
+    {load.state === 'error' && (
+      <LoadError reason="个股候选池这份读数现在拿不到。" detail={load.message} onRetry={retry} />
+    )}
     {load.state === 'ok' && <StockBody data={load.data} />}
     <Callout title="口径与来源"><p>{METHOD.skipped}</p><p>来源：<a href="https://quote.eastmoney.com/ztb/" target="_blank" rel="noreferrer">东方财富公开股池与日 K</a>、<a href="https://data.eastmoney.com/stock/lhb.html" target="_blank" rel="noreferrer">东财龙虎榜</a>、<a href="https://data.eastmoney.com/gzfx/" target="_blank" rel="noreferrer">东财估值分析</a>、<a href="https://finance.sina.com.cn/" target="_blank" rel="noreferrer">新浪成交额榜</a>。历史统计与模型估计均不构成投资建议。</p></Callout>
   </Page>

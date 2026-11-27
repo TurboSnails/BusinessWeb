@@ -2,7 +2,7 @@
 // 每日已回复问答（深交所互动易 + 上证 e 互动）、关键词规则分类、热门公司与当日行情、关键词热度、近 7 天检索，近 30 日问询函 / 监管函。
 // 数据：public/data/kpl-irm.json（索引）+ public/data/kpl-irm-<星期>.json（某一回复日明细），scripts/kpl-irm.mjs 盘后生成。不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -18,8 +18,10 @@ import '../../styles/kpl-irm.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load<T> = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: T }
 
-function useJson<T>(file: string | null, parse: (body: unknown) => T | null): Load<T> {
+function useJson<T>(file: string | null, parse: (body: unknown) => T | null): Load<T> & { retry: () => void } {
   const [load, setLoad] = useState<Load<T>>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     if (!file) return undefined
     setLoad({ state: 'loading' })
@@ -36,10 +38,10 @@ function useJson<T>(file: string | null, parse: (body: unknown) => T | null): Lo
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-    // parse 是稳定的纯函数，只随文件名变化重新请求
+    // parse 是稳定的纯函数，只随文件名 / 重试变化重新请求
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file])
-  return load
+  }, [file, attempt])
+  return { ...load, retry }
 }
 
 const catLabel = (d: Data, id: CatId | string): string => d.rules.cats.find(c => c.id === id)?.label ?? id
@@ -135,7 +137,10 @@ function QaList({ d, s, query, setQuery }: { d: Data; s: DaySummary; query: stri
       && (!k || x.q.includes(k) || x.a.includes(k) || x.name.includes(k) || x.code === k))
   }, [load, cat, plat, query])
   if (load.state === 'loading') return <p className="mm-empty">加载问答明细…</p>
-  if (load.state !== 'ok') return <p className="mm-empty">{s.date} 的问答明细暂不可用{load.state === 'error' ? `（${load.message}）` : ''}。</p>
+  if (load.state === 'missing') return <p className="mm-empty">{s.date} 的问答明细暂不可用。</p>
+  if (load.state === 'error') {
+    return <LoadError reason={`${s.date} 的问答明细现在拿不到。`} detail={load.message} onRetry={load.retry} />
+  }
   const q = load.data.quotes
   return (
     <>
@@ -233,7 +238,9 @@ export default function KplIrm(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="互动问答数据尚未生成">收盘后首次运行数据脚本，这里就会显示当日互动易 / e 互动问答、热门公司和问询函。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="互动问答数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="互动问答这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <IrmBody d={load.data} />}
     </Page>
   )

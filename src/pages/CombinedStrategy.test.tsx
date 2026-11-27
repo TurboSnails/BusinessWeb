@@ -61,7 +61,7 @@ function renderPage(
   mockedStrategy.mockReturnValue({ ...strategy, retry: vi.fn() } as ReturnType<typeof useCombinedStrategy>)
   mockedComposite.mockReturnValue(composite)
   mockedMarket.mockReturnValue(market)
-  mockedRadar.mockReturnValue(radar)
+  mockedRadar.mockReturnValue({ ...(radar), retry: vi.fn() })
   return render(
     <MemoryRouter initialEntries={['/invest/strategy']}>
       <CombinedStrategy />
@@ -94,7 +94,7 @@ describe('CombinedStrategy 页面', () => {
     mockedStrategy.mockReturnValue({ status: 'error', message: 'HTTP 404', retry } as ReturnType<typeof useCombinedStrategy>)
     mockedComposite.mockReturnValue({ status: 'ready', data: compositeFixture() })
     mockedMarket.mockReturnValue({ status: 'ready', data: marketReferenceFixture() })
-    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture() })
+    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture(), retry: vi.fn() })
     render(
       <MemoryRouter initialEntries={['/invest/strategy']}>
         <CombinedStrategy />

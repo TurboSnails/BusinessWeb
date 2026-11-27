@@ -4,7 +4,7 @@
 // 数据：public/data/kpl-disclosure.json（scripts/kpl-disclosure.mjs 盘后生成，来源东方财富数据中心）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import StockTable, { type Col } from '../../features/kpl-daban/StockTable'
@@ -19,8 +19,10 @@ import '../../styles/kpl-disclosure.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useData(): Load {
+function useData(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-disclosure.json`, { cache: 'no-cache', signal: controller.signal })
@@ -32,8 +34,8 @@ function useData(): Load {
       // 静态托管把缺失的 JSON 回退成 HTML（200）时 r.json() 会抛错，也按「暂无数据」处理
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof SyntaxError ? '数据文件还没有生成' : e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 // 格式：真正的负号；缺失显示「—」；红涨绿跌
@@ -352,7 +354,9 @@ export default function KplDisclosure(): JSX.Element {
       <KplTabs />
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
-      {load.state === 'error' && <EmptyState title="财报避雷数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="财报避雷这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <Body d={load.data} />}
     </Page>
   )

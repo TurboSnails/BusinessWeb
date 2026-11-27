@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react'
+import { LoadError } from '../../components/ui'
 import AnchorNav from './AnchorNav'
 import BacktestPanel from './BacktestPanel'
 import ConclusionPanel from './ConclusionPanel'
@@ -8,16 +9,22 @@ import { filterIndicators, useRadarView } from './useRadarView'
 import type { RadarState } from './load'
 import { STALE_DATA_MESSAGE } from './load'
 
-export default function RadarView({ state }: { state: RadarState }): JSX.Element {
+export default function RadarView({ state, onRetry }: {
+  state: RadarState
+  onRetry?: () => void
+}): JSX.Element {
   if (state.status === 'loading') {
     return <p className="mr-status" role="status">市场雷达加载中…</p>
   }
   if (state.status === 'error') {
     const stale = state.message === STALE_DATA_MESSAGE
     return (
-      <p className="mr-error" role="alert" data-testid="mr-error">
-        {stale ? STALE_DATA_MESSAGE : `市场雷达加载失败，请稍后重试。${state.message ? `（${state.message}）` : ''}`}
-      </p>
+      <LoadError
+        testId="mr-error"
+        reason={stale ? STALE_DATA_MESSAGE : '市场雷达这份读数现在拿不到。'}
+        detail={stale ? undefined : state.message}
+        onRetry={onRetry ?? (() => window.location.reload())}
+      />
     )
   }
 

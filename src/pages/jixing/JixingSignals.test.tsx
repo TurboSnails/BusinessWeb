@@ -1,7 +1,7 @@
 import React from 'react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import JixingSignals from './JixingSignals'
@@ -9,7 +9,7 @@ import { signalsFixture } from '../../features/jixing-signals/fixtures'
 import { asJixingSignals } from '../../features/jixing-signals/model'
 
 function renderPage(body: unknown = signalsFixture(), ok = true) {
-  vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
   return render(<MemoryRouter initialEntries={['/jixing/signals']}><JixingSignals /></MemoryRouter>)
 }
 
@@ -52,9 +52,10 @@ describe('今天几星 · 牛熊信号板', () => {
     expect(document.body.textContent).not.toMatch(/建议买入|建议卖出|定投建议/)
   })
 
-  it('数据缺失时显示空状态', async () => {
+  it('数据缺失时显示 LoadError 与重试', async () => {
     renderPage(null, false)
-    expect(await screen.findByText('暂无信号板数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
   })
 
   it('校验器拒绝未知信号、晚于数据日的日期与字符串数字', () => {
@@ -73,5 +74,20 @@ describe('今天几星 · 牛熊信号板', () => {
       ? { ...(body as object), news: [] }
       : body
     expect(asJixingSignals(patched)).not.toBeNull()
+  })
+
+  it('失败 → 重试 → 成功', async () => {
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      calls += 1
+      if (calls === 1) return { ok: false, status: 500, json: async () => ({}) }
+      return { ok: true, status: 200, json: async () => signalsFixture() }
+    }))
+    render(<MemoryRouter initialEntries={['/jixing/signals']}><JixingSignals /></MemoryRouter>)
+    expect(await screen.findByRole('alert')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    expect(await screen.findByText('信号计数')).toBeTruthy()
+    expect(calls).toBe(2)
   })
 })

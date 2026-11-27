@@ -3,7 +3,7 @@
 // 数据只读复用开盘啦「复盘」页的全市场日线快照仓，由 scripts/ths-screener.mjs 生成。历史统计，不是买卖信号。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import ThsTabs, { THS_DISCLAIMER } from '../../features/ths-tabs/ThsTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -114,17 +114,33 @@ function PresetDetail({ p, data }: { p: Preset; data: ThsScreenerData }): JSX.El
 export default function ThsScreener(): JSX.Element {
   const [data, setData] = useState<ThsScreenerData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   const [sel, setSel] = useState('bull')
   const [metric, setMetric] = useState<Metric>('above20')
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/ths-tab-screener.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => r.ok ? r.json() : null)
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asThsScreener(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asThsScreener(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   const preset = data ? data.presets.find(p => p.id === sel) ?? data.presets[0] : null
   const groups = data ? [...new Set(data.presets.map(p => p.group))] : []
   const last = data?.breadth.at(-1)
@@ -134,7 +150,9 @@ export default function ThsScreener(): JSX.Element {
       <PageTitle>同花顺 · 技术选股</PageTitle>
       <ThsTabs />
       <p className="mm-disclaimer">{THS_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取技术选股数据…</p> : !data || !preset ? <EmptyState title="暂无技术选股数据">全市场日线快照仓更新当日收盘数据后（收盘后）计算；数据文件缺失或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取技术选股数据…</p> : error ? (
+        <LoadError reason="技术选股这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data || !preset ? <EmptyState title="暂无技术选股数据">全市场日线快照仓更新当日收盘数据后（收盘后）计算；数据文件缺失或格式异常时不展示。</EmptyState> : <>
         <p className="mm-method">数据日期：{data.asOf}（{data.store.source === 'kline' ? '东方财富日 K 回补的快照' : '新浪收盘行情'}） · 当日有行情 {data.store.stocks} 只 · 快照仓 {data.store.from} ~ {data.store.to}，{data.store.days} 个交易日 · 计算时间：{new Date(data.generatedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}（北京）</p>
         <Callout tone="warn" title="历史统计，不是买卖信号">{METHOD.nature}</Callout>
 

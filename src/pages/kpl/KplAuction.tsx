@@ -3,7 +3,7 @@
 // 数据：public/data/kpl-auction.json（scripts/kpl-auction.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -16,8 +16,10 @@ import '../../styles/kpl-auction.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useAuction(): Load {
+function useAuction(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-auction.json`, { cache: 'no-cache', signal: controller.signal })
@@ -32,8 +34,8 @@ function useAuction(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 const yiOf = (x: number | null | undefined): string => (x == null ? '—' : `${num(x / 1e8, 1)} 亿`)
@@ -234,7 +236,9 @@ export default function KplAuction(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="竞价尾盘数据尚未生成">交易日收盘后（北京 15:10 之后）运行数据脚本，这里就会显示当日早盘竞价、板块竞价和尾盘集合竞价。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="竞价尾盘数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="竞价尾盘这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <AuctionBody d={load.data} />}
     </Page>
   )

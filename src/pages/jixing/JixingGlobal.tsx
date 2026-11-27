@@ -1,7 +1,7 @@
 // 今天几星 · 港股全球（/jixing/global）：港股估值表、全球估值表与本站自定的黄金估值，公开数据，各行按自己的数据日期更新。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
@@ -130,22 +130,40 @@ function GoldSection({ gold, error, years }: { gold: Gold | null; error: string 
 export default function JixingGlobal(): JSX.Element {
   const [data, setData] = useState<JixingGlobalData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   const [section, setSection] = useState<Section>('hk')
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/jixing-global.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asJixingGlobal(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingGlobal(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page jg-page">
       <PageTitle>今天几星 · 港股全球</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取港股全球估值…</p> : !data ? <EmptyState title="暂无港股全球数据">数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
+      {loading ? <p role="status">正在读取港股全球估值…</p> : error ? (
+        <LoadError reason="港股全球这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? <EmptyState title="暂无港股全球数据">数据文件缺失、不可用或格式异常时不展示。</EmptyState> : <>
         <ul className="jx-links">
           <li><Link to="/jixing">今日星级</Link></li>
           <li><Link to="/jixing/table">估值表</Link></li>

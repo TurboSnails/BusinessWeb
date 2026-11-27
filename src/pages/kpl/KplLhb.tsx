@@ -3,7 +3,7 @@
 // 数据：public/data/kpl-lhb.json（scripts/kpl-lhb.mjs 盘后生成，来源东方财富数据中心）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -14,8 +14,10 @@ import '../../styles/kpl-lhb.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useKplLhb(): Load {
+function useKplLhb(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-lhb.json`, { cache: 'no-cache', signal: controller.signal })
@@ -26,8 +28,8 @@ function useKplLhb(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 // 格式：金额（元）→ 亿 / 万；真正的负号；红涨绿跌
@@ -357,7 +359,9 @@ export default function KplLhb(): JSX.Element {
       <KplTabs />
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
-      {load.state === 'error' && <EmptyState title="龙虎榜数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="龙虎榜这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <LhbBody d={load.data} />}
     </Page>
   )

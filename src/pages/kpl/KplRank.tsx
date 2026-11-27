@@ -3,7 +3,7 @@
 // 数据：public/data/kpl-rank.json（scripts/kpl-rank.mjs 盘后生成，四个部分各自带日期）。盘后统计，不是买卖建议。
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import {
@@ -16,13 +16,16 @@ import '../../styles/kpl-rank.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useKplRank(): Load {
+function useKplRank(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-rank.json`, { cache: 'no-cache', signal: controller.signal })
       .then(async r => {
-        if (!r.ok) return setLoad({ state: 'missing' })
+        if (r.status === 404) { setLoad({ state: 'missing' }); return }
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
         let body: unknown
         try { body = await r.json() } catch { return setLoad({ state: 'missing' }) } // 静态托管把缺失文件回退成 HTML 时也当作「还没有数据」
         const data = asKplRank(body)
@@ -30,8 +33,8 @@ function useKplRank(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 // 格式：金额（元）→ 亿 / 万；真正的负号；红涨绿跌
@@ -326,7 +329,9 @@ export default function KplRank(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="人气排行暂无数据">数据在交易日盘后生成，生成后在这里显示。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="人气排行数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="人气排行这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <RankBody d={load.data} />}
     </Page>
   )

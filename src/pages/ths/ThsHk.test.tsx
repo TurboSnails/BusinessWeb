@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ThsHk from './ThsHk'
@@ -8,7 +8,7 @@ import { asThsHk, hkdMillion, sumLast } from '../../features/ths-hk/model'
 
 const renderPage = () => render(<MemoryRouter initialEntries={['/ths-mood/hk']}><ThsHk /></MemoryRouter>)
 const table = (name: string) => within(screen.getByRole('region', { name })).getByRole('table')
-const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, json: async () => body })))
+const stub = (body: unknown, ok = true) => vi.stubGlobal('fetch', vi.fn(async () => ({ ok, status: ok ? 200 : 404, json: async () => body })))
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('港股通与AH 页', () => {
@@ -51,15 +51,17 @@ describe('港股通与AH 页', () => {
     expect(screen.getByText('AH 溢价暂缺')).toBeTruthy()
     expect(table('港股通持股市值排行')).toBeTruthy()
   })
-  it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 EmptyState (%j)', async body => {
+  it.each([null, '<!doctype html><html></html>', { version: 1 }])('空文件或 200 HTML 回退显示 LoadError (%j)', async body => {
     stub(body); renderPage()
-    expect(await screen.findByText('暂无港股通与AH数据')).toBeTruthy()
+    expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+    expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
     expect(screen.queryByRole('table')).toBeNull()
   })
-  it('404、JSON 解析异常和网络错误显示 EmptyState', async () => {
-    for (const fetcher of [async () => ({ ok: false }), async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML') } }), async () => { throw new Error('offline') }]) {
+  it('404、JSON 解析异常和网络错误显示 LoadError 与重试', async () => {
+    for (const fetcher of [async () => ({ ok: false, status: 404 }), async () => ({ ok: true, json: async () => { throw new SyntaxError('HTML') } }), async () => { throw new Error('offline') }]) {
       vi.stubGlobal('fetch', vi.fn(fetcher)); renderPage()
-      expect(await screen.findByText('暂无港股通与AH数据')).toBeTruthy()
+      expect((await screen.findByRole('alert')).textContent).toContain('数据暂时取不到')
+      expect(screen.getByRole('button', { name: '重试' })).toBeTruthy()
       cleanup()
     }
   })
@@ -68,6 +70,21 @@ describe('港股通与AH 页', () => {
     vi.stubGlobal('fetch', fetcher)
     const page = renderPage(); page.unmount()
     expect(fetcher.mock.calls[0][1].signal?.aborted).toBe(true)
+  })
+
+  it('失败 → 重试 → 成功', async () => {
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      calls += 1
+      if (calls === 1) return { ok: false, status: 500, json: async () => ({}) }
+      return { ok: true, status: 200, json: async () => hkFixture() }
+    }))
+    renderPage()
+    expect(await screen.findByRole('alert')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '重试' }))
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    expect(await screen.findByRole('region', { name: 'AH 股溢价列表' })).toBeTruthy()
+    expect(calls).toBe(2)
   })
 })
 

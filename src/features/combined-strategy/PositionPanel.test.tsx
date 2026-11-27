@@ -32,7 +32,7 @@ function wrap(ui: React.ReactElement) {
 describe('PositionPanel', () => {
   it('三行依据：宏观、趋势、冷热', () => {
     mockedComposite.mockReturnValue({ status: 'ready', data: compositeFixture() })
-    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture() })
+    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture(), retry: vi.fn() })
     wrap(<PositionPanel data={combinedStrategyFixture()} />)
     expect(screen.getByTestId('cs-position-name').textContent).toBe('扩张后段')
     expect(screen.getByTestId('cs-position-meaning').textContent).toContain('偏贵')
@@ -47,7 +47,7 @@ describe('PositionPanel', () => {
 
   it('某一数据源暂缺时该行显示暂缺，其余照常', () => {
     mockedComposite.mockReturnValue({ status: 'error', message: 'fail' })
-    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture() })
+    mockedRadar.mockReturnValue({ status: 'ready', data: radarFixture(), retry: vi.fn() })
     wrap(<PositionPanel data={combinedStrategyFixture()} />)
     expect(screen.getByTestId('cs-position-macro-conclusion').textContent).toBe('暂缺')
     expect(screen.getByTestId('cs-position-heat-conclusion').textContent).toContain('偏热')
@@ -55,7 +55,7 @@ describe('PositionPanel', () => {
 
   it('cell 为 null 时不显示名字，仍渲染三行', () => {
     mockedComposite.mockReturnValue({ status: 'ready', data: compositeFixture() })
-    mockedRadar.mockReturnValue({ status: 'loading' })
+    mockedRadar.mockReturnValue({ status: 'loading', retry: vi.fn() })
     wrap(<PositionPanel data={combinedStrategyNoCellFixture()} />)
     expect(screen.queryByTestId('cs-position-cell')).toBeNull()
     expect(screen.getByTestId('cs-position-heat-conclusion').textContent).toBe('暂缺')

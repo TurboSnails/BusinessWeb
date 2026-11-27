@@ -1,7 +1,7 @@
 // 今天几星 · 阀值表（/jixing/threshold）
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Card, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, StatusLegend } from '../../features/jixing-tabs/StatusBadge'
@@ -16,18 +16,34 @@ import '../../styles/jixing-threshold.css'
 export default function JixingThreshold(): JSX.Element {
   const [data, setData] = useState<JixingThresholdData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setError(null); setData(null); setAttempt(n => n + 1) }
   const [group, setGroup] = useState<GroupFilter>('all')
   const [sortAsc, setSortAsc] = useState(true)
 
   useEffect(() => {
-    const c = new AbortController()
-    fetch(`${import.meta.env.BASE_URL}data/jixing-threshold.json`, { cache: 'no-cache', signal: c.signal })
-      .then(r => (r.ok ? r.json() : null))
-      .then((body: unknown) => { if (!c.signal.aborted) setData(asJixingThreshold(body)) })
-      .catch(() => { if (!c.signal.aborted) setData(null) })
-      .finally(() => { if (!c.signal.aborted) setLoading(false) })
-    return () => c.abort()
-  }, [])
+    const controller = new AbortController()
+    fetch(`${import.meta.env.BASE_URL}data/jixing-threshold.json`, { cache: 'no-cache', signal: controller.signal })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingThreshold(body)
+        if (!parsed) { setError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setError(e instanceof Error ? e.message : '网络错误')
+      })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false) })
+    return () => controller.abort()
+  }, [attempt])
 
   const rows = sortRows(
     (data?.rows ?? []).filter(r => group === 'all' || r.group === group),
@@ -39,7 +55,9 @@ export default function JixingThreshold(): JSX.Element {
       <PageTitle>今天几星 · 阀值表</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取阀值表…</p> : !data ? (
+      {loading ? <p role="status">正在读取阀值表…</p> : error ? (
+        <LoadError reason="阀值表这份读数现在拿不到。" detail={error} onRetry={retry} />
+      ) : !data ? (
         <EmptyState title="暂无阀值数据">完整估值发布后才会生成阀值表。</EmptyState>
       ) : (
         <Card title="螺丝钉指数阀值表（本站版）" as="section" className="mm-card jt-card"

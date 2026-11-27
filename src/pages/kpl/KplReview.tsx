@@ -3,7 +3,7 @@
 // 数据：public/data/kpl-review.json（scripts/kpl-review.mjs 收盘后生成）。盘后统计，不是买卖建议。
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Callout, Card, EmptyState, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
+import { Callout, Card, EmptyState, LoadError, Page, PageDataFreshness, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import KplTabs, { KPL_DISCLAIMER } from '../../features/market-mood/KplTabs'
 import MoodChart from '../../features/market-mood/MoodChart'
@@ -16,8 +16,10 @@ import '../../styles/kpl-review.css'
 const BASE = (import.meta as { env?: Record<string, string | undefined> }).env?.BASE_URL ?? '/'
 type Load = { state: 'loading' } | { state: 'missing' } | { state: 'error'; message: string } | { state: 'ok'; data: Data }
 
-function useReview(): Load {
+function useReview(): Load & { retry: () => void } {
   const [load, setLoad] = useState<Load>({ state: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoad({ state: 'loading' }); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${BASE}data/kpl-review.json`, { cache: 'no-cache', signal: controller.signal })
@@ -32,8 +34,8 @@ function useReview(): Load {
       })
       .catch((e: unknown) => { if (!controller.signal.aborted) setLoad({ state: 'error', message: e instanceof Error ? e.message : '网络错误' }) })
     return () => controller.abort()
-  }, [])
-  return load
+  }, [attempt])
+  return { ...load, retry }
 }
 
 const rateTxt = (x: number | null | undefined): string => pct(x, 1, false)
@@ -260,7 +262,9 @@ export default function KplReview(): JSX.Element {
       <p className="mm-disclaimer">{KPL_DISCLAIMER}</p>
       {load.state === 'loading' && <p className="mm-empty">加载中…</p>}
       {load.state === 'missing' && <EmptyState title="复盘数据尚未生成">交易日收盘后（北京 15:10 之后）首次运行数据脚本，这里就会显示赚钱效应、盘面亮点、百日新高等复盘数据。</EmptyState>}
-      {load.state === 'error' && <EmptyState title="复盘数据暂不可用">{load.message}</EmptyState>}
+      {load.state === 'error' && (
+        <LoadError reason="复盘这份读数现在拿不到。" detail={load.message} onRetry={load.retry} />
+      )}
       {load.state === 'ok' && <ReviewBody d={load.data} />}
     </Page>
   )

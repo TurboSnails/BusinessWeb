@@ -1,7 +1,7 @@
 // 今天几星 · A股估值表（/jixing/table）
 import React, { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Card, Dialog, EmptyState, Page, Segmented, TableWrap } from '../../components/ui'
+import { Card, Dialog, EmptyState, LoadError, Page, Segmented, TableWrap } from '../../components/ui'
 import { PageTitle } from '../../components/ui/PageTabs'
 import JixingTabs, { JIXING_DISCLAIMER } from '../../features/jixing-tabs/JixingTabs'
 import { SampleFootnote, StatusBadge, StatusLegend, VALUATION_STATUS } from '../../features/jixing-tabs/StatusBadge'
@@ -263,21 +263,39 @@ function ValuationTable({ data }: { data: JixingTableData }): JSX.Element {
 export default function JixingTable(): JSX.Element {
   const [data, setData] = useState<JixingTableData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0)
+  const retry = () => { setLoading(true); setPageError(null); setData(null); setAttempt(n => n + 1) }
   useEffect(() => {
     const controller = new AbortController()
     fetch(`${import.meta.env.BASE_URL}data/jixing-table.json`, { cache: 'no-cache', signal: controller.signal })
-      .then(res => res.ok ? res.json() : null)
-      .then((body: unknown) => { if (!controller.signal.aborted) setData(asJixingTable(body)) })
-      .catch(() => { if (!controller.signal.aborted) setData(null) })
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
+      .then((body: unknown) => {
+        if (controller.signal.aborted) return
+        const parsed = asJixingTable(body)
+        if (!parsed) { setPageError('数据文件格式不对'); setData(null); return }
+        setData(parsed)
+        setPageError(null)
+      })
+      .catch((e: unknown) => {
+        if (controller.signal.aborted) return
+        setData(null)
+        setPageError(e instanceof Error ? e.message : '网络错误')
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
-  }, [])
+  }, [attempt])
   return (
     <Page className="mm-page jt-page">
       <PageTitle>今天几星 · 估值表</PageTitle>
       <JixingTabs />
       <p className="mm-disclaimer">{JIXING_DISCLAIMER}</p>
-      {loading ? <p role="status">正在读取指数估值…</p> : data ? <ValuationTable data={data} /> : (
+      {loading ? <p role="status">正在读取指数估值…</p> : pageError ? (
+        <LoadError reason="估值表这份读数现在拿不到。" detail={pageError} onRetry={retry} />
+      ) : data ? <ValuationTable data={data} /> : (
         <EmptyState title="暂无估值数据">完整估值数据将在交易日盘后更新。</EmptyState>
       )}
     </Page>
