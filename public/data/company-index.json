@@ -1,4 +1,4 @@
-{"version":1,"count":1551,"items":[
+{"version":1,"count":1556,"items":[
 {"c":"MSFT","n":"微软","m":"us","s":"信息技术","p":"wr","q":"weiruan"},
 {"c":"NVDA","n":"英伟达","m":"us","s":"信息技术","p":"ywd","q":"yingweida"},
 {"c":"AVGO","n":"博通","m":"us","s":"信息技术","p":"bt","q":"botong"},
@@ -501,6 +501,10 @@
 {"c":"XOM","n":"埃克森美孚","m":"us","s":"能源","p":"aksmf","q":"aikesenmeifu"},
 {"c":"XYL","n":"赛莱默","m":"us","s":"工业","p":"slm","q":"sailaimo"},
 {"c":"ZBRA","n":"斑马技术","m":"us","s":"信息技术","p":"bmjs","q":"banmajishu"},
+{"c":"HONA","n":"霍尼韦尔航空航天","m":"us","s":"工业","p":"hnwehkht","q":"huoniweierhangkonghangtian"},
+{"c":"OKTA","n":"Okta","m":"us","s":"信息技术"},
+{"c":"TWLO","n":"Twilio","m":"us","s":"信息技术"},
+{"c":"VYLR","n":"Vylor","m":"us","s":"日常消费"},
 {"c":"ALNY","n":"Alnylam","m":"ndx","s":"医疗保健"},
 {"c":"ALAB","n":"Astera Labs","m":"ndx","s":"信息技术"},
 {"c":"CCEP","n":"可口可乐欧洲太平洋","m":"ndx","s":"日常消费","p":"kkkloztpy","q":"kekoukeleouzhoutaipingyang"},
@@ -1549,5 +1553,6 @@
 {"c":"688777","n":"中控技术","m":"cn","s":"工业","p":"zkjs","q":"zhongkongjishu"},
 {"c":"688778","n":"厦钨新能","m":"cn","s":"工业","p":"xwxn","q":"xiawuxinneng"},
 {"c":"688819","n":"天能股份","m":"cn","s":"工业","p":"tngf","q":"tiannenggufen"},
-{"c":"688981","n":"中芯国际","m":"cn","s":"信息技术","p":"zxgj","q":"zhongxinguoji"}
+{"c":"688981","n":"中芯国际","m":"cn","s":"信息技术","p":"zxgj","q":"zhongxinguoji"},
+{"c":"002294","n":"信立泰","m":"cn","s":"医药卫生","p":"xlt","q":"xinlitai"}
 ]}

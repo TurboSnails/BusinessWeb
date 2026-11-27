@@ -100,8 +100,10 @@ describe('纳指100：单独分类', () => {
     expect(screen.getAllByText('同属标普500').length).toBeGreaterThan(40)
     expect(screen.getAllByRole('button', { name: /^全部 101$/ }).length).toBeGreaterThan(0)
     cleanup()
+    // HONA 2026-06-29 已进标普500：标普页签另列程序化初筛，纳指页签仍引用 ndx 手工研究页（上面「纳指新增」仍为 10）
     const us = await loadCompanies('us')
-    expect(us.some(c => NEW_CODES.includes(c.code))).toBe(false)
+    expect(us.filter(c => NEW_CODES.includes(c.code)).map(c => c.code)).toEqual(['HONA'])
+    expect(us.find(c => c.code === 'HONA')?.auto).toBe(true)
   })
 
   it('公司页展示交易所当地仍待披露的日程和日期口径，两个 DCF 入口保留同一价格日期', async () => {

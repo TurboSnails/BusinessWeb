@@ -216,8 +216,9 @@ export default function ResearchNotes(): JSX.Element {
 
   const usSectors = sectorsOf(usList)
   // 纳指页签：101只权益证券（100家公司）=引用已有研究页+10家手工研究（market为ndx）。
+  // ndx 手工研究页优先：HONA 已进标普500，标普页签另有程序化初筛条目，纳指页签仍引用手工研究页。
   const ndxByCode = new Map<string, Company>()
-  for (const c of [...usList, ...adrList, ...ndxNewList]) if (!ndxByCode.has(c.code)) ndxByCode.set(c.code, c)
+  for (const c of [...ndxNewList, ...usList, ...adrList]) if (!ndxByCode.has(c.code)) ndxByCode.set(c.code, c)
   // 本轮新增的 10 家排在最前（便于复核），其余按成分名单顺序
   const ndxAll = NDX_CODES.map(code => ndxByCode.get(code)).filter((c): c is Company => !!c)
   const ndxList = [...ndxAll.filter(c => c.market === 'ndx'), ...ndxAll.filter(c => c.market !== 'ndx')]
@@ -242,14 +243,22 @@ export default function ResearchNotes(): JSX.Element {
   // 评级归档规则见 features/signals/companySignals 的 ratingBucket（公司页信号汇总共用）
   const ratingOf = (c: { rating: string }): string => ratingBucket(c.rating)
   const hkScreenCount = hkList.filter(c => researchStage(c) === 'screen').length
+  // 覆盖说明里的家数从列表现算；「初筛」与列表成熟度徽标同口径（features/signals/maturity）
+  const usScreenCount = usList.filter(c => researchStage(c) === 'screen').length
+  const usConstituentAdds = usList.filter(c => c.batch.startsWith('补全·标普500成分')).map(c => c.code)
+  const cnScreenCount = cnList.filter(c => researchStage(c) === 'screen').length
+  const cnConstituentAdds = cnList.filter(c => c.batch.startsWith('补全·沪深300成分')).map(c => `${c.name} ${c.code}`)
   const hkOfficialAsOf = '2026-11-27' // 与 public/data/market-cycle-universes.json 恒指/恒科官方快照日一致
   const hkNote = `港股范围 = 恒指 + 恒科当期成分（恒生官方名单 ${hkOfficialAsOf}）∪ 主要 H 股龙头补充，共 ${hkList.length} 家；其中 ${hkScreenCount} 家为程序化初筛，尚无手工研究页。研究池不是纯官方指数口径，保留已调出成分与 H 股龙头补充。既有手工研究页数据来自东方财富：PE/PB/股息率直接取其已换算值（港股报告币种常与交易币种不同，不能自行用 EPS 除股价）；增速按财年窗口计算，并附最新中期利润同比。手工页曾按股票分析专家标准核读（aktools + 2026 中期业绩）；赣锋锂业、中国铝业、中国铁建、中国交建、中国建材、信义玻璃、信义光能等部分公司证据不全处标 [MISSING]。程序化初筛仅占位名单与板块，三情景/买入区/评级待研究；行情与估值由公司行情刷新工作流补齐。多数已研究公司盈亏比低于 1:1，评级以观察为主，反映价格已含较高预期而非数据缺失。`
+  const usCoverageNote = `本地共 ${usList.length} 条研究记录，其中 ${usScreenCount} 条成熟度为「初筛」（程序化补全或没有可用情景价）${usConstituentAdds.length ? `；按当期成分补入的初筛占位 ${usConstituentAdds.length} 家：${usConstituentAdds.join('、')}` : ''}。研究池每周与公开成分名单比对（datasets/s-and-p-500-companies，维基同步，非标普官方权重），缺少成分只告警；名单内保留已调出的历史对照，所以记录数不等于今日成分公司数，也不等于深研完成数。标普500官方口径为500家公司，股份类别条数另计。补入的初筛占位只有名单与板块，三情景、买入区与评级待研究；行情由公司行情刷新补齐。2026-10 审计时原 294 条补全记录中 238 条明确缺少 FCF、2 条带财报滞后提示。全池完成旧模型审计，不等同于逐家一手公告深研；未经本轮公告复核的记录保留上轮结论用于检索。`
+  const cnCoverageNote = `沪深市场没有名为「沪深500」的官方指数。本页的范围 = 沪深300（300 家大盘股）∪ 中证500（500 家中盘股）∪ 此前整理的产业链龙头中不在这两个指数内的补充公司，当前共 ${cnList.length} 家，其中 ${cnScreenCount} 家成熟度为「初筛」${cnConstituentAdds.length ? `（按中证官方成分补入的沪深300 成分：${cnConstituentAdds.join('、')}，尚无研究页）` : ''}。2026-10 整理时范围共 837 家、已覆盖 832 家（手工研究页 26 家 + 程序化页 806 家）；未覆盖 5 家：越秀资本（000987）、国盛证券（002670）、电投水电（600292）、永安期货（600927）——财务数据口径不适用本规则；九号公司（689009）——数据接口失败。A 股页面的业务描述取自同花顺主营介绍；沪深300 成分股补写了护城河、行业判断与公司特有风险的简述（初筛占位除外），中证500 成分股只有按中证行业分类的行业简述；评级用于筛选与排序。`
   const adrNote = '美股非标普研究池（2026-10-07 复核时66家）按地区分组覆盖：海外龙头30家、中概21家、新兴市场平台13家、新上市/热门2家；板块按 GICS 一级，地区分组见「地区」筛选；名单是自选研究池，不是官方指数。2026-10-07已逐家核读公司或监管财务原件，更新常规交易价快照、证券单位、财报期、一次性损益、旧结论修正与风险证伪。采用单模型多视角复核，15个批次每批3–5家。汇丰与道明银行有静态BV/ROE敏感性草案，全部66家均未完成两种独立估值认证；旧买入区、赔率及未经核实的美元EPS折算不作为当前结论。每家公司可打开本轮完整报告；缺证据标[MISSING]，不把缺证直接解释成经营恶化。'
   const ndxNote = (): string => {
     const sp = ndxList.filter(c => c.market === 'us').length
     const ad = ndxList.filter(c => c.market === 'adr').length
     const nw = ndxList.filter(c => c.market === 'ndx').length
-    return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx，不计入标普500。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
+    const alsoSp = ndxList.filter(c => c.market === 'ndx' && usList.some(u => u.code === c.code)).map(c => c.code)
+    return `纳指100 页签列出 ${ndxList.length} 只权益证券（GOOGL 与 GOOG 为同一公司两类股）：其中 ${sp} 只与标普500 重合、${ad} 只属于「美股非标普」，直接引用已有研究页；另有 ${nw} 家手工研究，市场标记为 ndx${alsoSp.length ? `（其中 ${alsoSp.join('、')} 已进标普500，标普500 页签另列程序化初筛条目，这里引用手工研究页）` : '，不计入标普500'}。${NDX_ASOF} 当前价格与采集时间逐家公司单列；原财务与模型不是本轮重新认证，估值仍为研究假设，不构成投资建议。`
   }
   const shownCompanies = secList.filter(c => matchValuationFilter(valuationF, c.valuation, c.marketRefresh) && (ratingF === '全部' || ratingOf(c) === ratingF) && (stageF === '全部' || researchStage(c) === stageF) && (!q.trim() || (c.name + c.code).toLowerCase().includes(q.trim().toLowerCase())))
 
@@ -807,10 +816,7 @@ export default function ResearchNotes(): JSX.Element {
 
                 <div className="ui-card rn-card">
                   <h3 className="rn-card-title">覆盖范围</h3>
-                  <p className="rn-text">
-                    本地共 504 条研究记录：210 条原有记录 + 294 条程序化补全。上轮按公开名单标注 502 条在指数内、2 条历史对照及 HONA 缺失；本轮未取得官方全量名单逐项确认，不能将 504 条记录等同于今日成分公司数或深研完成数。标普500官方口径为500家公司，股份类别条数另计。
-                    294 条补全记录中 238 条明确缺少 FCF、2 条带财报滞后提示。全池完成旧模型审计，不等同于逐家一手公告深研；未经本轮公告复核的记录保留上轮结论用于检索。
-                  </p>
+                  <p className="rn-text">{usCoverageNote}</p>
                 </div>
                 </div>)}
               </div>
@@ -867,11 +873,7 @@ export default function ResearchNotes(): JSX.Element {
 
                 <div className="ui-card rn-card">
                   <h3 className="rn-card-title">覆盖范围与「沪深500」的定义</h3>
-                  <p className="rn-text">
-                    沪深市场没有名为「沪深500」的官方指数。本页的范围 = 沪深300（300 家大盘股）∪ 中证500（500 家中盘股）∪ 此前整理的产业链龙头中不在这两个指数内的 37 家，共 837 家。已覆盖 832 家：手工研究页 26 家 + 程序化页 806 家（含此前只有产业链条目的公司）。
-                    未覆盖 5 家：越秀资本（000987）、国盛证券（002670）、电投水电（600292）、永安期货（600927）——财务数据口径不适用本规则；九号公司（689009）——数据接口失败。
-                    A 股页面的业务描述取自同花顺主营介绍；沪深300 成分股补写了护城河、行业判断与公司特有风险的简述，中证500 成分股只有按中证行业分类的行业简述；评级用于筛选与排序。
-                  </p>
+                  <p className="rn-text">{cnCoverageNote}</p>
                 </div>
                 </div>)}
               </div>

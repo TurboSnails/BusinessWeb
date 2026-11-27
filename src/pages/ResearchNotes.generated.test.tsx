@@ -96,7 +96,7 @@ describe('补全公司：研究笔记列表与详情', () => {
     renderAt('/research-notes?tab=category&m=us')
     expect(screen.getByText(/这里是作者的个人研究笔记/).textContent).toContain('不是买卖建议')
     fireEvent.click(screen.getByRole('button', { name: '覆盖与进度' }))
-    expect(screen.getByText(/本地共 504 条研究记录/)).toBeTruthy()
+    expect(screen.getByText(/本地共 \d+ 条研究记录/)).toBeTruthy()
   })
 
   it('补全候选详情准确区分公告复核和未认证的程序化模型', async () => {

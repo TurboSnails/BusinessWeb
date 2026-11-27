@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { writeReport } from './market-cycle-report.mjs'
 import { OUT_FILE } from './market-cycle-breadth.mjs'
 import { checkHkResearchConstituents } from './check-hk-research-constituents.mjs'
+import { checkResearchPoolConstituents } from './check-research-pool-constituents.mjs'
 
 const MAX_BREADTH_ROUNDS = 12 // 12 rounds x 40 requests = 480 requests budget
 const BREADTH_DEADLINE_MS = 8 * 60 * 1000
@@ -64,6 +65,9 @@ export async function update(run = runScript, report = writeReport, opts = {}) {
   }
   // 港股研究池 vs 官方恒指/恒科：只告警缺漏，不改名单、不计入 failures（不让工作流失败）
   try { checkHkResearchConstituents() } catch (error) { console.warn(`[hk-research-constituents] ${error.message}`) }
+  // 标普500 / 纳指100 / 沪深300 研究池 vs 当期成分：只告警；沪深300 复用刚刷新的 universes
+  // opts.checkResearchPools 可注入（update 单测跳过联网）；生产默认真实检查
+  try { await (opts.checkResearchPools ?? checkResearchPoolConstituents)() } catch (error) { console.warn(`[research-pool-constituents] ${error.message}`) }
   return report(failures)
 }
 function runScript(name, { timeoutMs } = {}) {
