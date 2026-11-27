@@ -1,5 +1,5 @@
 import React from 'react'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import InvestmentPlan2026 from './InvestmentPlan2026'
@@ -33,6 +33,68 @@ describe('再平衡检查器的示例与书第9章9.10一致', () => {
     fireEvent.click(screen.getByRole('button', { name: '作者案例' }))
     expect(names()).toContain('恒生科技')
     expect(targets().reduce((a, b) => a + b, 0)).toBe(100)
+  })
+})
+
+describe('再平衡检查器：撤销与输入校验（H2 / M9）', () => {
+  const amounts = () => screen.getAllByPlaceholderText('万元') as HTMLInputElement[]
+  const fillAmounts = (vals: string[]) => {
+    amounts().forEach((el, i) => fireEvent.change(el, { target: { value: vals[i] ?? '' } }))
+  }
+  const storedHoldings = () => JSON.parse(localStorage.getItem('plan2026:holdings') || '[]') as Array<{ amount: string; name: string }>
+
+  it('套用模板后可撤销，恢复原持仓与 localStorage', () => {
+    openAllocation()
+    fillAmounts(['10', '15', '20', '25'])
+    expect(storedHoldings().map(h => h.amount)).toEqual(['10', '15', '20', '25'])
+    fireEvent.click(screen.getByRole('button', { name: '保守档' }))
+    expect(screen.getByTestId('plan-holdings-undo').textContent).toContain('已套用保守档')
+    expect(amounts().every(a => a.value === '')).toBe(true)
+    expect(targets()).toEqual([18, 9, 3, 70])
+    fireEvent.click(screen.getByRole('button', { name: '撤销' }))
+    expect(screen.queryByTestId('plan-holdings-undo')).toBeNull()
+    expect(amounts().map(a => a.value)).toEqual(['10', '15', '20', '25'])
+    expect(storedHoldings().map(h => h.amount)).toEqual(['10', '15', '20', '25'])
+    expect(targets()).toEqual([30, 15, 5, 50])
+  })
+
+  it('删除行后可撤销，恢复该行与 localStorage', () => {
+    openAllocation()
+    fillAmounts(['10', '15', '20', '25'])
+    expect(names()).toHaveLength(4)
+    fireEvent.click(screen.getAllByRole('button', { name: '删除' })[0])
+    expect(names()).toHaveLength(3)
+    expect(names()).not.toContain('A股宽基')
+    expect(screen.getByTestId('plan-holdings-undo').textContent).toContain('已删除')
+    fireEvent.click(screen.getByRole('button', { name: '撤销' }))
+    expect(names()).toEqual(['A股宽基', '标普500', '红利低波', '中短债/纯债'])
+    expect(storedHoldings().map(h => h.name)).toEqual(['A股宽基', '标普500', '红利低波', '中短债/纯债'])
+    expect(storedHoldings().map(h => h.amount)).toEqual(['10', '15', '20', '25'])
+  })
+
+  it('负数、字母金额不参与计算，并带 aria-invalid 与错误提示', () => {
+    openAllocation()
+    fillAmounts(['10', '15', '20', '25'])
+    const first = amounts()[0]
+    fireEvent.change(first, { target: { value: '-30' } })
+    expect(first.getAttribute('aria-invalid')).toBe('true')
+    expect(screen.getAllByText('金额需 ≥ 0').length).toBeGreaterThanOrEqual(1)
+    expect(screen.queryByText(/-100\.0%/)).toBeNull()
+    fireEvent.change(first, { target: { value: 'abc' } })
+    expect(first.getAttribute('aria-invalid')).toBe('true')
+    expect(screen.getAllByText('请输入数字').length).toBeGreaterThanOrEqual(1)
+    // 其余三行 15+20+25=60，负/字母行不计入；占比应基于 60
+    expect(screen.getByText('25.0%')).toBeTruthy()
+  })
+
+  it('目标填负数显示「目标需 > 0」，不是「待填写」', () => {
+    openAllocation()
+    const tgt = screen.getByLabelText('目标占比 A股宽基') as HTMLInputElement
+    fireEvent.change(tgt, { target: { value: '-10' } })
+    expect(tgt.getAttribute('aria-invalid')).toBe('true')
+    const row = tgt.closest('tr')!
+    expect(within(row).getAllByText('目标需 > 0').length).toBeGreaterThanOrEqual(1)
+    expect(within(row).queryByText('待填写')).toBeNull()
   })
 })
 

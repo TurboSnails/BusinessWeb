@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../../components/ui'
 import {
@@ -9,30 +9,12 @@ import {
   formatSharePct,
 } from './labels'
 import type { CompositeFile, TierId } from './types'
+import {
+  RECOMMENDED_EQUITY_CAP,
+  useEquityCapInput,
+} from './useEquityCapInput'
 
-const EQUITY_CAP_KEY = 'mp-equity-cap'
-/** 建议上限（2026-11-25 起，以降低波动为目标；依据见说明书 v1.1.0 起的第二章与「研究中」页签；v1.2.0 写明按当前总值计算）。用户自己设过的值优先。 */
-export const RECOMMENDED_EQUITY_CAP = 80
-
-export function readEquityCap(): number {
-  try {
-    const raw = localStorage.getItem(EQUITY_CAP_KEY)
-    if (raw == null) return RECOMMENDED_EQUITY_CAP
-    const n = Number(raw)
-    if (!Number.isFinite(n)) return RECOMMENDED_EQUITY_CAP
-    return Math.min(100, Math.max(0, n))
-  } catch {
-    return RECOMMENDED_EQUITY_CAP
-  }
-}
-
-export function writeEquityCap(value: number): void {
-  try {
-    localStorage.setItem(EQUITY_CAP_KEY, String(value))
-  } catch {
-    /* ignore quota / private mode */
-  }
-}
+export { RECOMMENDED_EQUITY_CAP, readEquityCap, writeEquityCap } from './useEquityCapInput'
 
 function confidenceTone(level: 'high' | 'medium' | 'low'): 'accent' | 'neutral' | 'warm' {
   if (level === 'high') return 'accent'
@@ -76,50 +58,61 @@ function TierStrip({
 
 /** 股票上限输入；与综合策略页共用同一本地存储键。 */
 export function EquityCapInput({ equityShare }: { equityShare: number | null }): JSX.Element {
-  const id = useId()
-  const [cap, setCap] = useState(readEquityCap)
-  const [draft, setDraft] = useState(() => String(readEquityCap()))
+  const {
+    fieldId,
+    errorId,
+    hintId,
+    describedBy,
+    cap,
+    draft,
+    error,
+    correction,
+    isRecommended,
+    invalid,
+    onChange,
+    onBlur,
+    onKeyDown,
+    reset,
+  } = useEquityCapInput()
   const implied = equityShare == null || !Number.isFinite(equityShare)
     ? null
     : Math.round(cap * equityShare)
 
   return (
     <div className="mp-equity-cap" data-testid="mp-equity-cap">
-      <label htmlFor={id} className="mp-equity-cap__label">
+      <label htmlFor={fieldId} className="mp-equity-cap__label">
         你的股票仓位上限
       </label>
       <span className="mp-equity-cap__field">
         <input
-          id={id}
-          type="number"
-          min={0}
-          max={100}
-          step={1}
-          inputMode="numeric"
+          id={fieldId}
+          type="text"
+          inputMode="decimal"
           value={draft}
-          aria-describedby={`${id}-hint`}
-          onChange={e => {
-            const raw = e.target.value
-            setDraft(raw)
-            if (raw.trim() === '') return
-            const next = Number(raw)
-            if (!Number.isFinite(next)) return
-            const clamped = Math.min(100, Math.max(0, next))
-            setCap(clamped)
-            writeEquityCap(clamped)
-          }}
-          onBlur={() => {
-            setDraft(String(cap))
-          }}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
+          onChange={e => onChange(e.target.value)}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
         />
         <span aria-hidden="true">%</span>
       </span>
+      {isRecommended ? null : (
+        <button type="button" className="mp-equity-cap__reset" onClick={reset}>
+          改回 {RECOMMENDED_EQUITY_CAP}%
+        </button>
+      )}
+      {(error || correction) && (
+        <p id={errorId} className="mp-equity-cap__feedback" role="status" data-testid="mp-equity-cap-feedback">
+          {error || correction}
+        </p>
+      )}
       <p className="mp-equity-cap__def">「上限」就是你计划里的股票目标权重。</p>
       <p className="mp-equity-cap__def" data-testid="mp-equity-cap-recommend">
-        {cap === RECOMMENDED_EQUITY_CAP ? '这是建议值' : `建议 ${RECOMMENDED_EQUITY_CAP}%`}：以降低波动为目标，上限取打算投入美股资金的 {RECOMMENDED_EQUITY_CAP}%（每月按当前总值算），其余放现金或短期国债。历史上波动约 11% → 9%，最大回撤约 −33% → −27%，年化少约 1 个百分点。能承受更大波动可以调高。
+        {isRecommended ? '这是建议值' : `建议 ${RECOMMENDED_EQUITY_CAP}%`}：以降低波动为目标，上限取打算投入美股资金的 {RECOMMENDED_EQUITY_CAP}%（每月按当前总值算），其余放现金或短期国债。历史上波动约 11% → 9%，最大回撤约 −33% → −27%，年化少约 1 个百分点。能承受更大波动可以调高。
         {' '}<Link to="/invest/strategy/spec">依据</Link>
       </p>
-      <p id={`${id}-hint`} className="mp-equity-cap__hint" data-testid="mp-equity-cap-implied">
+      <p id={hintId} className="mp-equity-cap__hint" data-testid="mp-equity-cap-implied" aria-live="polite">
         {implied == null ? '暂不换算仓位' : `现在约 ${implied}%`}
       </p>
     </div>

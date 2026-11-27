@@ -14,6 +14,8 @@ export interface BacktestMarket {
 }
 export interface BacktestData { schemaVersion: 1; version: string; ruleVersion: string; asOf: string; method: Record<string, string>; limitations: string[]; horizons: number[]; markets: Partial<Record<Market, BacktestMarket>> }
 
+/** cycle-observation-v1.3-us-indexes → 1.3；读者只需要版本号，不需要内部标识 */
+const versionNo = (id: string): string => /-v(\d+(?:\.\d+)*)/.exec(id)?.[1] ?? id
 const pct = (v: number | null | undefined, digits = 1): string => (v == null ? '—' : `${(v * 100).toFixed(digits)}%`)
 const signed = (v: number | null | undefined, digits = 1): string => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(digits)}%`)
 export const validBacktest = (v: unknown): v is BacktestData => {
@@ -121,7 +123,7 @@ export default function CycleBacktest({ market }: { market: Market }): JSX.Eleme
           <ul>{Object.entries(data.method).map(([k, v]) => <li key={k}>{v}</li>)}</ul>
           <p><strong>局限</strong></p>
           <ul>{data.limitations.map(t => <li key={t}>{t}</li>)}</ul>
-          <p className="macro-muted">数据截至 {data.asOf}；规则版本 {data.ruleVersion}，回测版本 {data.version}。每周由 scripts/cycle-backtest.mjs 用同一份行情快照重算。</p>
+          <p className="macro-muted">数据截至 {data.asOf}；规则第 {versionNo(data.ruleVersion)} 版，回测第 {versionNo(data.version)} 版。每周用同一份行情快照自动重算。</p>
         </details>
       </>}
       <p className="macro-muted">另一条 ETF 择时规则（择时＋只认金叉）正在单独检验：<Link to="/lab/etf-timing">择时实验（观察中）</Link>。</p>

@@ -144,7 +144,7 @@ function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex:
     : null
   const flat = useMemo(() => sections.flatMap(s => s.items), [sections])
 
-  // 打开时记住原焦点并锁滚动，关闭时恢复
+  // 打开时记住原焦点并锁滚动，关闭时恢复；原元素已卸载（如 Enter 跳转后）则回落到顶栏「跳转」
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const previousOverflow = document.body.style.overflow
@@ -152,7 +152,11 @@ function Palette({ onClose, companyIndex }: { onClose: () => void; companyIndex:
     inputRef.current?.focus()
     return () => {
       document.body.style.overflow = previousOverflow
-      previous?.focus?.()
+      if (previous?.isConnected) {
+        previous.focus()
+        return
+      }
+      document.querySelector<HTMLElement>('.site-search-btn')?.focus()
     }
   }, [])
 

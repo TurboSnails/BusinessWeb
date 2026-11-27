@@ -3,8 +3,11 @@ const symbolPattern = /^(?:(sh|sz)\d{6}|hk\d{5})$/
 const usCandlePattern = /^us([A-Z][A-Z.-]{0,9})$/
 // r_hk 后接五位个股代码，或 HSI / HSTECH / HSCEI 等港股指数代码
 const quoteSymbolPattern = /^(?:(sh|sz)\d{6}|r_hk(?:\d{5}|[A-Z]{2,8})|us[A-Z0-9.]{1,10})$/
-/** 美股代码 → Yahoo 代码（BRK.B → BRK-B）；不合规返回 null。代码本身限定 ^[A-Z.-]{1,10}$ 且首字母 */
+// 美股指数只放行这三只（全球行情页美股 K 线用），不开放任意 ^ 代码
+const usIndexTickers = new Map([['us^GSPC', '^GSPC'], ['us^IXIC', '^IXIC'], ['us^DJI', '^DJI']])
+/** 美股代码 → Yahoo 代码（BRK.B → BRK-B）；不合规返回 null。代码本身限定 ^[A-Z.-]{1,10}$ 且首字母；指数见 usIndexTickers */
 export function yahooTickerOf(symbol) {
+  if (usIndexTickers.has(symbol)) return usIndexTickers.get(symbol)
   const m = typeof symbol === 'string' ? usCandlePattern.exec(symbol) : null
   if (!m || /[.-]{2}|[.-]$/.test(m[1])) return null
   return m[1].replace(/\./g, '-')

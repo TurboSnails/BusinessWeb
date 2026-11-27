@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, Search, X } from 'lucide-react'
 import { NAV_ITEMS, isNavActive } from '../data/siteMap'
@@ -6,6 +6,7 @@ import { useCommandPalette } from './CommandPalette'
 import { paletteShortcut } from '../utils/shortcut'
 
 const SHORTCUT = paletteShortcut()
+const NARROW_MQ = '(max-width: 767px)'
 
 function Leaf(): JSX.Element {
   return (
@@ -22,27 +23,95 @@ function Leaf(): JSX.Element {
   )
 }
 
+function setInert(el: Element | null, on: boolean): void {
+  if (!el) return
+  if (on) el.setAttribute('inert', '')
+  else el.removeAttribute('inert')
+}
+
 export default function Header(): JSX.Element {
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+  const [narrow, setNarrow] = useState(() =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia(NARROW_MQ).matches
+      : false,
+  )
   const palette = useCommandPalette()
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const drawerRef = useRef<HTMLElement>(null)
+  const wasOpen = useRef(false)
 
   // 路由变化时关闭抽屉
   useEffect(() => {
     setOpen(false)
   }, [pathname])
 
-  // 抽屉打开时锁定背景滚动，Esc 关闭
+  // 窄屏：搜索按钮 aria-label 不带快捷键
   useEffect(() => {
+    const mql = typeof window.matchMedia === 'function' ? window.matchMedia(NARROW_MQ) : null
+    if (!mql) return
+    const sync = () => setNarrow(mql.matches)
+    sync()
+    mql.addEventListener('change', sync)
+    return () => mql.removeEventListener('change', sync)
+  }, [])
+
+  // 抽屉打开时锁定背景滚动、inert 被遮住的页面、Esc 关闭并回焦；Tab 在菜单按钮与抽屉链接间循环
+  useEffect(() => {
+    const main = document.getElementById('main-content')
+    const footer = document.querySelector('footer.site-footer, footer')
+    const chrome = document.querySelector('.section-chrome')
+
     if (!open) {
       document.body.style.overflow = ''
+      setInert(main, false)
+      setInert(footer, false)
+      setInert(chrome, false)
+      if (wasOpen.current) {
+        wasOpen.current = false
+        // 关闭后焦点回到菜单按钮（原焦点可能已在被 inert 的页面上）
+        toggleRef.current?.focus()
+      }
       return
     }
+
+    wasOpen.current = true
     document.body.style.overflow = 'hidden'
+    setInert(main, true)
+    setInert(footer, true)
+    setInert(chrome, true)
+
+    const focusables = (): HTMLElement[] => {
+      const items: HTMLElement[] = []
+      if (toggleRef.current) items.push(toggleRef.current)
+      drawerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])').forEach(el => items.push(el))
+      return items
+    }
+
+    // 打开后把焦点放进抽屉第一个链接，避免停在被遮住的页面上
+    const firstLink = drawerRef.current?.querySelector<HTMLElement>('a[href]')
+    firstLink?.focus()
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setOpen(false)
+        return
+      }
+      if (e.key !== 'Tab') return
+      const list = focusables()
+      if (list.length === 0) return
+      const i = list.indexOf(document.activeElement as HTMLElement)
+      e.preventDefault()
+      if (e.shiftKey) {
+        list[(i <= 0 ? list.length : i) - 1]?.focus()
+      } else {
+        list[(i + 1) % list.length]?.focus()
+      }
     }
     document.addEventListener('keydown', onKey)
+
     // 旋转屏幕或拉宽窗口越过桌面断点时，抽屉已被 CSS 隐藏，要同步关闭并解除滚动锁
     const mql = typeof window.matchMedia === 'function' ? window.matchMedia('(min-width: 768px)') : null
     const onWide = (e: { matches: boolean }) => {
@@ -53,8 +122,13 @@ export default function Header(): JSX.Element {
       document.removeEventListener('keydown', onKey)
       mql?.removeEventListener('change', onWide)
       document.body.style.overflow = ''
+      setInert(main, false)
+      setInert(footer, false)
+      setInert(chrome, false)
     }
   }, [open])
+
+  const searchLabel = narrow ? '跳转到页面' : `跳转到页面（${SHORTCUT.spoken}）`
 
   return (
     <header className="site-header">
@@ -83,7 +157,7 @@ export default function Header(): JSX.Element {
         <button
           type="button"
           className="site-search-btn"
-          aria-label={`跳转到页面（${SHORTCUT.spoken}）`}
+          aria-label={searchLabel}
           onClick={() => {
             setOpen(false)
             palette.open()
@@ -95,6 +169,7 @@ export default function Header(): JSX.Element {
         </button>
 
         <button
+          ref={toggleRef}
           type="button"
           className="site-menu-btn"
           aria-label={open ? '关闭菜单' : '打开菜单'}
@@ -106,7 +181,7 @@ export default function Header(): JSX.Element {
       </div>
 
       {open && (
-        <nav className="site-drawer" aria-label="移动导航">
+        <nav ref={drawerRef} className="site-drawer" aria-label="移动导航">
           {NAV_ITEMS.map(item => {
             const active = isNavActive(item.path, pathname)
             return (

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { automaticRows, breadthIssue, parseAutomaticSnapshot, shadowState } from './automation'
+import { automaticRows, breadthIssue, factUsable, parseAutomaticSnapshot, shadowState } from './automation'
 import type { AutomaticFact, BreadthSnapshot } from './automation'
 import type { Evidence } from './engine'
 
@@ -10,6 +10,14 @@ const fact = (patch: Partial<AutomaticFact> = {}): AutomaticFact => ({ metricId:
 const row = (id: string, signal: Evidence['signal']): Evidence => ({ id, signal, available: signal !== 'missing', name: id, detail: '' })
 
 describe('自动证据与影子规则', () => {
+  it('亿牛停更后的第三方PE参考不因日频14天规则判过期', () => {
+    const frozen = fact({
+      market: 'hsi', metricId: 'pe_history_5y_percentile', value: 78.1, unit: '%',
+      observationDate: '2026-10-30', description: '来源已停更（截至 2026-10-30）；第三方恒指历史PE',
+    })
+    expect(factUsable(frozen, '2026-11-27')).toBe(true)
+    expect(factUsable(fact({ market: 'hsi', metricId: 'pe_history_5y_percentile', value: 78.1, unit: '%', observationDate: '2026-10-16' }), '2026-11-27')).toBe(false)
+  })
   it('官方五年月末分位与同日PE配对后形成估值票，第三方日频参考不覆盖它', () => {
     const pe = fact({ market: 'hsi', metricId: 'pe', value: 13.79, unit: '倍', frequency: 'monthly', observationDate: '2026-09-30' })
     const percentile = fact({ market: 'hsi', metricId: 'pe_official_5y_percentile', value: 84.166667, unit: '%', frequency: 'monthly', observationDate: '2026-09-30', description: '官方月报60/61个月，2025-01缺失未插值' })

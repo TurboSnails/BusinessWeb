@@ -5,6 +5,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import SectionChrome from './components/SectionChrome'
 import RouteSeo from './components/RouteSeo'
+import ScrollToHash from './components/ScrollToHash'
 import { CommandPaletteProvider } from './components/CommandPalette'
 import { useTrackRecent } from './features/recent-pages/useTrackRecent'
 import NotFound from './pages/NotFound'
@@ -169,6 +170,7 @@ export default function App(): JSX.Element {
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <CommandPaletteProvider>
         <RecentTracker />
+        <ScrollToHash />
         <RouteSeo />
         <Header />
         <SectionChrome />

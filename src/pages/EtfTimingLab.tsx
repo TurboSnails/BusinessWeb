@@ -310,7 +310,7 @@ export default function EtfTimingLab({ now }: { now?: Date } = {}): JSX.Element 
         <ul className="et-links">
           <li><Link to="/monitor?tab=market-cycle">牛熊周期</Link>：站内「趋势防守」规则的样本内回测，结论相近——回撤降低、没有择时能力。</li>
           <li><a href={SCRIPTS} target="_blank" rel="noreferrer">脚本与数据</a>：策略代码、回测、影子运行与冻结名单，可复跑。</li>
-          <li>验证标准与进度记录在仓库 docs/TODO-投资工具优化.md。</li>
+          <li>验证标准与进度记录在本站仓库的「投资工具优化」待办文档里。</li>
         </ul>
       </section>
     </Page>

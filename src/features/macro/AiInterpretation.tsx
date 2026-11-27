@@ -16,6 +16,7 @@ import type { MacroSnapshot } from './indicators'
 import type { CnKey } from './china'
 import { buildDigest } from './digest'
 import { QUALITY_LABEL, checkQuality, type QualityReport } from './quality'
+import { qualityItemName } from './qualityNames'
 import BridgeSetup from '../../components/valuation/BridgeSetup'
 import { backendLabel, loginHintForError } from '../../components/valuation/backends'
 import NoCliHint, { noCliDetected } from '../../components/valuation/NoCliHint'
@@ -160,7 +161,7 @@ export default function AiInterpretation({ us, cn, onRefresh }: Snapshots & { on
       }
       // 2. 再体检：异常与缺失的读数不交给模型，过期的打上标记
       const quality = checkQuality(data.us, data.cn)
-      pendingQuality.current = { counts: quality.counts, issues: quality.issues.map(i => `${i.country}·${i.key}：${QUALITY_LABEL[i.quality]}`), refreshed }
+      pendingQuality.current = { counts: quality.counts, issues: quality.issues.map(i => `${i.country}·${qualityItemName(i.country, i.key)}：${QUALITY_LABEL[i.quality]}`), refreshed }
       store.set(JOB_KEY + '-quality', pendingQuality.current)
       setStatus('正在启动解读')
       const value = await startMacroInterpretation({ backend, modelId: model, digest: buildDigest(data.us, data.cn, quality) })

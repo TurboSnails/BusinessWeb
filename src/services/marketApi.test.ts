@@ -169,6 +169,29 @@ describe('restricted market APIs', () => {
     }
     expect(f).not.toHaveBeenCalled()
   })
+  it('美股指数日线：只放行标普 500、纳指综合、道指三只 ^ 代码，其它 ^ 代码一律拒绝', async () => {
+    const f = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify({ chart: { result: [{
+      meta: { currency: 'USD', exchangeTimezoneName: 'America/New_York' },
+      timestamp: [1794493800], indicators: { quote: [{ open: [6800], close: [6850], high: [6860], low: [6790], volume: [5_000_000_000] }] },
+    }] } }))); vi.stubGlobal('fetch', f)
+    for (const [symbol, ticker] of [['us^GSPC', '^GSPC'], ['us^IXIC', '^IXIC'], ['us^DJI', '^DJI']]) {
+      f.mockClear()
+      const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol, begin: '2023-11-14', end: '2026-11-14' } }, res)
+      expect(res.statusCode, symbol).toBe(200)
+      const url = new URL(f.mock.calls[0][0])
+      expect(url.hostname).toBe('query1.finance.yahoo.com')
+      expect(decodeURIComponent(url.pathname)).toBe(`/v8/finance/chart/${ticker}`)
+      expect((res.body as { data: Record<string, { day: unknown[] }> }).data[symbol].day).toEqual([['2026-11-12', 6800, 6850, 6860, 6790, 5_000_000_000]])
+    }
+    f.mockClear()
+    for (const symbol of ['us^VIX', 'us^RUT', 'us^gspc', '^GSPC', 'us^GSPC1', 'us^GSPC/../x', 'us%5EGSPC', 'us^']) {
+      const rejected = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol, begin: '2026-01-01', end: '2026-10-02' } }, rejected)
+      expect(rejected.statusCode, symbol).toBe(400)
+    }
+    const quotes = response(); await handleMarket({ method: 'GET', query: { kind: 'quotes', symbols: 'us^GSPC' } }, quotes)
+    expect(quotes.statusCode).toBe(400)
+    expect(f).not.toHaveBeenCalled()
+  })
   it('美股日线：Yahoo 404（代码不存在）返回空日线；其它错误 502', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('{"chart":{"result":null,"error":{"code":"Not Found"}}}', { status: 404 })))
     const res = response(); await handleMarket({ method: 'GET', query: { kind: 'candles', symbol: 'usZZZZ', begin: '2026-01-01', end: '2026-10-02' } }, res)

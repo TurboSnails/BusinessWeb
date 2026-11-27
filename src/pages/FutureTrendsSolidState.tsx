@@ -14,9 +14,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
   return <section id={id} className="solid-section" aria-labelledby={`${id}-title`}><h2 id={`${id}-title`}>{title}</h2>{children}</section>
 }
 function Listings({ company }: { company: McpCompany | undefined }): JSX.Element {
-  if (!company?.listings.length) return <p className="solid-meta">[MISSING] 独立上市主体 / 代码待核</p>
+  if (!company?.listings.length) return <p className="solid-meta">未取得 独立上市主体 / 代码待核</p>
   return <div>{company.listings.map(l => <p className="solid-meta" key={l.symbol}>
-    <a href={rawUrl(l.source)} target="_blank" rel="noreferrer">{l.symbol}</a> · {l.available ? `${l.currency} ${l.price}` : '[MISSING] 数据源空资料'}
+    <a href={rawUrl(l.source)} target="_blank" rel="noreferrer">{l.symbol}</a> · {l.available ? `${l.currency} ${l.price}` : '未取得 数据源空资料'}
     {l.available && <><br />{l.marketTime} · {l.timezone}<br />PE TTM：{l.peTtm?.toFixed(1) ?? '不适用 / 缺失'} · 数据可能延迟</>}
   </p>)}</div>
 }
@@ -40,7 +40,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <p className="solid-lead">从材料突破，到可持续的量产利润</p>
       <p><strong>综合结论：观察，等待商业化证据。</strong>研究重点放在可验证的材料复购、专用设备验收和电芯单位经济。半固态的商业交付，不能直接证明全固态已实现低成本规模生产。</p>
       <p>按 stock-analysis 五步方法开展产业专题复核，研究期限至 2027 年底，并持续验证更长期的成本与现金回报。{companies.length} 家专题公司、{MCP.stats.extendedCompanies} 家原树延伸对照及 {MCP.stats.supplementalCompanies} 家补充候选，均可进入独立公司研究页；其中 {FOCUS.length} 家有重点专题分析。</p>
-      <p className="solid-meta">本轮通过 Yahoo Finance 与 AKShare MCP 重新核对公司资料、行情与财报：原树 {MCP.stats.originalWithQuotes} / {MCP.stats.originalCompanies} 家取得有效行情，{MCP.stats.normalizedH1} 家完成 H1 财务标准化，另补 {MCP.stats.officialH1Summaries} 家公司原件摘要。二手数据与公告核对结果分开标记；EPS×PE 保留为待验证草稿，PB 和现金质量检查不能代替独立估值。固态分部利润与单位经济仍是 [MISSING]。</p>
+      <p className="solid-meta">本轮通过 Yahoo Finance 与 AKShare MCP 重新核对公司资料、行情与财报：原树 {MCP.stats.originalWithQuotes} / {MCP.stats.originalCompanies} 家取得有效行情，{MCP.stats.normalizedH1} 家完成 H1 财务标准化，另补 {MCP.stats.officialH1Summaries} 家公司原件摘要。二手数据与公告核对结果分开标记；EPS×PE 保留为待验证草稿，PB 和现金质量检查不能代替独立估值。固态分部利润与单位经济仍是 未取得。</p>
       <Link to="/industry-landscape">查看产业格局原始固态电池树 →</Link>
     </section>
     <nav className="solid-nav" aria-label="固态电池专题索引">
@@ -80,7 +80,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
         <div><h3>真正的分歧</h3><p>判断：市场可能将实验室参数、规划产能和客户合作提前折算为利润。本轮已补现价，但尚无经过独立双方法验证的市场预期模型，不能证明存在错误定价。应比较“性能提升带来的可收取溢价”和“新增材料、制造、质保及资本成本”。</p></div>
         <div><h3>谁先兑现</h3><p>判断：设备可能先获得中试收入，材料需要稳定复购，电芯需要质量与成本同时达标。设备早收入也可能是一次性研发支出；材料高价值量也可能随减薄、降耗和竞争下降。</p></div>
         <div><h3>竞争基准持续移动</h3><p>判断：固态需要面对持续升级的液态锂电，而非静态旧产品。高端乘用车看续航与溢价；储能看全生命周期度电成本；飞行器看系统能量密度、倍率、寿命和认证，三个市场不能合并套同一渗透率。</p></div>
-        <div><h3>市场空间怎么算</h3><p>TAM 是满足性能需求的潜在应用；SAM 只包含成本与认证达标的应用；SOM 还需受客户定点、产能、良率与竞争份额限制。可服务需求 = 应用数量 × 单机电量 × 可接受渗透率，收入再乘单价；本轮输入 [MISSING]，不引用原树无出处 GWh / CAGR。</p></div>
+        <div><h3>市场空间怎么算</h3><p>TAM 是满足性能需求的潜在应用；SAM 只包含成本与认证达标的应用；SOM 还需受客户定点、产能、良率与竞争份额限制。可服务需求 = 应用数量 × 单机电量 × 可接受渗透率，收入再乘单价；本轮输入 未取得，不引用原树无出处 GWh / CAGR。</p></div>
       </div>
       <p>PM 七问收口：错误定价和现价隐含预期未证实；现在研究的依据是已有产品与中试披露；证明变量是复购、验收、单位毛利和回款；反证是延迟、负毛利与摊薄；上述变量改变结论；关键缺项是固态分部财务、可校准的预测与第二种独立估值。</p>
     </Section>
@@ -88,7 +88,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <p>口径：半固态 / 固液混合仍保留液相；全固态的判断应查具体组成、判定方法和测试条件。本页不沿用原树按液相比例自行划分的固定界限。凝聚态、硅碳或高能量密度也不能仅凭名称视为全固态。</p>
       <div className="solid-grid">{ROUTES.map(([name, tradeoff, business]) => <div key={name}><h3>{name}</h3><p>{tradeoff}</p><p><strong>产业观察：</strong>{business}</p></div>)}</div>
       <p className="solid-meta">以上为技术与产业分析判断，路线并非互斥分类。性能比较须同时列电芯容量 / 层数、温度、倍率、运行压力、循环截止容量、能量密度层级和良率定义；缺测试条件的单个数字不用于排名。固态体系仍需检验短路、热失控与系统安全。</p>
-      <p>海外历史对照：丰田与出光 2023 年公告提出硫化物电解质合作与 2027–2028 商业化目标。该文件 [STALE]，只能说明当时路线和规划，不能当作本轮已确认的投产日期。</p><SourceLinks ids={['toyota', 'gotion', 'equipment']} />
+      <p>海外历史对照：丰田与出光 2023 年公告提出硫化物电解质合作与 2027–2028 商业化目标。该文件已超过 90 天，只能说明当时路线和规划，不能当作本轮已确认的投产日期。</p><SourceLinks ids={['toyota', 'gotion', 'equipment']} />
     </Section>
     <Section id="solid-2" title="价值链：谁付钱，利润在哪里，现金何时回来">
       <div className="solid-table"><table><thead><tr>{['环节', '赚钱机制', '主导变量', '最大反证'].map(x => <th key={x} scope="col">{x}</th>)}</tr></thead><tbody>{CHAIN.map(row => <tr key={row[0]}>{row.map((x, i) => <td key={i}>{x}</td>)}</tr>)}</tbody></table></div>
@@ -120,7 +120,7 @@ export default function FutureTrendsSolidState(): JSX.Element {
       <p className="solid-meta">金额为各自财报币种的“亿”，人民币与美元不横向相加。流量 = 数据源 Q1 + Q2；简化 FCF = 经营现金流 − 数据源资本支出，并非 FCFF 或可分配现金。数据源滚动摘要和 H1 不能混用，缺季不拼 TTM。</p>
       <div className="solid-table"><table><thead><tr>{['公司', '财报币种', '收入', '归母 / 普通股净利', '经营现金流', '资本支出', '简化 FCF', '核对状态 / 原始报表'].map(t => <th key={t} scope="col">{t}</th>)}</tr></thead><tbody>{FOCUS.map(c => {
         const f = mcpCompany(c.name)?.financials
-        return <tr key={c.id}><td><Link to={solidCompanyPath(mcpCompany(c.name)!)}>{c.name}</Link></td><td>{f?.currency ?? '[MISSING]'}</td><td>{amount(f?.revenue)}</td><td>{amount(f?.netIncome)}</td><td>{amount(f?.cfo)}</td><td>{amount(f?.capex)}</td><td>{amount(f?.fcf)}</td><td>{PRIMARY_CHECKS[c.name] ?? '第三方标准化；尚未完成公告逐项核对。'}{f?.sources.map((path, i) => <div key={path}><a href={rawUrl(path)} target="_blank" rel="noreferrer">{f.sourceKind === 'filing' ? '公司原件摘要摘录' : `${['利润表', '资产负债表', '现金流量表'][i]}原始 MCP 返回`}</a></div>)}</td></tr>
+        return <tr key={c.id}><td><Link to={solidCompanyPath(mcpCompany(c.name)!)}>{c.name}</Link></td><td>{f?.currency ?? '未取得'}</td><td>{amount(f?.revenue)}</td><td>{amount(f?.netIncome)}</td><td>{amount(f?.cfo)}</td><td>{amount(f?.capex)}</td><td>{amount(f?.fcf)}</td><td>{PRIMARY_CHECKS[c.name] ?? '第三方标准化；尚未完成公告逐项核对。'}{f?.sources.map((path, i) => <div key={path}><a href={rawUrl(path)} target="_blank" rel="noreferrer">{f.sourceKind === 'filing' ? '公司原件摘要摘录' : `${['利润表', '资产负债表', '现金流量表'][i]}原始 MCP 返回`}</a></div>)}</td></tr>
       })}</tbody></table></div>
       <div className="solid-grid">{FOCUS.map(c => <div key={c.id} id={`solid-company-${c.id}`} className="solid-company">
         <h3><Link to={solidCompanyPath(mcpCompany(c.name)!)}>{c.name} · 完整研究 →</Link></h3><p>{c.conclusion}</p><p>{cashAssessment(mcpCompany(c.name))}</p>
@@ -149,9 +149,9 @@ export default function FutureTrendsSolidState(): JSX.Element {
     </Section>
     <Section id="solid-8" title="来源与口径：每条证据支持到哪里">
       <p>公司池来源：<a href={`${import.meta.env.BASE_URL}industry/solid-state.json`} target="_blank" rel="noreferrer">产业格局原始树</a>。原树未标日期；其历史成本、渗透率、市场规模、量产年份、份额、星级和配置比例未被本轮认证。公司池只迁移名称与位置。</p>
-      <ul className="solid-sources">{SOURCES.map(s => <li id={`solid-source-${s.id}`} key={s.id}><a href={s.id === 'mcp' ? rawUrl('research/solid-state-mcp-2026-10-09/manifest.json') : s.url} target="_blank" rel="noopener noreferrer">{s.title}</a><div>{s.date} · {s.status}</div></li>)}</ul>
-      <p>网页材料统一于 {AS_OF} 查阅或定位；网页无发布日期时不推断时效。超过 90 天的历史原件标 [STALE]；报告期早于披露日期不能混同。产品网页支持产品存在或公司自述，不能证明上市代码、收入占比或客户排他性。</p>
-      <p>[MISSING] 清单：全池法律主体与上市状态逐一核验、固态分部销量 / 收入 / 毛利、单位成本与合格率、ROIC / 净杠杆完整标准化、市场一致预期、赣锋 A/H 会计差异桥、项目 rNPV 与未来摊薄。本轮行情和标准化报表来自真实 Yahoo Finance MCP 调用；AKShare MCP 提供腾讯行情、同花顺摘要和港股指标交叉检查。公告逐项核对范围见 H1 表格，不把第三方全表自动升级为已认证。未取得原件不等于经营恶化。</p>
+      <ul className="solid-sources">{SOURCES.map(s => <li id={`solid-source-${s.id}`} key={s.id}><a href={s.id === 'mcp' ? rawUrl('research/solid-state-mcp-2026-10-09/manifest.json') : s.url} target="_blank" rel="noopener noreferrer">{s.title}</a><div>{s.date.replace('[STALE]', '· 旧资料')} · {s.status}</div></li>)}</ul>
+      <p>网页材料统一于 {AS_OF} 查阅或定位；网页无发布日期时不推断时效。超过 90 天的历史原件标「旧资料」；报告期早于披露日期不能混同。产品网页支持产品存在或公司自述，不能证明上市代码、收入占比或客户排他性。</p>
+      <p>尚未取得：全池法律主体与上市状态逐一核验、固态分部销量 / 收入 / 毛利、单位成本与合格率、ROIC / 净杠杆完整标准化、市场一致预期、赣锋 A/H 会计差异桥、项目 rNPV 与未来摊薄。本轮行情和标准化报表来自真实 Yahoo Finance MCP 调用；AKShare MCP 提供腾讯行情、同花顺摘要和港股指标交叉检查。公告逐项核对范围见 H1 表格，不把第三方全表自动升级为已认证。未取得原件不等于经营恶化。</p>
       <p>既有研究处理：保留可回溯原件的主营事实；原树无出处的供应份额、盈利预测、成本和配置建议不迁移为本轮结论；旧公司研究独立保留，其行情日期与模型有效性需在原页审阅。</p>
     </Section>
     <p className="solid-disclaimer">本报告仅供研究参考，不构成个人投资建议。</p>

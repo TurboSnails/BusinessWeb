@@ -1,5 +1,5 @@
 // Automatic fact collection for the long-cycle board: CSI300 ERP z-score, HSI/HSTECH monthly PE,
-// margin buying, FRED HKD, Yahoo CNH, SSE ETF shares. Facts only; no signals, no trading claims.
+// SSE+SZSE official margin buying, FRED HKD, Yahoo CNH, SSE/SZSE ETF shares. Facts only; no signals, no trading claims.
 // Each source is isolated (own timeout); a failed source keeps its previous facts with the original dates.
 import { readFile, writeFile, rename } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
@@ -8,7 +8,7 @@ import { collectHkLiquidity } from './market-cycle-liquidity.mjs'
 import { collectHsiPeHistory } from './market-cycle-hk-pe-history.mjs'
 import { officialMonthlyPePercentile } from './market-cycle-hk-official-pe.mjs'
 import { collectLatestRoundup, ROUNDUP_URL } from './market-cycle-hk-roundup.mjs'
-import { collectCnFunding } from './market-cycle-cn-funding.mjs'
+import { collectCnFunding, collectExchangeMarginBuy } from './market-cycle-cn-funding.mjs'
 import { collectCnTurnover, CN_TURNOVER_CACHE } from './market-cycle-cn-turnover.mjs'
 import { collectHsiTurnover } from './market-cycle-hsi-turnover.mjs'
 import { collectUsForwardPe } from './market-cycle-us-valuation.mjs'
@@ -49,6 +49,17 @@ export const ETF_WHITELIST = [
   { code: '513130', name: '恒生科技', market: 'hstech', label: '华泰柏瑞恒生科技ETF' },
   { code: '513180', name: '恒指科技', market: 'hstech', label: '华夏恒生科技ETF' },
 ]
+// SZSE counterparts for the same panel themes (CSI300 / HSI / HSTECH). Names must match 深交所 ETF 列表「证券简称」.
+// Source: 深交所 ETF 列表 CATALOGID=1945 xlsx / 基金列表 1105 的 dqgm（万份）；规模日取 JSON 表头中的 T 日（T+1 早间确认）。
+export const SZSE_ETF_WHITELIST = [
+  { code: '159919', name: '沪深300ETF嘉实', market: 'csi300', label: '嘉实沪深300ETF', ssePeer: '510300' },
+  { code: '159925', name: '沪深300ETF南方', market: 'csi300', label: '南方沪深300ETF', ssePeer: '510330' },
+  { code: '159920', name: '恒生ETF华夏', market: 'hsi', label: '华夏恒生ETF', ssePeer: '513660' },
+  { code: '159740', name: '恒生科技ETF大成', market: 'hstech', label: '大成恒生科技ETF', ssePeer: '513130' },
+  { code: '159742', name: '恒生科技ETF博时', market: 'hstech', label: '博时恒生科技ETF', ssePeer: '513180' },
+]
+export const SZSE_ETF_JSON_URL = 'https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1945&TABKEY=tab1&PAGENO=1'
+export const SZSE_ETF_XLSX_URL = 'https://www.szse.cn/api/report/ShowReport?SHOWTYPE=xlsx&CATALOGID=1945&TABKEY=tab1'
 
 const isDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
 const isIso = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(s) && !Number.isNaN(Date.parse(s))
@@ -351,7 +362,8 @@ async function collectHstechRoundup(ctx) {
   return facts
 }
 
-// ---------- margin buying ----------
+// ---------- margin buying (SSE + SZSE official; never Eastmoney fallback) ----------
+/** @deprecated kept for unit tests that still feed Eastmoney-shaped fixtures */
 export function parseMargin(body) {
   const row = body?.result?.data?.[0]
   const date = String(row?.DIM_DATE ?? '').slice(0, 10)
@@ -360,11 +372,10 @@ export function parseMargin(body) {
   return { date, yi: yuan / 1e8 }
 }
 async function collectMargin(ctx) {
-  const url = `${URLS.margin}?reportName=RPTA_RZRQ_LSHJ&columns=DIM_DATE,RZMRE&pageNumber=1&pageSize=1&sortColumns=DIM_DATE&sortTypes=-1&source=WEB&client=WEB`
-  const m = parseMargin(await ctx.get(url))
+  const m = await collectExchangeMarginBuy(ctx, { cacheDir: ctx.cnTurnoverOptions?.cacheDir ?? process.env.MARKET_CYCLE_CN_TURNOVER_CACHE_DIR ?? CN_TURNOVER_CACHE })
   return [{
-    metricId: 'financing_buy', market: 'all', value: round(m.yi, 2), observationDate: m.date, source: url, unit: '亿元', kind: 'observed', frequency: 'daily',
-    description: '沪深两市合计融资买入额原值(东财RPTA_RZRQ_LSHJ.RZMRE，元÷1e8)；同范围成交额分母未核定，故不计占比',
+    metricId: 'financing_buy', market: 'all', value: round(m.yi, 2), observationDate: m.date, source: m.source, unit: '亿元', kind: 'observed', frequency: 'daily',
+    description: m.description,
   }]
 }
 
@@ -491,10 +502,73 @@ async function collectEtf(ctx) {
     if (Array.isArray(body?.result) && !body.result.length) continue // not published yet / holiday
     return parseSseEtf(body, day).map(({ w, value }) => ({
       metricId: `etf_shares_${w.code}`, market: w.market, value, observationDate: day, source: url, unit: '万份', kind: 'observed', frequency: 'daily',
-      description: `上交所披露${w.label}(${w.code})总份额，单只白名单产品，不是宽基合计，不含深市产品`,
+      description: `上交所披露${w.label}(${w.code})总份额，单只白名单产品，不是宽基合计`,
     }))
   }
   throw new Error('近7天上交所无ETF份额数据')
+}
+
+/** Extract the scale date embedded in 深交所 ETF 列表 dqgm column header, e.g. （2026-11-26）. */
+export function parseSzseEtfScaleDate(body) {
+  if (!Array.isArray(body)) throw new Error('深交所ETF列表响应无效')
+  const table = body.find(t => t?.metadata?.catalogid === '1945' && t.metadata.tabkey === 'tab1')
+  if (!table) throw new Error('深交所ETF列表缺失')
+  const col = String(table.metadata?.cols?.dqgm ?? '')
+  const m = /（(\d{4}-\d{2}-\d{2})）|\((\d{4}-\d{2}-\d{2})\)/.exec(col)
+  const date = m?.[1] ?? m?.[2]
+  if (!isDate(date)) throw new Error('深交所ETF规模日无效')
+  return date
+}
+
+/**
+ * cells from market-cycle-xlsx.py on CATALOGID=1945 xlsx.
+ * Header: 证券代码 / 证券简称 / 拟合指数 / 当前规模(份) / 基金管理人.
+ * Returns whitelist hits with value in 万份 (份÷10000).
+ */
+export function parseSzseEtfXlsx(cells, date) {
+  if (!isDate(date) || !Array.isArray(cells) || !cells.length) throw new Error('深交所ETF表格无效')
+  const byRow = new Map()
+  for (const cell of cells) {
+    if (!cell || !Number.isInteger(cell.r) || typeof cell.c !== 'string') continue
+    const row = byRow.get(cell.r) ?? {}
+    row[cell.c] = cell.v
+    byRow.set(cell.r, row)
+  }
+  const header = [...byRow.entries()].find(([, r]) => r.A === '证券代码' && r.B === '证券简称' && String(r.D ?? '').includes('当前规模'))
+  if (!header) throw new Error('深交所ETF表头不符')
+  const byCode = new Map()
+  for (const [r, row] of byRow) {
+    if (r === header[0]) continue
+    const code = String(row.A ?? '').trim()
+    if (!/^\d{6}$/.test(code)) continue
+    const name = String(row.B ?? '').trim()
+    const raw = String(row.D ?? '').replaceAll(',', '').trim()
+    const shares = Number(raw)
+    if (!Number.isFinite(shares) || shares <= 0) throw new Error(`深交所ETF ${code}份额无效`)
+    byCode.set(code, { name, valueWan: Number((shares / 1e4).toFixed(2)) })
+  }
+  const facts = []
+  for (const w of SZSE_ETF_WHITELIST) {
+    const row = byCode.get(w.code)
+    if (!row) throw new Error(`深交所ETF缺少白名单产品${w.code}`)
+    if (row.name !== w.name) throw new Error(`深交所ETF ${w.code}名称不符：${row.name}`)
+    facts.push({ w, value: row.valueWan })
+  }
+  return facts
+}
+
+async function collectSzseEtf(ctx) {
+  const headers = { Referer: 'https://www.szse.cn/' }
+  const meta = await ctx.get(SZSE_ETF_JSON_URL, { headers })
+  const day = parseSzseEtfScaleDate(meta)
+  if ((Date.parse(ctx.now.slice(0, 10)) - Date.parse(day)) / 864e5 > 7) throw new Error(`深交所ETF规模日${day}超过7天`)
+  const buffer = await ctx.get(SZSE_ETF_XLSX_URL, { as: 'buffer', headers, timeoutMs: 30000 })
+  if (!Buffer.isBuffer(buffer) || buffer.length < 1000 || buffer.length > 5e6 || buffer.subarray(0, 2).toString() !== 'PK') throw new Error('深交所ETF文件不是有效xlsx')
+  const cells = await ctx.parseXlsx(buffer)
+  return parseSzseEtfXlsx(cells, day).map(({ w, value }) => ({
+    metricId: `etf_shares_${w.code}`, market: w.market, value, observationDate: day, source: SZSE_ETF_XLSX_URL, unit: '万份', kind: 'observed', frequency: 'daily',
+    description: `深交所披露${w.label}(${w.code})当前规模，单只白名单产品（对应上交所${w.ssePeer}主题），单位万份；规模观测日${day}为交易所表头标注的T日（T+1早间确认），不是抓取日`,
+  }))
 }
 
 export const SOURCES = [
@@ -508,6 +582,7 @@ export const SOURCES = [
   { id: 'fred-hkd', produces: [['hkd', 'all']], run: collectHkd },
   { id: 'yahoo-cnh', produces: [['cnh', 'all']], run: collectCnh },
   { id: 'sse-etf', produces: ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectEtf },
+  { id: 'szse-etf', produces: SZSE_ETF_WHITELIST.map(w => [`etf_shares_${w.code}`, w.market]), run: collectSzseEtf },
   { id: 'hk-south', produces: [['hk_south_20d', 'all']], run: collectSouthbound },
   { id: 'hk-liquidity', produces: [['turnover_ratio_52w', 'hstech']], run: collectHkLiquidity },
   { id: 'us-fwd-pe', produces: [['fwd_pe', 'spx'], ['fwd_pe_5y_percentile', 'spx'], ['fwd_pe', 'ndx'], ['fwd_pe_5y_percentile', 'ndx']], run: collectUsForwardPe },

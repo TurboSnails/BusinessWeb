@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { SIGNALS, computeStage, signalTone, type Stage } from '../features/macro/stages'
 import { ageInDays, signalValues } from '../features/macro/indicators'
 import { signalReadout } from '../features/macro/readout'
@@ -78,6 +78,24 @@ function usePersisted<T>(key: string, initial: T): [T, React.Dispatch<React.SetS
 const num = (s: string) => (s.trim() === '' ? NaN : parseFloat(s))
 const fmtMoney = (n: number) => (Number.isFinite(n) ? n.toLocaleString('zh-CN', { maximumFractionDigits: 1 }) : '—')
 const fmtPct = (n: number, d = 1) => (Number.isFinite(n) ? `${n.toFixed(d)}%` : '—')
+
+/** 金额：空=未填；须为 ≥0 的数字才参与合计与再平衡。 */
+function amountError(raw: string): string | null {
+  if (raw.trim() === '') return null
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return '请输入数字'
+  if (n < 0) return '金额需 ≥ 0'
+  return null
+}
+
+/** 目标占比：空=未填；须 > 0。 */
+function targetError(raw: string): string | null {
+  if (raw.trim() === '') return null
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return '请输入数字'
+  if (n <= 0) return '目标需 > 0'
+  return null
+}
 const dayDiff = (a: Date, b: Date) =>
   Math.round((Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()) - Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())) / 86400000)
 
@@ -338,6 +356,12 @@ interface Holding {
   band: string // 相对偏离阈值 %
   amount: string // 当前金额
 }
+
+function cloneHoldings(rows: Holding[]): Holding[] {
+  return rows.map(r => ({ ...r }))
+}
+
+type HoldingsUndo = { message: string; snapshot: Holding[] }
 
 // 书第9章9.10「先用宽基搭底仓」：权益占比是档位旋钮，权益内 A股宽基60%、标普500 30%、红利10%。
 const broad = (equity: number): Holding[] => [
@@ -734,30 +758,67 @@ const ALLOC_SECTIONS: { id: AllocSection; label: string }[] = [
 
 const Allocation: React.FC = () => {
   const [rows, setRows] = usePersisted<Holding[]>('holdings', DEFAULT_HOLDINGS)
+  const [undo, setUndo] = useState<HoldingsUndo | null>(null)
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const total = rows.reduce((a, r) => a + (num(r.amount) || 0), 0)
-  const targetSum = rows.reduce((a, r) => a + (num(r.target) || 0), 0)
+  const offerUndo = (message: string, snapshot: Holding[]) => {
+    if (undoTimer.current) clearTimeout(undoTimer.current)
+    setUndo({ message, snapshot })
+    undoTimer.current = setTimeout(() => setUndo(null), 8000)
+  }
+
+  const applyTemplate = (t: (typeof TEMPLATES)[number]) => {
+    offerUndo(`已套用${t.label}`, cloneHoldings(rows))
+    setRows(cloneHoldings(t.rows))
+  }
+
+  const removeRow = (id: string) => {
+    offerUndo('已删除一行', cloneHoldings(rows))
+    setRows(rs => rs.filter(x => x.id !== id))
+  }
+
+  const restoreUndo = () => {
+    if (!undo) return
+    if (undoTimer.current) clearTimeout(undoTimer.current)
+    setRows(cloneHoldings(undo.snapshot))
+    setUndo(null)
+  }
+
+  useEffect(() => () => { if (undoTimer.current) clearTimeout(undoTimer.current) }, [])
+
+  const total = rows.reduce((a, r) => {
+    if (amountError(r.amount)) return a
+    const n = num(r.amount)
+    return a + (Number.isFinite(n) && n >= 0 ? n : 0)
+  }, 0)
+  const targetSum = rows.reduce((a, r) => {
+    const n = num(r.target)
+    return a + (Number.isFinite(n) ? n : 0)
+  }, 0)
   const patch = (id: string, k: keyof Holding, v: string) => setRows(rs => rs.map(r => (r.id === id ? { ...r, [k]: v } : r)))
 
   const computed = rows.map(r => {
-    const tgt = num(r.target)
+    const amtErr = amountError(r.amount)
+    const tgtErr = targetError(r.target)
+    const tgt = tgtErr ? NaN : num(r.target)
     const band = num(r.band)
-    const cur = total > 0 ? ((num(r.amount) || 0) / total) * 100 : NaN
-    const dev = Number.isFinite(cur) && tgt > 0 ? ((cur - tgt) / tgt) * 100 : NaN
+    const amt = amtErr ? NaN : num(r.amount)
+    const cur = total > 0 && Number.isFinite(amt) ? (amt / total) * 100 : NaN
+    const dev = Number.isFinite(cur) && Number.isFinite(tgt) && tgt > 0 ? ((cur - tgt) / tgt) * 100 : NaN
     const hit = Number.isFinite(dev) && Number.isFinite(band) && Math.abs(dev) > band
-    const gap = total > 0 && Number.isFinite(tgt) ? (tgt / 100) * total - (num(r.amount) || 0) : NaN
-    return { r, cur, dev, hit, gap }
+    const gap = total > 0 && Number.isFinite(tgt) && Number.isFinite(amt) ? (tgt / 100) * total - amt : NaN
+    return { r, cur, dev, hit, gap, amtErr, tgtErr }
   })
-  const anyHit = computed.some(c => c.hit)
+  const anyHit = computed.some(c => c.hit && !c.amtErr && !c.tgtErr)
 
   // 小节记在 URL 里：可分享、可用浏览器返回；默认「再平衡检查」
   const [params, setParams] = useSearchParams()
   const sec: AllocSection = ALLOC_SECTIONS.some(x => x.id === params.get('sec')) ? (params.get('sec') as AllocSection) : 'rebalance'
-  const go = (patch: { sec: AllocSection }) =>
+  const go = (section: { sec: AllocSection }) =>
     setParams(prev => {
       const next = new URLSearchParams(prev)
-      if (patch.sec === 'rebalance') next.delete('sec')
-      else next.set('sec', patch.sec)
+      if (section.sec === 'rebalance') next.delete('sec')
+      else next.set('sec', section.sec)
       return next
     }, { replace: true })
 
@@ -775,7 +836,7 @@ const Allocation: React.FC = () => {
               <Plus size={14} /> 添加
             </button>
             {TEMPLATES.map(t => (
-              <button key={t.id} className="tool-btn" onClick={() => setRows(t.rows)} title={`换成「${t.label}」示例（会覆盖当前填写）`}>
+              <button key={t.id} className="tool-btn" onClick={() => applyTemplate(t)} title={`换成「${t.label}」示例（可撤销）`}>
                 {t.id === 'balanced' && <RotateCcw size={14} />} {t.label}
               </button>
             ))}
@@ -785,6 +846,12 @@ const Allocation: React.FC = () => {
         <p className="plan-lead">
           只在配置底仓内部检查。填入各项当前金额，偏离按「相对目标」计算：目标20%、阈值±25%，则15%到25%之间不动。默认是书第9章9.10的宽基均衡档（权益50%），可换保守、积极档，或对照作者本人的五项案例；都可以直接改成你自己的。数据只保存在本机浏览器。
         </p>
+        {undo && (
+          <div className="plan-undo" role="status" data-testid="plan-holdings-undo">
+            <span>{undo.message}</span>
+            <button type="button" className="tool-btn" onClick={restoreUndo}>撤销</button>
+          </div>
+        )}
         <div className="ui-table-wrap plan-table-wrap">
           <table className="ui-table plan-table">
             <thead>
@@ -795,17 +862,47 @@ const Allocation: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {computed.map(({ r, cur, dev, hit, gap }) => (
+              {computed.map(({ r, cur, dev, hit, gap, amtErr, tgtErr }) => {
+                const tgtErrId = `tgt-err-${r.id}`
+                const amtErrId = `amt-err-${r.id}`
+                return (
                 <tr key={r.id}>
                   <td className="plan-minw-120"><input className="ui-input" aria-label={`资产名称 ${r.name}`} value={r.name} onChange={e => patch(r.id, 'name', e.target.value)} /></td>
                   <td className="plan-minw-140"><input className="ui-input" value={r.role} onChange={e => patch(r.id, 'role', e.target.value)} /></td>
-                  <td className="plan-w-80"><input className="ui-input" aria-label={`目标占比 ${r.name}`} inputMode="decimal" value={r.target} onChange={e => patch(r.id, 'target', e.target.value)} /></td>
+                  <td className="plan-w-80">
+                    <input
+                      className="ui-input"
+                      aria-label={`目标占比 ${r.name}`}
+                      inputMode="decimal"
+                      value={r.target}
+                      aria-invalid={tgtErr ? true : undefined}
+                      aria-describedby={tgtErr ? tgtErrId : undefined}
+                      onChange={e => patch(r.id, 'target', e.target.value)}
+                    />
+                    {tgtErr ? <span id={tgtErrId} className="plan-field-error">{tgtErr}</span> : null}
+                  </td>
                   <td className="plan-w-80"><input className="ui-input" inputMode="decimal" value={r.band} onChange={e => patch(r.id, 'band', e.target.value)} /></td>
-                  <td className="plan-w-110"><input className="ui-input" inputMode="decimal" placeholder="万元" value={r.amount} onChange={e => patch(r.id, 'amount', e.target.value)} /></td>
+                  <td className="plan-w-110">
+                    <input
+                      className="ui-input"
+                      inputMode="decimal"
+                      placeholder="万元"
+                      value={r.amount}
+                      aria-label={`当前金额 ${r.name}`}
+                      aria-invalid={amtErr ? true : undefined}
+                      aria-describedby={amtErr ? amtErrId : undefined}
+                      onChange={e => patch(r.id, 'amount', e.target.value)}
+                    />
+                    {amtErr ? <span id={amtErrId} className="plan-field-error">{amtErr}</span> : null}
+                  </td>
                   <td>{fmtPct(cur)}</td>
                   <td>{Number.isFinite(dev) ? `${dev > 0 ? '+' : ''}${dev.toFixed(1)}%` : '—'}</td>
                   <td>
-                    {!Number.isFinite(dev) ? (
+                    {amtErr ? (
+                      <Pill tone="red">{amtErr}</Pill>
+                    ) : tgtErr ? (
+                      <Pill tone="red">{tgtErr}</Pill>
+                    ) : !Number.isFinite(dev) ? (
                       <Pill tone="gray">待填写</Pill>
                     ) : hit ? (
                       <Pill tone="red">{gap > 0 ? `超出阈值，需买入 ${fmtMoney(gap)}` : `超出阈值，需卖出 ${fmtMoney(-gap)}`}</Pill>
@@ -814,12 +911,13 @@ const Allocation: React.FC = () => {
                     )}
                   </td>
                   <td className="plan-w-44">
-                    <button aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => setRows(rs => rs.filter(x => x.id !== r.id))}>
+                    <button aria-label="删除" className="tool-btn plan-icon-btn" onClick={() => removeRow(r.id)}>
                       <Trash2 size={14} />
                     </button>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -927,7 +1025,7 @@ const Dashboard: React.FC<{
                       <div className="plan-xs plan-muted">{s.hint}</div>
                     </td>
                     <td className="plan-w-140">
-                      <div className="plan-strong">{Number.isFinite(v) ? v : '暂缺'}<span className="plan-xs plan-muted plan-nowrap"> {s.unit}</span></div>
+                      <div className="plan-strong">{Number.isFinite(v) ? v : '暂缺'}<span className="plan-xs plan-muted plan-nowrap"> {s.unit === 'pp' ? '个百分点' : s.unit}</span></div>
                       <div className="plan-xs plan-muted">{dates[s.id] ? `数据日 ${dates[s.id].slice(5)}` : ''}</div>
                     </td>
                     <td>{s.yellow}</td>
@@ -1433,10 +1531,10 @@ const Sentiment: React.FC = () => {
             </thead>
             <tbody>
               {[
-                ['Equity P/C', '<0.7 贪婪', '>1.1 恐惧，≥1.2 极度恐惧', '散户情绪温度计，越极端越偏反向指标'],
-                ['SPX P/C', '<0.85 保护变薄', '>1.2 机构对冲充足', '机构有没有穿“防弹衣”'],
+                ['个股期权认沽/认购比（Equity P/C）', '<0.7 贪婪', '>1.1 恐惧，≥1.2 极度恐惧', '散户情绪温度计，越极端越偏反向指标'],
+                ['标普指数期权认沽/认购比（SPX P/C）', '<0.85 保护变薄', '>1.2 机构对冲充足', '机构有没有穿“防弹衣”'],
                 ['VIX 期限结构', '近月>远月＝倒挂', '远月>近月＝正常', '倒挂多见于剧烈下跌期'],
-                ['Net GEX', '<0 波动放大', '高正值 波动受抑', '做市商对冲带来的放大或抑制']
+                ['做市商净伽马敞口（Net GEX）', '<0 波动放大', '高正值 波动受抑', '做市商对冲带来的放大或抑制']
               ].map(r => (
                 <tr key={r[0]}>
                   <td className="plan-strong">{r[0]}</td>

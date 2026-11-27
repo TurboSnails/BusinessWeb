@@ -27,7 +27,7 @@ async function downloadSymbol(symbol: string, fetchImpl: FetchLike): Promise<Pla
       ? `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?${new URLSearchParams({ param: `${symbol},day,${begin},${end},${PAGE},${PLAN_ADJUST}` })}`
       : `/api/grid-market?${new URLSearchParams({ kind: 'candles', symbol, begin, end, adjust: PLAN_ADJUST })}`
     const res = await fetchImpl(url)
-    if (!res.ok) throw new Error(`行情 HTTP ${res.status}`)
+    if (!res.ok) throw new Error(`行情接口暂时取不到数据（HTTP ${res.status}）`)
     const payload = await res.json() as { data?: Record<string, { hfqday?: string[][]; qfqday?: string[][]; day?: string[][] }> }
     const node = payload.data?.[symbol]
     const batch = node?.hfqday?.length

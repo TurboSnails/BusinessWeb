@@ -50,6 +50,8 @@ export interface FactorLabData {
 const MARKET_LABEL: Record<string, string> = { cn: 'A 股', hk: '港股', us: '美股', us_kf: '美国因子组合' }
 const FACTOR_LABEL: Record<string, string> = { cn_sue: '盈余惊喜', cn_sur: '营收惊喜', turnover_vol_20d: '换手波动' }
 const MODE_LABEL: Record<string, string> = { explore: '探索', validate: '截面验证', confirm: '锁箱确认', forward: '前推' }
+/** R3 → 第 3 轮（R3）：轮次编号保留在括号里，摘要里会用它互相引用 */
+const roundLabel = (id: string): string => { const m = /^R(\d+)$/.exec(id); return m ? `第 ${m[1]} 轮（${id}）` : id }
 const fmtInt = (v: number | null | undefined): string => (v == null ? '—' : v.toLocaleString('zh-CN'))
 const fmtNum = (v: number | null | undefined, d = 2): string => (v == null || Number.isNaN(v) ? '—' : v.toFixed(d))
 
@@ -111,9 +113,9 @@ export default function FactorLab(): JSX.Element {
               <ul className="ss-list" data-testid="fl-rounds">
                 {load.data.rounds.map(r => (
                   <li key={r.id}>
-                    <strong>{r.id}</strong>（{r.status}）{r.summary ? `：${r.summary}` : ''}
+                    <strong>{roundLabel(r.id)}</strong>（{r.status}）{r.summary ? `：${r.summary}` : ''}
                     {r.candidates && Object.entries(r.candidates).map(([m, list]) => (
-                      <span key={m}> · {MARKET_LABEL[m] ?? m}候选：{list.length ? list.map(f => (FACTOR_LABEL[f] ? `${FACTOR_LABEL[f]}（${f}）` : f)).join('、') : '无'}</span>
+                      <span key={m}> · {MARKET_LABEL[m] ?? m}候选：{list.length ? list.map(f => FACTOR_LABEL[f] ?? f).join('、') : '无'}</span>
                     ))}
                   </li>
                 ))}

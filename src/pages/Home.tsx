@@ -25,6 +25,7 @@ import { paletteShortcut } from '../utils/shortcut'
 const SHORTCUT = paletteShortcut()
 
 const TOOL_ICONS: Record<string, LucideIcon> = {
+  '/invest/strategy': ChartLine,
   '/candidates': ListChecks,
   '/research-notes': Building2,
   '/valuation': Calculator,

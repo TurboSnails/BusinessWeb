@@ -678,6 +678,14 @@ html.dark .cs-page {
   background: var(--bg-page, #fff);
   color: var(--text-primary);
 }
+.cs-page .cs-cap__field input[aria-invalid="true"] {
+  border-color: var(--system-red);
+}
+.cs-cap__feedback {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  color: var(--up-ink, var(--system-red));
+}
 .cs-cap__def { margin: 0 0 6px; font-size: 0.8rem; line-height: 1.55; color: var(--text-tertiary, var(--text-secondary)); }
 .cs-cap__why { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); }
 .cs-cap__why summary {

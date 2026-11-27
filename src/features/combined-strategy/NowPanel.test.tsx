@@ -43,7 +43,7 @@ describe('NowPanel', () => {
     localStorage.removeItem('mp-equity-cap')
     wrap(<NowPanel data={combinedStrategyFixture()} watch={{ text: '11 月剩下 3 个交易日，标普均价如果低于 6,861 点，月底降一档到中性（上限的 70%）。', gap: -0.047, close: false }} />)
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('68')
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '100' } })
+    fireEvent.change(screen.getByLabelText('上限'), { target: { value: '100' } })
     expect(screen.getByTestId('mp-equity-cap-implied').textContent).toContain('85')
     expect(screen.getByRole('button', { name: '改回 80%' })).toBeTruthy()
     expect(screen.getByTestId('cs-now-watch').textContent).toContain('月底前留意')

@@ -8,6 +8,15 @@ import { RESEARCH_BY_KEY } from '../data/futureTrendsResearch'
 import { poolBucket } from '../data/futureTrendsPresentation'
 import { TRENDS } from '../data/futureTrends'
 
+// 每日行情刷新会改海外入围公司的现价与情景赔率，「满足情景门槛」的海外家数随之在 0～7 之间变化（11-12 前为 0 家）。
+// 23 家海外入围公司的行情与赔率字段固定为测试最后修改时（2026-11-20 行情刷新后）的数据，其余字段与其他公司仍用真实数据。
+vi.mock('../data/futureTrendsResearch.index.json', async importOriginal => {
+  const pinned = (await import('./__fixtures__/future-trends-research-overseas-pinned.json')).default as { records: { key: string }[] }
+  const byKey = new Map(pinned.records.map(r => [r.key, r]))
+  const actual = (await importOriginal()) as { default: { key: string }[] }
+  return { default: actual.default.map(r => ({ ...r, ...byKey.get(r.key) })) }
+})
+
 describe('主题研究（原未来趋势）', () => {
   it('每个赛道每个环节都有公司，且无重复赛道', () => {
     expect(new Set(TRENDS.map(t => t.id)).size).toBe(TRENDS.length)

@@ -25,7 +25,7 @@ export const exclusionText = (exclusions: Record<string, number>): string => Obj
 export const humanizeDetail = (text: string): string => Object.entries(EXCLUSION_LABELS).reduce((t, [k, v]) => t.replaceAll(k, v), text)
 const measurable = (b: BreadthMarket) => b.total - (b.newListings && b.newListings <= b.total * 0.1 ? b.newListings : 0)
 export function factLabel(id: string): string {
-  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', fwd_pe: '12个月Forward PE', fwd_pe_5y_percentile: 'Forward PE近5年分位', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
+  const names: Record<string, string> = { erp_z: 'ERP五年标准分', erp: '简化股债收益率差', pe: '指数市盈率', pe_history_5y_percentile: '恒指第三方日频PE五年分位（已停更）', pe_official_5y_percentile: '官方月末PE五年分位', cn10y: '中国10年国债收益率', financing_buy: '两市融资买入额', financing_buy_ratio_pct: '两市融资买入占比', cn_turnover_yi: '沪深A股及上市基金成交额', hk_south_20d: '南向20日净买入', fwd_pe: '12个月Forward PE', fwd_pe_5y_percentile: 'Forward PE近5年分位', index_week_daily_turnover_hkd: '恒指完整周日均成交额', turnover_ratio_52w: '周日均成交额/52周基准', cnh: '离岸人民币汇率', hkd: '港元汇率' }
   return names[id] ?? (id.startsWith('etf_shares_') ? `ETF ${id.slice(11)} 总份额` : id)
 }
 const dateOK = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(Date.parse(s)) && new Date(s).toISOString().slice(0, 10) === s
@@ -66,10 +66,19 @@ export function parseBreadthSnapshot(input: unknown): BreadthSnapshot {
   return input as unknown as BreadthSnapshot
 }
 
+/** Enniu HSI daily PE index froze on this date; keep the frozen reference usable (official monthly PE is the vote). */
+export const ENIU_HSI_PE_STOPPED_ON = '2026-10-30'
+
 export function factUsable(f: AutomaticFact, asOf: string): boolean {
   const age = (Date.parse(asOf) - Date.parse(f.observationDate)) / 86400000
+  // Frozen third-party HSI PE: do not age out after 14 days; still require observation ≤ asOf.
+  const frozenEniu = f.metricId === 'pe_history_5y_percentile' && f.market === 'hsi'
+    && f.observationDate <= ENIU_HSI_PE_STOPPED_ON && asOf.slice(0, 10) > ENIU_HSI_PE_STOPPED_ON
+    && (f.description.includes('来源已停更') || f.observationDate === ENIU_HSI_PE_STOPPED_ON)
   // Month-end PE is legitimately older than daily FX. availableAt remains unknown when the publisher gives no timestamp.
-  return age >= 0 && age <= ({ daily: 14, weekly: 14, monthly: 75 }[f.frequency])
+  const withinFrequency = frozenEniu || (age >= 0 && age <= ({ daily: 14, weekly: 14, monthly: 75 }[f.frequency]))
+  return withinFrequency
+    && age >= 0
     && (f.availableAt === null || Date.parse(f.availableAt) < Date.parse(asOf) + 86400000)
     && Date.parse(f.firstSeenAt) < Date.parse(asOf) + 86400000
 }

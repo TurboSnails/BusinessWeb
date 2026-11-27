@@ -12,7 +12,7 @@ export default function StrategySpec(): JSX.Element {
         <p className="ss-back"><Link to="/invest/strategy">← 返回综合策略</Link></p>
         <h1>综合策略说明书</h1>
         <p className="cs-head__lead" data-testid="ss-lead">
-          把当前的仓位规则完整写下来：怎么打分、怎么定档、怎么执行、历史证据和已知局限。每一版都有版本号，以后升级或比较不同写法时，可以逐章对比。
+          把当前的仓位规则完整写下来：怎么打分、怎么定档、怎么执行、历史证据和已知局限。每一版都有版本号，以后升级或比较不同写法时，可以逐章对比。文中「L-0xx」是本站研究登记簿的编号，同一编号在说明书、研究中、通过检验三页指同一次检验。
         </p>
       </header>
       <StrategySpecView />

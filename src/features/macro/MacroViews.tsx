@@ -11,6 +11,7 @@ import CrisisReference from './CrisisReference'
 import { CycleSummary } from './CycleViews'
 import AiInterpretation from './AiInterpretation'
 import { QUALITY_LABEL, checkHkQuality, checkQuality, type QualityReport, type QualityResult } from './quality'
+import { qualityItemName } from './qualityNames'
 import './macro.css'
 
 const TONE_LABEL: Record<Tone, string> = { green: '正常', yellow: '警惕', red: '危险', blue: '信息', gray: '背景' }
@@ -62,7 +63,7 @@ export function QualityLine({ report }: { report: QualityReport }): JSX.Element 
       {stageAffected.length > 0 && '；阶段信号受影响，阶段结论需打折看待'}
       {issues.length > 0 && (
         <ul className="macro-quality">
-          {issues.map(i => <li key={i.country + i.key}>{i.country} · {i.key}：{QUALITY_LABEL[i.quality]}，{i.reason}</li>)}
+          {issues.map(i => <li key={i.country + i.key}>{i.country} · {qualityItemName(i.country, i.key)}：{QUALITY_LABEL[i.quality]}，{i.reason}</li>)}
         </ul>
       )}
     </div>

@@ -1102,6 +1102,12 @@ a.chapter-nav__item:hover {
   font-size: 0.85rem;
   text-decoration: none;
   cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.tool-btn:not(:disabled):hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .tool-btn:disabled {
@@ -1112,6 +1118,12 @@ a.chapter-nav__item:hover {
 .tool-btn--primary {
   border-color: var(--accent);
   background: var(--accent);
+  color: #fff;
+}
+
+.tool-btn--primary:not(:disabled):hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 88%, #000);
   color: #fff;
 }
 

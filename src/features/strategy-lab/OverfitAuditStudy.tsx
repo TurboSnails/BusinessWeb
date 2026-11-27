@@ -23,8 +23,8 @@ function DsrTable(): JSX.Element {
           <tr>
             <th scope="col" className="lab-sticky">按试过多少种算</th>
             <th scope="col" className="num">纯靠运气的最好水平<span className="lab-th-sub">每期信息比率</span></th>
-            <th scope="col" className="num">DSR<span className="lab-th-sub">≥ 0.95 才算显著</span></th>
-            <th scope="col" className="num">确认要多久<span className="lab-th-sub">MinTRL</span></th>
+            <th scope="col" className="num">紧缩夏普（DSR）<span className="lab-th-sub">≥ 0.95 才算显著</span></th>
+            <th scope="col" className="num">确认要多久<span className="lab-th-sub">最短记录长度（MinTRL）</span></th>
           </tr>
         </thead>
         <tbody>
@@ -50,8 +50,8 @@ function McsTable(): JSX.Element {
         <thead>
           <tr>
             <th scope="col" className="lab-sticky">写法</th>
-            <th scope="col" className="num">净夏普<span className="lab-th-sub">E1 口径，各自仓位</span></th>
-            <th scope="col" className="num">MCS p 值</th>
+            <th scope="col" className="num">净夏普<span className="lab-th-sub">真实成交口径（E1），各自仓位</span></th>
+            <th scope="col" className="num">模型置信集（MCS）p 值</th>
             <th scope="col">在 90% 最优集</th>
           </tr>
         </thead>
@@ -82,9 +82,9 @@ export default function OverfitAuditStudy(): JSX.Element {
       <div className="ss-cover lab-answer" data-testid="lab-audit-answer">
         <p className="ss-cover__kicker">一句话</p>
         <p className="ss-cover__summary">
-          把试过的 86 种写法算进去以后，不能排除宏观攻守 v2.2 的优势来自挑选（DSR {fmtNum(main.dsr, 2)}，预注册判定「{T1.verdict}」）；
+          把试过的 86 种写法算进去以后，不能排除宏观攻守 v2.2 的优势来自挑选（按试验次数校正后的紧缩夏普 DSR {fmtNum(main.dsr, 2)}，0.95 以上才算显著；预注册判定「{T1.verdict}」）；
           现行参数是这段历史上调出来的（过拟合概率 {fmtNum(T4.P.pbo, 2)}，{T4.P.verdict}）。但宏观打分这一类写法整体不是一无是处：
-          1,058 个变体里，校正挑选后确有写法显著好于同等波动的恒定仓位（SPA p {fmtNum(T2.spa, 3)}）。
+          1,058 个变体里，校正挑选后确有写法显著好于同等波动的恒定仓位（把挑选算进去的 SPA 检验，p = {fmtNum(T2.spa, 3)}）。
         </p>
         <p className="ss-p">
           读法：方向大概率是对的，幅度被回测高估了，具体参数不可信。往后按同波动夏普约 0.56 预期（参数邻域的中位数），而不是 {fmtNum(T1.sharpe.S0, 2)}。

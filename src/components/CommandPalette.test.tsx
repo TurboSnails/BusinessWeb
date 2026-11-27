@@ -82,6 +82,51 @@ describe('CommandPalette', () => {
     expect(dialog()).toBeNull()
   })
 
+  it('Enter 跳转后原焦点已卸载：再开再关回落到顶栏跳转按钮', () => {
+    const search = document.createElement('button')
+    search.className = 'site-search-btn'
+    search.textContent = '跳转'
+    document.body.appendChild(search)
+
+    function TransientOpener(): JSX.Element {
+      const { open } = useCommandPalette()
+      const { pathname } = useLocation()
+      if (pathname !== '/') return <p data-testid="where">{pathname}</p>
+      return (
+        <>
+          <button onClick={open}>打开</button>
+          <p data-testid="where">{pathname}</p>
+        </>
+      )
+    }
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <CommandPaletteProvider>
+          <Routes>
+            <Route path="*" element={<TransientOpener />} />
+          </Routes>
+        </CommandPaletteProvider>
+      </MemoryRouter>,
+    )
+
+    const opener = screen.getByRole('button', { name: '打开' })
+    opener.focus()
+    fireEvent.click(opener)
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'dcf' } })
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter' })
+    expect(screen.getByTestId('where').textContent).toBe('/dcf')
+    expect(dialog()).toBeNull()
+    expect(document.body.contains(opener)).toBe(false)
+
+    fireEvent.keyDown(document.body, { key: 'k', metaKey: true })
+    expect(dialog()).toBeTruthy()
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Escape' })
+    expect(dialog()).toBeNull()
+    expect(document.activeElement).toBe(search)
+    search.remove()
+  })
+
   it('↓ 移动高亮后回车跳到第二项', () => {
     setup()
     fireEvent.click(screen.getByRole('button', { name: '打开' }))

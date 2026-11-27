@@ -1,10 +1,9 @@
-import React, { useId, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import {
   RECOMMENDED_EQUITY_CAP,
-  readEquityCap,
-  writeEquityCap,
-} from '../macro-posture/composite/ConclusionCard'
+  useEquityCapInput,
+} from '../macro-posture/composite/useEquityCapInput'
 import { formatSharePct } from './labels'
 
 /**
@@ -12,12 +11,24 @@ import { formatSharePct } from './labels'
  * 与宏观攻守页的上限输入共用同一本地存储键，改一处两页同步。
  */
 export default function CapCalculator({ equityShare }: { equityShare: number | null }): JSX.Element {
-  const id = useId()
-  const [cap, setCap] = useState(readEquityCap)
-  const [draft, setDraft] = useState(() => String(readEquityCap()))
+  const {
+    fieldId,
+    errorId,
+    hintId,
+    describedBy,
+    cap,
+    draft,
+    error,
+    correction,
+    isRecommended,
+    invalid,
+    onChange,
+    onBlur,
+    onKeyDown,
+    reset,
+  } = useEquityCapInput()
   const share = equityShare != null && Number.isFinite(equityShare) ? equityShare : null
   const implied = share == null ? null : Math.round(cap * share)
-  const isRecommended = cap === RECOMMENDED_EQUITY_CAP
 
   return (
     <div className="cs-cap mp-equity-cap" data-testid="mp-equity-cap">
@@ -34,34 +45,34 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
         )}
       </p>
       <p className="cs-cap__formula">
-        <label htmlFor={id}>上限</label>
+        <label htmlFor={fieldId}>上限</label>
         <span className="cs-cap__field">
           <input
-            id={id}
-            type="number"
-            min={0}
-            max={100}
-            step={1}
-            inputMode="numeric"
+            id={fieldId}
+            type="text"
+            inputMode="decimal"
             value={draft}
-            aria-describedby={`${id}-def`}
-            onChange={e => {
-              const raw = e.target.value
-              setDraft(raw)
-              if (raw.trim() === '') return
-              const next = Number(raw)
-              if (!Number.isFinite(next)) return
-              const clamped = Math.min(100, Math.max(0, next))
-              setCap(clamped)
-              writeEquityCap(clamped)
-            }}
-            onBlur={() => setDraft(String(cap))}
+            aria-invalid={invalid || undefined}
+            aria-describedby={describedBy}
+            onChange={e => onChange(e.target.value)}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
           />
           <span aria-hidden="true">%</span>
         </span>
+        {isRecommended ? null : (
+          <button type="button" className="cs-cap__reset" onClick={reset}>
+            改回 {RECOMMENDED_EQUITY_CAP}%
+          </button>
+        )}
         {share == null ? null : <span className="cs-cap__times">× 档位 {formatSharePct(share)}</span>}
       </p>
-      <p id={`${id}-def`} className="cs-cap__def">
+      {(error || correction) && (
+        <p id={errorId} className="cs-cap__feedback" role="status" data-testid="mp-equity-cap-feedback">
+          {error || correction}
+        </p>
+      )}
+      <p id={hintId} className="cs-cap__def">
         上限 = 你打算投入美股的资金里，最多放股票的比例；其余放现金或短期国债。每月按这笔钱的当前总值算。
       </p>
       <details className="cs-cap__why">
@@ -73,19 +84,6 @@ export default function CapCalculator({ equityShare }: { equityShare: number | n
           年化少约 1 个百分点。能承受更大波动可以调高。
           {' '}<Link to="/invest/strategy/spec">依据</Link>
         </p>
-        {isRecommended ? null : (
-          <button
-            type="button"
-            className="cs-cap__reset"
-            onClick={() => {
-              setCap(RECOMMENDED_EQUITY_CAP)
-              setDraft(String(RECOMMENDED_EQUITY_CAP))
-              writeEquityCap(RECOMMENDED_EQUITY_CAP)
-            }}
-          >
-            改回 {RECOMMENDED_EQUITY_CAP}%
-          </button>
-        )}
       </details>
     </div>
   )

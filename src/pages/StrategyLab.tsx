@@ -27,7 +27,7 @@ import '../styles/strategy-lab.css'
 import '../styles/strategy-lab-tabs.css'
 
 export const STRATEGY_LAB_LEAD =
-  '还没通过检验的研究放在这里：结论不确定、没通过、或部分成立的内容；通过检验的策略单独放在「通过检验」页。这一页不影响仓位，仓位以综合策略和策略说明书为准。'
+  '还没通过检验的研究放在这里：结论不确定、没通过、或部分成立的内容；通过检验的策略单独放在「通过检验」页。这一页不影响仓位，仓位以综合策略和策略说明书为准。文中「L-0xx」是本站研究登记簿的编号，同一编号在说明书、研究中、通过检验三页指同一次检验。'
 
 /** 已移到「通过检验」页的研究：旧链接（锚点或 ?tab=sector）跳过去 */
 const MOVED: Record<string, string> = {

@@ -290,6 +290,28 @@
   font-size: 0.95rem;
 }
 
+.mp-equity-cap__field input[aria-invalid="true"] {
+  border-color: var(--system-red);
+}
+
+.mp-equity-cap__reset {
+  min-height: 32px;
+  padding: 2px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.mp-equity-cap__feedback {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--up-ink, var(--system-red));
+}
+
 .mp-equity-cap__hint {
   margin: 0;
   font-size: 0.95rem;

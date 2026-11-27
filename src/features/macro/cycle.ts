@@ -57,7 +57,7 @@ export function cycleReadout(snap: MacroSnapshot): CycleReadout {
     ...row('debtService', '家庭债务偿付 / 可支配收入', '%', '越高，家庭对利率越敏感', 4),
     ...row('ccDelinq', '信用卡逾期率', '%', '信用质量的先行读数', 4),
     ...row('hy', '高收益债利差', 'bp', '信用市场愿不愿意给弱者融资', 12),
-    ...row('realRate', '实际利率（政策利率 − 核心 PCE）', 'pp', '正且高，说明融资成本压过通胀', 12),
+    ...row('realRate', '实际利率（政策利率 − 核心 PCE）', '个百分点', '正且高，说明融资成本压过通胀', 12),
     ...row('marginGdp', '保证金债务 / GDP', '%', '市场杠杆水平', 12),
   ]
   return { growth, inflation, quadrant, debt }

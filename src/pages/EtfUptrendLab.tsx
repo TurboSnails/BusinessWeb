@@ -237,7 +237,7 @@ export default function EtfUptrendLab(): JSX.Element {
                   <th aria-sort={sortAria('start')}><button type="button" onClick={() => toggleSort('start')}>当前区间起</button></th>
                   <th scope="col">区间止</th>
                   <th aria-sort={sortAria('dur')}><button type="button" onClick={() => toggleSort('dur')}>天数</button></th>
-                  <th aria-sort={sortAria('rise')}><button type="button" onClick={() => toggleSort('rise')}>period_rise</button></th>
+                  <th aria-sort={sortAria('rise')}><button type="button" onClick={() => toggleSort('rise')}>区间涨幅（%）</button></th>
                   <th aria-sort={sortAria('steps')}><button type="button" onClick={() => toggleSort('steps')}>回踩次数</button></th>
                 </tr>
               </thead>
@@ -419,7 +419,7 @@ export default function EtfUptrendLab(): JSX.Element {
         <ul>
           <li>「来源截止日」取在池 ETF 当前上涨区间截止日的最大值；快照按它命名（行情日）。周末再采只覆盖同一行情日。</li>
           <li>今日涨幅、盘中累计涨幅等需登录指标，这里不采集也不冒充。</li>
-          <li>区间与 AI 上涨原因来自同花顺公开接口，字段为来源原值，未独立核实；<code>period_rise</code> ≠ App 盘中累计涨幅。</li>
+          <li>区间与 AI 上涨原因来自同花顺公开接口，数值为来源原值，未独立核实；「区间涨幅」是从区间起始日前一交易日收盘到区间止日收盘的涨幅，不等于 App 里的盘中累计涨幅。</li>
           <li>倒推历史与真实快照分开存放，不会混进行情日列表。</li>
           <li>自选只存本机。更新：<code>npm run etf-uptrend:update</code>；倒推重建：<code>npm run etf-uptrend:reconstruct</code>。</li>
           <li>来源：{index?.source_page ? <a href={index.source_page} target="_blank" rel="noopener noreferrer">同花顺 ETF 主升浪</a> : '同花顺 ETF 主升浪'}；定时约北京时间 {(index?.schedule.times ?? ['23:30', '07:00']).join('、')}。</li>
@@ -448,12 +448,12 @@ function DetailPanel({ code, name, detail }: { code: string; name: string; detai
         <h4>{name} · 历史上涨区间</h4>
         <Link className="up-grid-btn" to={grid}>打开网格 →</Link>
       </div>
-      <p className="up-src">同花顺历史区间接口，取数于 {fmtT(detail.at)}；字段为来源原值。</p>
+      <p className="up-src">同花顺历史区间接口，取数于 {fmtT(detail.at)}；数值为来源原值。</p>
       <div className="up-subtable">
         <table>
           <thead>
             <tr>
-              <th>起</th><th>止</th><th>天数</th><th>period_rise</th><th>period_change</th><th>main_amount_in</th><th className="l">回踩日期</th>
+              <th>起</th><th>止</th><th>天数</th><th>区间涨幅（%）</th><th title="同花顺接口给出的原值（小数），口径未公开，仅供对照">来源变动值</th><th>主力净流入（元）</th><th className="l">回踩日期</th>
             </tr>
           </thead>
           <tbody>

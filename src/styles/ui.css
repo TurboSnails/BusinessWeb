@@ -315,7 +315,14 @@
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: var(--bg-card);
+  /* 横滑提示：local 遮罩盖住阴影，scroll 阴影提示还有未显示列（不影响 sticky 首列） */
+  background:
+    linear-gradient(to right, var(--bg-card) 30%, transparent) left center / 28px 100% local,
+    linear-gradient(to left, var(--bg-card) 30%, transparent) right center / 28px 100% local,
+    radial-gradient(farthest-side at 0 50%, rgb(58 58 52 / 0.18), transparent) left center / 14px 100% scroll,
+    radial-gradient(farthest-side at 100% 50%, rgb(58 58 52 / 0.18), transparent) right center / 14px 100% scroll,
+    var(--bg-card);
+  background-repeat: no-repeat;
 }
 
 .ui-card--flush > .ui-table-wrap,

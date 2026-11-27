@@ -11,7 +11,7 @@ import '../styles/strategy-lab.css'
 import '../styles/strategy-lab-tabs.css'
 
 export const VERIFIED_LEAD =
-  '预注册检验通过的策略放在这里。通过检验不等于写进仓位规则：下面每一项都没有加入综合策略，理由逐条写在各页签开头；目前都在做影子记录，期满后再决定。'
+  '预注册检验通过的策略放在这里。通过检验不等于写进仓位规则：下面每一项都没有加入综合策略，理由逐条写在各页签开头；目前都在做影子记录，期满后再决定。文中「L-0xx」是本站研究登记簿的编号，同一编号在说明书、研究中、通过检验三页指同一次检验。'
 
 export type VerifiedTab = 'sector' | 'tilt'
 

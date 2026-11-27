@@ -87,7 +87,7 @@ export default function RatingReview(): JSX.Element {
         <RatingReviewTable data={data} scope={scope} />
         <ul className="rr-notes">{data.caveats.map(t => <li key={t}>{t}</li>)}</ul>
         <details className="rr-method"><summary>统计口径</summary><ul>{data.method.map(t => <li key={t}>{t}</li>)}</ul>
-          <p className="rn-footnote">最新一期覆盖：{Object.entries(data.coverage).map(([v, c]) => `${SCOPES.find(s => s.id === v)?.label ?? v} ${data.buckets.map(b => `${b} ${c[b] ?? 0}`).join(' / ')}`).join('；')}。数据由每周工作流 scripts/rating-review.mjs 生成。</p>
+          <p className="rn-footnote">最新一期覆盖：{Object.entries(data.coverage).map(([v, c]) => `${SCOPES.find(s => s.id === v)?.label ?? v} ${data.buckets.map(b => `${b} ${c[b] ?? 0}`).join(' / ')}`).join('；')}。数据由每周定时任务自动生成。</p>
         </details>
       </>}
     </div>

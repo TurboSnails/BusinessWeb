@@ -71,27 +71,77 @@ describe('Header', () => {
     expect(document.body.style.overflow).toBe('')
   })
 
-  it('抽屉：按 Esc 关闭', () => {
+  it('抽屉：按 Esc 关闭并把焦点回到菜单按钮', () => {
     renderAt('/')
-    fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
+    const toggle = screen.getByRole('button', { name: '打开菜单' })
+    fireEvent.click(toggle)
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByRole('navigation', { name: '移动导航' })).toBeNull()
     expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(toggle)
+  })
+
+  it('抽屉打开时给 main/footer 加 inert，Tab 不落到被遮住的页面', () => {
+    const main = document.createElement('main')
+    main.id = 'main-content'
+    const pageBtn = document.createElement('button')
+    pageBtn.textContent = '页面按钮'
+    main.appendChild(pageBtn)
+    const footer = document.createElement('footer')
+    footer.className = 'site-footer'
+    const footLink = document.createElement('a')
+    footLink.href = '/about'
+    footLink.textContent = '页脚'
+    footer.appendChild(footLink)
+    document.body.append(main, footer)
+
+    renderAt('/')
+    fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
+    expect(main.hasAttribute('inert')).toBe(true)
+    expect(footer.hasAttribute('inert')).toBe(true)
+
+    const drawer = screen.getByRole('navigation', { name: '移动导航' })
+    const first = within(drawer).getByRole('link', { name: '首页' })
+    expect(document.activeElement).toBe(first)
+    fireEvent.keyDown(document, { key: 'Tab' })
+    expect(document.activeElement).toBe(within(drawer).getByRole('link', { name: '投资' }))
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(main.hasAttribute('inert')).toBe(false)
+    expect(footer.hasAttribute('inert')).toBe(false)
+    main.remove()
+    footer.remove()
+  })
+
+  it('窄屏搜索按钮 aria-label 不带快捷键', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: q.includes('max-width: 767px'),
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }))
+    renderAt('/')
+    expect(screen.getByRole('button', { name: '跳转到页面' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /⌘K|Ctrl/ })).toBeNull()
+    vi.unstubAllGlobals()
   })
 
   it('抽屉打开时屏幕变宽到桌面断点：自动关闭并恢复滚动', () => {
-    let listener: ((e: { matches: boolean }) => void) | null = null
+    let wideListener: ((e: { matches: boolean }) => void) | null = null
     vi.stubGlobal('matchMedia', (q: string) => ({
       matches: false,
       media: q,
-      addEventListener: (_: string, cb: (e: { matches: boolean }) => void) => { listener = cb },
-      removeEventListener: () => { listener = null },
+      addEventListener: (_: string, cb: (e: { matches: boolean }) => void) => {
+        if (q.includes('min-width: 768px')) wideListener = cb
+      },
+      removeEventListener: () => {
+        if (q.includes('min-width: 768px')) wideListener = null
+      },
     }))
     renderAt('/')
     fireEvent.click(screen.getByRole('button', { name: '打开菜单' }))
     expect(document.body.style.overflow).toBe('hidden')
-    expect(listener).not.toBeNull()
-    act(() => { listener?.({ matches: true }) })
+    expect(wideListener).not.toBeNull()
+    act(() => { wideListener?.({ matches: true }) })
     expect(screen.queryByRole('navigation', { name: '移动导航' })).toBeNull()
     expect(document.body.style.overflow).toBe('')
     vi.unstubAllGlobals()

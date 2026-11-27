@@ -7,7 +7,8 @@ import { join } from 'node:path'
 import {
   buildAutoSnapshot as buildProductionSnapshot, computeErpZ, factProblem, isFatal, mergeFacts, parseCsindexPe, parseFredCsv, parseHsiPe, parseMargin,
   parseSouthboundPage, parseSouthboundRows,
-  parseSseEtf, parseTreasuryPage, parseYahooCnh, runXlsxParser, writeAtomic, ETF_WHITELIST, SOURCES, URLS,
+  parseSseEtf, parseSzseEtfScaleDate, parseSzseEtfXlsx, parseTreasuryPage, parseYahooCnh, runXlsxParser, writeAtomic,
+  ETF_WHITELIST, SZSE_ETF_WHITELIST, SOURCES, URLS,
 } from './market-cycle-auto.mjs'
 import { HSI_REPORT_METADATA_URL, hsiReportUrl } from './market-cycle-hsi-turnover.mjs'
 
@@ -67,6 +68,22 @@ test('computeErpZ: 5y window, sample std, fails on short history', () => {
   assert.throws(() => computeErpZ([...peRows, peRows[peRows.length - 1]], yieldRows), /PE日期重复/)
   // dates present in only one series are excluded: half the yield days leaves too few joint points
   assert.throws(() => computeErpZ(peRows, yieldRows.filter((_, i) => i % 2 === 0)), /共\d+点/)
+})
+
+test('SZSE ETF parsers read scale date and whitelist rows from real column shapes', () => {
+  const meta = [{ metadata: { catalogid: '1945', tabkey: 'tab1', cols: { dqgm: '当前规模<br>（万份）<span>（2026-11-26）</span>' } }, data: [] }]
+  assert.equal(parseSzseEtfScaleDate(meta), '2026-11-26')
+  const cells = [
+    { r: 1, c: 'A', v: '证券代码' }, { r: 1, c: 'B', v: '证券简称' }, { r: 1, c: 'D', v: '当前规模(份)' },
+    { r: 2, c: 'A', v: '159919' }, { r: 2, c: 'B', v: '沪深300ETF嘉实' }, { r: 2, c: 'D', v: '21,332,016,600' },
+    ...SZSE_ETF_WHITELIST.filter(w => w.code !== '159919').flatMap((w, i) => [
+      { r: i + 3, c: 'A', v: w.code }, { r: i + 3, c: 'B', v: w.name }, { r: i + 3, c: 'D', v: '10000000' },
+    ]),
+  ]
+  const rows = parseSzseEtfXlsx(cells, '2026-11-26')
+  assert.equal(rows.length, SZSE_ETF_WHITELIST.length)
+  assert.equal(rows.find(r => r.w.code === '159919').value, 2133201.66)
+  assert.throws(() => parseSzseEtfXlsx(cells.filter(c => c.v !== '159919' && c.v !== '沪深300ETF嘉实' && !(c.r === 2)), '2026-11-26'), /缺少白名单/)
 })
 
 test('parsers reject malformed rows', () => {
@@ -228,7 +245,16 @@ function fakeFetch(overrides = {}) {
       const slice = yieldDates.slice((page - 1) * 500, page * 500)
       return json({ result: { pages: Math.ceil(yieldDates.length / 500), data: slice.map(d => ({ SOLAR_DATE: `${d} 00:00:00`, EMM00166466: 2 + (Date.parse(d) % 5) / 10 })) } })
     }
-    if (url.includes('RPTA_RZRQ_LSHJ')) return json({ success: true, result: { data: [{ DIM_DATE: '2026-10-15 00:00:00', RZMRE: 124282324291 }] } })
+    if (url.includes('queryMargin.do')) {
+      return json(`json(${JSON.stringify({ pageHelp: { data: [
+        { opDate: '20261015', rzmre: 70000000000 },
+        { opDate: '20261016', rzmre: 70000000000 },
+      ] } })})`)
+    }
+    if (url.includes('1837_xxpl')) {
+      const d = new URL(url).searchParams.get('txtDate')
+      return json([{ metadata: { catalogid: '1837_xxpl', tabkey: 'tab1', subname: d, cols: { jrrzmr: '融资买入额<br>(亿元)' } }, data: [{ jrrzmr: '518.57375394' }] }])
+    }
     if (url.includes('fredgraph')) return json('observation_date,DEXHKUS\n2026-10-09,7.8476\n')
     if (url.includes('yahoo')) return json({ chart: { result: [{ meta: { symbol: 'CNH=X', currency: 'CNH' }, timestamp: [1792184382], indicators: { quote: [{ close: [6.6853] }] } }] } })
     if (url.includes('COMMON_SSE_SJ_SCGM_C')) {
@@ -239,7 +265,13 @@ function fakeFetch(overrides = {}) {
       const date = new URL(url).searchParams.get('txtQueryDate')
       return json([{ metadata: { catalogid: '1803_sczm', tabkey: 'tab1', subname: date, cols: { cjje: '成交金额(亿元)' } }, data: ['主板A股', '创业板A股', '基金'].map((lbmc, i) => ({ lbmc, cjje: ['4271.74', '3965.52', '1594.58'][i] })) }])
     }
-    if (url.includes('query.sse.com.cn')) {
+    if (url.includes('CATALOGID=1945') && url.includes('SHOWTYPE=JSON')) {
+      return json([{ metadata: { catalogid: '1945', tabkey: 'tab1', cols: { dqgm: "当前规模<br>（万份）<br>（2026-10-16）" } }, data: [] }])
+    }
+    if (url.includes('SHOWTYPE=xlsx') && url.includes('CATALOGID=1945')) {
+      return { ok: true, status: 200, arrayBuffer: async () => Buffer.concat([Buffer.from('PKSZSEETF'), Buffer.alloc(2000)]) }
+    }
+    if (url.includes('query.sse.com.cn') && url.includes('STAT_DATE=')) {
       const date = /STAT_DATE=([\d-]+)/.exec(url)[1]
       return json({ result: date === '2026-10-16' ? ETF_WHITELIST.map(w => ({ STAT_DATE: date, SEC_CODE: w.code, SEC_NAME: w.name, TOT_VOL: '1000' })) : [] })
     }
@@ -271,9 +303,19 @@ const ROUNDUP_PAGES = ['Highlights\n• As at 30 September, assets under managem
   'Change\nIndex Name 1-Month 3-Month 12-Month YTD\nHang Seng Index and its related indexes\nHang Seng Index -3.73% 7.57% -8.35% -3.97% 13.79 2.97%\nHang Seng Index - Finance -1.45% 11.49% 22.65% 13.14% 9.80 3.94%',
   'Change\nIndex Name 1-Month 3-Month 12-Month YTD\nPE Ratio \n(Times)\nDividend \nYield\nHang Seng TECH Index and its related indexes\nHang Seng TECH Index -7.92% -4.88% -34.21% -22.88% 28.23 1.10%\nHSTECH SCHK Index -8.02% -4.10% -34.00% -22.00% 27.90 1.20%']
 const fakePdf = async buf => { assert.equal(buf.subarray(0, 4).toString(), '%PDF'); return ROUNDUP_PAGES }
-const fakeXlsx = async buf => (buf.length ? [
-  { r: 3, c: 'B', v: 'Hang Seng Index' }, { r: 3, c: 'A', v: 'Hang Seng TECH Index' }, { r: 4, c: 'A', v: 46295 }, { r: 4, c: 'B', v: buf.includes(Buffer.from('hstech')) ? 28.23 : 13.79 },
-] : [])
+const fakeXlsx = async buf => {
+  if (buf.includes(Buffer.from('SZSEETF'))) {
+    return [
+      { r: 1, c: 'A', v: '证券代码' }, { r: 1, c: 'B', v: '证券简称' }, { r: 1, c: 'D', v: '当前规模(份)' },
+      ...SZSE_ETF_WHITELIST.flatMap((w, i) => [
+        { r: i + 2, c: 'A', v: w.code }, { r: i + 2, c: 'B', v: w.name }, { r: i + 2, c: 'D', v: '10,000,000' },
+      ]),
+    ]
+  }
+  return buf.length ? [
+    { r: 3, c: 'B', v: 'Hang Seng Index' }, { r: 3, c: 'A', v: 'Hang Seng TECH Index' }, { r: 4, c: 'A', v: 46295 }, { r: 4, c: 'B', v: buf.includes(Buffer.from('hstech')) ? 28.23 : 13.79 },
+  ] : []
+}
 
 test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', async () => {
   const fetchImpl = fakeFetch()
@@ -286,7 +328,10 @@ test('buildAutoSnapshot: all sources, treasury paging, contract-valid output', a
   assert.ok(fetchImpl.calls.filter(u => u.includes('RPTA_WEB_TREASURYYIELD')).length >= 3, 'treasury must be paged')
   for (const f of out.facts) assert.equal(factProblem(f, NOW), null)
   const ids = new Set(out.facts.map(f => `${f.metricId}/${f.market}`))
-  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'pe_official_5y_percentile/hsi', 'financing_buy/all', 'financing_buy_ratio_pct/csi300', 'cn_turnover_yi/csi300', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'hk_south_20d/all', 'turnover_ratio_52w/hstech', 'turnover_ratio_52w/csi300', 'index_week_daily_turnover_hkd/hsi']) assert.ok(ids.has(id), id)
+  for (const id of ['erp_z/csi300', 'pe/csi300', 'pe/hsi', 'pe/hstech', 'pe_official_5y_percentile/hsi', 'financing_buy/all', 'financing_buy_ratio_pct/csi300', 'cn_turnover_yi/csi300', 'hkd/all', 'cnh/all', 'etf_shares_510300/csi300', 'etf_shares_159919/csi300', 'hk_south_20d/all', 'turnover_ratio_52w/hstech', 'turnover_ratio_52w/csi300', 'index_week_daily_turnover_hkd/hsi']) assert.ok(ids.has(id), id)
+  assert.match(out.facts.find(f => f.metricId === 'financing_buy').description, /不含北交所/)
+  assert.match(out.facts.find(f => f.metricId === 'etf_shares_159919').description, /规模观测日2026-10-16/)
+  assert.ok(!out.facts.some(f => /eastmoney\.com.*RZMRE|东财RPTA_RZRQ/.test(f.description)), 'financing must not cite Eastmoney aggregate')
   assert.equal(out.facts.find(f => f.metricId === 'index_week_daily_turnover_hkd' && f.market === 'hsi').value, 100e6)
   assert.ok(!ids.has('turnover_ratio_52w/hsi'), '33 official reports cannot substitute for a full 52-week baseline')
   assert.equal(out.facts.find(f => f.metricId === 'pe_official_5y_percentile' && f.market === 'hsi').value, 84.166667)
@@ -313,7 +358,7 @@ test('failed or timed-out source keeps old fact/dates, others still succeed', as
   const stale = fact({ metricId: 'financing_buy', market: 'all', value: 999, observationDate: '2026-10-09', unit: '亿元', fetchedAt: '2026-10-10T00:00:00.000Z', firstSeenAt: '2026-10-10T00:00:00.000Z', frequency: 'daily' })
   const staleCnh = fact({ metricId: 'cnh', market: 'all', value: 6.5, observationDate: '2026-10-09', unit: 'CNH/USD', fetchedAt: '2026-10-10T00:00:00.000Z' })
   const fetchImpl = fakeFetch({
-    RPTA_RZRQ_LSHJ: () => ({ ok: false, status: 503 }),
+    queryMargin: () => ({ ok: false, status: 503 }),
     yahoo: () => new Promise(() => {}), // never resolves, ignores the signal
   })
   const out = await buildAutoSnapshot({ schemaVersion: 1, facts: [stale, staleCnh] }, { fetchImpl, now: NOW, parseXlsx: fakeXlsx, requestTimeoutMs: 80, sourceTimeoutMs: 200 })
@@ -385,7 +430,7 @@ test('invalid previous facts are dropped with an issue; fatal only with nothing 
   const none = await buildAutoSnapshot(null, { fetchImpl: failAll, now: NOW, parseXlsx: fakeXlsx })
   assert.equal(none.facts.length, 0)
   assert.equal(isFatal(none), true)
-  assert.equal(SOURCES.length, 14)
+  assert.equal(SOURCES.length, 15)
 })
 
 test('writeAtomic leaves no temp file and round-trips', async () => {

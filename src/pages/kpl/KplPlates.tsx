@@ -117,12 +117,15 @@ function Ranking({ m }: { m: KplPlates }): JSX.Element {
 }
 
 /* ---------- 板块资金热力图 ---------- */
+/** 采集脚本记下的英文报错换成中文，读者只需要知道是网络没取到 */
+const netErr = (e: string): string => e.replace(/fetch failed/gi, '网络请求失败').replace(/The operation was aborted due to timeout/gi, '请求超时')
+
 function HeatCard({ m }: { m: KplPlates }): JSX.Element {
   const [kind, setKind] = useState<RankKind>('industry')
   return (
     <Card title="板块资金热力图" as="section" className="mm-card" actions={<Segmented items={rankKinds(m).map(k => ({ ...k }))} value={kind} onChange={setKind} label="热力图板块类型" />}>
       <HeatMap key={kind} rows={boardsOf(m, kind)} label={`${kindLabel(kind)}板块资金热力图`} />
-      <p className="mm-method">{METHOD.heat}{m.region ? '' : m.sectionErrors.region ? ` 地域板块今日未取到（${m.sectionErrors.region}）。` : ''}</p>
+      <p className="mm-method">{METHOD.heat}{m.region ? '' : m.sectionErrors.region ? ` 地域板块今日未取到（${netErr(m.sectionErrors.region)}）。` : ''}</p>
     </Card>
   )
 }
@@ -135,7 +138,7 @@ function EtfCard({ m }: { m: KplPlates }): JSX.Element {
   return (
     <Card title="板块关联 ETF" as="section" className="mm-card" description={e ? `${e.date} 收盘，场内股票型 ETF ${e.universe} 只，已知跟踪指数 ${e.indexed} 只${e.pending ? `、待查 ${e.pending} 只（之后每个交易日补查）` : ''}。` : undefined}
       actions={e ? <Segmented items={KINDS.map(k => ({ ...k }))} value={kind} onChange={setKind} label="ETF 板块类型" /> : undefined}>
-      {e ? <EtfLinks key={kind} boards={e.boards.filter(b => b.kind === kind)} pct={pctOf} /> : <EmptyState title="板块关联 ETF 暂无数据">{m.sectionErrors.etf ? `今日 ETF 数据未取到：${m.sectionErrors.etf}` : '旧数据没有这一项，下一个交易日收盘后生成。'}</EmptyState>}
+      {e ? <EtfLinks key={kind} boards={e.boards.filter(b => b.kind === kind)} pct={pctOf} /> : <EmptyState title="板块关联 ETF 暂无数据">{m.sectionErrors.etf ? `今日 ETF 数据未取到：${netErr(m.sectionErrors.etf)}` : '旧数据没有这一项，下一个交易日收盘后生成。'}</EmptyState>}
       <p className="mm-method">{METHOD.etf}</p>
     </Card>
   )

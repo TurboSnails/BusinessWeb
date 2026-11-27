@@ -30,16 +30,15 @@ describe('InvestHub', () => {
     expect(within(tools).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/comprehensive-valuation', '/invest/macro-masters', '/invest/top-masters', '/invest/ai-token-economics', '/invest/fundamental-quant', '/invest/factor-lab', '/valuation', '/dcf', '/invest/index-valuation', '/index-panorama/', '/grid-trading', '/money-freedom', '/invest/etf', '/industry-etf', '/notes', '/invest/bond-fund-report', '/invest/blogger-views'])
   })
 
-  it('观察盘保留一张整行主卡片，宏观攻守等细节页收进默认折叠区', () => {
+  it('观察盘主卡片含观察盘与综合策略，其余细节页收进默认折叠区', () => {
     wrap(<InvestHub />)
     const watch = screen.getByRole('region', { name: '观察盘' })
     const fold = watch.querySelector('details')!
     expect(fold.open).toBe(false)
     expect(fold.querySelector('summary')?.textContent).toMatch(/细节页/)
-    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/strategy', '/invest/macro-posture', '/invest/market-radar', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
+    expect(within(fold).getAllByRole('link').map(a => a.getAttribute('href'))).toEqual(['/invest/macro-posture', '/invest/market-radar', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
     const main = within(watch).getAllByRole('link').filter(a => !fold.contains(a))
-    expect(main.map(a => a.getAttribute('href'))).toEqual(['/watch'])
-    expect(main[0].closest('ul')?.className).toContain('inv-cards--single')
+    expect(main.map(a => a.getAttribute('href'))).toEqual(['/watch', '/invest/strategy'])
   })
 
   it('分析筛选的卡片显示短说明而不是长说明', () => {

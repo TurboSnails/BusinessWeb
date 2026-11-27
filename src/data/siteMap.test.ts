@@ -73,7 +73,7 @@ describe('INVEST_GROUPS', () => {
   it('观察盘一页看完：/watch 是唯一主入口，宏观、全球、A股复盘、板块、涨停都是细节页', () => {
     expect(paths('watch')).toEqual(['/watch', '/invest/strategy', '/invest/macro-posture', '/invest/market-radar', '/monitor', '/pulse', '/daily-analysis', '/sector-rotation', '/limit-up-analysis'])
     const watch = INVEST_GROUPS.find(g => g.id === 'watch')!
-    expect(watch.links.filter(l => !l.minor).map(l => l.path)).toEqual(['/watch'])
+    expect(watch.links.filter(l => !l.minor).map(l => l.path)).toEqual(['/watch', '/invest/strategy'])
   })
 
   it('分析筛选从行业到公司，不放带具体买卖建议的观察池', () => {
@@ -178,9 +178,9 @@ describe('SEARCHABLE_PAGES', () => {
 })
 
 describe('WORKBENCH_TOOLS', () => {
-  it('8 个常用工具，候选池打头，顺序固定，都在注册表里且有短说明', () => {
+  it('9 个常用工具，综合策略打头，顺序固定，都在注册表里且有短说明', () => {
     expect(WORKBENCH_TOOLS.map(t => t.path)).toEqual([
-      '/candidates', '/research-notes', '/valuation', '/dcf', '/grid-trading', '/watch', '/knowledge', '/first-book',
+      '/invest/strategy', '/candidates', '/research-notes', '/valuation', '/dcf', '/grid-trading', '/watch', '/knowledge', '/first-book',
     ])
     for (const t of WORKBENCH_TOOLS) {
       expect(findSearchablePage(t.path), t.path).toBeTruthy()

@@ -56,7 +56,7 @@ export const INVEST_GROUPS: HubGroup[] = [
     hint: '每天看一眼观察盘就够；细节页只在需要时打开。看环境，不据此下单。',
     links: [
       { path: '/watch', label: '观察盘', short: '宏观、全球、A股一页看完', desc: '宏观阶段与关键读数、全球主要指数与商品汇率、A 股涨跌停与资金流向，一页看完' },
-      { path: '/invest/strategy', label: '综合策略', short: '宏观 + 股市：仓位怎么定', desc: '把宏观攻守和市场雷达合在一起看，直接回答现在怎么做、处在什么位置、为什么、什么情况下要动；仓位按宏观档位定，雷达的冷热决定这个阶段具体怎么做；附九种状态的历史表现与研究记录', minor: true },
+      { path: '/invest/strategy', label: '综合策略', short: '宏观 + 股市：仓位怎么定', desc: '把宏观攻守和市场雷达合在一起看，直接回答现在怎么做、处在什么位置、为什么、什么情况下要动；仓位按宏观档位定，雷达的冷热决定这个阶段具体怎么做；附九种状态的历史表现与研究记录' },
       { path: '/invest/macro-posture', label: '宏观攻守', short: '现在该进攻还是防守', desc: '参考九位宏观投资人公开方法提炼的美股综合攻守指标：五档仓位、置信度、距离改判，拿不准的指标分级放外圈；规则公开，附 1973 年以来回测', minor: true },
       { path: '/invest/market-radar', label: '市场雷达', short: '自建：估值、拥挤度与宽度', desc: '自建的指标体系，只从股市自身看冷热：流动性、估值、仓位与拥挤度、交易结构、盈利五个维度，每项给出读数、历史百分位与冷热；冷热的历史表现与综合分检验', minor: true },
       { path: '/monitor', label: '宏观温度', short: '中美港宏观读数与牛熊周期', desc: '中美港经济温度、牛熊周期六维证据、周月趋势与复盘记录', minor: true },
@@ -240,6 +240,7 @@ const shortOf = (path: string, fallback: string): string => {
 }
 
 export const WORKBENCH_TOOLS: WorkbenchTool[] = [
+  { path: '/invest/strategy', label: '综合策略', desc: shortOf('/invest/strategy', '宏观 + 股市：仓位怎么定') },
   { path: '/candidates', label: '候选池', desc: shortOf('/candidates', '我的候选与研究筛出') },
   { path: '/research-notes', label: '公司研究', desc: shortOf('/research-notes', '四个市场的公司库') },
   { path: '/valuation', label: '估值工作台', desc: shortOf('/valuation', '自动取财报，六法三情景') },

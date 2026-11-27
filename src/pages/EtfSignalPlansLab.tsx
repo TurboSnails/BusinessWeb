@@ -114,7 +114,7 @@ export default function EtfSignalPlansLab(): JSX.Element {
       <LabNav current="/lab/etf-signal-plans" />
       <PageToolbar note="创业板择时 / 沪深300择时 / 纯MACD 的研究口径回测。独立实验页，不并入网格主流程；不发提醒。" />
       <Callout tone="warn" title="观察中 · 不是买卖指令">
-        满仓进出、单边 0.1% 成本、前 120 根预热。日线与择时比值一律腾讯后复权（hfq）。逐年=自然年单独回测（不足 120 交易日不计）；年化需满一年；卡玛=年化÷|最大回撤|。历史统计不代表未来。
+        满仓进出、单边 0.1% 成本、前 120 根预热。日线与择时比值一律用腾讯后复权数据。逐年=自然年单独回测（不足 120 交易日不计）；年化需满一年；卡玛=年化÷|最大回撤|。历史统计不代表未来。
       </Callout>
       <form className="lab-hub-links lab-hub-links--center" onSubmit={e => { e.preventDefault(); run() }}>
         <label>代码 <input value={input} onChange={e => setInput(e.target.value)} maxLength={6} inputMode="numeric" /></label>
@@ -139,7 +139,7 @@ export default function EtfSignalPlansLab(): JSX.Element {
               const signals = [...plan.signals].filter(s => !s.forced).slice(-8).reverse()
               return (
                 <Card key={plan.key} as="section" title={`${plan.name}${isBest ? ' · 全历史卡玛最高' : ''}`}
-                  description={plan.key === 'macd' ? '不择时' : plan.key === 'cyb' ? '创业板÷红利 > 20 日均线为牛 + Y1' : '沪深300÷红利 > 20 日均线为牛 + 只认金叉'}>
+                  description={plan.key === 'macd' ? '不择时' : plan.key === 'cyb' ? '创业板÷红利 > 20 日均线为牛 + 金叉或站上 10 日线（Y1）' : '沪深300÷红利 > 20 日均线为牛 + 只认金叉'}>
                   {full && (
                     <p className="etf-flow__note">
                       全历史 {full.first} — {full.last} · {full.years.toFixed(1)} 年 · {full.sessions} 根

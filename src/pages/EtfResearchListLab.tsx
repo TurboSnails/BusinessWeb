@@ -14,13 +14,13 @@ const META: Record<Kind, { path: string; title: string; file: string; note: stri
     path: '/lab/etf-macd-good',
     title: '创业板择时优选（实验）',
     file: 'etf-macd-good.json',
-    note: '研究筛出的「Y1 + 创业板择时」逐年相对稳定名单。独立入口，不 seed 进复盘。',
+    note: '研究筛出的「创业板择时 + 金叉或站上 10 日线（研究编号 Y1）」逐年相对稳定名单。独立入口，不写入复盘。',
   },
   'hs300-timing': {
     path: '/lab/etf-hs300-timing',
     title: '沪深300择时优选（实验）',
     file: 'etf-hs300-timing.json',
-    note: '研究筛出的「只认金叉 + 沪深300择时」名单。独立入口，不 seed 进复盘。',
+    note: '研究筛出的「只认金叉 + 沪深300择时」名单。独立入口，不写入复盘。',
   },
 }
 

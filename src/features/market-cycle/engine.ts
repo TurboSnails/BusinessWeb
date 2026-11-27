@@ -148,7 +148,7 @@ export const MANUAL_NAMES: Record<ManualDimension, string> = { valuation: '估�
 export function manualFields(id: ManualDimension, market: Market): { key: string; label: string; min: number; max: number }[] {
   if (id === 'valuation' && isUs(market)) return [{ key: 'pePercentile', label: '该指数12个月Forward PE近5年分位（%，周度同口径）', min: 0, max: 100 }]
   if (id === 'funding' && isUs(market)) return [{ key: 'volumeRatio', label: '完整周成交量 / 前52周平均', min: 0, max: 30 }, { key: 'cashPercentile', label: 'FINRA客户现金÷保证金债务的历史分位（%）', min: 0, max: 100 }, { key: 'weekChange', label: '当周涨跌幅（%）', min: -50, max: 50 }]
-  if (id === 'valuation') return market === 'csi300' ? [{ key: 'erpZ', label: 'ERP z-score（同口径至少5年窗口）', min: -10, max: 10 }] : [{ key: 'pePercentile', label: '该指数PE历史分位（%，同口径至少5年；注明盈利及采样口径）', min: 0, max: 100 }]
+  if (id === 'valuation') return market === 'csi300' ? [{ key: 'erpZ', label: 'ERP z-score（股债收益率差的标准分，同口径至少5年窗口）', min: -10, max: 10 }] : [{ key: 'pePercentile', label: '该指数PE历史分位（%，同口径至少5年；注明盈利及采样口径）', min: 0, max: 100 }]
   if (id === 'breadth') return [{ key: 'breadth', label: '本期站上MA200占比（%）', min: 0, max: 100 }, { key: 'priorBreadth', label: '4周前同一股票池占比（%）', min: 0, max: 100 }]
   return [{ key: 'volumeRatio', label: '完整周日均成交额 / 前52周日均成交额', min: 0, max: 30 }, market === 'csi300' ? { key: 'financing', label: '同覆盖市场融资买入占成交额（%）', min: 0, max: 100 } : { key: 'south', label: '南向近20日净买入（亿元人民币，背景代理）', min: -100000, max: 100000 }]
 }
@@ -182,7 +182,7 @@ export function assessManual(id: ManualDimension, market: Market, o: Observation
     const x = market === 'csi300' ? v.erpZ : v.pePercentile
     signal = market === 'csi300' ? x >= 1.5 ? 'bottom' : x <= -1 ? 'risk' : 'neutral' : x <= 10 ? 'bottom' : x >= 90 ? 'risk' : 'neutral'
     headline = market === 'csi300' ? `ERP z-score ${x.toFixed(2)}` : `PE历史分位 ${x.toFixed(1)}%`
-    detail = market === 'csi300' ? `简化ERP z-score ${x.toFixed(2)}；≥1.5为便宜候选，≤−1为昂贵预警。需在来源记录PE类型、国债期限与历史窗口。` : `该指数同口径PE分位 ${x.toFixed(1)}%；≤10%为便宜候选，≥90%为昂贵预警。来源需注明盈利及采样口径。`
+    detail = market === 'csi300' ? `简化ERP z-score ${x.toFixed(2)}（股债收益率差相对近5年的标准分）；≥1.5为便宜候选，≤−1为昂贵预警。需在来源记录PE类型、国债期限与历史窗口。` : `该指数同口径PE分位 ${x.toFixed(1)}%；≤10%为便宜候选，≥90%为昂贵预警。来源需注明盈利及采样口径。`
   } else if (id === 'funding' && isUs(market)) {
     signal = usFundingSignal(v.volumeRatio, v.cashPercentile, v.weekChange)
     headline = `成交量 ${v.volumeRatio.toFixed(2)}倍52周基准 · 客户现金/保证金债务 ${v.cashPercentile.toFixed(1)}%分位`
@@ -256,7 +256,7 @@ export function overseasEvidence(us: MacroContext | null, asOf: string, name = '
 }
 
 export const DIMENSION_RULES: Record<string, (market: Market) => string> = {
-  valuation: market => isUs(market) ? '12个月Forward PE近5年周度分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。' : market === 'csi300' ? 'ERP z-score ≥1.5 → 偏低估；≤−1 → 偏贵预警；其余中性。' : '指数同口径PE历史分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。',
+  valuation: market => isUs(market) ? '12个月Forward PE近5年周度分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。' : market === 'csi300' ? 'ERP z-score（股债收益率差的标准分）≥1.5 → 偏低估；≤−1 → 偏贵预警；其余中性。' : '指数同口径PE历史分位 ≤10% → 偏低估；≥90% → 偏贵预警；其余中性。',
   funding: market => isUs(market) ? 'FINRA客户现金÷保证金债务历史分位 ≤10% → 风险；≥90% → 底部（杠杆出清）；成交量 ≥1.5倍52周基准且当周收涨 → 偏多；其余中性。' : market === 'csi300' ? '融资买入占成交额 ≥10% → 风险；成交额 ≤0.5倍52周基准且融资占比 <6% → 底部；成交额 ≥1.5倍且融资占比 <10% → 偏多；其余中性。' : '成交额 ≥1.5倍52周基准：南向净买入为正 → 偏多，为负 → 风险；成交额 ≤0.5倍 → 底部；其余中性。',
   breadth: market => isUs(market) ? '标普500 / 纳指100 成分股宽度暂未接入，本维度不计票。' : '站上MA200 ≤10% → 底部；4周前 ≥85% 且现在 <60% 且指数创52周新高 → 风险；现在 ≥40% 且4周前 <40% → 偏多；其余中性。',
   macro: market => isUs(market) ? 'NFCI 连续3次下降（放松）且累计≥0.1 → 偏多；连续3次上升（收紧）且累计≥0.1 → 风险；其余中性。' : 'M1−M2 连续3次改善 → 偏多；连续3次恶化 → 风险；其余中性。只用2025年新口径的近4个月。',

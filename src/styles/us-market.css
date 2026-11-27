@@ -1,0 +1,6 @@
+/* 全球行情页「美股指数 K 线与成交」：沿用 china-market.css 的图表样式，只补卡片内的两栏布局 */
+.us-market { margin-bottom: var(--space-5); }
+.us-market__panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.us-market__panel { min-width: 0; }
+.us-market__panel-label { font-size: .75rem; color: var(--text-secondary); }
+@media (max-width: 960px) { .us-market__panels { grid-template-columns: minmax(0, 1fr); } }

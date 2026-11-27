@@ -56,7 +56,7 @@ export default function CloudSyncPanel({ records, onSynced }: Props): JSX.Elemen
         <div className="grid-icon-badge"><Cloud size={18} /></div>
         <div>
           <h2 id="grid-cloud-title">可选云同步</h2>
-          <p>记录默认只存在本机浏览器；云同步不会连接 notes 项目的服务。</p>
+          <p>记录默认只存在本机浏览器；云同步只连接你自己部署的独立服务，不会连到其他项目。</p>
         </div>
         <span className={`grid-sync-status ${config ? 'is-ready' : ''}`}>
           {config ? '独立服务已配置' : '未配置'}

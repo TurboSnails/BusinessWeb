@@ -12,6 +12,7 @@ import { MarketCategory as MarketCategoryComponent } from '../components/pulse/M
 import { SectorSection } from '../components/pulse/SectorSection'
 import HeatmapSection from '../components/pulse/HeatmapSection'
 import ChinaMarketCharts from '../components/pulse/ChinaMarketCharts'
+import UsMarketCharts from '../components/pulse/UsMarketCharts'
 import { Card, Dialog, EmptyState, Field, Page } from '../components/ui'
 import {
   TrendingUp,
@@ -347,6 +348,7 @@ export default function Pulse({ view = 'market', notice }: { view?: 'market' | '
       {notice}
       <PageTitle>{view === 'analysis' ? '每日分析 · 历史旧版' : '全球行情'}</PageTitle>
       {view === 'market' && <ChinaMarketCharts />}
+      {view === 'market' && <UsMarketCharts />}
       <div role="tabpanel" aria-label="市场热力图" hidden={activeTab !== 'market'}>
         <HeatmapSection />
       </div>

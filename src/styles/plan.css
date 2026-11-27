@@ -274,6 +274,32 @@
   resize: vertical;
 }
 
+.plan-undo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft, var(--bg-secondary));
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.plan-field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  color: var(--up-ink, var(--system-red));
+  white-space: normal;
+}
+
+.plan-table .ui-input[aria-invalid="true"] {
+  border-color: var(--system-red);
+}
+
 .plan-icon-btn {
   justify-content: center;
   min-width: 36px;
