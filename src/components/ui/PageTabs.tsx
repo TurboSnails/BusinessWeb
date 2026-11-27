@@ -19,6 +19,7 @@ export function PageTabs<T extends string>({ items, value, onChange, label }: {
   label: string
 }): JSX.Element {
   const activeRef = useRef<HTMLButtonElement | null>(null)
+  const movedByKeyboard = useRef(false)
   const { ref: overflowRef, sync: syncOverflow } = useOverflowFade<HTMLDivElement>()
   const grouped = items.some(item => item.group)
 
@@ -26,6 +27,11 @@ export function PageTabs<T extends string>({ items, value, onChange, label }: {
     const child = activeRef.current
     const container = child?.parentElement
     if (child && container) scrollChildIntoViewX(container, child)
+    // 键盘切换后父树可能重挂载，下一帧把焦点钉回当前页签
+    if (movedByKeyboard.current) {
+      movedByKeyboard.current = false
+      child?.focus({ preventScroll: true })
+    }
     syncOverflow()
     const id = requestAnimationFrame(syncOverflow)
     return () => cancelAnimationFrame(id)
@@ -39,6 +45,7 @@ export function PageTabs<T extends string>({ items, value, onChange, label }: {
     const cur = Math.max(0, items.findIndex(i => i.id === value))
     const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1
       : (cur + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length
+    movedByKeyboard.current = true
     onChange(items[next].id)
     const buttons = e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')
     buttons[next]?.focus({ preventScroll: true })

@@ -175,11 +175,35 @@ export default function EtfUptrendLab(): JSX.Element {
 
       {day && (
         <section className="up-card" aria-label="名单">
-          <div className="up-tabs" role="tablist" aria-label="分类">
+          <div
+            className="up-tabs"
+            role="tablist"
+            aria-label="分类"
+            onKeyDown={e => {
+              const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
+              if (!keys.includes(e.key) || TABS.length === 0) return
+              e.preventDefault()
+              const ids = TABS.map(([id]) => id)
+              const cur = Math.max(0, ids.indexOf(filters.tab))
+              const next = e.key === 'Home' ? 0 : e.key === 'End' ? ids.length - 1
+                : (cur + (e.key === 'ArrowRight' ? 1 : -1) + ids.length) % ids.length
+              updateFilters({ tab: ids[next] })
+              const buttons = e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+              buttons[next]?.focus({ preventScroll: true })
+            }}
+          >
             {TABS.map(([id, label]) => {
               const c = tabCount(day, id, watch)
+              const active = filters.tab === id
               return (
-                <button key={id} type="button" role="tab" aria-selected={filters.tab === id} onClick={() => updateFilters({ tab: id })}>
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  tabIndex={active ? 0 : -1}
+                  onClick={() => updateFilters({ tab: id })}
+                >
                   {label}{c === null ? null : <span>{c}</span>}
                 </button>
               )

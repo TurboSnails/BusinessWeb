@@ -61,7 +61,7 @@
   },
   "components/pulse/IndexHeatmap.tsx": {
     "inline": 14,
-    "color": 18
+    "color": 14
   },
   "components/pulse/MarketCard.tsx": {
     "inline": 3,
@@ -105,10 +105,6 @@
   },
   "features/national-team/OverviewView.tsx": {
     "inline": 2,
-    "color": 0
-  },
-  "pages/CompanyDetail.tsx": {
-    "inline": 1,
     "color": 0
   },
   "pages/FirstBook.tsx": {

@@ -124,7 +124,7 @@
 }
 .valuation-selection,
 .valuation-connected {
-  color: var(--down);
+  color: var(--down-ink);
   font-size: 13px;
 }
 .valuation-connected {

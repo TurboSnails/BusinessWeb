@@ -136,6 +136,26 @@ describe('UsValuationHeatmap', () => {
     const { container } = render(<UsValuationHeatmap data={{ indexes: { spx: ix({ members: undefined }) } }} />)
     expect(container.innerHTML).toBe('')
   })
+
+  it('页签：只有当前项在 Tab 顺序；方向键 / Home / End 切换', () => {
+    render(<UsValuationHeatmap data={{ indexes: { spx: ix(), ndx: ix({ name: '纳斯达克 100', members: MEMBERS.slice(0, 2) }) }, maps: MAPS }} />)
+    const list = screen.getByRole('tablist', { name: '选择热力图' })
+    expect(screen.getByRole('tab', { name: '标普 500' }).getAttribute('tabindex')).toBe('0')
+    expect(screen.getByRole('tab', { name: '纳指 100' }).getAttribute('tabindex')).toBe('-1')
+
+    fireEvent.keyDown(list, { key: 'ArrowRight' })
+    expect(screen.getByRole('tab', { name: '纳指 100' }).getAttribute('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: '纳指 100' }))
+
+    fireEvent.keyDown(list, { key: 'End' })
+    expect(screen.getByRole('tab', { name: 'ETF' }).getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(list, { key: 'Home' })
+    expect(screen.getByRole('tab', { name: '标普 500' }).getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(list, { key: 'ArrowLeft' })
+    expect(screen.getByRole('tab', { name: 'ETF' }).getAttribute('aria-selected')).toBe('true')
+  })
 })
 
 describe('ValuationView · 估值热力图', () => {

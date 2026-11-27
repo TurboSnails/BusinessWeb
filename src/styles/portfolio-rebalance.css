@@ -645,11 +645,11 @@
 }
 
 .pr-positive {
-  color: var(--system-green);
+  color: var(--down-ink);
 }
 
 .pr-negative {
-  color: var(--system-red);
+  color: var(--up-ink);
 }
 
 .pr-table {

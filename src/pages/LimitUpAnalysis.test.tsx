@@ -80,6 +80,39 @@ it('损坏缓存不导致页面崩溃，而是重新加载', async () => {
   expect(screen.getByText('贝瑞基因')).toBeTruthy()
 })
 
+describe('涨停分析页签键盘', () => {
+  it('只有当前页签在 Tab 顺序里；方向键切换；Tab 能离开页签', async () => {
+    await show('2026-09-30', valid)
+    const list = screen.getByRole('tablist', { name: '涨停视图' })
+    const ladder = screen.getByRole('tab', { name: '涨停梯队' })
+    const plates = screen.getByRole('tab', { name: '板块明细' })
+    expect(ladder.getAttribute('tabindex')).toBe('0')
+    expect(plates.getAttribute('tabindex')).toBe('-1')
+
+    fireEvent.keyDown(list, { key: 'ArrowRight' })
+    expect(plates.getAttribute('aria-selected')).toBe('true')
+    expect(plates.getAttribute('tabindex')).toBe('0')
+    expect(document.activeElement).toBe(plates)
+
+    fireEvent.keyDown(list, { key: 'Home' })
+    expect(ladder.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.keyDown(list, { key: 'End' })
+    expect(plates.getAttribute('aria-selected')).toBe('true')
+
+    // Tab 离开：下一个可聚焦控件不应仍是页签
+    plates.focus()
+    const focusables = Array.from(
+      document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+    ).filter(el => el.tabIndex >= 0)
+    const idx = focusables.indexOf(plates)
+    const next = focusables[idx + 1]
+    expect(next).toBeTruthy()
+    expect(next?.getAttribute('role')).not.toBe('tab')
+  })
+
+})
+
 it('板块明细表头可排序，复制本板块写入剪贴板', async () => {
   const two = { code: 200, data: { plate_stock: [{ secu_name: '医药', change: .02, plate_stock_up_num: 2, stock_list: [
     { secu_code: 'sz000710', secu_name: '贝瑞基因', time: '2026-09-30 09:33:06', last_px: 10, change: .1, cmc: 100000000, up_num: '1天1板' },

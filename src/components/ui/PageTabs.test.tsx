@@ -29,14 +29,18 @@ describe('PageTabs 键盘操作', () => {
     fireEvent.keyDown(list, { key: 'ArrowRight' })
     expect(screen.getByRole('tab', { name: '配置' }).getAttribute('aria-selected')).toBe('true')
     expect(document.activeElement).toBe(screen.getByRole('tab', { name: '配置' }))
+    expect(screen.getByRole('tab', { name: '配置' }).getAttribute('tabindex')).toBe('0')
+    expect(screen.getByRole('tab', { name: '总览' }).getAttribute('tabindex')).toBe('-1')
     fireEvent.keyDown(list, { key: 'End' })
     expect(screen.getByRole('tab', { name: '复盘' }).getAttribute('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: '复盘' }))
     fireEvent.keyDown(list, { key: 'ArrowRight' })
     expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
     fireEvent.keyDown(list, { key: 'ArrowLeft' })
     expect(screen.getByRole('tab', { name: '复盘' }).getAttribute('aria-selected')).toBe('true')
     fireEvent.keyDown(list, { key: 'Home' })
     expect(screen.getByRole('tab', { name: '总览' }).getAttribute('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(screen.getByRole('tab', { name: '总览' }))
   })
 
   it('其他按键不拦截', () => {

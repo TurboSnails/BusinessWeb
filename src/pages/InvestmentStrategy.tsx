@@ -128,7 +128,7 @@ export default function InvestmentStrategy(): JSX.Element {
             {/* 邓普顿 */}
             <div style={card}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                <Globe size={18} color="var(--system-teal)" />
+                <Globe size={18} color="var(--accent-ink)" />
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>邓普顿的贡献</h3>
               </div>
               <div style={{ borderLeft: '2px solid var(--border-primary)', paddingLeft: '14px', marginBottom: '14px' }}>
@@ -139,7 +139,7 @@ export default function InvestmentStrategy(): JSX.Element {
               </div>
               <div>
                 {['全球视野', '极度逆向', '困境反转', '估值底部'].map(t => (
-                  <span key={t} style={badge('color-mix(in srgb, var(--system-teal) 15%, transparent)', 'var(--system-teal)')}>{t}</span>
+                  <span key={t} style={badge('color-mix(in srgb, var(--system-teal) 15%, transparent)', 'var(--accent-ink)')}>{t}</span>
                 ))}
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function InvestmentStrategy(): JSX.Element {
               </div>
               <div>
                 {['高位→冷门反转股', '低位→超跌知名股', '周期行业轮动', '大环境补涨逻辑'].map(t => (
-                  <span key={t} style={badge('color-mix(in srgb, var(--system-red) 10%, transparent)', 'var(--system-red)')}>{t}</span>
+                  <span key={t} style={badge('color-mix(in srgb, var(--system-red) 10%, transparent)', 'var(--up-ink)')}>{t}</span>
                 ))}
               </div>
             </div>
@@ -179,17 +179,17 @@ export default function InvestmentStrategy(): JSX.Element {
 
             {[
               {
-                dot: '衰', bg: 'color-mix(in srgb, var(--system-red) 12%, transparent)', color: 'var(--system-red)',
+                dot: '衰', bg: 'color-mix(in srgb, var(--system-red) 12%, transparent)', color: 'var(--up-ink)',
                 title: '衰退期 — 调研建单',
                 desc: '现金为王，建立超跌知名股观察池，暂不建仓。关注：负债率、现金流、核心业务收缩幅度'
               },
               {
-                dot: '复', bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--system-green)',
+                dot: '复', bg: 'color-mix(in srgb, var(--system-green) 12%, transparent)', color: 'var(--down-ink)',
                 title: '复苏期 — 主战场',
                 desc: '超跌知名股优先补涨窗口。PMI回升、信贷扩张、央行宽松信号出现时，分批建仓。这是策略最核心的黄金期'
               },
               {
-                dot: '热', bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)', color: 'var(--system-orange)',
+                dot: '热', bg: 'color-mix(in srgb, var(--system-orange) 12%, transparent)', color: 'var(--warm-ink)',
                 title: '过热期 — 冷门反转',
                 desc: '市场亢奋，转向冷门+业绩反转股。行业景气度指标、产能利用率开始改善但未被市场定价的品种'
               },
@@ -236,9 +236,9 @@ export default function InvestmentStrategy(): JSX.Element {
 
             <div style={card}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 14px' }}>第一关：跌幅量化</h3>
-              {checkRow('相对历史高点跌幅 > 50%', 'var(--system-green)')}
-              {checkRow('跑输同期行业指数 20% 以上（超跌验证）', 'var(--system-green)')}
-              {checkRow('PE/PB 处于历史分位数后 20%', 'var(--system-green)')}
+              {checkRow('相对历史高点跌幅 > 50%', 'var(--down-ink)')}
+              {checkRow('跑输同期行业指数 20% 以上（超跌验证）', 'var(--down-ink)')}
+              {checkRow('PE/PB 处于历史分位数后 20%', 'var(--down-ink)')}
             </div>
 
             <div style={card}>
@@ -264,10 +264,10 @@ export default function InvestmentStrategy(): JSX.Element {
                       <tr key={label} style={{ background: i % 2 === 1 ? 'var(--bg-secondary)' : 'transparent' }}>
                         <td style={{ padding: '10px 14px', color: 'var(--text-primary)', borderBottom: '0.5px solid var(--border-primary)' }}>{label}</td>
                         <td style={{ padding: '10px 14px', borderBottom: '0.5px solid var(--border-primary)' }}>
-                          <span style={badge('color-mix(in srgb, var(--system-green) 12%, transparent)', 'var(--system-green)')}>{good}</span>
+                          <span style={badge('color-mix(in srgb, var(--system-green) 12%, transparent)', 'var(--down-ink)')}>{good}</span>
                         </td>
                         <td style={{ padding: '10px 14px', borderBottom: '0.5px solid var(--border-primary)' }}>
-                          <span style={badge('color-mix(in srgb, var(--system-red) 12%, transparent)', 'var(--system-red)')}>{bad}</span>
+                          <span style={badge('color-mix(in srgb, var(--system-red) 12%, transparent)', 'var(--up-ink)')}>{bad}</span>
                         </td>
                       </tr>
                     ))}
@@ -288,10 +288,10 @@ export default function InvestmentStrategy(): JSX.Element {
             <p style={sectionTitle}>冷门反转股 — 过滤体系</p>
             <div style={card}>
               <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 14px' }}>核心筛选条件</h3>
-              {checkRow('机构持仓比例 < 5%（真正冷门）', 'var(--system-orange)')}
-              {checkRow('连续2个季度营收增速由负转正', 'var(--system-orange)')}
-              {checkRow('行业景气度处于底部回升初期', 'var(--system-orange)')}
-              {checkRow('市值 < 历史均值 40%（估值足够低）', 'var(--system-orange)')}
+              {checkRow('机构持仓比例 < 5%（真正冷门）', 'var(--warm-ink)')}
+              {checkRow('连续2个季度营收增速由负转正', 'var(--warm-ink)')}
+              {checkRow('行业景气度处于底部回升初期', 'var(--warm-ink)')}
+              {checkRow('市值 < 历史均值 40%（估值足够低）', 'var(--warm-ink)')}
             </div>
           </div>
         )}
@@ -322,15 +322,15 @@ export default function InvestmentStrategy(): JSX.Element {
             <div style={card}>
               {checkRow(
                 <>股价回到历史高点的 <strong style={{ color: 'var(--text-primary)' }}>50–61.8%</strong>（黄金分割位），减仓50%</>,
-                'var(--system-green)'
+                'var(--down-ink)'
               )}
               {checkRow(
                 'PE/PB 回到历史均值区间，机构仓位明显回升时，开始减仓',
-                'var(--system-green)'
+                'var(--down-ink)'
               )}
               {checkRow(
                 '市场整体进入过热期，降低整体仓位',
-                'var(--system-green)'
+                'var(--down-ink)'
               )}
             </div>
           </div>

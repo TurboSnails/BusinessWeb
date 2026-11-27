@@ -286,7 +286,7 @@
 .mm-dim__contrarian {
   font-size: 12px;
   font-weight: 650;
-  color: var(--accent-warm, var(--accent));
+  color: var(--warm-ink, var(--accent-ink));
 }
 
 .mm-dim__state {

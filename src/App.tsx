@@ -134,7 +134,19 @@ function RoutedBoundary({ children }: { children: React.ReactNode }): JSX.Elemen
   return <ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary>
 }
 
-/** 键盘与读屏用户跳过顶部导航：把焦点移到页面的 main（没有就退到 h1） */
+/** 把焦点移到 main（没有就退到 h1）；main 常驻 tabindex=-1，未 hydration 时靠锚点也能落到正文 */
+function focusMainContent(): void {
+  const target =
+    document.getElementById('main-content') ??
+    document.querySelector<HTMLElement>('main, [role="main"]') ??
+    document.querySelector<HTMLElement>('h1')
+  if (!target) return
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+  target.focus()
+  target.scrollIntoView()
+}
+
+/** 键盘与读屏用户跳过顶部导航 */
 function SkipLink(): JSX.Element {
   return (
     <a
@@ -142,11 +154,7 @@ function SkipLink(): JSX.Element {
       href="#main-content"
       onClick={e => {
         e.preventDefault()
-        const target = document.querySelector<HTMLElement>('main, [role="main"]') ?? document.querySelector<HTMLElement>('h1')
-        if (!target) return
-        target.setAttribute('tabindex', '-1')
-        target.focus()
-        target.scrollIntoView()
+        focusMainContent()
       }}
     >
       跳到主要内容

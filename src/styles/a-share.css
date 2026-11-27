@@ -414,13 +414,13 @@
   justify-content: center;
   gap: 6px;
   margin-bottom: 4px;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 0.75rem;
 }
 
 .sector-source__time {
   margin-top: var(--space-2);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 0.75rem;
 }
 

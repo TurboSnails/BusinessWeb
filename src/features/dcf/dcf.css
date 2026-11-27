@@ -88,7 +88,7 @@
   background: var(--accent-soft);
 }
 .dcf-metric small {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 0.74rem;
 }
 .dcf-metric strong {

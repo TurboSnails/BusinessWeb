@@ -37,7 +37,7 @@
 .radar-cred.is-high { background: color-mix(in srgb, var(--system-green) 18%, transparent); }
 .radar-cred.is-medium { background: color-mix(in srgb, var(--system-orange) 18%, transparent); }
 .radar-signals { display: flex; flex-wrap: wrap; gap: 4px; min-width: 220px; }
-.radar-signal { padding: 1px 7px; border-radius: 4px; font-size: 0.75rem; color: var(--text-tertiary, var(--text-secondary)); background: var(--bg-secondary); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-secondary) 40%, transparent); }
+.radar-signal { padding: 1px 7px; border-radius: 4px; font-size: 0.75rem; color: var(--text-secondary); background: var(--bg-secondary); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-secondary) 40%, transparent); }
 .radar-signal.is-on { color: var(--text-primary); background: var(--accent-soft); text-decoration: none; }
 .radar-more { margin: 8px 0 16px; }
 .radar-foot { margin-top: 24px; line-height: 1.7; }

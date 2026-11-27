@@ -12,7 +12,7 @@ export function Page({ children, variant = 'default', className, title }: {
   title?: string
 }): JSX.Element {
   return (
-    <main id="main-content" className={cx('container page', variant === 'reading' && 'page--reading', className)}>
+    <main id="main-content" tabIndex={-1} className={cx('container page', variant === 'reading' && 'page--reading', className)}>
       {title && <PageTitle>{title}</PageTitle>}
       {children}
     </main>

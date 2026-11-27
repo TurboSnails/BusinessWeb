@@ -45,7 +45,7 @@
   --border-primary: var(--border-subtle);
   --border-light: var(--border-subtle);
   --bg-secondary: var(--system-gray6);
-  --text-tertiary: #857F72;
+  --text-tertiary: #757065;
   --shadow-subtle: none;
   --font-family: var(--font-sans);
 
@@ -236,9 +236,10 @@ button {
 }
 
 /* ───────── 无障碍与交互基础（Web Interface Guidelines） ───────── */
+/* 统一焦点环：!important 压过业务 CSS 里 outline:none / 0，避免 Tab 时看不见 */
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px !important;
 }
 button,
 a,
@@ -263,11 +264,12 @@ h3 {
 .plan-page button:not(.page-tab):not(:disabled):active {
   filter: brightness(0.92);
 }
+/* 高于 .site-header（z-index:1000），聚焦时不被顶栏挡住点击 */
 .skip-link {
   position: fixed;
   top: 8px;
   left: 8px;
-  z-index: 1000;
+  z-index: 1100;
   padding: 10px 16px;
   border-radius: var(--radius-sm, 8px);
   background: var(--text-primary);
@@ -278,6 +280,13 @@ h3 {
 }
 .skip-link:focus-visible {
   transform: none;
+}
+/* 跳转后的 main 不需要持续描边，避免整页框线 */
+main#main-content:focus {
+  outline: none !important;
+}
+main#main-content:focus-visible {
+  outline: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
   *,

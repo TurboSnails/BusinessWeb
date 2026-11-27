@@ -44,19 +44,19 @@
 /* 行情涨跌色：只打在数字上，避免宏观卡片 class="is-green" 整块染绿 */
 .watch-q__chg.is-red,
 .watch-breadth__text .is-red,
-.watch-flows b.is-red { color: var(--system-red); }
+.watch-flows b.is-red { color: var(--up-ink); }
 .watch-q__chg.is-green,
 .watch-breadth__text .is-green,
-.watch-flows b.is-green { color: var(--system-green); }
+.watch-flows b.is-green { color: var(--down-ink); }
 
 /* 宏观阶段 */
 .watch-macro { border-top: 4px solid var(--accent); }
 .watch-macro.is-green { border-top-color: var(--system-green); }
 .watch-macro.is-yellow { border-top-color: var(--accent-warm); }
 .watch-macro.is-red { border-top-color: var(--system-red); }
-.watch-macro.is-green .watch-stage__name { color: var(--system-green); }
+.watch-macro.is-green .watch-stage__name { color: var(--down-ink); }
 .watch-macro.is-yellow .watch-stage__name { color: var(--warm-ink); }
-.watch-macro.is-red .watch-stage__name { color: var(--system-red); }
+.watch-macro.is-red .watch-stage__name { color: var(--up-ink); }
 
 .watch-stage { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); }
 .watch-stage__name { font-family: var(--font-serif); font-size: 1.6rem; }
@@ -77,7 +77,7 @@
   padding: 0 6px;
   border-radius: var(--radius-sm);
   background: var(--system-green-light);
-  color: var(--system-green);
+  color: var(--down-ink);
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.6rem;
@@ -138,8 +138,8 @@
 }
 
 .watch-mood strong { font-size: 1.05rem; }
-.watch-mood.is-hot strong { color: var(--system-red); }
-.watch-mood.is-cold strong { color: var(--system-green); }
+.watch-mood.is-hot strong { color: var(--up-ink); }
+.watch-mood.is-cold strong { color: var(--down-ink); }
 .watch-mood span { color: var(--text-secondary); }
 
 .watch-breadth { margin-bottom: var(--space-3); }
@@ -204,9 +204,9 @@
 .watch-signals b { font-variant-numeric: tabular-nums; color: var(--text-primary); }
 /* 正常读数保持正文色；仅预警 / 危险上色 */
 .watch-signals .tone-yellow b { color: var(--warm-ink); }
-.watch-signals .tone-red b { color: var(--system-red); }
+.watch-signals .tone-red b { color: var(--up-ink); }
 .watch-signals .tone-yellow small { color: var(--warm-ink); }
-.watch-signals .tone-red small { color: var(--system-red); }
+.watch-signals .tone-red small { color: var(--up-ink); }
 .watch-signals small { color: var(--text-secondary); font-size: 0.75rem; }
 .watch-optsent { margin-top: var(--space-4); }
 .watch-optsent h3 { margin: 0; font-size: 0.85rem; }

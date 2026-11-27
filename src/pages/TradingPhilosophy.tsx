@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { PageTabs, PageTitle } from '../components/ui/PageTabs'
+import React, { useState, useEffect, useRef } from 'react'
+import { PageTitle } from '../components/ui/PageTabs'
 import { Page } from '../components/ui'
+import { scrollChildIntoViewX, useOverflowFade } from '../hooks/useOverflowFade'
 import {
   Brain,
   Sparkles,
@@ -22,6 +23,56 @@ import {
   ShieldAlert,
   Rocket
 } from 'lucide-react'
+
+/** 章节目录：页内锚点跳转，不是互斥页签——用 nav，不用 role=tablist */
+function ChapterToc({
+  sections,
+  activeId,
+  onJump,
+}: {
+  sections: Array<{ id: string; label: string; icon: React.ReactNode }>
+  activeId: string
+  onJump(id: string): void
+}): JSX.Element {
+  const activeRef = useRef<HTMLButtonElement | null>(null)
+  const { ref: overflowRef, sync: syncOverflow } = useOverflowFade<HTMLElement>()
+
+  useEffect(() => {
+    const child = activeRef.current
+    const container = child?.parentElement
+    if (child && container) scrollChildIntoViewX(container, child)
+    syncOverflow()
+    const id = requestAnimationFrame(syncOverflow)
+    return () => cancelAnimationFrame(id)
+  }, [activeId, syncOverflow])
+
+  return (
+    <div className="page-tabs">
+      <nav
+        className="page-tabs__inner"
+        aria-label="章节"
+        ref={overflowRef}
+      >
+        {sections.map(section => {
+          const active = section.id === activeId
+          return (
+            <button
+              key={section.id}
+              type="button"
+              ref={active ? activeRef : undefined}
+              className={active ? 'page-tab is-active' : 'page-tab'}
+              aria-current={active ? 'true' : undefined}
+              onClick={() => onJump(section.id)}
+            >
+              {section.icon}
+              {section.label}
+            </button>
+          )
+        })}
+      </nav>
+    </div>
+  )
+}
 
 export default function TradingPhilosophy(): JSX.Element {
   const [showBackToTop, setShowBackToTop] = useState(false)
@@ -60,8 +111,11 @@ export default function TradingPhilosophy(): JSX.Element {
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
-    // 顶部有导航栏和吸顶章节页签，留出约 110px，避免标题被盖住
-    if (element) window.scrollTo({ top: element.getBoundingClientRect().top + window.scrollY - 110, behavior: 'smooth' })
+    // 顶部有导航栏和吸顶章节目录，留出约 110px，避免标题被盖住
+    if (element) {
+      setActiveSection(id)
+      window.scrollTo({ top: element.getBoundingClientRect().top + window.scrollY - 110, behavior: 'smooth' })
+    }
   }
 
   const scrollToTop = () => {
@@ -83,8 +137,15 @@ export default function TradingPhilosophy(): JSX.Element {
   return (
     <Page>
       <PageTitle>道与术（短线策略）</PageTitle>
-      <PageTabs label="章节" value={activeSection} onChange={scrollToSection}
-        items={sections.map(section => ({ id: section.id, label: section.title.replace(/[一二三四五六七八]、/, ''), icon: section.icon }))} />
+      <ChapterToc
+        activeId={activeSection}
+        onJump={scrollToSection}
+        sections={sections.map(section => ({
+          id: section.id,
+          label: section.title.replace(/[一二三四五六七八]、/, ''),
+          icon: section.icon,
+        }))}
+      />
 
       {/* 一、投资之"道" */}
       <section id="dao" className="card" style={{
@@ -271,7 +332,7 @@ export default function TradingPhilosophy(): JSX.Element {
                   >
                     <td style={{
                       padding: '12px 16px',
-                      color: 'var(--up)',
+                      color: 'var(--up-ink)',
                       fontWeight: '500',
                       lineHeight: '1.5'
                     }}>
@@ -288,7 +349,7 @@ export default function TradingPhilosophy(): JSX.Element {
                     </td>
                     <td style={{
                       padding: '12px 16px',
-                      color: 'var(--down)',
+                      color: 'var(--down-ink)',
                       fontWeight: '500',
                       lineHeight: '1.5'
                     }}>
@@ -602,7 +663,7 @@ export default function TradingPhilosophy(): JSX.Element {
                     <tr key={index} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                       <td style={{ padding: '10px 12px', fontWeight: '600', color: 'var(--text-primary)' }}>{row.dim}</td>
                       <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{row.indicator}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--down)', fontWeight: '500' }}>{row.standard}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--down-ink)', fontWeight: '500' }}>{row.standard}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1133,7 +1194,7 @@ export default function TradingPhilosophy(): JSX.Element {
                             <td style={{
                               padding: '12px',
                               fontWeight: '600',
-                              color: row.conclusion.includes('大涨') ? 'var(--down)' : row.conclusion.includes('快跑') ? 'var(--up)' : 'var(--accent-warm)'
+                              color: row.conclusion.includes('大涨') ? 'var(--down-ink)' : row.conclusion.includes('快跑') ? 'var(--up-ink)' : 'var(--accent-warm)'
                             }}>
                               {row.conclusion}
                             </td>
@@ -1493,7 +1554,7 @@ export default function TradingPhilosophy(): JSX.Element {
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid var(--system-green-light)' }}>
                       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--down-ink)' }}>{row.q}</td>
-                      <td style={{ padding: '12px', color: 'var(--down)' }}>{row.check}</td>
+                      <td style={{ padding: '12px', color: 'var(--down-ink)' }}>{row.check}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1573,7 +1634,7 @@ export default function TradingPhilosophy(): JSX.Element {
                     <tr key={index} style={{ borderBottom: '1px solid var(--accent-warm-soft)' }}>
                       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--warm-ink)' }}>{row.type}</td>
                       <td style={{ padding: '12px', color: 'var(--warm-ink)' }}>{row.trigger}</td>
-                      <td style={{ padding: '12px', fontWeight: '600', color: 'var(--up)' }}>{row.action}</td>
+                      <td style={{ padding: '12px', fontWeight: '600', color: 'var(--up-ink)' }}>{row.action}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1891,7 +1952,7 @@ export default function TradingPhilosophy(): JSX.Element {
                   <tr key={index} style={{ borderBottom: '1px solid var(--system-red-light)', background: index % 2 === 0 ? 'white' : 'var(--system-red-light)' }}>
                     <td style={{ padding: '12px', fontWeight: '600', color: 'var(--up-ink)' }}>{row.type}</td>
                     <td style={{ padding: '12px', color: 'var(--up-ink)' }}>{row.trigger}</td>
-                    <td style={{ padding: '12px', fontWeight: '600', color: 'var(--up)' }}>{row.action}</td>
+                    <td style={{ padding: '12px', fontWeight: '600', color: 'var(--up-ink)' }}>{row.action}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1970,7 +2031,7 @@ export default function TradingPhilosophy(): JSX.Element {
                     <tr key={index} style={{ borderBottom: '1px solid var(--accent-soft)' }}>
                       <td style={{ padding: '12px', fontWeight: '600', color: 'var(--accent-ink)' }}>{row.dim}</td>
                       <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>{row.content}</td>
-                      <td style={{ padding: '12px', color: 'var(--down)', fontWeight: '500' }}>{row.target}</td>
+                      <td style={{ padding: '12px', color: 'var(--down-ink)', fontWeight: '500' }}>{row.target}</td>
                     </tr>
                   ))}
                 </tbody>

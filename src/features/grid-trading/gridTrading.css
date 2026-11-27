@@ -42,7 +42,7 @@
 }
 .grid-button:hover:not(:disabled) { transform: translateY(-1px); background: var(--accent); }
 .grid-button:disabled, .grid-icon-button:disabled { opacity: .48; cursor: not-allowed; }
-.grid-button-secondary { background: var(--accent-soft); box-shadow: none; color: var(--accent); }
+.grid-button-secondary { background: var(--accent-soft); box-shadow: none; color: var(--accent-ink); }
 .grid-button-secondary:hover:not(:disabled) { background: var(--accent-soft); }
 .grid-assumption { margin-top: 20px; padding: 13px 15px; border-radius: 12px; background: var(--accent-soft); color: var(--text-secondary); font-size: .83rem; line-height: 1.65; }
 .grid-assumption strong { color: var(--text-primary); }
@@ -53,8 +53,8 @@
 .grid-metric { display: flex; min-height: 82px; flex-direction: column; justify-content: space-between; padding: 13px 15px; border-radius: 13px; background: var(--accent-soft); }
 .grid-metric small { color: var(--text-tertiary); font-size: .76rem; }
 .grid-metric strong { font-size: 1.07rem; }
-.grid-positive { color: var(--down); }
-.grid-negative { color: var(--up); }
+.grid-positive { color: var(--down-ink); }
+.grid-negative { color: var(--up-ink); }
 .grid-chart-wrap { margin-top: 22px; padding: 14px; border: 1px solid var(--accent-soft); border-radius: 16px; }
 .grid-chart-wrap h3 { font-size: .92rem; }
 .grid-equity-preview { display: block; width: 100%; height: auto; overflow: visible; }
@@ -83,7 +83,7 @@
 .grid-cloud-panel .grid-section-heading { margin-bottom: 14px; }
 .grid-sync-status { padding: 6px 9px; border-radius: 999px; background: var(--bg-secondary); color: var(--text-secondary); font-size: .72rem; font-weight: 650; white-space: nowrap; }
 .grid-sync-status.is-ready { color: var(--down-ink); background: var(--system-green-light); }
-.grid-cloud-boundary { display: flex; align-items: center; gap: 8px; margin: 12px 0 16px; padding: 11px 12px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); font-size: .8rem; }
+.grid-cloud-boundary { display: flex; align-items: center; gap: 8px; margin: 12px 0 16px; padding: 11px 12px; border-radius: 11px; background: var(--accent-soft); color: var(--accent-ink); font-size: .8rem; }
 .grid-cloud-config { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grid-cloud-config .grid-button-row { grid-column: 1 / -1; }
 .grid-file-input { display: none; }

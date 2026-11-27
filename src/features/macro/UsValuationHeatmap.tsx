@@ -158,10 +158,38 @@ export default function UsValuationHeatmap({ data }: { data: Pick<IndexSnapshot,
       <h3 id="uvh-title">估值热力图</h3>
       <p>每个方块的<b>面积代表市值</b>（ETF 为基金规模），<b>颜色代表市盈率</b>：绿色便宜、红色贵、灰色亏损或没有盈利。个股看 Forward PE（股价 ÷ 未来 12 个月预期每股收益），ETF 看持仓的滚动 PE。点分组名放大看。</p>
       <div className="uvh__bar">
-        <div className="uvh__tabs" role="tablist" aria-label="选择热力图">
-          {views.map(m => (
-            <button key={m.key} type="button" role="tab" aria-selected={v.key === m.key} className={`uvh__tab${v.key === m.key ? ' is-on' : ''}`} onClick={() => switchMap(m.key)}>{m.label}</button>
-          ))}
+        <div
+          className="uvh__tabs"
+          role="tablist"
+          aria-label="选择热力图"
+          onKeyDown={e => {
+            const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End']
+            if (!keys.includes(e.key) || views.length === 0) return
+            e.preventDefault()
+            const cur = Math.max(0, views.findIndex(m => m.key === v.key))
+            const next = e.key === 'Home' ? 0 : e.key === 'End' ? views.length - 1
+              : (cur + (e.key === 'ArrowRight' ? 1 : -1) + views.length) % views.length
+            switchMap(views[next].key)
+            const buttons = e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+            buttons[next]?.focus({ preventScroll: true })
+          }}
+        >
+          {views.map(m => {
+            const active = v.key === m.key
+            return (
+              <button
+                key={m.key}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                tabIndex={active ? 0 : -1}
+                className={`uvh__tab${active ? ' is-on' : ''}`}
+                onClick={() => switchMap(m.key)}
+              >
+                {m.label}
+              </button>
+            )
+          })}
         </div>
         <span className="macro-muted">
           {v.pe ? <>{v.scopeWord} {v.peName} <b>{v.pe.toFixed(1)}x</b>{v.median ? ` · 中位数 ${v.median.toFixed(1)}x` : ''}{v.date ? ` · ${v.date}` : ''}</> : null}

@@ -270,8 +270,8 @@ export default function IndexHeatmap({ market, tick, active }: Props): JSX.Eleme
   const flat = valid.filter(s => s.change === 0).length
   const times = valid.flatMap(s => s.quoteTime ? [s.quoteTime] : []).sort()
   const greenUp = !!cfg.greenUp
-  const upText = greenUp ? '#16a34a' : '#dc2626'
-  const downText = greenUp ? '#dc2626' : '#16a34a'
+  const upText = greenUp ? 'var(--down-ink)' : 'var(--up-ink)'
+  const downText = greenUp ? 'var(--up-ink)' : 'var(--down-ink)'
   const upLight = greenUp ? '#86efac' : '#fca5a5'
   const downLight = greenUp ? '#fca5a5' : '#86efac'
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: cfg.timeZone ?? 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())

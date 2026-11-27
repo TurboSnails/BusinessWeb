@@ -85,12 +85,12 @@
 
 .macro-summary__tier--lean-defense.is-current {
   background: var(--accent-warm-soft);
-  color: var(--accent-warm);
+  color: var(--warm-ink);
 }
 
 .macro-summary__tier--defense.is-current {
   background: var(--system-red-light);
-  color: var(--system-red);
+  color: var(--up-ink);
 }
 
 .macro-summary__current {

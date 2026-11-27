@@ -13,6 +13,7 @@ describe('Page', () => {
     expect(mains).toHaveLength(1)
     expect(mains[0].id).toBe('main-content')
     expect(mains[0].className).toBe('container page x-page')
+    expect(mains[0].getAttribute('tabindex')).toBe('-1')
   })
   it('reading 变体与视觉隐藏标题', () => {
     render(<Page variant="reading" title="公司详情">x</Page>)

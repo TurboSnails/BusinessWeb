@@ -5,7 +5,8 @@
   --cs-tier-defense: #b42318;
   --cs-tier-lean-defense: #d97706;
   --cs-tier-neutral: #7c7f68;
-  --cs-tier-lean-offense: #2f8f83;
+  /* #1F6B63：白字 6.28:1、#FFFDF8 上 6.18:1（原 #2F8F83 白字仅 3.91） */
+  --cs-tier-lean-offense: #1F6B63;
   --cs-tier-offense: #176b87;
   --mp-tier-defense: var(--cs-tier-defense);
   --mp-tier-lean-defense: var(--cs-tier-lean-defense);
@@ -21,7 +22,7 @@ html.dark .cs-page {
   --cs-tier-defense: #f07a68;
   --cs-tier-lean-defense: #f2a64a;
   --cs-tier-neutral: #a9ac93;
-  --cs-tier-lean-offense: #4fc2b2;
+  --cs-tier-lean-offense: #2A9A8C;
   --cs-tier-offense: #62b0dc;
 }
 
