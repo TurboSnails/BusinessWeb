@@ -10,6 +10,13 @@ export interface SiteUpdate {
 // 使用中文描述结果和使用方式，不从 Git 提交、构建或日常数据刷新自动生成。
 export const SITE_UPDATES: readonly SiteUpdate[] = [
   {
+    id: 'hk-new-constituents-research-2026-11-27',
+    date: '2026-11-27',
+    title: '港股研究池跟上恒指 / 恒科调整：新增 13 家，其中 5 家已有研究页',
+    description: '恒生指数和恒生科技指数调整后，港股研究池补入 13 家当期成分（共 140 家）。宁德时代、智谱、MiniMax、商汤、地平线 5 家已写好研究页：事实逐条来自港交所公告原件并标注页码，结论分别为观察、等待证据、等待证据、回避、回避。这几家要么刚上市、要么还在亏损或利润主要来自一次性收益，拿不到经核实的正常化盈利，所以三个情景价都标为缺失，不硬给价格。其余 8 家暂为「初筛」，只有行情，没有结论。以后指数再调整，研究池缺了哪些成分会自动提示。',
+    href: '/research-notes?tab=category&m=hk',
+  },
+  {
     id: 'radar-copper-spx-nasdaq',
     date: '2026-11-27',
     title: '市场雷达：金银比旁加铜价，并叠标普与纳斯达克',

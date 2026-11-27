@@ -36,8 +36,15 @@ describe('港股本轮研究不会被历史手工页和筛选数据覆盖', () =
     }
     expect(read('batches.json').every((b: { codes: string[] }) => b.codes.length >= 3 && b.codes.length <= 5)).toBe(true)
     expect(read('batches.json').flatMap((b: { codes: string[] }) => b.codes).sort()).toEqual(audit.companies.map((c: { code: string }) => c.code).sort())
-    // 恒指/恒科新增成分以程序化初筛占位，不编造情景价
-    expect(screened.length).toBeGreaterThanOrEqual(13)
+    // 恒指/恒科新增成分以程序化初筛占位，不编造情景价（2026-11-27：13 家新增中 5 家已有手工研究页，其余 8 家仍为初筛）
+    expect(screened.length).toBeGreaterThanOrEqual(8)
+    for (const code of ['03750', '02513', '00100', '00020', '09660']) {
+      const c = companies.find(x => x.code === code)!
+      expect(c.auto, code).toBeFalsy()
+      expect(c.scenarios, code).toHaveLength(3)
+      expect(c.scenarios!.every(s => s.price.includes('[MISSING]')), code).toBe(true)
+      expect(c.rating, code).not.toMatch(/^未估值/)
+    }
     for (const c of screened) {
       expect(c.scenarios?.some(s => /\d/.test(s.price) && !/MISSING/.test(s.price)) ?? false).toBe(false)
       expect(c.rating).toMatch(/^未估值/)
