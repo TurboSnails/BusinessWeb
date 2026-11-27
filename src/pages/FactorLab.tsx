@@ -48,7 +48,7 @@ export interface FactorLabData {
 }
 
 const MARKET_LABEL: Record<string, string> = { cn: 'A 股', hk: '港股', us: '美股', us_kf: '美国因子组合' }
-const FACTOR_LABEL: Record<string, string> = { cn_sue: '盈余惊喜', cn_sur: '营收惊喜', turnover_vol_20d: '换手波动' }
+const FACTOR_LABEL: Record<string, string> = { cn_sue: '盈余惊喜', cn_sur: '营收惊喜', turnover_vol_20d: '换手波动', cn_multi4: '四合一组合（惊喜 + 换手稳定 + 价值）' }
 const MODE_LABEL: Record<string, string> = { explore: '探索', validate: '截面验证', confirm: '锁箱确认', forward: '前推' }
 /** R3 → 第 3 轮（R3）：轮次编号保留在括号里，摘要里会用它互相引用 */
 const roundLabel = (id: string): string => { const m = /^R(\d+)$/.exec(id); return m ? `第 ${m[1]} 轮（${id}）` : id }
@@ -121,8 +121,8 @@ export default function FactorLab(): JSX.Element {
                 ))}
               </ul>
               <p className="ss-p" data-testid="fl-pending">
-                A 股第一批锁箱确认已预注册（盈余惊喜、营收惊喜、换手波动 3 个候选，门槛写定后不改）：锁箱到 2026-11-30，
-                12 月补齐行情后一次性解封确认。三年锁箱功效低，即使因子真实有效，「通过」的概率也只有一到两成。
+                A 股第一批锁箱确认已预注册 4 个候选：盈余惊喜、营收惊喜、换手波动，以及第 8 轮新增的四合一组合（门槛写定后不改）。锁箱到 2026-11-30，
+                12 月补齐行情后一次性解封确认。三年锁箱功效低，即使因子真实有效，「通过」的概率也只有一到三成。美国因子组合的锁箱已在 2026-11-28 为风格轮动（L-042）解封一批。
               </p>
             </section>
 

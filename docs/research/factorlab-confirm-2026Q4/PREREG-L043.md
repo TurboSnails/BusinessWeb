@@ -13,10 +13,10 @@ cn_multi4 = zscore(cn_sue) + zscore(cn_sur) + zscore(−turnover_vol_20d) + zsco
 另外冻结以下文件（确认时逐一核对 sha256，任何一项不一致就不确认）：
 
 - L-038 已冻结的：`fundamentals_cn.py`、`factors/surprise.py`、`factors/price2.py`、`factor-data/cn/fin_pit.parquet`，哈希见 `PREREG.md`；
-- `research-py/factorlab/factors/composite.py` `7bbc7b72e3fdb5d2a60943e65a6cf4ba24c800d4f12ab49ea280c13351750ebc`；
-- `research-py/factorlab/factors/composite_r8.py` `19c82f68c88d7880387a2bae4f93e6fe32b3a3605b90f0879a824c7e95669b44`；
-- `research-py/factorlab/factors/fundamental_cn.py` `c5101d1183c3b84830949d5bed2a91ebff363ed82ac0c9e79593de3d928c6d09`（cn_ep_ttm）；
-- `research-py/factor-data/cn/shares_pit.parquet` `bb783a540bab1a33d7c1e63758fadbda12e825285da2343d600afef18c0f1997`（总市值的点时股本；确认时与 fin_pit 一样不重建，只补日线价格）。
+- `research-py/factorlab/factors/composite.py` sha256 `7bbc7b72e3fdb5d2a60943e65a6cf4ba24c800d4f12ab49ea280c13351750ebc`；
+- `research-py/factorlab/factors/composite_r8.py` sha256 `19c82f68c88d7880387a2bae4f93e6fe32b3a3605b90f0879a824c7e95669b44`；
+- `research-py/factorlab/factors/fundamental_cn.py` sha256 `c5101d1183c3b84830949d5bed2a91ebff363ed82ac0c9e79593de3d928c6d09`（cn_ep_ttm）；
+- `research-py/factor-data/cn/shares_pit.parquet` sha256 `bb783a540bab1a33d7c1e63758fadbda12e825285da2343d600afef18c0f1997`（总市值的点时股本；确认时与 fin_pit 一样不重建，只补日线价格）。
 
 ## 样本内数字（用于门槛）
 

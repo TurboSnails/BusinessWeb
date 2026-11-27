@@ -108,9 +108,11 @@ uv run python -m factorlab.cli unseal \
   --market cn \
   --batch 2026Q4-cn \
   --prereg 001087bd \
+  --prereg 24ce2039 \
   --candidate cn_sue \
   --candidate cn_sur \
   --candidate turnover_vol_20d \
+  --candidate cn_multi4 \
   --execution open
 ```
 
@@ -120,8 +122,8 @@ uv run python -m factorlab.cli unseal \
 |---|---|
 | `--market` | `cn` |
 | `--batch` | `2026Q4-cn`（批次号，勿与已有批次重复） |
-| `--prereg` | `001087bd`（可重复传多个；本批一个） |
-| `--candidate` | 三个因子名各一次 |
+| `--prereg` | `001087bd`（L-038）与 `24ce2039`（L-043，`PREREG-L043.md`）两个都要传 |
+| `--candidate` | 四个因子名各一次（L-043 新增 `cn_multi4`） |
 | `--execution` | `open`（默认；与预注册口径一致，勿改） |
 | `--note` | 可选 |
 
@@ -143,6 +145,7 @@ uv run python -m factorlab.cli unseal \
 uv run python -m factorlab.cli eval --market cn --factor cn_sue --mode confirm --batch 2026Q4-cn --json ../docs/research/factorlab-confirm-2026Q4/confirm-cn_sue.json
 uv run python -m factorlab.cli eval --market cn --factor cn_sur --mode confirm --batch 2026Q4-cn --json ../docs/research/factorlab-confirm-2026Q4/confirm-cn_sur.json
 uv run python -m factorlab.cli eval --market cn --factor turnover_vol_20d --mode confirm --batch 2026Q4-cn --json ../docs/research/factorlab-confirm-2026Q4/confirm-turnover_vol_20d.json
+uv run python -m factorlab.cli eval --market cn --factor cn_multi4 --mode confirm --batch 2026Q4-cn --json ../docs/research/factorlab-confirm-2026Q4/confirm-cn_multi4.json
 ```
 
 **预期：** Markdown 报告含 RankIC / tmu_cap / tmu_ew / NW t；JSON 落盘；登记簿 `mode=confirm` `status=ok`。
@@ -159,6 +162,8 @@ uv run python -m factorlab.cli eval --market cn --factor turnover_vol_20d --mode
 
 ## 6. 批内 Holm + 三档判定
 
+**L-043 补充：** K1–K3 仍按 L-038「批内 3 个」做 Holm；K4 按整批 4 个（K1–K4）做 Holm（更严）。解封前另核对 `PREREG-L043.md` 列出的文件哈希：`factors/composite.py`、`factors/composite_r8.py`、`factors/fundamental_cn.py`、`factor-data/cn/shares_pit.parquet`；`shares_pit.parquet` 与 `fin_pit.parquet` 一样不重建。
+
 PREREG 门槛（小数）：
 
 | 候选 | ½·m* |
@@ -166,6 +171,7 @@ PREREG 门槛（小数）：
 | K1 cn_sue | 0.00137（+0.137%/月） |
 | K2 cn_sur | 0.00153 |
 | K3 turnover_vol_20d | 0.00226 |
+| K4 cn_multi4（L-043，判 `tmu_ew`） | 0.00305 |
 
 规则：
 
@@ -231,7 +237,7 @@ uv run python -m factorlab.forward status --market cn
 | 数据 / 冻结哈希 | `uv run python -m factorlab.datapack status` |
 | 解包 | `uv run python -m factorlab.datapack unpack <tar> [--force]` |
 | 增量行情 | `uv run python -m factorlab.sources.cn_update`（实现中） |
-| 解封 | `uv run python -m factorlab.cli unseal --market cn --batch 2026Q4-cn --prereg 001087bd --candidate ...` |
+| 解封 | `uv run python -m factorlab.cli unseal --market cn --batch 2026Q4-cn --prereg 001087bd --prereg 24ce2039 --candidate ...`（四个候选） |
 | 确认 | `uv run python -m factorlab.cli eval --market cn --factor F --mode confirm --batch 2026Q4-cn` |
 | Holm 三档 | `uv run python -m factorlab.forward holm --market cn --batch 2026Q4-cn` |
 | 前推 | `uv run python -m factorlab.forward run --market cn` |
