@@ -62,19 +62,19 @@
 .lab-rcard__summary { font-size: 0.86rem; line-height: 1.6; color: var(--text-secondary); }
 .lab-rcard__go { margin-top: auto; font-size: 0.8rem; color: var(--accent-ink, var(--text-primary)); }
 
-/* 页内跳转：同一页签有多项研究时 */
+/* 页内跳转：同一页签有多项研究时，每个子分组一行 */
 .lab-jump {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   margin: 0 0 24px;
   padding: 10px 12px;
   border: 1px solid var(--cs-line);
   border-radius: 10px;
   background: var(--cs-card-bg);
 }
-.lab-jump__label { font-size: 0.78rem; color: var(--text-secondary); margin-right: 2px; }
+.lab-jump__group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.lab-jump__label { flex: 0 0 auto; min-width: 7.5em; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-right: 2px; }
 .lab-jump__btn {
   display: inline-flex;
   align-items: center;
@@ -90,6 +90,30 @@
 }
 .lab-jump__btn:hover { border-color: color-mix(in srgb, var(--text-primary) 30%, var(--cs-line)); }
 .lab-jump__btn:focus-visible { outline: 2px solid var(--accent-ink, currentColor); outline-offset: 2px; }
+
+/* 页签内子分组 */
+.lab-group + .lab-group { margin-top: 48px; }
+.lab-group__head {
+  margin: 0 0 20px;
+  padding: 0 0 8px;
+  border-bottom: 2px solid var(--cs-line);
+}
+.lab-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+.lab-group__count { font-size: 0.75rem; font-weight: 500; letter-spacing: 0; }
+.lab-group__note { margin: 4px 0 0; font-size: 0.82rem; color: var(--text-secondary); }
+
+@media (max-width: 560px) {
+  .lab-jump__label { flex-basis: 100%; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .lab-rcard__btn { transition: none; }

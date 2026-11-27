@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import data from '../features/strategy-lab/data/late-cycle.json'
@@ -16,7 +16,7 @@ import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
 import tm from '../features/strategy-lab/data/trend-momentum.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
-import StrategyLab, { LAB_STUDIES, STRATEGY_LAB_LEAD } from './StrategyLab'
+import StrategyLab, { LAB_GROUPS, LAB_STUDIES, STRATEGY_LAB_LEAD, groupedStudies } from './StrategyLab'
 
 vi.mock('../features/combined-strategy/load', () => ({
   useCombinedStrategy: vi.fn(() => ({ status: 'ready', data: { current: { instruction: '股票仓位保持在你上限的 85%，本月不用调。' } } })),
@@ -113,6 +113,36 @@ describe('研究中页签', () => {
     expect(screen.getByTestId('lab-etf-volume')).toBeTruthy()
     expect(screen.queryByRole('navigation', { name: '本页研究' })).toBeNull()
     expect(screen.queryByTestId('lab-vol-confirm')).toBeNull()
+  })
+
+  it('子分组：每项研究都属于本页签的某个分组，且没有空分组', () => {
+    for (const s of LAB_STUDIES) {
+      expect(LAB_GROUPS[s.tab].map(g => g.id), s.id).toContain(s.group)
+    }
+    for (const [tab, groups] of Object.entries(LAB_GROUPS)) {
+      for (const g of groups) expect(LAB_STUDIES.some(s => s.tab === tab && s.group === g.id), `${tab}/${g.id}`).toBe(true)
+      expect(groupedStudies(tab as keyof typeof LAB_GROUPS).flatMap(g => g.studies)).toHaveLength(LAB_STUDIES.filter(s => s.tab === tab).length)
+    }
+  })
+
+  it('防下跌页签按子分组显示，BTC 研究单独放在「其他资产」并注明与美股规则无关', () => {
+    renderPage(at('trend'))
+    const titles = screen.getAllByRole('heading', { level: 2 }).filter(h => h.classList.contains('lab-group__title')).map(h => h.firstChild?.textContent)
+    expect(titles).toEqual(LAB_GROUPS.trend.map(g => g.label))
+    const other = screen.getByTestId('lab-group-trend-other')
+    expect(other.querySelector('#lab-crypto-l039')).not.toBeNull()
+    expect(other.textContent).toContain('与美股仓位规则无关')
+    expect(screen.getByTestId('lab-group-trend-ma').querySelector('#lab-crypto-l039')).toBeNull()
+    const jump = screen.getByRole('navigation', { name: '本页研究' })
+    for (const g of LAB_GROUPS.trend) expect(jump.textContent).toContain(g.label)
+  })
+
+  it('只有一项研究的页签也显示子分组标题；总览卡片标出页签与子分组', () => {
+    renderPage(at('cn'))
+    expect(screen.getByTestId('lab-group-cn-timing').textContent).toContain('择时信号')
+    cleanup()
+    renderPage()
+    expect(screen.getByTestId('lab-card-lab-crypto-l039').textContent).toContain('防下跌 · 其他资产')
   })
 
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {

@@ -39,9 +39,45 @@ const MOVED: Record<string, string> = {
 export type LabTab = 'overview' | 'audit' | 'late' | 'trend' | 'vol' | 'rotate' | 'cn'
 type Status = 'pass' | 'partial' | 'fail' | 'note'
 
+type StudyTab = Exclude<LabTab, 'overview'>
+
+export interface LabGroup {
+  id: string
+  label: string
+  /** 可选的一句话说明，显示在分组标题下 */
+  note?: string
+}
+
+/** 每个页签内的子分组；页面按这里的顺序分组显示，组内按 LAB_STUDIES 的顺序 */
+export const LAB_GROUPS: Record<StudyTab, LabGroup[]> = {
+  audit: [{ id: 'rules', label: '现行规则审计' }],
+  late: [
+    { id: 'heat', label: '过热与拥挤读数' },
+    { id: 'signal', label: '预警信号与新指标' },
+    { id: 'case', label: '案例核查' },
+  ],
+  trend: [
+    { id: 'ma', label: '均线破位' },
+    { id: 'speed', label: '执行频率与刹车' },
+    { id: 'hedge', label: '期权保护' },
+    { id: 'other', label: '其他资产', note: '单独研究其他资产自身的择时，与美股仓位规则无关。' },
+  ],
+  vol: [
+    { id: 'cap', label: '调仓位降波动' },
+    { id: 'assets', label: '多资产与防守部分' },
+  ],
+  rotate: [
+    { id: 'multi', label: '多资产轮动' },
+    { id: 'country', label: '跨国轮动' },
+  ],
+  cn: [{ id: 'timing', label: '择时信号' }],
+}
+
 export interface LabStudy {
   id: string
-  tab: Exclude<LabTab, 'overview'>
+  tab: StudyTab
+  /** LAB_GROUPS[tab] 里的分组 id */
+  group: string
   title: string
   date: string
   status: Status
@@ -52,32 +88,40 @@ export interface LabStudy {
 
 /** 全部研究，按页签分组；同一页签内的顺序就是页面上的顺序 */
 export const LAB_STUDIES: LabStudy[] = [
-  { id: 'lab-overfit-audit', tab: 'audit', title: '现行规则的过拟合审计', date: '2026-11-26', status: 'note', statusText: '审计', summary: '算上试过的 86 种写法，不能排除优势来自挑选；参数过拟合风险高；整类宏观写法仍有显著好于恒定仓位的。规则不变，预期打折。', Component: OverfitAuditStudy },
-  { id: 'lab-heat-more', tab: 'late', title: '更多过热读数：小盘、港股、A 股、能源、金融与 49 个行业', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '罗素 2000、恒生、上证远高于均线，能源、金融占比偏高，之后一年都不更差；49 个行业一起看也不显著。作为展示指标加入雷达。', Component: HeatMoreStudy },
-  { id: 'lab-nasdaq-semis', tab: 'late', title: '纳斯达克与半导体的超配 / 过热读数', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '纳指、半导体过热或拥挤之后一年并没有更差；四种口径都没有预测力，作为展示指标加入雷达。', Component: NasdaqSemisHeatStudy },
-  { id: 'lab-liquidity', tab: 'late', title: '流动性能不能加进宏观攻守', date: '2026-11-26', status: 'fail', statusText: '不采用', summary: '政策流动性已在规则里；再加实际 M2 或美联储净流动性，规则反而变差。', Component: LiquidityStudy },
-  { id: 'lab-late-warning', tab: 'late', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
-  { id: 'lab-radar-vix', tab: 'late', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },
-  { id: 'lab-druckenmiller', tab: 'late', title: '德鲁肯米勒「逃顶」核查', date: '2026-11-26', status: 'note', statusText: '核查', summary: '只对了一半：公开说不做多股票时，标普已从高点回落约 6%。', Component: DruckenmillerNote },
-  { id: 'lab-trend-14', tab: 'trend', title: '十个月均线：14 国确认检验', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '14 国全部少跌、时机显著，但只少跌约 3.5%，全周期一半赚一半亏，晚一个月执行就亏；退路改为只保留上限。', Component: Trend14Study },
-  { id: 'lab-option-hedge', tab: 'trend', title: '期权保护能否更便宜地防急跌', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '每月买看跌急跌里少亏约 23%，但同等少亏下和直接降仓一样贵；零成本领口不起作用。', Component: OptionHedgeStudy },
-  { id: 'lab-trend', tab: 'trend', title: '趋势防下跌：1872–1934 年确认检验', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '现行十个月均线和破位封顶 50% 在 8 次大跌里都全部少跌，统计上不显著；规则不变，破位封顶进影子记录。', Component: TrendStudy },
-  { id: 'lab-late-cycle', tab: 'trend', title: '牛市后段到回调：月中刹车', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '策略只对宏观先转差的下跌有用；4 种按日刹车都不通过。', Component: LateCycleStudy },
-  { id: 'lab-daily-execution', tab: 'trend', title: '宏观攻守能不能按日执行', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '按日执行更差，维持按月。', Component: DailyExecutionStudy },
-  { id: 'lab-crypto-l039', tab: 'trend', title: 'BTC 单币择时研究（L-039）', date: '2026-11-27', status: 'fail', statusText: '旧史不通过', summary: '趋势择时比同波动固定仓位的回撤浅约 9 个百分点，但 2012–2017 年牛市里多数时间满仓，波动只比持有低约 8%，未达到预定的 15%，美股规则保持现行口径。', Component: CryptoL039Study },
-  { id: 'lab-defensive-trend', tab: 'vol', title: '防守部分放趋势过滤的债券（14 国）', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '债券趋势择时有价值（14 国全改善、安慰剂 p 0.006），但利率上行期仍比现金每年少 1.4 个百分点；防守部分继续放现金。', Component: DefensiveTrendStudy },
-  { id: 'lab-vol-confirm', tab: 'vol', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
-  { id: 'lab-multi-asset', tab: 'vol', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
-  { id: 'lab-vol-target', tab: 'vol', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
-  { id: 'lab-trend-momentum', tab: 'rotate', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
-  { id: 'lab-country-momentum', tab: 'rotate', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
-  { id: 'lab-etf-volume', tab: 'cn', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
+  { id: 'lab-overfit-audit', tab: 'audit', group: 'rules', title: '现行规则的过拟合审计', date: '2026-11-26', status: 'note', statusText: '审计', summary: '算上试过的 86 种写法，不能排除优势来自挑选；参数过拟合风险高；整类宏观写法仍有显著好于恒定仓位的。规则不变，预期打折。', Component: OverfitAuditStudy },
+  { id: 'lab-heat-more', tab: 'late', group: 'heat', title: '更多过热读数：小盘、港股、A 股、能源、金融与 49 个行业', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '罗素 2000、恒生、上证远高于均线，能源、金融占比偏高，之后一年都不更差；49 个行业一起看也不显著。作为展示指标加入雷达。', Component: HeatMoreStudy },
+  { id: 'lab-nasdaq-semis', tab: 'late', group: 'heat', title: '纳斯达克与半导体的超配 / 过热读数', date: '2026-11-26', status: 'fail', statusText: '没有预测力', summary: '纳指、半导体过热或拥挤之后一年并没有更差；四种口径都没有预测力，作为展示指标加入雷达。', Component: NasdaqSemisHeatStudy },
+  { id: 'lab-liquidity', tab: 'late', group: 'signal', title: '流动性能不能加进宏观攻守', date: '2026-11-26', status: 'fail', statusText: '不采用', summary: '政策流动性已在规则里；再加实际 M2 或美联储净流动性，规则反而变差。', Component: LiquidityStudy },
+  { id: 'lab-late-warning', tab: 'late', group: 'signal', title: '牛市后期多维预警', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '利差走阔、VIX 放大、新高变少、防守轮动、大盘停滞，7 种写法都不通过：这些现象多在回调开始后才凑齐。', Component: LateWarningStudy },
+  { id: 'lab-radar-vix', tab: 'late', group: 'signal', title: '雷达加企业利差与 VIX 变化趋势', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '两种计分写法验证期都更差；VIX 变化趋势改为只展示。', Component: RadarVixStudy },
+  { id: 'lab-druckenmiller', tab: 'late', group: 'case', title: '德鲁肯米勒「逃顶」核查', date: '2026-11-26', status: 'note', statusText: '核查', summary: '只对了一半：公开说不做多股票时，标普已从高点回落约 6%。', Component: DruckenmillerNote },
+  { id: 'lab-trend-14', tab: 'trend', group: 'ma', title: '十个月均线：14 国确认检验', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '14 国全部少跌、时机显著，但只少跌约 3.5%，全周期一半赚一半亏，晚一个月执行就亏；退路改为只保留上限。', Component: Trend14Study },
+  { id: 'lab-option-hedge', tab: 'trend', group: 'hedge', title: '期权保护能否更便宜地防急跌', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '每月买看跌急跌里少亏约 23%，但同等少亏下和直接降仓一样贵；零成本领口不起作用。', Component: OptionHedgeStudy },
+  { id: 'lab-trend', tab: 'trend', group: 'ma', title: '趋势防下跌：1872–1934 年确认检验', date: '2026-11-26', status: 'partial', statusText: '部分成立', summary: '现行十个月均线和破位封顶 50% 在 8 次大跌里都全部少跌，统计上不显著；规则不变，破位封顶进影子记录。', Component: TrendStudy },
+  { id: 'lab-late-cycle', tab: 'trend', group: 'speed', title: '牛市后段到回调：月中刹车', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '策略只对宏观先转差的下跌有用；4 种按日刹车都不通过。', Component: LateCycleStudy },
+  { id: 'lab-daily-execution', tab: 'trend', group: 'speed', title: '宏观攻守能不能按日执行', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '按日执行更差，维持按月。', Component: DailyExecutionStudy },
+  { id: 'lab-crypto-l039', tab: 'trend', group: 'other', title: 'BTC 单币择时研究（L-039）', date: '2026-11-27', status: 'fail', statusText: '旧史不通过', summary: '趋势择时比同波动固定仓位的回撤浅约 9 个百分点，但 2012–2017 年牛市里多数时间满仓，波动只比持有低约 8%，未达到预定的 15%，美股规则保持现行口径。', Component: CryptoL039Study },
+  { id: 'lab-defensive-trend', tab: 'vol', group: 'assets', title: '防守部分放趋势过滤的债券（14 国）', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '债券趋势择时有价值（14 国全改善、安慰剂 p 0.006），但利率上行期仍比现金每年少 1.4 个百分点；防守部分继续放现金。', Component: DefensiveTrendStudy },
+  { id: 'lab-vol-confirm', tab: 'vol', group: 'cap', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
+  { id: 'lab-multi-asset', tab: 'vol', group: 'assets', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
+  { id: 'lab-vol-target', tab: 'vol', group: 'cap', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
+  { id: 'lab-trend-momentum', tab: 'rotate', group: 'multi', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
+  { id: 'lab-country-momentum', tab: 'rotate', group: 'country', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
+  { id: 'lab-etf-volume', tab: 'cn', group: 'timing', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
 const TAB_LABEL: Record<LabTab, string> = { overview: '总览', audit: '规则可信度', late: '牛市后期', trend: '防下跌', vol: '降低波动', rotate: '轮动', cn: 'A 股 ETF' }
 const TAB_ORDER: LabTab[] = ['overview', 'audit', 'late', 'trend', 'vol', 'rotate', 'cn']
 const isTab = (v: string | null): v is LabTab => v != null && (TAB_ORDER as string[]).includes(v)
 const studyTab = (id: string): LabTab | null => (id === 'lab-v01' ? 'overview' : LAB_STUDIES.find(s => s.id === id)?.tab ?? null)
+const groupLabel = (s: LabStudy): string => LAB_GROUPS[s.tab].find(g => g.id === s.group)?.label ?? ''
+
+/** 页签内按子分组排好的研究；空分组不出现 */
+export function groupedStudies(tab: StudyTab): Array<LabGroup & { studies: LabStudy[] }> {
+  return LAB_GROUPS[tab]
+    .map(g => ({ ...g, studies: LAB_STUDIES.filter(s => s.tab === tab && s.group === g.id) }))
+    .filter(g => g.studies.length > 0)
+}
 
 function StudyCard({ study, onOpen }: { study: LabStudy; onOpen(): void }): JSX.Element {
   return (
@@ -86,7 +130,7 @@ function StudyCard({ study, onOpen }: { study: LabStudy; onOpen(): void }): JSX.
         <span className="lab-rcard__meta">
           <span className="lab-pill" data-status={study.status}>{study.statusText}</span>
           <span className="lab-rcard__date">{study.date}</span>
-          <span className="lab-rcard__tab">{TAB_LABEL[study.tab]}</span>
+          <span className="lab-rcard__tab">{TAB_LABEL[study.tab]} · {groupLabel(study)}</span>
         </span>
         <span className="lab-rcard__title">{study.title}</span>
         <span className="lab-rcard__summary">{study.summary}</span>
@@ -122,7 +166,8 @@ export default function StrategyLab(): JSX.Element {
   }, [tab, hashId])
 
   const moved = MOVED[hashId] ?? (paramTab === 'sector' ? MOVED['lab-sector-rotation'] : null)
-  const inTab = LAB_STUDIES.filter(s => s.tab === tab)
+  const groups = tab === 'overview' ? [] : groupedStudies(tab)
+  const inTabCount = groups.reduce((n, g) => n + g.studies.length, 0)
   const latest = [...LAB_STUDIES].sort((a, b) => b.date.localeCompare(a.date))
 
   if (moved) return <Navigate to={moved} replace />
@@ -159,18 +204,36 @@ export default function StrategyLab(): JSX.Element {
           </>
         ) : (
           <>
-            {inTab.length > 1 ? (
+            {inTabCount > 1 ? (
               <nav className="lab-jump" aria-label="本页研究">
-                <span className="lab-jump__label">本页</span>
-                {inTab.map(s => (
-                  <button key={s.id} type="button" className="lab-jump__btn" onClick={() => go(tab, s.id)}>
-                    <span className="lab-pill" data-status={s.status}>{s.statusText}</span>
-                    {s.title}
-                  </button>
+                {groups.map(g => (
+                  <div key={g.id} className="lab-jump__group">
+                    <span className="lab-jump__label">{g.label}</span>
+                    {g.studies.map(s => (
+                      <button key={s.id} type="button" className="lab-jump__btn" onClick={() => go(tab, s.id)}>
+                        <span className="lab-pill" data-status={s.status}>{s.statusText}</span>
+                        {s.title}
+                      </button>
+                    ))}
+                  </div>
                 ))}
               </nav>
             ) : null}
-            {inTab.map(({ id, Component }) => <Component key={id} />)}
+            {groups.map(g => {
+              const headId = `lab-group-${tab}-${g.id}`
+              return (
+                <section key={g.id} className="lab-group" aria-labelledby={headId} data-testid={headId}>
+                  <header className="lab-group__head">
+                    <h2 id={headId} className="lab-group__title">
+                      {g.label}
+                      <span className="lab-group__count">{g.studies.length} 项</span>
+                    </h2>
+                    {g.note ? <p className="lab-group__note">{g.note}</p> : null}
+                  </header>
+                  {g.studies.map(({ id, Component }) => <Component key={id} />)}
+                </section>
+              )
+            })}
           </>
         )}
       </div>
