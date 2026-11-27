@@ -1,0 +1,26 @@
+{
+  "note": "Ken French 数据库日线，202609 CRSP 版；L-040 一次性下载冻结。",
+  "files": [
+    {
+      "file": "12_Industry_Portfolios_daily_CSV.zip",
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_daily_CSV.zip",
+      "downloadedUtc": "2026-11-27T18:47:39Z",
+      "bytes": 1094305,
+      "sha256": "d11f87b42f301ea931d1ddc823d3e2125aba4c8310eeeec43f96554e98b1ebb4"
+    },
+    {
+      "file": "49_Industry_Portfolios_daily_CSV.zip",
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/49_Industry_Portfolios_daily_CSV.zip",
+      "downloadedUtc": "2026-11-27T18:47:55Z",
+      "bytes": 4177116,
+      "sha256": "b9d36d571e968d71f7b03207e7fed6398554f953719b8c1bf3ee3ad8d00e7520"
+    },
+    {
+      "file": "F-F_Research_Data_Factors_daily_CSV.zip",
+      "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+      "downloadedUtc": "2026-11-27T18:47:57Z",
+      "bytes": 178326,
+      "sha256": "96c23b88e651cbfff3740a53f8225e59ee39893371e96385a1d8125ec2cd9c89"
+    }
+  ]
+}
