@@ -15,6 +15,7 @@ import trend14 from '../features/strategy-lab/data/trend-14.json'
 import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
 import tm from '../features/strategy-lab/data/trend-momentum.json'
+import ts from '../features/strategy-lab/data/tier-switch.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_GROUPS, LAB_STUDIES, STRATEGY_LAB_LEAD, groupedStudies } from './StrategyLab'
 
@@ -143,6 +144,16 @@ describe('研究中页签', () => {
     cleanup()
     renderPage()
     expect(screen.getByTestId('lab-card-lab-crypto-l039').textContent).toContain('防下跌 · 其他资产')
+  })
+
+  it('按档位切换行业（L-041）：在轮动页签，两种写法的结论与拆分表来自研究结果', () => {
+    renderPage(at('rotate'))
+    const table = screen.getByTestId('lab-tier-switch-table')
+    expect(table.textContent).toContain(ts.C1.verdict)
+    expect(table.textContent).toContain(ts.C2.verdict)
+    expect(within(screen.getByTestId('lab-tier-switch-split')).getAllByRole('row')).toHaveLength(5)
+    expect(within(screen.getByTestId('lab-tier-switch-excess')).getAllByRole('row')).toHaveLength(4)
+    expect(screen.getByTestId('lab-group-rotate-industry').querySelector('#lab-tier-switch')).not.toBeNull()
   })
 
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {

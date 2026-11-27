@@ -18,6 +18,7 @@ import RadarVixStudy from '../features/strategy-lab/RadarVixStudy'
 import { CountryMomentumStudy, HeatMoreStudy } from '../features/strategy-lab/RotationHeatStudies'
 import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendMomentumStudy from '../features/strategy-lab/TrendMomentumStudy'
+import TierSwitchStudy from '../features/strategy-lab/TierSwitchStudy'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
@@ -67,6 +68,7 @@ export const LAB_GROUPS: Record<StudyTab, LabGroup[]> = {
     { id: 'assets', label: '多资产与防守部分' },
   ],
   rotate: [
+    { id: 'industry', label: '按档位切换行业' },
     { id: 'multi', label: '多资产轮动' },
     { id: 'country', label: '跨国轮动' },
   ],
@@ -105,6 +107,7 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-vol-confirm', tab: 'vol', group: 'cap', title: '降低波动：确认检验与决定', date: '2026-11-25', status: 'partial', statusText: '部分成立', summary: '波动率目标不纳入规则；最可靠的是美股上限取 80%。', Component: VolConfirmStudy },
   { id: 'lab-multi-asset', tab: 'vol', group: 'assets', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', group: 'cap', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
+  { id: 'lab-tier-switch', tab: 'rotate', group: 'industry', title: '按宏观档位切换行业：偏防守买防守行业，偏进攻买进攻行业', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '防守侧换防守行业方向对，进攻侧换进攻行业在每段历史都拖后腿；合起来几乎没有好处，还不如一直放防守行业。股票部分维持全买宽基。', Component: TierSwitchStudy },
   { id: 'lab-trend-momentum', tab: 'rotate', group: 'multi', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
   { id: 'lab-country-momentum', tab: 'rotate', group: 'country', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
   { id: 'lab-etf-volume', tab: 'cn', group: 'timing', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
