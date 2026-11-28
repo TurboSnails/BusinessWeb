@@ -1,9 +1,11 @@
-// 数据整理自 2026-10-25 的一段 AI 对话（引用 Ramp AI Index、Reuters、Axios）。
-// 页面作者没有独立打开原始来源；所有数字按"对话所述"保存，推导值在下面用函数复算。
+// 思路整理自 2026-10-25 的一段 AI 对话；2026-11-28 按最新数据刷新：
+// Ramp 数字由脚本解析自 Ramp AI Index；API 价格核对了 OpenAI、Anthropic 官方价格页；
+// Anthropic 财务来自其招股书（S-1，2026-10-26 公开递交），经雅虎财经等媒体报道交叉核对，SEC 原文未能直接下载。
+// 仍标「对话所述」的条目没有找到原始来源。推导值在下面用函数复算。
 
 import raw from './snapshots.json'
 
-export type Verification = '已核对 Ramp' | '对话所述' | '可复算' | '假设'
+export type Verification = '已核对 Ramp' | '官方价格页' | '招股书（媒体报道）' | '页面查看' | '对话所述' | '可复算' | '假设'
 
 export interface PricePoint { now: number; prev: number; change: number }
 export interface ShareChange { now: number; prev: number }
@@ -107,16 +109,33 @@ export const SENSITIVITY_DEFAULT: SensitivityInput = {
 /** 价格弹性：价格变化 p、需求变化 d 后的收入变化 */
 export const revenueAfter = (priceChange: number, demandMultiple: number): number => (1 + priceChange) * demandMultiple - 1
 
-/** 单位：十亿美元（2.98 即 29.8 亿） */
+/**
+ * Anthropic 招股书财务，单位：十亿美元（4.6 即 46 亿）。
+ * 来源：S-1 及修订稿（2026-10-26 起），经雅虎财经、LeverageShares、FinanceFeeds 等报道交叉核对；未直接读到 SEC 原文。
+ * 2026 一季度营业亏损报道为「约 17 亿」，与二季度营业利润 9.74 亿合计即上半年营业亏损 6.93 亿。
+ */
 export const ANTHROPIC_FINANCIALS = {
-  operatingLoss2024: 2.98,
-  operatingLoss2025: 8.06,
   revenue2025: 4.6,
+  operatingLoss2025: 8.06,
   computeAndInfra2025: 7.3,
-  topTwoCustomersShare: 0.24,
+  revenueH1_2025: 1.2,
+  revenueQ1_2026: 4.7,
+  revenueQ2_2026: 11.6,
+  revenueH1_2026: 16.3,
+  operatingIncomeQ2_2026: 0.974,
+  operatingLossH1_2026: 0.693,
+  computeAndInfraH1_2026: 8.9,
+  netLossH1_2026: 80.7,
+  /** 上半年净亏损中，可转债、衍生工具等公允价值变动的非现金部分 */
+  nonCashFairValueH1_2026: 72.4,
+  /** 「约五分之一收入来自两名客户」（雅虎财经报道的招股书表述） */
+  topTwoCustomersShare: 0.2,
 } as const
 
-export const lossGrowth = (): number => ANTHROPIC_FINANCIALS.operatingLoss2025 / ANTHROPIC_FINANCIALS.operatingLoss2024 - 1
+export const ANTHROPIC_IPO = { pricedAt: 83, listedOn: '2026-11-19', exchange: '纳斯达克', ticker: 'ANT', raised: 81.3 } as const
+
+/** 2026 上半年收入同比倍数 */
+export const revenueGrowthH1 = (): number => ANTHROPIC_FINANCIALS.revenueH1_2026 / ANTHROPIC_FINANCIALS.revenueH1_2025
 
 export interface Claim {
   claim: string
@@ -125,14 +144,20 @@ export interface Claim {
   status: Verification
 }
 
-export const CLAIMS: Claim[] = [
-  { claim: '头部 1% 企业客户贡献约 80% 的相关支出', verdict: '有依据，但范围是 Ramp 企业样本', basis: 'Ramp 首席经济学家披露；不是两家公司经审计的全部收入结构', status: '对话所述' },
-  { claim: 'Anthropic 两家客户合计约 24% 收入', verdict: '有依据', basis: '路透社对其 IPO 文件的报道：两名客户各约 12%（2025 年）', status: '对话所述' },
-  { claim: 'Token 用量 +52.4%、支出 +23.0%', verdict: '同一范围（Ramp 样本内全部模型）', basis: 'Ramp AI Index Tokenomics 表：最新完整周对比上月同一周', status: '已核对 Ramp' },
-  { claim: 'OpenAI + Anthropic 综合单价 −25.4%', verdict: '范围更窄，不能与上两项直接相乘', basis: '只覆盖两家供应商；含客户转向便宜模型的组合效应（Ramp 表中 Blended price 行）', status: '已核对 Ramp' },
-  { claim: '同口径平均单价约 −19.3%', verdict: '复算得出', basis: '（1 + 支出变化）÷（1 + 用量变化）− 1', status: '可复算' },
-  { claim: '模型公司利润正在恶化', verdict: '无法由这些数据证明', basis: 'Ramp 不含推理成本、毛利与资本开支', status: '假设' },
-]
+const fmtPct = (v: number, digits = 1) => `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(digits)}%`
+
+/** 结论核对表：Ramp 相关的数字随最新一期快照变化 */
+export function buildClaims(s: Snapshot): Claim[] {
+  const implied = impliedPriceChange(s.tokenSpend, s.tokenUsage)
+  return [
+    { claim: '头部 1% 企业客户贡献约 80% 的 OpenAI / Anthropic 相关支出', verdict: '有出处，但范围是 Ramp 企业样本', basis: '媒体转述的 Ramp 首席经济学家说法，Ramp 指数页面未直接写出；页面可核对的是：AI 支出最高的 1% 企业，每名员工每月 AI 支出中位数约 1.02 万美元', status: '对话所述' },
+    { claim: 'Anthropic 约五分之一收入来自两名客户', verdict: '有依据', basis: '招股书披露，经雅虎财经报道；原对话说的「两家各约 12%、合计 24%」（2025 年）未找到原文，已替换', status: '招股书（媒体报道）' },
+    { claim: `Token 用量 ${fmtPct(s.tokenUsage)}、支出 ${fmtPct(s.tokenSpend)}`, verdict: '同一范围（Ramp 样本内全部模型）', basis: `Ramp AI Index Tokenomics 表：${s.weekEnding} 当周对比 ${s.comparedWeekEnding} 当周`, status: '已核对 Ramp' },
+    { claim: `OpenAI + Anthropic 综合单价 ${fmtPct(s.price.combined.change)}`, verdict: '范围更窄，不能与上两项直接相乘', basis: '只覆盖两家供应商；含客户转向便宜模型的组合效应（Ramp 表中 Blended price 行）', status: '已核对 Ramp' },
+    { claim: `同口径平均单价约 ${fmtPct(implied)}`, verdict: '复算得出', basis: '（1 + 支出变化）÷（1 + 用量变化）− 1', status: '可复算' },
+    { claim: '模型公司利润正在恶化', verdict: 'Ramp 数据证明不了；Anthropic 招股书显示相反', basis: 'Anthropic 2026 年二季度营业利润约 9.7 亿美元，上半年营业亏损收窄到约 6.9 亿；只有一个季度，OpenAI 未上市、没有可比数据', status: '招股书（媒体报道）' },
+  ]
+}
 
 export interface Limitation { title: string; detail: string }
 export const RAMP_LIMITS: Limitation[] = [
@@ -150,10 +175,16 @@ export const WATCHLIST: WatchRow[] = [
   { metric: '现金流', healthy: '经营现金流改善', risk: '收入高速增长但持续大量烧钱' },
 ]
 
-export const PRICE_EVENTS: Array<[string, string]> = [
-  ['OpenAI GPT-6 Sol / Luna', '相比 GPT-5.6 同档模型，API 价格下降约 50%'],
-  ['Anthropic Claude Opus 5.5', '相比 Opus 5，Token 标价下降约 20%'],
-  ['DeepSeek V4-Flash', '9 月调整价格，综合调用成本下降'],
-  ['Ramp（Axios，10 月 22 日）', 'Token 价格持续下降，企业 Token 支出已连续两个月相对平稳'],
-  ['OpenRouter 估算', '过去 30 天每日 Token 支出仍增长约 69%——渠道不同，趋势可以相反'],
+export interface PriceEvent { item: string; change: string; status: Verification }
+
+/** 每百万 Token 输入 / 输出标价（美元），2026-11-28 查看官方价格页；同档新旧型号比较 */
+export const PRICE_EVENTS: PriceEvent[] = [
+  { item: 'Anthropic Claude Opus 5.5', change: '4 / 20 美元；Opus 5 为 5 / 25，标价低 20%', status: '官方价格页' },
+  { item: 'Anthropic Claude Fable 5.2', change: '8 / 40 美元；Fable 5.1 为 10 / 50，低 20%；缓存读取 0.25 → 0.20 美元', status: '官方价格页' },
+  { item: 'Anthropic Claude Haiku 5.5', change: '提示不超过 10 万 Token 时 0.10 / 0.50 美元；Haiku 4.5 为 1 / 5，低 90%', status: '官方价格页' },
+  { item: 'Anthropic Claude Sonnet 5', change: '2 / 10 美元的推广价转为正式价，原定涨到 3 / 15 取消', status: '官方价格页' },
+  { item: 'OpenAI GPT-6.2 Astra', change: '8 / 40 美元；GPT-6 Astra 为 10 / 50，低 20%；缓存输入 1.00 → 0.40 美元', status: '官方价格页' },
+  { item: 'OpenAI GPT-6 Sol / Luna', change: 'Sol 2 / 10、Luna 0.10 / 0.50 美元；GPT-5.6 同档为 4 / 20、0.20 / 1.20，约低一半', status: '官方价格页' },
+  { item: 'OpenAI 后台请求', change: '允许 2 小时内完成便宜 30%，允许 8 小时内完成便宜 40%', status: '官方价格页' },
+  { item: 'OpenRouter 周榜', change: '用量第一的 DeepSeek V4.1 Flash 约 83 万亿 Token / 周，是第二名的两倍多，低价模型占走大部分调用量（榜单未注明日期）', status: '页面查看' },
 ]

@@ -22,4 +22,4 @@
 
 - `tokenUsage`、`tokenSpend` 覆盖 Ramp 样本内全部模型供应商；`price.combined` 只覆盖 OpenAI + Anthropic，两者不能直接相乘（页面有演算）。
 - Ramp 样本来自使用其 Token 管理产品的企业，不代表全市场；不含模型公司的成本和利润。
-- 页面中路透社、Axios、OpenRouter 与 Anthropic 财务来自 2026-10-25 的 AI 对话，未独立核对，已在页面逐条标注，需要时手工更新 `data.ts`。
+- 2026-11-28 手工刷新：Anthropic 财务改用招股书数字（经雅虎财经等报道交叉核对，SEC 原文需带联系邮箱的 User-Agent 才能下载，未下载）；价格变化核对了 OpenAI、Anthropic 官方价格页；无法找到原文的对话内容已删除或仍标「对话所述」。这些手工数据在 `data.ts`，不随每月任务更新，需要时手工更新。

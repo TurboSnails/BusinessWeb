@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   ANTHROPIC_FINANCIALS, SAVED_SNAPSHOTS, SENSITIVITY_DEFAULT, UNIT_EXAMPLE, pickLatest, vendorPrices,
-  changeOf, grossPerUnit, impliedPriceChange, lossGrowth, naiveSpendChange, revenueAfter, sensitivity, volumeMultipleToKeepGross,
+  changeOf, grossPerUnit, impliedPriceChange, revenueGrowthH1, naiveSpendChange, revenueAfter, sensitivity, volumeMultipleToKeepGross,
 } from './data'
 
 const latest = pickLatest(SAVED_SNAPSHOTS)
@@ -17,8 +17,12 @@ describe('Ramp 样本复算', () => {
   it('用 −25.4% 直接相乘得到约 +13.7%，与报告的 +23% 不一致', () => {
     expect(naiveSpendChange(RAMP_WEEKLY.tokenUsage, RAMP_WEEKLY.openaiAnthropicBlendedPrice)).toBeCloseTo(0.137, 3)
   })
-  it('厂商均价由前后价格复算，与披露降幅的差在 1 个百分点内（价格已四舍五入）', () => {
-    for (const v of vendorPrices(latest)) expect(Math.abs(changeOf(v.before, v.after) - v.reportedChange)).toBeLessThan(0.01)
+  it('厂商均价由前后价格复算，与披露降幅的差不超过四舍五入到分可能造成的误差', () => {
+    // 前后价各有 ±0.005 美元的舍入误差；单价越低，复算降幅的误差越大（如 0.45→0.38）
+    for (const s of SAVED_SNAPSHOTS) for (const v of vendorPrices(s)) {
+      const tol = 0.005 / v.before + 0.005 * v.after / (v.before * v.before) + 1e-9
+      expect(Math.abs(changeOf(v.before, v.after) - v.reportedChange)).toBeLessThanOrEqual(tol)
+    }
   })
 })
 
@@ -59,8 +63,13 @@ describe('敏感性模型', () => {
 })
 
 describe('Anthropic 财务', () => {
-  it('营业亏损 2.98→8.06 亿美元，扩大约 170%', () => {
-    expect(lossGrowth()).toBeCloseTo(1.705, 2)
+  it('2025 年算力支出高于收入；2026 上半年收入约为去年同期 13.6 倍', () => {
     expect(ANTHROPIC_FINANCIALS.computeAndInfra2025).toBeGreaterThan(ANTHROPIC_FINANCIALS.revenue2025)
+    expect(revenueGrowthH1()).toBeCloseTo(13.58, 1)
+  })
+  it('季度数字与上半年一致：一季度约 47 + 二季度 116 ≈ 163 亿；一季度营业亏损约 16.7 亿', () => {
+    const f = ANTHROPIC_FINANCIALS
+    expect(f.revenueQ1_2026 + f.revenueQ2_2026).toBeCloseTo(f.revenueH1_2026, 5)
+    expect(f.operatingIncomeQ2_2026 + f.operatingLossH1_2026).toBeCloseTo(1.667, 3)
   })
 })

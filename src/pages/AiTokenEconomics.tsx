@@ -4,8 +4,8 @@ import { RefreshCw } from 'lucide-react'
 import { Page } from '../components/ui'
 import BarChart, { PairChart } from '../features/ai-token-economics/BarChart'
 import {
-  ANTHROPIC_FINANCIALS, CLAIMS, PRICE_EVENTS, RAMP_LIMITS, SENSITIVITY_DEFAULT, UNIT_EXAMPLE, WATCHLIST,
-  changeOf, grossPerUnit, impliedPriceChange, lossGrowth, naiveSpendChange, revenueAfter, sensitivity, vendorPrices, volumeMultipleToKeepGross,
+  ANTHROPIC_FINANCIALS, ANTHROPIC_IPO, PRICE_EVENTS, RAMP_LIMITS, SENSITIVITY_DEFAULT, UNIT_EXAMPLE, WATCHLIST,
+  buildClaims, changeOf, grossPerUnit, impliedPriceChange, naiveSpendChange, revenueGrowthH1, revenueAfter, sensitivity, vendorPrices, volumeMultipleToKeepGross,
   type SensitivityInput, type Snapshot,
 } from '../features/ai-token-economics/data'
 import { useLatestSnapshot, type RefreshState } from '../features/ai-token-economics/useLatestSnapshot'
@@ -80,20 +80,23 @@ export default function AiTokenEconomics(): JSX.Element {
   const implied = impliedPriceChange(RAMP_WEEKLY.tokenSpend, RAMP_WEEKLY.tokenUsage)
   const naive = naiveSpendChange(RAMP_WEEKLY.tokenUsage, RAMP_WEEKLY.openaiAnthropicBlendedPrice)
   const before = UNIT_EXAMPLE.before, after = UNIT_EXAMPLE.after
+  const claims = buildClaims(snapshot)
+  const fin = ANTHROPIC_FINANCIALS
+  const yi = (billion: number) => num(billion * 10)
   return (
     <Page className="ate-page" variant="reading">
       <header className="ate-header">
         <h1>模型降价与利润：需求涨得比价格跌得快吗</h1>
-        <p className="ate-lead">用量还在涨得更快，所以客户总支出仍在增长；但利润是否改善，这批数据回答不了。</p>
+        <p className="ate-lead">用量还在涨得比价格跌得快，客户总支出仍在增长；Anthropic 招股书显示它 2026 年二季度营业利润已转正，但只有一个季度，OpenAI 没有可比数据。</p>
         <p className="ate-note" role="note">
-          思路整理自 2026-10-25 的一段 AI 对话。Ramp 的数字（用量、支出、综合单价、份额）由脚本直接解析自 Ramp AI Index 页面，并与对话逐项核对一致；路透社、Axios、OpenRouter 及 Anthropic 财务仍是对话所述，页面作者未打开原文，已逐条标注。标为“可复算”的值由页面内公式推出。研究参考，不构成买卖建议。
+          思路整理自 2026-10-25 的一段 AI 对话，2026-11-28 按最新数据刷新。Ramp 的数字（用量、支出、综合单价、份额）由脚本直接解析自 Ramp AI Index 页面；API 价格核对了 OpenAI、Anthropic 官方价格页；Anthropic 财务来自其招股书，经雅虎财经等多家报道交叉核对（未能直接读到美国证监会的原文）。仍标“对话所述”的条目没有找到原始来源。标为“可复算”的值由页面内公式推出。研究参考，不构成买卖建议。
         </p>
       </header>
 
       <section className="ate-section" aria-labelledby="ate-concentration">
         <h2 id="ate-concentration">一、“80% 收入来自 1% 用户”对不对</h2>
-        <p>说法来自 Ramp 首席经济学家披露的企业支付样本：头部 1% 企业客户贡献约 80% 的 OpenAI / Anthropic 相关支出。它是 Ramp 观察到的样本，不是两家公司经审计的全部收入结构。</p>
-        <p>更直接的证据在 Anthropic：路透社报道其 IPO 文件显示，2025 年有两名客户各贡献约 12%，合计约 {pct(ANTHROPIC_FINANCIALS.topTwoCustomersShare, 0).replace('+', '')} 的收入。</p>
+        <p>说法来自媒体转述的 Ramp 首席经济学家观点：头部 1% 企业客户贡献约 80% 的 OpenAI / Anthropic 相关支出（Ramp 指数页面没有直接写出这句，属对话所述）。页面上能核对的是：AI 支出最高的 1% 企业，每名员工每月花在 AI 上的中位数约 1.02 万美元。这是 Ramp 观察到的样本，不是两家公司经审计的全部收入结构。</p>
+        <p>更直接的证据在 Anthropic 的招股书：约五分之一的收入来自两名客户（雅虎财经报道）。截至 2026 年 9 月，过去 12 个月付费超过 100 万美元的客户约 1,900 家。</p>
         <p>收入集中本身不是坏事——大企业年付数千万美元，个人用户月付 20 美元，自然集中。要警惕的是头部客户主要是靠融资买 API 的 AI 初创公司，收入循环依赖，终端付费能否覆盖，才决定可持续性。</p>
       </section>
 
@@ -174,28 +177,37 @@ export default function AiTokenEconomics(): JSX.Element {
 
       <section className="ate-section" aria-labelledby="ate-profit">
         <h2 id="ate-profit">四、利润到底有没有下降</h2>
-        <p>目前不能证明最近的降价已让 OpenAI、Anthropic 的利润同步下降；也不能证明改善。可核对的只有 Anthropic 的历史财务（路透社 10 月 7 日对 IPO 文件的报道）：</p>
+        <p>Ramp 的数据只到客户付了多少钱，回答不了利润。能核对利润的是 Anthropic 的招股书：2026 年 10 月 26 日公开递交，{ANTHROPIC_IPO.listedOn.slice(5, 7)} 月 {Number(ANTHROPIC_IPO.listedOn.slice(8))} 日在{ANTHROPIC_IPO.exchange}上市（代码 {ANTHROPIC_IPO.ticker}，发行价 {ANTHROPIC_IPO.pricedAt} 美元）。OpenAI 未上市，没有可比数据。</p>
         <BarChart
-          title="Anthropic 财务（对话所述）"
+          title="Anthropic 财务（招股书，媒体报道）"
           unit=" · 亿美元"
           format={v => num(v)}
           bars={[
-            { label: '2024 营业亏损', value: ANTHROPIC_FINANCIALS.operatingLoss2024 * 10, tone: 'b' },
-            { label: '2025 营业亏损', value: ANTHROPIC_FINANCIALS.operatingLoss2025 * 10, tone: 'b' },
-            { label: '2025 收入', value: ANTHROPIC_FINANCIALS.revenue2025 * 10, tone: 'a' },
-            { label: '2025 算力与基础设施', value: ANTHROPIC_FINANCIALS.computeAndInfra2025 * 10, tone: 'c' },
+            { label: '2025 全年收入', value: fin.revenue2025 * 10, tone: 'a' },
+            { label: '2025 全年营业亏损', value: fin.operatingLoss2025 * 10, tone: 'b' },
+            { label: '2025 全年算力支出', value: fin.computeAndInfra2025 * 10, tone: 'c' },
+            { label: '2026 上半年收入', value: fin.revenueH1_2026 * 10, tone: 'a' },
+            { label: '2026 上半年营业亏损', value: fin.operatingLossH1_2026 * 10, tone: 'b' },
+            { label: '2026 上半年算力', value: fin.computeAndInfraH1_2026 * 10, tone: 'c' },
           ]}
         />
-        <p>营业亏损从 29.8 亿增至 80.6 亿美元，扩大约 {pct(lossGrowth(), 0).replace('+', '')}；2025 年收入 46 亿美元，算力与基础设施支出约 73 亿美元。这是历史亏损，不能据此推断 2026 年第三季度继续恶化。</p>
-        <p className="ate-note">收入口径也不同：对话称路透社报道 OpenAI 对部分云渠道收入按净额确认，Anthropic 按总额确认，直接比较收入会失真。</p>
+        <ul>
+          <li>2025 年收入 {yi(fin.revenue2025)} 亿美元，营业亏损 {yi(fin.operatingLoss2025)} 亿，算力与基础设施支出约 {yi(fin.computeAndInfra2025)} 亿，花在算力上的钱比收入还多。</li>
+          <li>2026 年上半年收入 {yi(fin.revenueH1_2026)} 亿美元，约为去年同期（{yi(fin.revenueH1_2025)} 亿）的 {revenueGrowthH1().toFixed(1)} 倍；一季度 {yi(fin.revenueQ1_2026)} 亿、二季度 {yi(fin.revenueQ2_2026)} 亿。</li>
+          <li>营业亏损收窄到 {yi(fin.operatingLossH1_2026)} 亿美元：一季度亏损约 17 亿，<b>二季度营业利润 {yi(fin.operatingIncomeQ2_2026)} 亿</b>。</li>
+          <li>上半年净亏损 {yi(fin.netLossH1_2026)} 亿美元，其中约 {yi(fin.nonCashFairValueH1_2026)} 亿是可转债等按公允价值重估的非现金损失，不反映经营。</li>
+        </ul>
+        <p>这说明至少在 Anthropic，到 2026 年二季度为止，用量和收入的增长盖过了降价。但只有一个季度；它已锁定的云算力合约规模巨大（媒体报道约 4,300 亿美元），算力支出能否持续低于收入增长，要看后续季度。</p>
+        <p className="ate-note">收入口径也不同：对话称路透社报道 OpenAI 对部分云渠道收入按净额确认，Anthropic 按总额确认，直接比较两家收入会失真（对话所述，未找到原文）。</p>
       </section>
 
       <section className="ate-section" aria-labelledby="ate-price">
-        <h2 id="ate-price">五、近期价格事件（对话所述）</h2>
+        <h2 id="ate-price">五、近期价格变化</h2>
+        <p>每百万 Token 输入 / 输出的官方标价（美元），同档新旧型号比较，2026-11-28 查看。标价下降不等于客户实际单价同幅下降：Ramp 的综合单价还包含客户在型号之间的迁移。</p>
         <div className="ate-table-wrap">
           <table>
-            <thead><tr><th>对象</th><th>变化</th></tr></thead>
-            <tbody>{PRICE_EVENTS.map(([k, v]) => <tr key={k}><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody>
+            <thead><tr><th>对象</th><th>变化</th><th>来源</th></tr></thead>
+            <tbody>{PRICE_EVENTS.map(e => <tr key={e.item}><th scope="row">{e.item}</th><td>{e.change}</td><td><span className="ate-tag">{e.status}</span></td></tr>)}</tbody>
           </table>
         </div>
       </section>
@@ -205,7 +217,7 @@ export default function AiTokenEconomics(): JSX.Element {
         <div className="ate-table-wrap">
           <table>
             <thead><tr><th>说法</th><th>判断</th><th>依据</th><th>状态</th></tr></thead>
-            <tbody>{CLAIMS.map(c => <tr key={c.claim}><th scope="row">{c.claim}</th><td>{c.verdict}</td><td>{c.basis}</td><td><span className="ate-tag">{c.status}</span></td></tr>)}</tbody>
+            <tbody>{claims.map(c => <tr key={c.claim}><th scope="row">{c.claim}</th><td>{c.verdict}</td><td>{c.basis}</td><td><span className="ate-tag">{c.status}</span></td></tr>)}</tbody>
           </table>
         </div>
         <h3>Ramp 数据的局限</h3>
