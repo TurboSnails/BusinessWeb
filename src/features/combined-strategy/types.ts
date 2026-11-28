@@ -15,6 +15,24 @@ export type StrategyMetrics = {
   switchesPerYear: number
 }
 
+/** 按周记账指标；月度字段仍在 fusion.rows 里，这里是并行口径。 */
+export type WeeklyStrategyMetrics = StrategyMetrics & {
+  vol: number
+  maxDdWeeks: number
+  worstWeek: number
+  worstMonth: number
+  weeks: number
+}
+
+export type WeeklyFusionRow = {
+  id: string
+  label: string
+  rule: string
+  train: WeeklyStrategyMetrics
+  test: WeeklyStrategyMetrics
+  full: WeeklyStrategyMetrics
+}
+
 /** 某一格（或某一格在 2000 年以后）的历史统计；months 为 0 时其余为 null。 */
 export type CellStats = {
   months: number
@@ -93,6 +111,21 @@ export type CombinedStrategyFile = {
     verdict: string
     disclosures: string[]
   }
+  /**
+   * 按周记账（规则与按月调仓不变）。主显示回撤/波动用这里；
+   * fusion 里仍是月度口径，作对照。缺数据时为 null / 省略。
+   */
+  weekly?: {
+    start: string
+    end: string
+    weeks: number
+    rows: WeeklyFusionRow[]
+    controls: WeeklyFusionRow[]
+    note: string
+    disclosures: string[]
+    spxDaily: { source: string; from: string | null; to: string | null; note: string }
+    monthEndNavCheck: { maxAbsDiff: number; at: string | null; monthsChecked: number; ok: boolean }
+  } | null
   /** 月度：宏观档位（即仓位）、雷达档位、热度、标普月末收盘 */
   timeline: { d: string; macro: TierId | null; radar: TierId | null; heat: Heat | null; spx: number }[]
 }

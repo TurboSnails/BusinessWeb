@@ -13,6 +13,10 @@ import {
   MATRIX_ORDER, macroSide,
 } from './lib/combined-strategy/matrix.mjs'
 import { buildRationale, RATIONALE_THEORY } from './lib/combined-strategy/rationale.mjs'
+import {
+  allocateMonthlyToWeeks, alignWeekly, monthEndNavDiff, weekEndsFromDaily, weekMonday,
+  weeklyPerformance,
+} from './lib/combined-strategy/weekly.mjs'
 
 test('热度分档含边界：≤−0.5 偏热，≥+0.5 偏冷，缺值为 null', () => {
   assert.equal(classifyHeat(-0.5), 'hot')
@@ -409,4 +413,112 @@ test('rationale 四条：道理原文 + 证据数字；fwd12≤0 去掉「仍涨
   })[2].evidence
   assert.equal(e3.includes('2000 年以后'), false)
   assert.match(e3, /23 个月/)
+})
+
+test('weekMonday：周一至周日自然周', () => {
+  assert.equal(weekMonday('2020-03-02'), '2020-03-02') // 周一
+  assert.equal(weekMonday('2020-03-06'), '2020-03-02') // 周五
+  assert.equal(weekMonday('2020-03-08'), '2020-03-02') // 周日
+  assert.equal(weekMonday('2020-03-09'), '2020-03-09')
+})
+
+test('weekEndsFromDaily：短周、跨月周、首尾不完整周', () => {
+  // 感恩节短周：2020-11-23 周一 … 26 周四交易，27 周五休市 → 周末日 11-25（实际日历；这里用人造数据）
+  const daily = [
+    ['2020-11-16', 100], // 周一
+    ['2020-11-17', 101],
+    ['2020-11-18', 102],
+    ['2020-11-19', 103],
+    ['2020-11-20', 104], // 周五，完整周
+    ['2020-11-23', 105], // 周一
+    ['2020-11-24', 106],
+    ['2020-11-25', 107], // 周三，短周最后交易日
+    // 跨月周：11-30 周一 … 12-04 周五
+    ['2020-11-30', 108],
+    ['2020-12-01', 109],
+    ['2020-12-02', 110],
+    ['2020-12-03', 111],
+    ['2020-12-04', 112],
+  ]
+  const weeks = weekEndsFromDaily(daily)
+  assert.deepEqual(weeks.map(w => [w.date, w.tradingDays, w.month]), [
+    ['2020-11-20', 5, '2020-11'],
+    ['2020-11-25', 3, '2020-11'], // 短周
+    ['2020-12-04', 5, '2020-12'], // 跨月周归到周末日所在月
+  ])
+
+  // 首周不完整：从周三开始 → 仍有周末日，但无更早收盘时 allocate 会丢掉第一周收益
+  const midStart = weekEndsFromDaily([
+    ['2020-11-18', 100],
+    ['2020-11-19', 101],
+    ['2020-11-20', 102],
+    ['2020-11-23', 103],
+    ['2020-11-24', 104],
+    ['2020-11-25', 105],
+  ])
+  assert.equal(midStart[0].date, '2020-11-20')
+  assert.equal(midStart[0].tradingDays, 3)
+})
+
+test('allocateMonthlyToWeeks + alignWeekly：月末净值与月度口径误差 < 1e-9', () => {
+  // 人造三周：两周在 2020-03，一周跨到边界已在 03
+  const weekEnds = [
+    { date: '2020-02-28', close: 100, month: '2020-02' },
+    { date: '2020-03-06', close: 90, month: '2020-03' },
+    { date: '2020-03-13', close: 80, month: '2020-03' },
+    { date: '2020-03-20', close: 70, month: '2020-03' },
+    { date: '2020-03-27', close: 85, month: '2020-03' },
+  ]
+  const monthly = new Map([
+    ['2020-03', { spx: -0.12, cash: 0.001 }],
+  ])
+  const weekly = allocateMonthlyToWeeks(weekEnds, monthly)
+  const dates = [...weekly.keys()].sort()
+  assert.equal(dates.length, 4)
+  let compound = 1
+  for (const d of dates) compound *= 1 + weekly.get(d).spx
+  assert.ok(Math.abs(compound - (1 - 0.12)) < 1e-12)
+  let cashC = 1
+  for (const d of dates) cashC *= 1 + weekly.get(d).cash
+  assert.ok(Math.abs(cashC - 1.001) < 1e-12)
+
+  const signals = [{ d: '2020-01', masters: 'offense', radar: 'offense', heat: 'mid', below: false }]
+  // EXECUTION_LAG=2 → 持仓月 2020-03；offense equity=1
+  const rows = alignWeekly(signals, weekly, () => 0.7, '2020-03')
+  assert.equal(rows.length, 4)
+  assert.ok(rows.every(r => r.equity === 0.7 && r.month === '2020-03'))
+
+  const monthlyAligned = [{
+    d: '2020-03',
+    equity: 0.7,
+    cash: 0.001,
+    portfolio: 0.7 * -0.12 + 0.3 * 0.001,
+  }]
+  const check = monthEndNavDiff(rows, monthlyAligned)
+  assert.ok(check.maxAbsDiff < 1e-9, `maxAbsDiff=${check.maxAbsDiff}`)
+
+  // 月内不调仓：财富 = 0.7*∏(1+spx) + 0.3*∏(1+cash)
+  let eq = 0.7
+  let cash = 0.3
+  for (const d of dates) {
+    eq *= 1 + weekly.get(d).spx
+    cash *= 1 + weekly.get(d).cash
+  }
+  assert.ok(Math.abs(eq + cash - (1 + monthlyAligned[0].portfolio)) < 1e-12)
+})
+
+test('weeklyPerformance：年化波动用 √52，最差一周/一月', () => {
+  const rows = [
+    { portfolio: 0.01, cash: 0.001, equity: 1, month: '2020-01' },
+    { portfolio: -0.05, cash: 0.001, equity: 1, month: '2020-01' },
+    { portfolio: 0.02, cash: 0.001, equity: 1, month: '2020-02' },
+    { portfolio: -0.02, cash: 0.001, equity: 0.7, month: '2020-02' },
+  ]
+  const m = weeklyPerformance(rows)
+  assert.equal(m.weeks, 4)
+  assert.equal(m.worstWeek, -0.05)
+  assert.ok(m.worstMonth < 0)
+  assert.ok(m.vol > 0)
+  assert.ok(m.maxDd < 0)
+  assert.ok(m.switchesPerYear > 0)
 })

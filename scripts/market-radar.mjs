@@ -59,6 +59,7 @@ function summarize(file) {
 
 export async function runRadar({
   now = new Date(), fetcher = fetch, warn = console.warn, write = true,
+  writeRadar = true,
 } = {}) {
   const generatedAt = now.toISOString()
   const today = generatedAt.slice(0, 10)
@@ -109,14 +110,23 @@ export async function runRadar({
     backtest,
   }
   if (write) {
-    writeJsonIfChanged(OUTPUT, file)
-    const log = readJson(LIVE_LOG, [])
-    const nextLog = appendLiveLog(log, backtest.timeline, generatedAt)
-    if (nextLog !== log) writeJsonIfChanged(LIVE_LOG, nextLog)
+    if (writeRadar) {
+      writeJsonIfChanged(OUTPUT, file)
+      const log = readJson(LIVE_LOG, [])
+      const nextLog = appendLiveLog(log, backtest.timeline, generatedAt)
+      if (nextLog !== log) writeJsonIfChanged(LIVE_LOG, nextLog)
+    }
     try {
       const buyholdFull = backtest.rows.find(row => row.id === 'buyhold')?.full
+      const spxDailyFile = readJson(resolve(ROOT, 'data-raw/macro-posture-daily/spx-daily.json'), null)
       const combined = buildCombinedStrategy({
         signals, panel, today, posture: masters, radar, generatedAt, buyholdFull,
+        dailyRows: dailyRows.map(([d, close]) => [d, close]),
+        dailyMeta: {
+          source: spxDailyFile?.source ?? 'Yahoo Finance ^GSPC 日收盘（不含股息）',
+          from: spxDailyFile?.rows?.[0]?.[0],
+          to: spxDailyFile?.rows?.at(-1)?.[0],
+        },
       })
       writeJsonIfChanged(COMBINED_OUTPUT, combined)
       file.combined = combined
@@ -129,10 +139,20 @@ export async function runRadar({
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const dryRun = process.argv.includes('--dry-run')
-  runRadar({ write: !dryRun }).then(file => {
+  // --combined-only：不写 market-radar.json / live-log，只重算综合策略（含按周记账）
+  const combinedOnly = process.argv.includes('--combined-only')
+  runRadar({
+    write: !dryRun,
+    writeRadar: !combinedOnly,
+  }).then(file => {
     if (dryRun) {
       console.log('[dry-run] 不写文件')
       summarize(file)
+    } else if (combinedOnly) {
+      const w = file.combined?.weekly
+      console.log(`已重算综合策略（按周 ${w?.weeks ?? 0} 周，月末净值核对 ${w?.monthEndNavCheck?.ok ? '通过' : '未通过'}）`)
+      if (file.combined) console.log(file.combined.fusion.verdict)
+      if (w?.note) console.log(w.note)
     } else {
       console.log(file.backtest.verdict)
       console.log(`已生成 ${file.indicators.length} 项指标和 ${file.backtest.rows.length} 条策略，收益区间 ${file.backtest.start} 至 ${file.backtest.end}。`)

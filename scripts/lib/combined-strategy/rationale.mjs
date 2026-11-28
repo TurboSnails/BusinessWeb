@@ -26,12 +26,13 @@ export const RATIONALE_THEORY = [
   },
 ]
 
-function evidence1({ macroFull, buyholdFull }) {
-  const x = pct1(macroFull.maxDd)
-  const y = pct1(buyholdFull.maxDd)
+function evidence1({ macroFull, buyholdFull, weeklyMacro, weeklyBuyhold }) {
   const a = pct1(macroFull.cagr)
   const b = pct1(buyholdFull.cagr)
-  return `1973 年以来按宏观档位调仓，最大回撤 ${x}，全程持有标普是 ${y}；年化收益 ${a} 对 ${b}。`
+  if (weeklyMacro && weeklyBuyhold) {
+    return `1973 年以来按宏观档位调仓，按周记账最大回撤 ${pct1(weeklyMacro.maxDd)}（月度口径 ${pct1(macroFull.maxDd)}），全程持有标普按周 ${pct1(weeklyBuyhold.maxDd)}（月度 ${pct1(buyholdFull.maxDd)}）；年化收益 ${a} 对 ${b}。只看月末会低估急跌时的回撤。`
+  }
+  return `1973 年以来按宏观档位调仓，最大回撤 ${pct1(macroFull.maxDd)}，全程持有标普是 ${pct1(buyholdFull.maxDd)}；年化收益 ${a} 对 ${b}。`
 }
 
 function evidence2({ matrix, fusion }) {
@@ -84,10 +85,15 @@ function evidence4({ macroFull, dailyStudy }) {
   return `${base}改成每天按档位调仓（2026-11-25 预注册检验）：每年调仓 ${m.tradesPerYear.toFixed(1)} → ${d.tradesPerYear.toFixed(1)} 次，扣成本后夏普 ${sharpeText(m.sharpeNet)} → ${sharpeText(d.sharpeNet)}；按日最大回撤 ${pct0(m.dailyMaxDd)} → ${pct0(d.dailyMaxDd)} 的改善只来自 2020 年一次，2020 年以外反而略深。月中按跌幅或跌破均线减仓的 4 种写法同样没通过。`
 }
 
-export function buildRationale({ matrix, fusion, buyholdFull, dailyStudy = loadDailyStudy() }) {
+export function buildRationale({ matrix, fusion, weekly = null, buyholdFull, dailyStudy = loadDailyStudy() }) {
   const macroFull = fusion.rows.find(row => row.id === 'macro').full
   const evidences = [
-    evidence1({ macroFull, buyholdFull }),
+    evidence1({
+      macroFull,
+      buyholdFull,
+      weeklyMacro: weekly?.rows?.find(row => row.id === 'macro')?.full,
+      weeklyBuyhold: weekly?.controls?.find(row => row.id === 'buyhold')?.full,
+    }),
     evidence2({ matrix, fusion }),
     evidence3({ matrix }),
     evidence4({ macroFull, dailyStudy }),

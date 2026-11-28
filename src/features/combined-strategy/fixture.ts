@@ -216,6 +216,39 @@ export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile>
         '样本内回测不代表未来表现。',
       ],
     },
+    weekly: {
+      start: '1973-03',
+      end: '2026-10',
+      weeks: 2800,
+      note: '按周记账全样本最大回撤 −33.0%，年化波动 12.0%。',
+      disclosures: ['按周记账只改收益曲线的取样频率：仓位仍按月末定档、隔一个月生效，月内不调仓。'],
+      rows: FUSION_ROWS.map(row => ({
+        ...row,
+        train: { ...row.train, vol: 0.14, maxDdWeeks: 40, worstWeek: -0.08, worstMonth: -0.12, weeks: 1400 },
+        test: { ...row.test, vol: 0.13, maxDdWeeks: 30, worstWeek: -0.07, worstMonth: -0.1, weeks: 1400 },
+        full: {
+          ...row.full,
+          maxDd: row.id === 'macro' ? -0.33 : row.full.maxDd,
+          vol: row.id === 'macro' ? 0.12 : 0.15,
+          maxDdWeeks: 52,
+          worstWeek: -0.09,
+          worstMonth: -0.15,
+          weeks: 2800,
+        },
+      })),
+      controls: [
+        {
+          id: 'buyhold',
+          label: '全程持有标普',
+          rule: '始终满仓标普。',
+          train: { cagr: 0.13, maxDd: -0.48, sharpe: 0.5, avgEquity: 1, switchesPerYear: 0, vol: 0.16, maxDdWeeks: 80, worstWeek: -0.12, worstMonth: -0.2, weeks: 1400 },
+          test: { cagr: 0.09, maxDd: -0.48, sharpe: 0.48, avgEquity: 1, switchesPerYear: 0, vol: 0.15, maxDdWeeks: 60, worstWeek: -0.11, worstMonth: -0.18, weeks: 1400 },
+          full: { cagr: 0.111, maxDd: -0.52, sharpe: 0.49, avgEquity: 1, switchesPerYear: 0, vol: 0.155, maxDdWeeks: 90, worstWeek: -0.12, worstMonth: -0.2, weeks: 2800 },
+        },
+      ],
+      spxDaily: { source: 'Yahoo Finance ^GSPC 日收盘（不含股息）', from: '1950-01-03', to: '2026-11-25', note: '日收盘不含股息。' },
+      monthEndNavCheck: { maxAbsDiff: 0, at: null, monthsChecked: 644, ok: true },
+    },
     timeline: timeline(),
   }
   return {
@@ -229,6 +262,7 @@ export function combinedStrategyFixture(overrides: Partial<CombinedStrategyFile>
       rows: overrides.fusion?.rows ?? base.fusion.rows,
       disclosures: overrides.fusion?.disclosures ?? base.fusion.disclosures,
     },
+    weekly: overrides.weekly !== undefined ? overrides.weekly : base.weekly,
     matrix: overrides.matrix ?? base.matrix,
     timeline: overrides.timeline ?? base.timeline,
   }
