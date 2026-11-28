@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -102,7 +103,11 @@ def guard_summary() -> dict:
 def rounds_summary() -> list[dict]:
     """每轮一个 docs/research/factorlab/rounds/R*.json（由研究脚本写，可缺）；没有 JSON 时只给计划文件。"""
     out = []
-    for md in sorted(ROUNDS.glob("R*.md")):
+    def _num(md):
+        m = re.match(r"R(\d+)", md.stem)
+        return (int(m.group(1)) if m else 10**9, md.stem)
+
+    for md in sorted(ROUNDS.glob("R*.md"), key=_num):
         js = md.with_suffix(".json")
         item = {"id": md.stem.split("-")[0], "file": f"docs/research/factorlab/rounds/{md.name}", "status": "进行中"}
         if js.exists():
