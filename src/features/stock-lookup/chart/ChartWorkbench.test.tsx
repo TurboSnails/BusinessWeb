@@ -2,7 +2,8 @@ import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { BarsPage, NewsItem, Timeframe } from '../types'
+import { __test as apiParse } from '../api'
+import type { BarsPage, Timeframe } from '../types'
 import { makeFakeBars, makeFakeNews } from './fakeBars'
 import { CHART_SETTINGS_KEY } from './settings'
 
@@ -220,7 +221,8 @@ describe('ChartWorkbench', () => {
 
   it('使用 fixtures/bars-MRVL-1d + news-MRVL 真实样本', async () => {
     const page = (await import('../fixtures/bars-MRVL-1d.json')).default as BarsPage
-    const newsPage = (await import('../fixtures/news-MRVL.json')).default
+    const newsRaw = (await import('../fixtures/news-MRVL.json')).default
+    const newsPage = apiParse.parseNewsPage(newsRaw)
     expect(page.bars.length).toBeGreaterThan(10)
     expect(newsPage.items.length).toBeGreaterThan(0)
     const bars = vi.fn(async () => page)
@@ -230,7 +232,7 @@ describe('ChartWorkbench', () => {
           symbol="MRVL"
           api={{ bars }}
           timezone={page.timezone}
-          news={newsPage.items as NewsItem[]}
+          news={newsPage.items}
         />
       </MemoryRouter>,
     )

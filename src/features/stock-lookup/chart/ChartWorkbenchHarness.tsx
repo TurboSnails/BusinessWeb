@@ -2,7 +2,8 @@
 import React, { useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, useSearchParams } from 'react-router-dom'
-import type { BarsPage, NewsItem, Timeframe } from '../types'
+import { __test as apiParse } from '../api'
+import type { BarsPage, Timeframe } from '../types'
 import { isTimeframe } from './time'
 import ChartWorkbench from './ChartWorkbench'
 import { saveChartSettings, DEFAULT_CHART_SETTINGS } from './settings'
@@ -52,7 +53,7 @@ function RealApi(): Pick<import('../types').StockLookupApi, 'bars'> {
 
 function App(): JSX.Element {
   const api = useMemo(() => RealApi(), [])
-  const news = (newsFix as { items: NewsItem[] }).items
+  const news = apiParse.parseNewsPage(newsFix).items
   const [selected, setSelected] = useState<string | null>(null)
   const [params] = useSearchParams()
   const raw = params.get('tf')
