@@ -1,0 +1,1337 @@
+{
+ "note": "只数宽基回撤段与回填年数；不含任何候选指数的收益、波动或回撤。",
+ "series": {
+  "000300": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5320,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-06-03",
+     "depth": -0.22,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2007-11-28",
+     "depth": -0.209,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.43,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.599,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-03",
+     "trough": "2009-08-31",
+     "depth": -0.253,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-12-07",
+     "trough": "2010-07-05",
+     "depth": -0.315,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.406,
+     "confirmed": true
+    },
+    {
+     "peak": "2013-02-06",
+     "trough": "2014-03-20",
+     "depth": -0.248,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-08",
+     "trough": "2015-08-26",
+     "depth": -0.435,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.264,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.325,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-10",
+     "trough": "2024-09-13",
+     "depth": -0.456,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-06-22",
+     "trough": "2026-11-25",
+     "depth": -0.23,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.723,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-03",
+     "trough": "2010-07-05",
+     "depth": -0.337,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.406,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-08",
+     "trough": "2016-01-28",
+     "depth": -0.467,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.325,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-10",
+     "trough": "2024-09-13",
+     "depth": -0.456,
+     "confirmed": true
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-06-03",
+     "depth": -0.22,
+     "recovered": "2006-02-24"
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.723,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 12,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 4,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 3,
+     "跨窗口边界": 2,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  },
+  "H00300": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5321,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-06-03",
+     "depth": -0.22,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2007-11-28",
+     "depth": -0.209,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.43,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.595,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-03",
+     "trough": "2009-08-31",
+     "depth": -0.252,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-12-07",
+     "trough": "2010-07-05",
+     "depth": -0.31,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.386,
+     "confirmed": true
+    },
+    {
+     "peak": "2013-02-06",
+     "trough": "2014-03-20",
+     "depth": -0.229,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-08",
+     "trough": "2015-08-26",
+     "depth": -0.429,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.264,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.309,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-10",
+     "trough": "2024-02-02",
+     "depth": -0.416,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-06-22",
+     "trough": "2026-11-25",
+     "depth": -0.219,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.72,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-03",
+     "trough": "2010-07-05",
+     "depth": -0.331,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.386,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-08",
+     "trough": "2016-01-28",
+     "depth": -0.461,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.309,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-10",
+     "trough": "2024-02-02",
+     "depth": -0.416,
+     "confirmed": true
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-06-03",
+     "depth": -0.22,
+     "recovered": "2006-02-24"
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.72,
+     "recovered": "2015-06-05"
+    },
+    {
+     "peak": "2015-06-08",
+     "trough": "2016-01-28",
+     "depth": -0.461,
+     "recovered": "2020-07-09"
+    },
+    {
+     "peak": "2021-02-10",
+     "trough": "2024-02-02",
+     "depth": -0.416,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 12,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 4,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 3,
+     "跨窗口边界": 2,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  },
+  "000906": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5321,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-11",
+     "depth": -0.25,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2007-11-28",
+     "depth": -0.203,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.422,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.604,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-04",
+     "trough": "2009-08-31",
+     "depth": -0.241,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-12-07",
+     "trough": "2010-07-05",
+     "depth": -0.294,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-01-05",
+     "depth": -0.378,
+     "confirmed": true
+    },
+    {
+     "peak": "2012-05-07",
+     "trough": "2012-12-03",
+     "depth": -0.236,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-08-26",
+     "depth": -0.441,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.284,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.332,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-19",
+     "trough": "2022-04-26",
+     "depth": -0.319,
+     "confirmed": true
+    },
+    {
+     "peak": "2022-07-04",
+     "trough": "2024-09-13",
+     "depth": -0.303,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-06-22",
+     "trough": "2026-11-26",
+     "depth": -0.26,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.718,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.429,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2016-01-28",
+     "depth": -0.49,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.332,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-19",
+     "trough": "2024-09-13",
+     "depth": -0.43,
+     "confirmed": true
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-11",
+     "depth": -0.25,
+     "recovered": "2006-04-03"
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.718,
+     "recovered": "2015-05-21"
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2019-01-03",
+     "depth": -0.509,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 13,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 5,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 4,
+     "跨窗口边界": 1,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  },
+  "H00906": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5321,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-11",
+     "depth": -0.239,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2007-11-28",
+     "depth": -0.203,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.422,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.601,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-04",
+     "trough": "2009-08-31",
+     "depth": -0.241,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-12-07",
+     "trough": "2010-07-05",
+     "depth": -0.289,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-01-05",
+     "depth": -0.372,
+     "confirmed": true
+    },
+    {
+     "peak": "2012-05-07",
+     "trough": "2012-12-03",
+     "depth": -0.223,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-07-08",
+     "depth": -0.346,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-07-23",
+     "trough": "2015-08-26",
+     "depth": -0.282,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.284,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.319,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-19",
+     "trough": "2022-04-26",
+     "depth": -0.307,
+     "confirmed": true
+    },
+    {
+     "peak": "2022-07-04",
+     "trough": "2024-02-05",
+     "depth": -0.272,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-06-22",
+     "trough": "2026-11-26",
+     "depth": -0.251,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.715,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.412,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2016-01-28",
+     "depth": -0.485,
+     "confirmed": true
+    },
+    {
+     "peak": "2018-01-24",
+     "trough": "2019-01-03",
+     "depth": -0.319,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-02-19",
+     "trough": "2024-02-05",
+     "depth": -0.387,
+     "confirmed": true
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-11",
+     "depth": -0.239,
+     "recovered": "2006-03-01"
+    },
+    {
+     "peak": "2007-10-16",
+     "trough": "2008-11-04",
+     "depth": -0.715,
+     "recovered": "2015-04-16"
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2016-01-28",
+     "depth": -0.485,
+     "recovered": "2021-02-10"
+    },
+    {
+     "peak": "2021-02-19",
+     "trough": "2024-02-05",
+     "depth": -0.387,
+     "recovered": "2026-01-06"
+    },
+    {
+     "peak": "2026-06-22",
+     "trough": "2026-11-26",
+     "depth": -0.251,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 14,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 6,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 5,
+     "跨窗口边界": 1,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  },
+  "000985": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5321,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-18",
+     "depth": -0.261,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-05-29",
+     "trough": "2007-07-05",
+     "depth": -0.213,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.417,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.603,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-04",
+     "trough": "2009-08-31",
+     "depth": -0.233,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-11-23",
+     "trough": "2010-07-05",
+     "depth": -0.28,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-01-05",
+     "depth": -0.383,
+     "confirmed": true
+    },
+    {
+     "peak": "2012-03-13",
+     "trough": "2012-12-03",
+     "depth": -0.244,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-07-08",
+     "depth": -0.386,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-07-23",
+     "trough": "2015-09-15",
+     "depth": -0.296,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.303,
+     "confirmed": true
+    },
+    {
+     "peak": "2017-11-13",
+     "trough": "2018-10-18",
+     "depth": -0.348,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-12-13",
+     "trough": "2022-04-26",
+     "depth": -0.28,
+     "confirmed": true
+    },
+    {
+     "peak": "2022-06-28",
+     "trough": "2024-02-05",
+     "depth": -0.319,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-05-13",
+     "trough": "2026-11-26",
+     "depth": -0.301,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-11-04",
+     "depth": -0.715,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.434,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-09-15",
+     "depth": -0.468,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2018-10-18",
+     "depth": -0.416,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-12-13",
+     "trough": "2024-02-05",
+     "depth": -0.393,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-05-13",
+     "trough": "2026-11-26",
+     "depth": -0.301,
+     "confirmed": false
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-18",
+     "depth": -0.261,
+     "recovered": "2006-04-03"
+    },
+    {
+     "peak": "2007-05-29",
+     "trough": "2007-07-05",
+     "depth": -0.213,
+     "recovered": "2007-07-31"
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-11-04",
+     "depth": -0.715,
+     "recovered": "2015-04-03"
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2018-10-18",
+     "depth": -0.579,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 14,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 6,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 5,
+     "跨窗口边界": 1,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  },
+  "H00985": {
+   "start": "2004-12-31",
+   "end": "2026-11-27",
+   "rows": 5321,
+   "years": 21.9,
+   "zigzag20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-18",
+     "depth": -0.25,
+     "confirmed": true
+    },
+    {
+     "peak": "2007-05-29",
+     "trough": "2007-07-05",
+     "depth": -0.211,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-04-21",
+     "depth": -0.417,
+     "confirmed": true
+    },
+    {
+     "peak": "2008-05-05",
+     "trough": "2008-11-04",
+     "depth": -0.6,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-08-04",
+     "trough": "2009-08-31",
+     "depth": -0.233,
+     "confirmed": true
+    },
+    {
+     "peak": "2009-11-23",
+     "trough": "2010-07-05",
+     "depth": -0.276,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-01-05",
+     "depth": -0.377,
+     "confirmed": true
+    },
+    {
+     "peak": "2012-03-13",
+     "trough": "2012-12-03",
+     "depth": -0.232,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-07-08",
+     "depth": -0.384,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-07-23",
+     "trough": "2015-09-15",
+     "depth": -0.295,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.303,
+     "confirmed": true
+    },
+    {
+     "peak": "2017-11-13",
+     "trough": "2018-10-18",
+     "depth": -0.337,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-12-13",
+     "trough": "2022-04-26",
+     "depth": -0.28,
+     "confirmed": true
+    },
+    {
+     "peak": "2022-07-04",
+     "trough": "2024-02-05",
+     "depth": -0.301,
+     "confirmed": true
+    },
+    {
+     "peak": "2026-05-13",
+     "trough": "2026-11-26",
+     "depth": -0.292,
+     "confirmed": false
+    }
+   ],
+   "zigzag30": [
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-11-04",
+     "depth": -0.713,
+     "confirmed": true
+    },
+    {
+     "peak": "2010-11-08",
+     "trough": "2012-12-03",
+     "depth": -0.42,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2015-09-15",
+     "depth": -0.465,
+     "confirmed": true
+    },
+    {
+     "peak": "2015-12-22",
+     "trough": "2016-01-28",
+     "depth": -0.303,
+     "confirmed": true
+    },
+    {
+     "peak": "2017-11-13",
+     "trough": "2018-10-18",
+     "depth": -0.337,
+     "confirmed": true
+    },
+    {
+     "peak": "2021-12-13",
+     "trough": "2024-02-05",
+     "depth": -0.371,
+     "confirmed": true
+    }
+   ],
+   "underwater20": [
+    {
+     "peak": "2005-03-08",
+     "trough": "2005-07-18",
+     "depth": -0.25,
+     "recovered": "2006-03-29"
+    },
+    {
+     "peak": "2007-05-29",
+     "trough": "2007-07-05",
+     "depth": -0.211,
+     "recovered": "2007-07-31"
+    },
+    {
+     "peak": "2008-01-14",
+     "trough": "2008-11-04",
+     "depth": -0.713,
+     "recovered": "2015-03-20"
+    },
+    {
+     "peak": "2015-06-12",
+     "trough": "2018-10-18",
+     "depth": -0.558,
+     "recovered": null
+    }
+   ],
+   "windows20": {
+    "全期": {
+     "完整落在窗口内": 14,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "红利低波发布后（2013-12-19 起）": {
+     "完整落在窗口内": 6,
+     "跨窗口边界": 0,
+     "未确认谷底": 1
+    },
+    "W1 主判定 2014-01-02 至 2023-10-31": {
+     "完整落在窗口内": 5,
+     "跨窗口边界": 1,
+     "未确认谷底": 0
+    },
+    "W2 2023-11-01 起": {
+     "完整落在窗口内": 0,
+     "跨窗口边界": 1,
+     "未确认谷底": 1
+    }
+   }
+  }
+ },
+ "backfill": [
+  {
+   "code": "000015",
+   "name": "红利指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-01-04",
+   "years": 21.9,
+   "backfillYears": 0.0,
+   "liveYears": 21.9,
+   "backfillShare": 0.0
+  },
+  {
+   "code": "000300",
+   "name": "沪深300",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-04-08",
+   "years": 21.9,
+   "backfillYears": 0.3,
+   "liveYears": 21.6,
+   "backfillShare": 0.01
+  },
+  {
+   "code": "000803",
+   "name": "300波动",
+   "basicDate": "2004-12-31",
+   "publishDate": "2012-01-09",
+   "years": 21.9,
+   "backfillYears": 7.0,
+   "liveYears": 14.9,
+   "backfillShare": 0.32
+  },
+  {
+   "code": "000804",
+   "name": "500波动",
+   "basicDate": "2004-12-31",
+   "publishDate": "2012-01-09",
+   "years": 21.9,
+   "backfillYears": 7.0,
+   "liveYears": 14.9,
+   "backfillShare": 0.32
+  },
+  {
+   "code": "000906",
+   "name": "中证800",
+   "basicDate": "2004-12-31",
+   "publishDate": "2007-01-15",
+   "years": 21.9,
+   "backfillYears": 2.0,
+   "liveYears": 19.9,
+   "backfillShare": 0.09
+  },
+  {
+   "code": "000922",
+   "name": "中证红利",
+   "basicDate": "2004-12-31",
+   "publishDate": "2008-05-26",
+   "years": 21.9,
+   "backfillYears": 3.4,
+   "liveYears": 18.5,
+   "backfillShare": 0.16
+  },
+  {
+   "code": "000985",
+   "name": "中证全指",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "years": 21.9,
+   "backfillYears": 6.6,
+   "liveYears": 15.3,
+   "backfillShare": 0.3
+  },
+  {
+   "code": "930740",
+   "name": "300红利低波",
+   "basicDate": "2004-12-31",
+   "publishDate": "2018-12-04",
+   "years": 21.9,
+   "backfillYears": 13.9,
+   "liveYears": 8.0,
+   "backfillShare": 0.64
+  },
+  {
+   "code": "930782",
+   "name": "500SNLV",
+   "basicDate": "2004-12-31",
+   "publishDate": "2016-02-04",
+   "years": 21.9,
+   "backfillYears": 11.1,
+   "liveYears": 10.8,
+   "backfillShare": 0.51
+  },
+  {
+   "code": "930846",
+   "name": "300SNLV",
+   "basicDate": "2004-12-31",
+   "publishDate": "2016-06-24",
+   "years": 21.9,
+   "backfillYears": 11.5,
+   "liveYears": 10.4,
+   "backfillShare": 0.52
+  },
+  {
+   "code": "930955",
+   "name": "红利低波100",
+   "basicDate": "2005-12-30",
+   "publishDate": "2017-05-26",
+   "years": 20.9,
+   "backfillYears": 11.4,
+   "liveYears": 9.5,
+   "backfillShare": 0.55
+  },
+  {
+   "code": "931446",
+   "name": "东证红利低波",
+   "basicDate": "2009-12-31",
+   "publishDate": "2020-04-21",
+   "years": 16.9,
+   "backfillYears": 10.3,
+   "liveYears": 6.6,
+   "backfillShare": 0.61
+  },
+  {
+   "code": "932833",
+   "name": "中证低波",
+   "basicDate": "2012-12-31",
+   "publishDate": "2026-11-27",
+   "years": 13.9,
+   "backfillYears": 13.9,
+   "liveYears": 0.0,
+   "backfillShare": 1.0
+  },
+  {
+   "code": "932834",
+   "name": "300低波",
+   "basicDate": "2012-12-31",
+   "publishDate": "2026-11-27",
+   "years": 13.9,
+   "backfillYears": 13.9,
+   "liveYears": 0.0,
+   "backfillShare": 1.0
+  },
+  {
+   "code": "932835",
+   "name": "500低波",
+   "basicDate": "2012-12-31",
+   "publishDate": "2026-11-27",
+   "years": 13.9,
+   "backfillYears": 13.9,
+   "liveYears": 0.0,
+   "backfillShare": 1.0
+  },
+  {
+   "code": "H00015",
+   "name": "红利收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-01-04",
+   "years": 21.9,
+   "backfillYears": 0.0,
+   "liveYears": 21.9,
+   "backfillShare": 0.0
+  },
+  {
+   "code": "H00300",
+   "name": "300收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-04-08",
+   "years": 21.9,
+   "backfillYears": 0.3,
+   "liveYears": 21.6,
+   "backfillShare": 0.01
+  },
+  {
+   "code": "H00803",
+   "name": "300波动全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2012-01-09",
+   "years": 21.9,
+   "backfillYears": 7.0,
+   "liveYears": 14.9,
+   "backfillShare": 0.32
+  },
+  {
+   "code": "H00804",
+   "name": "500波动全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2012-01-09",
+   "years": 21.9,
+   "backfillYears": 7.0,
+   "liveYears": 14.9,
+   "backfillShare": 0.32
+  },
+  {
+   "code": "H00906",
+   "name": "800收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2007-01-15",
+   "years": 21.9,
+   "backfillYears": 2.0,
+   "liveYears": 19.9,
+   "backfillShare": 0.09
+  },
+  {
+   "code": "H00922",
+   "name": "中红收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2008-05-26",
+   "years": 21.9,
+   "backfillYears": 3.4,
+   "liveYears": 18.5,
+   "backfillShare": 0.16
+  },
+  {
+   "code": "H00985",
+   "name": "中证全指全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "years": 21.9,
+   "backfillYears": 6.6,
+   "liveYears": 15.3,
+   "backfillShare": 0.3
+  },
+  {
+   "code": "H20269",
+   "name": "红利低波全收益",
+   "basicDate": "2005-12-30",
+   "publishDate": "2013-12-19",
+   "years": 20.9,
+   "backfillYears": 8.0,
+   "liveYears": 12.9,
+   "backfillShare": 0.38
+  },
+  {
+   "code": "H20740",
+   "name": "300红利低波全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2018-12-04",
+   "years": 21.9,
+   "backfillYears": 13.9,
+   "liveYears": 8.0,
+   "backfillShare": 0.64
+  },
+  {
+   "code": "H20782",
+   "name": "500SNLV全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2016-02-04",
+   "years": 21.9,
+   "backfillYears": 11.1,
+   "liveYears": 10.8,
+   "backfillShare": 0.51
+  },
+  {
+   "code": "H20846",
+   "name": "300SNLV全收益",
+   "basicDate": "2004-12-31",
+   "publishDate": "2016-06-24",
+   "years": 21.9,
+   "backfillYears": 11.5,
+   "liveYears": 10.4,
+   "backfillShare": 0.52
+  },
+  {
+   "code": "H20955",
+   "name": "红利低波100全收益",
+   "basicDate": "2005-12-30",
+   "publishDate": "2017-05-26",
+   "years": 20.9,
+   "backfillYears": 11.4,
+   "liveYears": 9.5,
+   "backfillShare": 0.55
+  },
+  {
+   "code": "H30269",
+   "name": "红利低波",
+   "basicDate": "2005-12-30",
+   "publishDate": "2013-12-19",
+   "years": 20.9,
+   "backfillYears": 8.0,
+   "liveYears": 12.9,
+   "backfillShare": 0.38
+  }
+ ]
+}
