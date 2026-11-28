@@ -3,7 +3,7 @@
 CLI::
 
     uv run python -m factorlab.forward run --market cn [--dry-run] [--out PATH] [--prereg H]
-    uv run python -m factorlab.forward status --market cn [--out PATH]
+    uv run python -m factorlab.forward status --market {cn,hk} [--out PATH]
     uv run python -m factorlab.forward holm --market cn --batch BATCH
            [--mean K1=.. --mean K2=..]   # 可选覆盖；默认读 confirm 登记簿
            [--p K1=..]                  # 可选覆盖单边 p；默认 stats.p_tmu
@@ -32,6 +32,7 @@ from .guard import Lockbox, TrialLedger, confirm_passes, holm
 
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = REPO / "docs/research/factorlab-confirm-2026Q4/forward.json"
+HK_STATUS_OUT = DEFAULT_OUT.with_name("forward-hk.json")
 PREREG_COMMIT = "001087bd"
 PREREG_BATCH = "2026Q4-cn"
 WITHDRAW_MIN_PERIODS = 24
@@ -68,6 +69,26 @@ CANDIDATES: list[dict] = [
         "config_hash": "97643c4fdcb6",
         "half_m_star": 0.00226,
         "m_star": 0.00451,
+    },
+]
+
+# 状态核对覆盖共同批次的补充预注册。L-038 的前推及 Holm 调用仍沿用 CANDIDATES。
+CN_STATUS_EXTRA = {
+    "id": "K4",
+    "factor": "cn_multi4",
+    "metric": "tmu_ew",
+    "source_hash": "005c85c7cbcc",
+    "params_hash": "8181f7de3f67",
+    "config_hash": "efc06e526d76",
+}
+HK_STATUS_CANDIDATES = [
+    {
+        "id": "H1",
+        "factor": "hk_vqs52",
+        "metric": "tmu_ew",
+        "source_hash": "7663e476652b",
+        "params_hash": "7a42a11f2fa5",
+        "config_hash": "14a984b84f02",
     },
 ]
 
@@ -392,8 +413,15 @@ def run_forward(market: str = "cn", *, prereg: str = PREREG_COMMIT, out: Path | 
 
 
 def status_forward(market: str = "cn", out: Path | None = None) -> int:
-    out = Path(out) if out else DEFAULT_OUT
-    errs = verify_frozen(market)
+    if market == "cn":
+        default_out, candidates = DEFAULT_OUT, [*CANDIDATES, CN_STATUS_EXTRA]
+    elif market == "hk":
+        default_out, candidates = HK_STATUS_OUT, HK_STATUS_CANDIDATES
+    else:
+        print(f"市场 {market} 暂无前推状态配置", file=sys.stderr)
+        return 1
+    out = Path(out) if out else default_out
+    errs = verify_frozen(market, candidates)
     print(f"市场 {market} 锁箱 {Lockbox().interval(market)}")
     print(f"输出 {out} {'存在' if out.exists() else '不存在'}")
     if errs:
@@ -403,16 +431,23 @@ def status_forward(market: str = "cn", out: Path | None = None) -> int:
     else:
         print("哈希核对 OK（与 PREREG 冻结值一致）")
     doc = load_forward(out)
-    if not doc:
-        print("尚无 forward.json（可先 run 写空结构）")
-        return 1 if errs else 0
-    print(f"generated_at={doc.get('generated_at')} prereg={doc.get('prereg')}")
-    print(f"note: {doc.get('note')}")
-    for name, c in (doc.get("candidates") or {}).items():
+    if doc is None:
+        print("尚无本市场的前推记录")
+        recorded = {}
+    else:
+        if doc.get("market") != market:
+            print(f"输出文件的市场 {doc.get('market')!r} 与请求的市场 {market!r} 不符", file=sys.stderr)
+            return 1
+        print(f"generated_at={doc.get('generated_at')} prereg={doc.get('prereg')}")
+        print(f"note: {doc.get('note')}")
+        recorded = doc.get("candidates") or {}
+    for candidate in candidates:
+        name = candidate["factor"]
+        c = recorded.get(name, {})
         rows = c.get("rows") or []
         last = rows[-1] if rows else None
-        print(f"  {c.get('id', '?')} {name} metric={c.get('metric')} rows={len(rows)} "
-              f"withdrawn={c.get('withdrawn')} "
+        print(f"  {candidate['id']} {name} metric={candidate['metric']} rows={len(rows)} "
+              f"withdrawn={c.get('withdrawn', False)} "
               + (f"last={last['month']} n={last['n_periods']} mean={last['cum_mean']:.6f} "
                  f"t={last['nw_t']}" if last else "（无行）"))
     return 1 if errs else 0

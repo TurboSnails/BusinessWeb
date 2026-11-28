@@ -4,10 +4,13 @@
     uv run python -m factorlab.sources.cn_update --dry-run
     uv run python -m factorlab.sources.cn_update --codes 600000,000001
     uv run python -m factorlab.sources.cn_update --until 2026-12-01
+    uv run python -m factorlab.sources.cn_update --until 2026-12-01 --resume
 
 口径：
 - 日线：腾讯不复权（与全量 ``cn fetch --source tencent`` 一致）；缓存写到
   ``raw/kline/update/``，**不覆盖**全量下载用的 ``raw/kline/fqt0/``。
+- 正常运行按股票保存下载缓存；中断后使用原 ``--until`` 加 ``--resume`` 复用，
+  重新校验并计算追加行，价格表与 MANIFEST 仍在整批处理后写回。
 - 复权：重新拉取新浪后复权因子（后复权历史因子不变，新除权只加新行；重叠日
   ``close`` / ``close_adj`` 超容差则跳过该股，提示全量重下）。
 - 新行的 is_st / 涨跌停：复用 ``cn.st_flags`` + ``cn.compute_limits``（有 st_pit 时沪/北交所走点时）。
@@ -23,9 +26,12 @@ import json
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from tempfile import NamedTemporaryFile
+from time import sleep
 
 import numpy as np
 import pandas as pd
+from requests import exceptions as request_errors
 
 from .. import store
 from ..schema import Manifest, PRICES_COLUMNS, validate_frame
@@ -37,6 +43,11 @@ OVERLAP_CALENDAR_DAYS = 7          # 重叠回看日历日（覆盖约 5 个交�
 PRICE_RTOL = 1e-4                  # close / close_adj 相对容差
 PRICE_ATOL = 5e-3                  # 绝对容差（约半分）
 MANIFEST_NOTE_TAG = "[cn_update]"
+TRANSIENT_ERRORS = (
+    request_errors.ChunkedEncodingError, request_errors.ConnectionError,
+    request_errors.ReadTimeout, request_errors.ContentDecodingError,
+)
+RETRY_DELAYS = (1, 2)
 
 # 与 cn.build_cn 写出的列对齐（含 pit 增补）
 PRICE_EXTRA = list(cn.PRICE_EXTRA) + ["total_shares", "industry"]
@@ -70,17 +81,18 @@ def overlap_start(last: pd.Timestamp, overlap_days: int = OVERLAP_CALENDAR_DAYS)
 
 
 def fetch_tencent_range(code: str, start: str, end: str | None = None, market: str = MARKET,
-                        refresh: bool = True) -> pd.DataFrame:
-    """增量腾讯日线 → DataFrame；缓存 ``raw/kline/update/fqt0/{code}.json``，不碰全量 fqt0。"""
+                        refresh: bool = True, *, cache_dir: str = UPDATE_SUBDIR) -> pd.DataFrame:
+    """增量腾讯日线 → DataFrame；完整响应按股票原子保存，可按请求窗口复用。"""
     c = http.client(market)
-    cache_file = f"{UPDATE_SUBDIR}/fqt0/{code}.json"
+    end_s = end or (date.today() + timedelta(days=1)).isoformat()
+    start_s = pd.Timestamp(start).strftime("%Y-%m-%d")
+    cache_file = (f"{cache_dir}/fqt0/{code}-{start_s}.json" if cache_dir != UPDATE_SUBDIR
+                  else f"{cache_dir}/fqt0/{code}.json")
     path = c.cache_path("", None, cache_file=cache_file)
     if path.exists() and not refresh:
         payload = json.loads(path.read_text())
         return cn.parse_kline(payload)
     sym = cn.tencent_symbol(code)
-    end_s = end or (date.today() + timedelta(days=1)).isoformat()
-    start_s = pd.Timestamp(start).strftime("%Y-%m-%d")
     rows: list = []
     cur_end = end_s
     for _ in range(5):
@@ -98,18 +110,42 @@ def fetch_tencent_range(code: str, start: str, end: str | None = None, market: s
             break
     payload = {"source": "tencent",
                "data": {"code": code, "klines": cn.tencent_rows_to_klines(rows)} if rows else None}
-    path.write_text(json.dumps(payload, ensure_ascii=False))
-    return cn.parse_kline(payload)
+    result = cn.parse_kline(payload)
+    with NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False) as f:
+        tmp = Path(f.name)
+        try:
+            json.dump(payload, f, ensure_ascii=False)
+            f.close()
+            tmp.replace(path)
+        finally:
+            tmp.unlink(missing_ok=True)
+    return result
 
 
-def fetch_sina_factor_update(code: str, market: str = MARKET, refresh: bool = True) -> pd.DataFrame:
+def fetch_sina_factor_update(code: str, market: str = MARKET, refresh: bool = True,
+                             *, cache_dir: str = UPDATE_SUBDIR) -> pd.DataFrame:
     """新浪后复权因子；缓存 ``raw/kline/update/sina_hfq/{code}.js``，不碰全量 sina_hfq。"""
     text = http.client(market).get_text(
         cn.SINA_HFQ_URL.format(sym=cn.tencent_symbol(code)),
-        cache_file=f"{UPDATE_SUBDIR}/sina_hfq/{code}.js",
+        cache_file=f"{cache_dir}/sina_hfq/{code}.js",
         max_age=0 if refresh else None,
     )
     return cn.parse_sina_hfq(text)
+
+
+def _retry_download(download, *args):
+    """HTTP 客户端已处理普通重试；这里补上越过其重试层的响应流异常。"""
+    for delay in RETRY_DELAYS:
+        try:
+            return download(*args)
+        except TRANSIENT_ERRORS:
+            sleep(delay)
+    try:
+        return download(*args)
+    except TRANSIENT_ERRORS as error:
+        raise http.HttpError(
+            f"{len(RETRY_DELAYS) + 1} 次下载仍失败：{type(error).__name__}: {error}"
+        ) from error
 
 
 def _values_close(a: pd.Series, b: pd.Series, rtol: float = PRICE_RTOL, atol: float = PRICE_ATOL) -> bool:
@@ -385,8 +421,12 @@ def update_cn(
     lasts = last_trade_dates(prices)
     pit = pit if pit is not None else _load_pit_helpers(market)
 
-    fetch_bars = fetch_bars or (lambda code, start, end: fetch_tencent_range(code, start, end, market, refresh))
-    fetch_factors = fetch_factors or (lambda code: fetch_sina_factor_update(code, market, refresh))
+    request_end = (date.fromisoformat(until) if until else date.today() + timedelta(days=1)).isoformat()
+    cache_dir = f"{UPDATE_SUBDIR}/checkpoints/{request_end}"
+    fetch_bars = fetch_bars or (lambda code, start, _end: fetch_tencent_range(
+        code, start, request_end, market, refresh, cache_dir=cache_dir))
+    fetch_factors = fetch_factors or (lambda code: fetch_sina_factor_update(
+        code, market, refresh, cache_dir=cache_dir))
 
     appended: list[pd.DataFrame] = []
     skipped: list[dict] = []
@@ -401,8 +441,8 @@ def update_cn(
         start = overlap_start(last, overlap_days).strftime("%Y-%m-%d")
         end = until
         try:
-            raw = fetch_bars(code, start, end)
-            fac = fetch_factors(code)
+            raw = _retry_download(fetch_bars, code, start, end)
+            fac = _retry_download(fetch_factors, code)
         except http.HttpError as e:
             failed.append({"code": code, "reason": str(e)})
             print(f"[cn_update] {code} 下载失败：{e}", file=sys.stderr)
@@ -504,13 +544,15 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true", help="只报告每只股票要补多少天与预计请求数，不联网不写盘")
     ap.add_argument("--codes", type=str, default=None, help="逗号分隔代码；默认 prices 内全部仍上市股")
     ap.add_argument("--until", type=str, default=None, help="只补到该日（含），YYYY-MM-DD")
+    ap.add_argument("--resume", action="store_true", help="复用同一截止日及请求窗口已落盘的行情缓存")
     ap.add_argument("--overlap-days", type=int, default=OVERLAP_CALENDAR_DAYS)
     ap.add_argument("--rps", type=float, default=None, help="限速（次/秒），默认沿用 FACTORLAB_RPS / 2")
     a = ap.parse_args(argv)
     if a.rps:
         http.set_rate(a.rps)
     codes = [c.strip() for c in a.codes.split(",")] if a.codes else None
-    rep = update_cn(codes=codes, until=a.until, dry_run=a.dry_run, overlap_days=a.overlap_days)
+    rep = update_cn(codes=codes, until=a.until, dry_run=a.dry_run, overlap_days=a.overlap_days,
+                    refresh=not a.resume)
     print(json.dumps(rep, ensure_ascii=False, indent=2, default=str))
 
 

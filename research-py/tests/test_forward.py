@@ -211,3 +211,43 @@ def test_status_and_cli_help(capsys):
     # argparse help
     with pytest.raises(SystemExit):
         forward.main(["--help"])
+
+
+def test_hk_status_reads_hk_record_and_checks_h1(tmp_path, monkeypatch, capsys):
+    cn_out = tmp_path / "forward.json"
+    hk_out = tmp_path / "forward-hk.json"
+    cn_out.write_text(json.dumps({"market": "cn", "note": "cn marker"}))
+    hk_out.write_text(json.dumps({
+        "market": "hk",
+        "prereg": "6dc801f9",
+        "note": "hk marker",
+        "candidates": {"hk_vqs52": {"rows": [
+            {"month": "2026-12", "n_periods": 1, "cum_mean": 0.005, "nw_t": None},
+        ]}},
+    }))
+    monkeypatch.setattr(forward, "DEFAULT_OUT", cn_out)
+    monkeypatch.setattr(forward, "HK_STATUS_OUT", hk_out)
+    assert forward.main(["status", "--market", "hk"]) == 0
+    out = capsys.readouterr().out
+    assert "哈希核对 OK" in out
+    assert "hk marker" in out and "cn marker" not in out and "cn_sue" not in out
+    assert "H1 hk_vqs52 metric=tmu_ew rows=1" in out
+
+    assert forward.main(["status", "--market", "hk", "--out", str(cn_out)]) == 1
+    captured = capsys.readouterr()
+    assert "市场 'cn'" in captured.err and "cn marker" not in captured.out
+
+
+def test_market_status_reports_frozen_candidates_without_record(tmp_path, monkeypatch, capsys):
+    hk_out = tmp_path / "forward-hk.json"
+    monkeypatch.setattr(forward, "HK_STATUS_OUT", hk_out)
+    assert forward.main(["status", "--market", "hk"]) == 0
+    out = capsys.readouterr().out
+    assert "尚无本市场的前推记录" in out
+    assert "H1 hk_vqs52 metric=tmu_ew rows=0" in out
+    assert not hk_out.exists()
+
+    assert forward.main(["status", "--market", "cn", "--out", str(tmp_path / "cn.json")]) == 0
+    out = capsys.readouterr().out
+    assert "K1 cn_sue" in out and "K4 cn_multi4" in out
+    assert "hk_vqs52" not in out

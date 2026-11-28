@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from requests import exceptions as request_errors
 
 from factorlab import store
 from factorlab.schema import Manifest
@@ -414,6 +415,96 @@ def test_cli_dry_run(tmp_path, monkeypatch, capsys):
     cn_update.main(["--dry-run", "--codes", code])
     out = json.loads(capsys.readouterr().out)
     assert out["dry_run"] is True
+
+
+@pytest.mark.parametrize("error", [
+    request_errors.ChunkedEncodingError, request_errors.ConnectionError,
+    request_errors.ReadTimeout, request_errors.ContentDecodingError,
+])
+def test_network_errors_retry_per_stock(tmp_path, monkeypatch, error):
+    codes = ["600000", "600001"]
+    raw, factors = _bars(_dates(12))
+    listed = {"list_date": T("1999-11-10"), "status": "listed"}
+    prices = pd.concat([_full_build_one(code, raw, factors, listed).iloc[:-2] for code in codes])
+    _seed_store(tmp_path, monkeypatch, prices, _securities(*[dict(code=code, **listed) for code in codes]))
+    calls = []
+    delays = []
+
+    def fetch_bars(code, start, end):
+        calls.append(code)
+        if code == codes[0] or calls.count(code) == 1:
+            raise error("fake interruption")
+        return raw
+
+    monkeypatch.setattr(cn_update, "sleep", delays.append)
+    report = cn_update.update_cn(
+        fetch_bars=fetch_bars,
+        fetch_factors=lambda _: pd.DataFrame({"date": raw["date"], "factor": factors}),
+        pit={},
+        progress=False,
+    )
+    assert calls == [codes[0]] * 3 + [codes[1]] * 2
+    assert delays == [1, 2, 1]
+    assert [row["code"] for row in report["codes_failed"]] == codes[:1]
+    assert error.__name__ in report["codes_failed"][0]["reason"]
+    assert report["codes_updated"] == codes[1:]
+    assert report["added_rows"] == 2
+
+
+def test_cli_resumes_after_interruption_using_atomic_download_cache(tmp_path, monkeypatch, capsys):
+    codes = ["600000", "600001"]
+    raw, factors = _bars(_dates(12))
+    listed = {"list_date": T("1999-11-10"), "status": "listed"}
+    prices = pd.concat([_full_build_one(code, raw, factors, listed).iloc[:-2] for code in codes])
+    fin = _seed_store(tmp_path, monkeypatch, prices, _securities(*[dict(code=code, **listed) for code in codes]))
+    market = store.market_dir("cn")
+    before = {name: (market / name).read_bytes() for name in ("prices.parquet", "MANIFEST.json")}
+    tencent_rows = [
+        [str(r.date.date()), str(r.open), str(r.close), str(r.high), str(r.low),
+         str(r.volume / 100), {}, str(r.turnover * 100), str(r.amount / 10_000)]
+        for r in raw.itertuples()
+    ]
+    calls = []
+    symbols = [cn.tencent_symbol(code) for code in codes]
+    interrupted = False
+
+    def fetch(_client, url, params=None, headers=None):
+        nonlocal interrupted
+        if url == cn.TENCENT_URL:
+            sym = params["param"].split(",")[0]
+            calls.append(("bars", sym))
+            return json.dumps({"data": {sym: {"day": tencent_rows}}}).encode()
+        sym = url.split("/")[-2]
+        assert url == cn.SINA_HFQ_URL.format(sym=sym)
+        calls.append(("factor", sym))
+        if sym == symbols[1] and not interrupted:
+            interrupted = True
+            raise KeyboardInterrupt
+        return _sina_text(raw["date"], factors).encode()
+
+    monkeypatch.setattr(http.Client, "fetch", fetch)
+    monkeypatch.setattr(cn_update, "_load_pit_helpers", lambda _: {})
+    until = str(raw["date"].iloc[-1].date())
+    args = ["--until", until]
+    with pytest.raises(KeyboardInterrupt):
+        cn_update.main(args)
+    assert calls == [(source, sym) for sym in symbols for source in ("bars", "factor")]
+    assert all((market / name).read_bytes() == content for name, content in before.items())
+
+    cn_update.main([*args, "--resume"])
+    report = json.loads(capsys.readouterr().out)
+    assert calls[4:] == [("factor", symbols[1])]
+    assert report["codes_updated"] == codes
+    assert report["added_rows"] == 4
+    assert store.read_manifest("cn")["rows"] == len(prices) + 4
+    assert not store.read_prices("cn", raw=True).duplicated(["code", "date"]).any()
+    assert fin.read_bytes() == b"FIN_PIT_FROZEN_BYTES"
+
+    # A later cutoff requires fresh inputs even when --resume is passed.
+    calls.clear()
+    later = str((pd.Timestamp(until) + pd.Timedelta(days=1)).date())
+    cn_update.main(["--until", later, "--resume"])
+    assert calls == [(source, sym) for sym in symbols for source in ("bars", "factor")]
 
 
 # ======================== 真实全量流程对照（返工 1） ========================
