@@ -176,6 +176,12 @@ describe('研究中页签', () => {
     expect(cn.querySelector('#lab-theme-pe-cn')).not.toBeNull()
   })
 
+  it('L-056 ETF 择时 2005–2010 确认检验：放在 A 股择时信号分组', () => {
+    renderPage(at('cn'))
+    expect(screen.getByTestId('lab-group-cn-timing').querySelector('#lab-etf-timing-confirm')).not.toBeNull()
+    expect(LAB_STUDIES.find(s => s.id === 'lab-etf-timing-confirm')?.statusText).toBe('部分确认')
+  })
+
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
     renderPage()

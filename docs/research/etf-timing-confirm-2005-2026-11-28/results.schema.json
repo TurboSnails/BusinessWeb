@@ -1,0 +1,115 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "L-056 results.json（run.mjs 输出）",
+ "description": "字段含义，供第二实现 replication/run.py 对照。单位约定：凡来自 windowStats 的 annual / total / dd，以及 vol，均为百分数（例如 27.2 表示 27.2%；dd 为负数）；k、p 值、heldShare 为 0–1 的小数。容差（PREREG）：百分数字段绝对差 ≤ 1e-8 个百分点，k ≤ 1e-10；布尔、个数、等级、p 值、成交日完全相同。日期一律 YYYY-MM-DD。",
+ "definitions": {
+  "windowStats": {
+   "type": "object",
+   "description": "strategies.mjs windowStats(bars, eq, from, to) 的原样输出：区间首个与最后一个交易日之间。",
+   "properties": {
+    "years": { "description": "日历天数 ÷ 365.25" },
+    "total": { "description": "区间收益 % = (eq[末] / eq[首] − 1) × 100" },
+    "annual": { "description": "年化 % = ((eq[末]/eq[首])^(1/years) − 1) × 100；years < 1 时为 null" },
+    "dd": { "description": "区间内最大回撤 %（负数），滚动高点从区间首日净值起算，不继承区间以前的高点" }
+   }
+  },
+  "triple": { "description": "{ rule, hold, M } 三个 windowStats：rule = timingGold(bars, bull, {fill:'close'}).eq；hold = 指数收盘；M = 同平均仓位静态对照净值（见 perIndex.k）" },
+  "perIndex": {
+   "type": "object",
+   "properties": {
+    "k": { "description": "W 内 t = 2..L 的 e(t) = pos(t−1) 均值（L = W 根数：主口径 1338，L-004 布局 1339）。pos 取 timingGold 的 pos" },
+    "kPrime": { "description": "W′ 内 t = 2..637 的 e(t) 均值（e 沿用主持仓，不重启规则）" },
+    "eW0": { "description": "W 首日的 e = pos(W 首日前一天)，主口径与 L-004 布局实测都为 0" },
+    "W": { "description": "W = 2005-07-06 至 2010-12-31 的 triple；另含 vol = {rule, hold, M}：W 内日简单收益（W 首日之后 L−1 个）样本标准差（ddof = 1）× √252 × 100" },
+    "C": { "description": "C = 2007-10-16 至 2008-11-04 的 triple。M 沿用 W 起算的静态净值路径" },
+    "Wprime": { "description": "W′ = 2008-05-26 至 2010-12-31：rule / hold 为 windowStats；M 为按 kPrime、从 W′ 首日（净值 1）起算的静态净值；Xann = rule.annual ≥ M.annual；Xdd = rule.dd ≥ M.dd；X = 两者都成立" },
+    "Csse": { "description": "报告项 6：C′ = 2007-10-16 至 2008-10-28（上证综指高低点）的 triple 与 D、Xdd、X（X = W 的 Xann 且 C′ 的 Xdd）" },
+    "D": { "description": "C.rule.dd ≥ 0.7 × C.hold.dd" },
+    "A": { "description": "W.rule.annual ≥ W.hold.annual − 1" },
+    "P": { "description": "D 且 A" },
+    "Xann": { "description": "W.rule.annual ≥ W.M.annual" },
+    "Xdd": { "description": "C.rule.dd ≥ C.M.dd（回撤不深于 M）" },
+    "X": { "description": "Xann 且 Xdd" },
+    "volLowerThanM": { "description": "W.vol.rule < W.vol.M" },
+    "trades": { "description": "{ buys, sells }：成交日（pos 由 0 变 1 的当天收盘为买入成交日，由 1 变 0 的当天为卖出成交日），覆盖整个序列" }
+   }
+  },
+  "evaluation": {
+   "type": "object",
+   "description": "一个口径的完整评估（main = 主口径 inputs-clean.json + 000300÷000922；l004Layout = L-018 inputs.json 布局；e1 = 主口径但分母 000015）",
+   "properties": {
+    "perIndex": { "description": "代码 → perIndex" },
+    "counts": { "description": "满足条件的指数个数：P、D、A、X、Xann、Xdd、Xprime（W′ 的 X）、XprimeAnn、XprimeDd、volLowerThanM；Csse_D、Csse_X、Csse_Xdd 为报告项 6" },
+    "placebo": {
+     "description": "时机安慰剂（15 个指数共用平移量 s）",
+     "properties": {
+      "nShifts": { "description": "1213（s = 63..1275）" },
+      "DbarRule": { "description": "15 个指数 C.rule.dd 的均值（%）" },
+      "AbarRule": { "description": "15 个指数 W.rule.annual 的均值（%）" },
+      "pC": { "description": "(1 + #{s : D̄^s ≥ DbarRule}) / (1 + nShifts)。D̄^s = 15 个指数占位净值在 C 内最大回撤的均值。占位净值：W 内第 u 天（u = 0..L−1）暴露 e^s(u) = e((u + s) mod L)；E(−1) = 1；u ≥ 1 时 E(u) = E(u−1)·(1 + e^s(u)·r(u))，r(u) = hold[u]/hold[u−1] − 1；若 u < L−1 且 e^s(u+1) ≠ e^s(u)，再乘 (1 − 0.001)" },
+      "pA": { "description": "同理，统计量为 15 指数占位年化均值 Ā^s（年化 = E(L−1)^(1/years_W) − 1，%）≥ AbarRule" },
+      "pX": { "description": "同理，统计量为 #X^s（占位 W 年化 ≥ M 年化且占位 C 回撤 ≥ M 的 C 回撤的指数个数，M 为规则的 M）≥ counts.X" },
+      "perIndexP": { "description": "指数级：(1 + #{s : 该指数占位 C 回撤 ≥ 规则 C 回撤}) / (1 + nShifts)" },
+      "dist": { "description": "D̄^s、Ā^s、#X^s 在全部平移上的 p10 / median / p90 / mean（p10 = 排序后第 floor(0.1n) 个）" },
+      "DbarRuleCsse": { "description": "报告项 6：C′ 上的 DbarRule" },
+      "pCsse": { "description": "报告项 6：C′ 上的 pC" }
+     }
+    },
+    "gradeBeforeDowngrade": { "description": "按 PREREG 等级表：#D < 12 → 未确认；#X < 8 → 回撤门槛通过、择时增量未证实；#P ≥ 9 且 pC ≤ 0.10 → 确认；否则部分确认" },
+    "downgrade1Triggered": { "description": "降级规则 1 的条件是否成立：counts.X ≥ 8 且 counts.Xprime < 8" },
+    "grade": { "description": "执行降级规则 1 之后的等级" },
+    "subLabel": { "description": "等级为「回撤门槛通过、择时增量未证实」时：pC ≤ 0.10 → 大跌段时机优于随机，否则 → 大跌段时机与随机无异" },
+    "note": { "description": "等级为部分确认且 pC > 0.10 时的加注" },
+    "gradeCsseReportOnly": { "description": "报告项 6：把 C 换成 C′ 后按同一等级表算出的等级（只报告）" }
+   }
+  }
+ },
+ "type": "object",
+ "properties": {
+  "checks": { "description": "断言链结果：strategies.mjs、inputs-clean.json、L-018 inputs.json、cash-rates.json 的 SHA-256；raw 文件数；raw 清洗与 inputs-clean.json 逐值相同；交易日历根数；与 count-results.json 的买卖次数与 k 一致" },
+  "windows": { "description": "W、C、Wprime、Csse 的起止日期" },
+  "main": { "$ref": "#/definitions/evaluation" },
+  "l004Layout": { "$ref": "#/definitions/evaluation" },
+  "l004LayoutAltShifts": { "description": "clarify-needed 第 1 条：L-004 布局下平移取 63..1276 时的 pC、等级与个数" },
+  "e1": { "description": "探索 E1（分母 000015）：等级、个数、安慰剂 p、降级规则 1、是否与主口径等级不同、perIndex" },
+  "final": {
+   "description": "最终判定",
+   "properties": {
+    "mainGrade": {}, "l004Grade": {},
+    "grade": { "description": "主口径与 L-004 布局中较低的等级（顺序：未确认 < 回撤门槛通过、择时增量未证实 < 部分确认 < 确认）" },
+    "sensitiveToSingleDataDay": { "description": "两口径等级是否不同" },
+    "pC": { "description": "主口径 pC" },
+    "likelihood": { "description": "所得等级在功效分析（power-results.json）里的 P(等级 | H1)、P(等级 | H0) 及其比；「择时增量未证实」档按子标签取对应行" },
+    "e1DependencyStatement": { "description": "E1 等级与主口径等级不同 → true（结论须写「主结论依赖回填的分母 000922」）" }
+   }
+  },
+  "variants": {
+   "description": "报告项 8（主口径）",
+   "properties": {
+    "cash": { "description": "代码 → 现金计息版：W、C（windowStats）、D、A、P；MCash = M 也计息时的 W、C；XvsMCash。计息：空仓日（e = 0）的日收益 = 两交易日之间逐个日历日当天生效的一年期存款利率 ÷ 365 之和（cash-rates.json）；成交日（pos 变化）扣 0.1%，含窗口末日" },
+    "cashCounts": { "description": "计息版 A、D、P、XvsMCash 的个数；crossesP9Boundary = (计息版 #P ≥ 9) 与 (主口径 #P ≥ 9) 是否不同" },
+    "nextDaySell": { "description": "代码 → 「死叉次日收盘卖」版：k（自身）、W、C、D、A、P、X（对自身 k 的静态对照）、trades" },
+    "nextDaySellCounts": {},
+    "selfCheckEqFromPosMaxRelDiff": { "description": "由 pos 重建（不计息）的净值与 timingGold 净值在 W 起点以后的最大相对差，须 ≤ 1e-12" }
+   }
+  },
+  "macdOnly": { "description": "代码 → macdOnly(bars, {fill:'close'}) 的 W、C windowStats 与 D、A（相对一直持有）" },
+  "filterPlacebo": { "description": "择时滤网安慰剂：牛熊序列在 1,439 个有定义日期上循环平移 bull_s(k) = bull((k + s) mod 1439)，s = 63..1275，MACD 不动，重跑 timingGold；dist 为 D̄、Ā、#D、#X 的分布（#X 对各自 k 的静态对照）；pDbar / pAbar / pD / pX = (1 + #{s : 统计量^s ≥ 规则}) / 1214" },
+  "reports": {
+   "description": "代码 → 报告项 2、4、5（主口径）",
+   "properties": {
+    "years": { "description": "自然年（2005 自 W 首日起）：from（上年最后交易日，2005 为 W 首日）、to、rule / hold / M 的区间收益 %（M 用主口径净值路径）、buys、sells、heldShare（该年 W 内交易日收盘持仓占比）" },
+    "contributions": { "description": "bull（2006-01-04 至 2007-10-16）、C、W 三段的对数收益差（自然对数，不乘 100）：ruleMinusHold、ruleMinusM" },
+    "otherSegments": { "description": "五段其他回撤段的 rule / hold / M windowStats（M 用主口径净值路径）" },
+    "cSplit": { "description": "C 拆两段（2007-10-16 至 2008-05-23、2008-05-26 至 2008-11-04）的 rule / hold / M（主口径 M 路径）" },
+    "backfillSegment": { "description": "回填段 2005-07-06 至 2008-05-23：k 在段内重算、M 从段首起算" },
+    "published": { "description": "只有 H00300、H00016（W 全程）、H00905（2007-01-15 起）、H00922（2008-05-26 起）有值：k 在段内重算、M 从段首起算" }
+   }
+  },
+  "groups": { "description": "分组观察：各组 P、D、A、X 个数；patternReproduced = 大盘蓝筹 / 红利组 P 比例 < 中小盘 / 周期组 P 比例" },
+  "l004Sets": { "description": "L-004 通过集合（9）与不通过集合（6）中 P 的个数，以及「W 规则年化 − W M 年化」的中位数（百分点，偶数个取中间两个均值）" },
+  "nearTies": { "description": "ratio：|比值 − 20 日均线| / 均线 < 1e-12 的日期；macd：|DIF − DEA| < 1e-12 的 {code, date, gold, dead, tradeDayOrNext}" },
+  "fourCrashes": { "description": "2008（本检验）与功效分析三次大跌（中位）的 pC、#X、#X_dd、#X_ann" },
+  "countCheck": { "description": "与 count-results.json 的买卖次数、k 核对" }
+ }
+}

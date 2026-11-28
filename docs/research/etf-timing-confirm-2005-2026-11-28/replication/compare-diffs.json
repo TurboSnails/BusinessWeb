@@ -1,0 +1,14 @@
+{
+ "summary": {
+  "fieldsCompared": 6369,
+  "diffs": 0,
+  "maxAbsDiffWithinTolerance": {
+   "k": 0.0,
+   "pct": 7.617018127348274e-12
+  },
+  "exactFields": 1483,
+  "toleranceFields": 4886,
+  "bothNull": 321
+ },
+ "diffs": []
+}

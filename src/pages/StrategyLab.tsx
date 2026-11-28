@@ -23,6 +23,7 @@ import LiquidityDefenseStudy from '../features/strategy-lab/LiquidityDefenseStud
 import SpxQqqTiltStudy from '../features/strategy-lab/SpxQqqTiltStudy'
 import DeadCatBounceStudy from '../features/strategy-lab/DeadCatBounceStudy'
 import ThemePeCnStudy from '../features/strategy-lab/ThemePeCnStudy'
+import EtfTimingConfirmStudy from '../features/strategy-lab/EtfTimingConfirmStudy'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
@@ -118,6 +119,7 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-liquidity-defense', tab: 'cn', group: 'timing', title: 'A 股流动性踩踏防守：跌停潮、冲击成本飙升时减仓', date: '2026-11-28', status: 'partial', statusText: '部分成立', summary: '跌停潮出现就减到半仓一个月：夏普 0.485 → 0.549、最大回撤 −72% → −59%，两段都有效，但时机检验不显著；冲击成本写法不稳定。不改仓位规则。', Component: LiquidityDefenseStudy },
   { id: 'lab-dead-cat-bounce', tab: 'cn', group: 'timing', title: 'A 股暴跌后反弹（死猫跳）回避', date: '2026-11-28', status: 'fail', statusText: '不晋级', summary: '反弹股之后 60 日确实跑输，但剔除它们回撤反而更深（−48.4% → −50.6%）、扣成本不赚，两个写法都不晋级；威科夫完整形态只出现 7 次，结案；截图里「做空胜率 77%」在原始资料中不存在。', Component: DeadCatBounceStudy },
   { id: 'lab-theme-pe-cn', tab: 'cn', group: 'timing', title: 'A 股主线行业 + 估值过滤', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '检验的是申万一级行业，不是概念题材。持续主线波动 26.0%（行业等权 22.8%）、夏普 0.11（0.24）；每月主线夏普 −0.02；估值过滤增量不稳健。两个都不通过。', Component: ThemePeCnStudy },
+  { id: 'lab-etf-timing-confirm', tab: 'cn', group: 'timing', title: '朋友 ETF「择时 + 只认金叉」：2005–2010 年确认检验', date: '2026-11-28', status: 'partial', statusText: '部分确认', summary: '同样平均仓位下，2008 年回撤更浅（15 个指数里 13 个收益和回撤都不差，时机检验 p 0.0008），但波动没有比同仓位静态持有低（0/15），相对一直持有收益代价仍在；11/15 为回填指数。不改仓位规则，影子运行以同仓位静态组合为对照复核。', Component: EtfTimingConfirmStudy },
   { id: 'lab-etf-volume', tab: 'cn', group: 'timing', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 
