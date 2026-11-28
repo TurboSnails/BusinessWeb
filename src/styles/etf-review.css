@@ -42,3 +42,24 @@
 .etf-review-history li > span { flex: 1; color: var(--text-secondary); }
 .etf-review-history__date { border: none; background: none; color: var(--accent-ink); cursor: pointer; font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .etf-review-row { grid-template-columns: 1fr; } }
+.etf-review-holding-tools { margin: 0 0 14px; }
+.etf-review-holding-tools .ui-cluster { align-items: center; gap: 8px; }
+.etf-review-holding-asof { font-size: .82rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.etf-review-holding-tools .etf-review-hint { margin-top: 6px; }
+.etf-review-market-row { display: grid; grid-template-columns: 1fr 1.1fr; gap: 12px; padding: 9px 0; border-block: 1px solid var(--border-subtle); }
+.etf-review-market-row > div { min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.etf-review-market-row > div > :is(span, small) { font-size: .76rem; color: var(--text-secondary); }
+.etf-review-market-row b { font-variant-numeric: tabular-nums; }
+.etf-review-page .etf-review-market-row small { margin-left: 0; }
+.etf-review-holding__state { font-size: .9rem; }
+.etf-review-holding__state.is-hold { color: var(--accent-ink); }
+.etf-review-holding__state.is-buy { color: var(--up, #b42318); }
+.etf-review-holding__state:is(.is-sellToday, .is-sellNext) { color: var(--down, #067647); }
+.etf-review-holding__state:is(.is-empty, .is-unknown, .is-failed) { color: var(--text-secondary); }
+.etf-review-retry { border: 0; padding: 4px 0; background: transparent; color: var(--accent-ink); cursor: pointer; font-size: .8rem; }
+.etf-review-retry:disabled { color: var(--text-tertiary); cursor: wait; }
+.etf-review-seed { margin-bottom: 12px; }
+.etf-review-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 6px; }
+.etf-review-price__up { color: var(--up, #b42318); }
+.etf-review-price__down { color: var(--down, #067647); }
+.etf-review-price__flat { color: var(--text-secondary); }

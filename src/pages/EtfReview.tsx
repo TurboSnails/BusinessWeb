@@ -7,11 +7,14 @@ import { fetchQuotes, marketToday } from '../features/grid-trading/marketData'
 import type { Quote } from '../features/grid-trading/types'
 import {
   ACTIONS, CONCLUSIONS, SENTIMENTS, addGroup, addItem, deleteGroup, deleteNote, loadState, normalizeState, notesOf, removeItem,
-  renameGroup, saveState, setItemGroups, groupsOf, mergeReviewState, upsertNote, type DailyNote, type ReviewState, type WatchItem,
+  renameGroup, saveState, seedCatalogGroups, setItemGroups, groupsOf, mergeReviewState, upsertNote, type DailyNote, type ReviewState, type WatchItem,
 } from '../features/etf-review/store'
 import EtfTechCell from '../components/EtfTechCell'
 import { useEtfTechnicalState } from '../data/etfTechnical'
-import { matchesTechnical, PERIOD_LABELS, TECH_FILTERS, type TechnicalPeriod, type TechnicalFilter } from '../features/etf-review/technicalFilter'
+import { matchesTechnical, PERIOD_LABELS, TECH_FILTERS, type MaFilter, type TechnicalPeriod, type TechnicalFilter } from '../features/etf-review/technicalFilter'
+import { useHoldings } from '../features/etf-review/useHoldings'
+import { HOLDING_LABELS, isHolding } from '../features/etf-review/holdings'
+import { PLAN_NAMES } from '../features/etf-signal-plans/plan-trades'
 import '../styles/etf-review.css'
 
 type NoteForm = { date: string; premium: string; sentiment: string; conclusion: string; action: string; risk: string; remark: string }
@@ -35,6 +38,8 @@ export default function EtfReview(): JSX.Element {
   const { map: tech, status: techStatus, retry: retryTech } = useEtfTechnicalState()
   const [period, setPeriod] = useState<TechnicalPeriod>('day')
   const [technical, setTechnical] = useState<TechnicalFilter>('all')
+  const [ma, setMa] = useState<MaFilter>('all')
+  const [holdingOnly, setHoldingOnly] = useState(false)
   const [includeUnfinished, setIncludeUnfinished] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const addButtonRef = useRef<HTMLButtonElement>(null)
@@ -51,6 +56,9 @@ export default function EtfReview(): JSX.Element {
   }, [requestedCode, requestedName, setSearch, state.items])
 
   const codesKey = state.items.map(i => i.code).join(',')
+  const { catalog, catalogFailed, plans, snapshot, busy, refresh } = useHoldings(codesKey)
+  const holdings = useMemo(() => Object.fromEntries(Object.entries(snapshot?.statuses ?? {}).filter(([code, result]) =>
+    !catalog || plans.get(code) === result.plan)), [catalog, plans, snapshot])
   useEffect(() => {
     if (!codesKey) { setQuotes(new Map()); return }
     let alive = true
@@ -61,11 +69,14 @@ export default function EtfReview(): JSX.Element {
   }, [codesKey])
 
   const visible = useMemo(() => state.items.filter(i =>
-    (filter === 'all' || (filter === 'none' ? !groupsOf(i).length : groupsOf(i).includes(filter.slice('group:'.length)))) && matchesTechnical(tech.get(i.code), period, technical, includeUnfinished)),
-  [state.items, filter, tech, period, technical, includeUnfinished])
+    (filter === 'all' || (filter === 'none' ? !groupsOf(i).length : groupsOf(i).includes(filter.slice('group:'.length))))
+      && matchesTechnical(tech.get(i.code), period, technical, includeUnfinished, ma)
+      && (!holdingOnly || isHolding(holdings[i.code]))),
+  [state.items, filter, tech, period, technical, includeUnfinished, ma, holdingOnly, holdings])
   const techCovered = state.items.filter(i => tech.has(i.code)).length
   const hasCompletedPeriod = state.items.some(i => tech.get(i.code)?.[period].complete)
-  const showUnfinishedHint = techStatus === 'ready' && technical !== 'all' && !includeUnfinished && techCovered > 0 && !hasCompletedPeriod
+  const showUnfinishedHint = techStatus === 'ready' && (technical !== 'all' || ma !== 'all') && !includeUnfinished && techCovered > 0 && !hasCompletedPeriod
+  const hasPlanItems = state.items.some(item => plans.has(item.code))
   const renameReviewGroup = (from: string, to: string) => {
     const next = renameGroup(state, from, to)
     if (next === state) return
@@ -127,6 +138,7 @@ export default function EtfReview(): JSX.Element {
         {techStatus === 'error' && <p role="alert">技术快照加载失败，已保留复盘笔记。<button type="button" className="tool-btn" onClick={retryTech}>重试技术快照</button></p>}
         <div className="etf-review-toolbar page-toolbar">
           <label>技术周期 <select className="ui-input" value={period} onChange={e => setPeriod(e.target.value as TechnicalPeriod)}>{Object.entries(PERIOD_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>均线状态 <select className="ui-input" value={ma} onChange={e => setMa(e.target.value as MaFilter)}><option value="all">全部均线状态</option>{(['多头', '空头', '震荡'] as const).map(value => <option key={value}>{value}</option>)}</select></label>
           <label>MACD 条件 <select className="ui-input" value={technical} onChange={e => setTechnical(e.target.value as TechnicalFilter)}>{TECH_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}</select></label>
           <label><input type="checkbox" checked={includeUnfinished} onChange={e => setIncludeUnfinished(e.target.checked)} />包括未完成周期</label>
         </div>
@@ -134,15 +146,29 @@ export default function EtfReview(): JSX.Element {
         {showUnfinishedHint && <p className="etf-review-hint" role="status">当前快照中，自选标的的{PERIOD_LABELS[period]}均为未完成周期；勾选「包括未完成周期」可查看当前信号，或等待下一期完成数据。</p>}
       </section>
 
+      {state.items.length > 0 && <section className="etf-review-holding-tools" aria-label="择时持仓筛选">
+        <div className="ui-cluster">
+          <button type="button" className={holdingOnly ? 'ui-chip is-active' : 'ui-chip'} aria-pressed={holdingOnly} onClick={() => setHoldingOnly(value => !value)}>择时持仓 · 持有中</button>
+          <button type="button" className="tool-btn" onClick={() => refresh()} disabled={busy || (!!catalog && !hasPlanItems)}>{busy ? '正在获取…' : '重新获取'}</button>
+          <span role="status" className="etf-review-holding-asof">{catalogFailed ? '择时清单暂不可用，可重新获取。' : snapshot ? `${snapshot.date} ${snapshot.phase === 'pre' ? '盘中（14:45 口径）' : '收盘'}结果` : catalog && !hasPlanItems ? '自选中暂无清单内标的' : '尚无择时结果'}</span>
+        </div>
+        <p className="etf-review-hint">研究观察，不是买卖指令。明日指下一交易日。</p>
+      </section>}
+
       {state.items.length === 0 ? (
         <EmptyState title="还没有自选 ETF">点「添加标的」输入 6 位 ETF 代码开始复盘。</EmptyState>
       ) : (
         <div className="etf-review-grid">
-          {!visible.length && <EmptyState title="没有符合条件的 ETF">可放宽分组或技术条件；未完成周期与缺失数据不会匹配已完成信号。</EmptyState>}
+          {!visible.length && <EmptyState title="没有符合条件的 ETF">可放宽分组、技术条件或持有中筛选。</EmptyState>}
           {visible.map(item => {
             const notes = notesOf(state, item.code)
             const last = notes[0]
             const q = quotes.get(item.code)
+            const technicalRecord = tech.get(item.code)
+            const change = q && technicalRecord?.asOf === q.date && Math.abs(technicalRecord.close - q.price) < .0005 ? technicalRecord.changePct : null
+            const holding = holdings[item.code]
+            const plan = plans.get(item.code) ?? holding?.plan
+            const holdingDescription = plan ? `${PLAN_NAMES[plan]}。研究观察，不是买卖指令。${holding?.reason ?? ''}` : '没有对应的择时方案'
             return (
               <Card key={item.code} className="etf-review-card">
                 <div className="etf-review-card__head">
@@ -151,7 +177,19 @@ export default function EtfReview(): JSX.Element {
                     <fieldset><legend>{item.name}所属分组（可多选）</legend>{state.groups.length ? state.groups.map(g => <label key={g}><input type="checkbox" checked={groupsOf(item).includes(g)} onChange={e => setState(setItemGroups(state, item.code, e.target.checked ? [...groupsOf(item), g] : groupsOf(item).filter(v => v !== g)))} />{g}</label>) : <span>先在「管理分组」创建标签。</span>}</fieldset>
                   </details>
                 </div>
-                <div className="etf-review-quote">{q ? <>现价 <b>{q.price.toFixed(3)}</b><small>{q.date}</small></> : <small>行情未取得</small>}</div>
+                <div className="etf-review-market-row">
+                  <div className="etf-review-quote"><span>现价 / 涨跌幅</span>{q ? <>
+                    <div className="etf-review-price"><b>{q.price.toFixed(3)}</b>
+                      {change != null && <small className={`etf-review-price__${change < 0 ? 'down' : change > 0 ? 'up' : 'flat'}`}>{change > 0 ? '+' : ''}{change.toFixed(2)}%</small>}
+                    </div><small>{q.date}</small>
+                  </> : <small>行情未取得</small>}</div>
+                  <div className="etf-review-holding" title={holdingDescription}>
+                    <span>择时持仓</span>
+                    <strong className={`etf-review-holding__state is-${holding?.state ?? 'unknown'}`}>{holding ? HOLDING_LABELS[holding.state] : plan ? '待计算' : '—'}</strong>
+                    {plan && <small>{PLAN_NAMES[plan]}</small>}
+                    {holding?.state === 'failed' && <button type="button" className="etf-review-retry" disabled={busy} aria-label={`重试 ${item.name} 择时持仓`} onClick={() => refresh(item.code)}>重试</button>}
+                  </div>
+                </div>
                 <EtfTechCell rec={tech.get(item.code)} />
                 {techStatus === 'ready' && !tech.has(item.code) && <p className="etf-review-hint">未纳入本期技术快照；条件筛选不会把缺数当成信号。</p>}
                 {tech.get(item.code) && <p className="etf-review-hint">技术快照 {tech.get(item.code)!.asOf} · {tech.get(item.code)!.priceSeries === 'qfqday' ? '腾讯前复权' : '来源原价格口径'} · {PERIOD_LABELS[period]} {tech.get(item.code)![period].asOf} · {tech.get(item.code)![period].count} 根{!tech.get(item.code)![period].complete && ' · 未完成周期'}{tech.get(item.code)!.asOf < marketToday() && ' · 非今日快照'}</p>}
@@ -180,7 +218,11 @@ export default function EtfReview(): JSX.Element {
 
       <AddDialog key={`${prefill.code}:${addOpen}`} initialCode={prefill.code} initialName={prefill.name} open={addOpen} onClose={() => setAddOpen(false)} groups={state.groups} existing={state.items.map(i => i.code)} fallbackFocusRef={addButtonRef}
         onAdd={(code, name, group) => { setState(addItem(state, code, name, group)); setAddOpen(false) }} />
-      <GroupsDialog open={groupsOpen} onClose={() => setGroupsOpen(false)} state={state} setState={setState} onRename={renameReviewGroup} onDelete={deleteReviewGroup} />
+      <GroupsDialog open={groupsOpen} onClose={() => setGroupsOpen(false)} state={state} setState={setState} onRename={renameReviewGroup} onDelete={deleteReviewGroup}
+        onSeed={catalog ? () => {
+          if (!window.confirm('将研究清单中的 ETF 加入复盘和对应分组？现有名称和笔记会保留。')) return
+          setState(seedCatalogGroups(state, catalog))
+        } : undefined} />
       {noteFor && <NotesDialog item={noteFor} state={state} setState={setState} onClose={() => setNoteFor(null)} />}
       <Dialog open={!!pendingImport} onClose={() => setPendingImport(null)} title="导入复盘备份" size="sm" actions={<><button type="button" className="tool-btn" onClick={() => setPendingImport(null)}>取消</button><button type="button" className="tool-btn" onClick={exportJson} disabled={!state.items.length}>先导出当前数据</button><button type="button" className="tool-btn tool-btn--primary" onClick={() => { if (pendingImport) { setState(mergeReviewState(state, pendingImport)); setMessage('已合并备份；同日冲突保留当前笔记。'); setPendingImport(null) } }}>合并导入</button><button type="button" className="tool-btn" onClick={() => { if (pendingImport && window.confirm('替换会删除当前备份中没有的标的和笔记。确认已导出备份并替换？')) { setState(pendingImport); setMessage('已用备份替换当前复盘数据。'); setPendingImport(null) } }}>替换全部</button></>}>
         <p>备份含 {pendingImport?.items.length ?? 0} 个标的、{pendingImport?.notes.length ?? 0} 条笔记。合并会补入新标的和分组，同一标的同一天保留当前笔记。</p>
@@ -220,12 +262,13 @@ function AddDialog({ open, onClose, groups, existing, onAdd, initialCode = '', i
   )
 }
 
-function GroupsDialog({ open, onClose, state, setState, onRename, onDelete }: { open: boolean; onClose(): void; state: ReviewState; setState(s: ReviewState): void; onRename(from: string, to: string): void; onDelete(name: string): void }): JSX.Element | null {
+function GroupsDialog({ open, onClose, state, setState, onRename, onDelete, onSeed }: { open: boolean; onClose(): void; state: ReviewState; setState(s: ReviewState): void; onRename(from: string, to: string): void; onDelete(name: string): void; onSeed?(): void }): JSX.Element | null {
   const [name, setName] = useState('')
   const [editing, setEditing] = useState<{ from: string; to: string } | null>(null)
   return (
     <Dialog open={open} onClose={onClose} title="管理分组" size="sm" actions={<button type="button" className="tool-btn" onClick={onClose}>完成</button>}>
       <p className="etf-review-hint">删除分组只会移除标签，不会删除 ETF 和笔记。</p>
+      {onSeed && <button type="button" className="tool-btn etf-review-seed" onClick={onSeed}>加入清单分组</button>}
       <ul className="etf-review-grouplist">
         {state.groups.map(g => (
           <li key={g}>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { addGroup, addItem, deleteGroup, emptyState, normalizeState, removeItem, renameGroup, upsertNote, notesOf, groupsOf, setItemGroups, mergeReviewState } from './store'
+import { addGroup, addItem, deleteGroup, emptyState, normalizeState, removeItem, renameGroup, upsertNote, notesOf, groupsOf, setItemGroups, mergeReviewState, seedCatalogGroups } from './store'
+import { reviewCatalog } from './catalog'
 
 const base = () => addItem(addGroup(emptyState(), '宽基'), '510300', '沪深300ETF', '宽基')
 const note = (over = {}) => ({ code: '510300', date: '2026-10-20', premium: 0.1, sentiment: '冷静' as const, conclusion: '中性' as const, action: '观望' as const, risk: '', remark: '', ...over })
@@ -63,5 +64,26 @@ describe('etf-review store', () => {
     expect(groupsOf(merged.items.find(i => i.code === '510300')!)).toEqual(['宽基', '观察'])
     expect(merged.notes.find(n => n.date === '2026-10-20')?.risk).toBe('保留当前')
     expect(merged.notes).toHaveLength(2)
+  })
+})
+
+describe('catalog group custom names', () => {
+  it('preserves a custom name across repeated seeding and restores the default marker on rename back', () => {
+    const defaults = reviewCatalog([{ code: '510300', name: 'Name in catalogue' }], [], [])
+    let state = seedCatalogGroups(upsertNote(base(), note()), defaults)
+    state = renameGroup(state, '创业板择时优选', '我的优选')
+    expect(state.catalogGroups?.['cyb-good']).toEqual({ name: '我的优选', customName: true })
+    state = seedCatalogGroups(normalizeState(JSON.parse(JSON.stringify(state))), defaults)
+    expect(groupsOf(state.items[0])).toEqual(['宽基', '我的优选'])
+    expect(state.items[0].name).toBe('沪深300ETF')
+    expect(state.notes).toHaveLength(1)
+    state = mergeReviewState(state, normalizeState({
+      version: 1, groups: ['创业板择时优选'], items: [{ code: '159915', group: '创业板择时优选' }],
+    }))
+    expect(groupsOf(state.items[1])).toEqual(['我的优选'])
+    expect(state.groups).not.toContain('创业板择时优选')
+    state = renameGroup(state, '我的优选', '创业板择时优选')
+    expect(state.catalogGroups?.['cyb-good']).toEqual({ name: '创业板择时优选' })
+    expect(groupsOf(state.items[1])).toEqual(['创业板择时优选'])
   })
 })

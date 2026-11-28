@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EtfReview from './EtfReview'
 import { ETF_REVIEW_KEY } from '../features/etf-review/store'
 import { clearEtfTechnicalCache } from '../data/etfTechnical'
+import { HOLDING_CACHE_KEY, PLAN_VERSION } from '../features/etf-review/holdings'
 
 beforeEach(() => { localStorage.clear(); clearEtfTechnicalCache(); vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('offline') })) })
 afterEach(() => { cleanup(); localStorage.clear(); clearEtfTechnicalCache(); vi.unstubAllGlobals() })
@@ -89,6 +90,33 @@ describe('ETF 复盘', () => {
 
 
 describe('ETF 复盘复核回归', () => {
+  it('持有中与分组、均线、MACD 叠加，包含次日卖出', async () => {
+    const codes = ['513310', '588200', '159869', '159851', '562500']
+    const items = codes.map((code, i) => ({ code, name: `观察-${i}`, group: i === 3 ? '其他' : '核心' }))
+    localStorage.setItem(ETF_REVIEW_KEY, JSON.stringify({ version: 2, groups: ['核心', '其他'], items, notes: [] }))
+    localStorage.setItem(HOLDING_CACHE_KEY, JSON.stringify({
+      version: PLAN_VERSION, date: '2026-11-27', phase: 'close',
+      statuses: Object.fromEntries(codes.map((code, i) => [code, { plan: 'cyb', state: ['hold', 'empty', 'sellNext', 'hold', 'hold'][i] }])),
+    }))
+    const records = items.map(({ code, name }, i) => {
+      const period = { asOf: '2026-11-27', complete: true, count: 60, ma: i === 4 ? '空头' : '多头', macd: i === 0 ? '偏空' : '偏多' }
+      return { code, name, asOf: period.asOf, priceSeries: 'day', day: period, week: period, month: period }
+    })
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (!url.includes('etf-technical-latest.json')) throw new Error('offline')
+      return { ok: true, json: async () => ({ records }) }
+    }))
+    renderPage()
+    await screen.findByText(/已取得 5\/5/)
+    fireEvent.click(screen.getByRole('button', { name: /^核心/ }))
+    fireEvent.change(screen.getByLabelText('均线状态'), { target: { value: '多头' } })
+    fireEvent.change(screen.getByLabelText('MACD 条件'), { target: { value: 'bull' } })
+    fireEvent.click(screen.getByRole('button', { name: '择时持仓 · 持有中' }))
+    expect(screen.getByText('观察-2')).toBeTruthy()
+    expect(screen.getByText('明日卖')).toBeTruthy()
+    for (const i of [0, 1, 3, 4]) expect(screen.queryByText(`观察-${i}`)).toBeNull()
+  })
+
   it('当前分组改名后筛选跟随，删除后回到全部', () => {
     localStorage.setItem(ETF_REVIEW_KEY, JSON.stringify({ version: 2, groups: ['A'], items: [{ code: '510300', name: 'ETF', group: 'A', groups: ['A'] }], notes: [] }))
     renderPage()
