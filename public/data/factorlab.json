@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-28T03:38:17+00:00",
+  "generatedAt": "2026-11-28T04:11:00+00:00",
   "data": [
     {
       "market": "cn",
@@ -97,11 +97,11 @@
   ],
   "ledger": {
     "cn": {
-      "records": 97,
-      "trials": 97,
-      "distinct": 69,
+      "records": 103,
+      "trials": 102,
+      "distinct": 74,
       "byMode": {
-        "explore": 85,
+        "explore": 90,
         "validate": 12
       },
       "factors": [
@@ -112,11 +112,14 @@
         "cn_accruals",
         "cn_asset_growth",
         "cn_bp",
+        "cn_bp_hist_pct",
         "cn_cfp_ttm",
         "cn_dy_ttm",
         "cn_ep_ded_ttm",
+        "cn_ep_hist_pct",
         "cn_ep_resid",
         "cn_ep_ttm",
+        "cn_fscore_cheap",
         "cn_gpa_ttm",
         "cn_ind_mom",
         "cn_multi4",
@@ -137,6 +140,7 @@
         "high_52w",
         "idio_vol_60d",
         "low_price",
+        "ltrev_60_13",
         "max_ret_21d",
         "mom_12_1",
         "mom_6_1",
@@ -153,7 +157,7 @@
         "uptrend_pullback",
         "vol_60d"
       ],
-      "last": "2026-11-28T03:37:42+00:00"
+      "last": "2026-11-28T04:09:09+00:00"
     },
     "hk": {
       "records": 32,
@@ -324,6 +328,15 @@
       }
     },
     {
+      "id": "R15",
+      "file": "docs/research/factorlab/rounds/R15-2026-11-28.md",
+      "status": "已完成",
+      "summary": "价值回归（A 股）：盈利收益率历史分位、账面市值比历史分位、便宜 + F 分改善、长期反转。V1（EP 历史分位，等权）与 V3（便宜 + F 分，两种口径）过第 1 关，扣成本每年仍有 3–6% 超额且两段为正；但第 3 关扣掉静态价值后增量 t 1.95 / 0.86 / 1.82，不到 2，没有候选。超额主要来自「便宜」本身与小盘、低波、反转效应，F 分是在价值之上的筛选。",
+      "candidates": {
+        "cn": []
+      }
+    },
+    {
       "id": "R2",
       "file": "docs/research/factorlab/rounds/R2-2026-11-27.md",
       "status": "已完成",
@@ -412,21 +425,21 @@
     }
   ],
   "multipleTesting": {
-    "generatedAt": "2026-11-28T03:38:45+00:00",
-    "totalTrials": 149,
-    "totalExploreDistinct": 115,
+    "generatedAt": "2026-11-28T04:11:28+00:00",
+    "totalTrials": 154,
+    "totalExploreDistinct": 120,
     "markets": [
       {
         "market": "cn",
         "label": "A 股",
-        "trials": 69,
-        "effectiveTrials": 42,
-        "pbo": 0.42486402486402486,
-        "tGe2Actual": 16,
-        "tGe2Expected": 2.298,
+        "trials": 74,
+        "effectiveTrials": 46,
+        "pbo": 0.41592851592851593,
+        "tGe2Actual": 17,
+        "tGe2Expected": 2.452,
         "tGe2Ci90": [
           0.0,
-          9.0
+          10.0
         ]
       },
       {
@@ -461,7 +474,7 @@
         "id": "K1",
         "label": "盈余惊喜",
         "factor": "cn_sue",
-        "dsr": 0.5183807370650856,
+        "dsr": 0.5138395960415003,
         "nwT": 2.6154706073763387,
         "srPeriod": 0.1590797973877739
       },
@@ -469,7 +482,7 @@
         "id": "K2",
         "label": "营收惊喜",
         "factor": "cn_sur",
-        "dsr": 0.5745803877615601,
+        "dsr": 0.5701476932425752,
         "nwT": 2.4132548854431346,
         "srPeriod": 0.1689883386082848
       },
@@ -477,12 +490,12 @@
         "id": "K3",
         "label": "换手波动",
         "factor": "turnover_vol_20d",
-        "dsr": 0.5494547564714644,
+        "dsr": 0.5448207201480485,
         "nwT": 2.9825858044311646,
         "srPeriod": 0.1642537641724317
       }
     ],
-    "headline": "A 股过 t 值 ≥ 2 的写法比纯运气多（16 个对 0–9），说明样本里确有规律；但挑选的信息量有限（A 股过拟合概率 0.42，接近 0.5），三个候选的紧缩夏普 0.52–0.57 都低于常用门槛 0.95，不能排除是挑出来的好看；能不能用，只看 12 月锁箱确认和前推。",
+    "headline": "A 股过 t 值 ≥ 2 的写法比纯运气多（17 个对 0–10），说明样本里确有规律；但挑选的信息量有限（A 股过拟合概率 0.42，接近 0.5），三个候选的紧缩夏普 0.51–0.57 都低于常用门槛 0.95，不能排除是挑出来的好看；能不能用，只看 12 月锁箱确认和前推。",
     "caveat": "有效试验数按月度收益 |相关|>0.7 聚类，不是独立试验的精确等价；过拟合概率用组合对称交叉验证，列数少或重叠期短时不稳定；运气模拟保留了截面相关与块自相关，但把真实效应一律当成 0，且未模拟选股规则本身。"
   }
 }
