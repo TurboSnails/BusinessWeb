@@ -1,0 +1,65 @@
+{
+  "window": "1927-01-01 .. 1984-12-31",
+  "market_leg": "KF daily Mkt-RF + RF (percent/100)",
+  "n_days": 15671,
+  "dd20_segments": 8,
+  "segments": [
+    {
+      "peak": "19290903",
+      "trough": "19320708",
+      "dd": -0.8407,
+      "recovery_ath": "19450206",
+      "cross_200dma_after_trough": "19320805"
+    },
+    {
+      "peak": "19460529",
+      "trough": "19470517",
+      "dd": -0.2827,
+      "recovery_ath": "19491215",
+      "cross_200dma_after_trough": "19470619"
+    },
+    {
+      "peak": "19570715",
+      "trough": "19571022",
+      "dd": -0.2065,
+      "recovery_ath": "19580728",
+      "cross_200dma_after_trough": "19580321"
+    },
+    {
+      "peak": "19611212",
+      "trough": "19620626",
+      "dd": -0.277,
+      "recovery_ath": "19630531",
+      "cross_200dma_after_trough": "19621123"
+    },
+    {
+      "peak": "19660209",
+      "trough": "19661007",
+      "dd": -0.2026,
+      "recovery_ath": "19670308",
+      "cross_200dma_after_trough": "19661212"
+    },
+    {
+      "peak": "19681129",
+      "trough": "19700526",
+      "dd": -0.3682,
+      "recovery_ath": "19710427",
+      "cross_200dma_after_trough": "19700918"
+    },
+    {
+      "peak": "19730111",
+      "trough": "19741003",
+      "dd": -0.4816,
+      "recovery_ath": "19761228",
+      "cross_200dma_after_trough": "19750127"
+    },
+    {
+      "peak": "19810811",
+      "trough": "19820812",
+      "dd": -0.2017,
+      "recovery_ath": "19821007",
+      "cross_200dma_after_trough": "19820823"
+    }
+  ],
+  "cross_200dma_after_dd20_count": 8
+}
