@@ -63,15 +63,19 @@ def cn_bp_hist_pct(panel, dates):
 
 def _fscore8(panel) -> pd.DataFrame:
     """Piotroski F 分的 8 项（缺负债、流动比率）：ROE>0、CFO>0、ΔROE>0、CFO>净利润、ΔGPA>0、Δ毛利率>0、Δ资产周转>0、
-    总股本一年内没有增加（≤ 1.01 倍）。Δ 为当日已知值减去 252 个交易日前已知的值；任一项缺失时该项记 0，有效项 < 6 为空。"""
+    总股本一年内没有增加（≤ 1.01 倍）。财报字段由提供方按月末给出，所以在月末面板上计算，Δ = 当月末已知值减 12 个月前月末已知值；
+    任一项缺失时该项记 0，有效项 < 6 为空。（2026-11-28 修正：初版误用 252 行作为一年，月末面板上即 252 个月，导致全空。）"""
     roe, gpa = panel["fin_roe"], panel["fin_gpa"]
-    ni, cfo, gp, rev = panel["fin_ni_ttm"], panel["fin_cfo_ttm"], panel["fin_gp_ttm"], panel["fin_rev_ttm"]
-    sh = panel["total_shares"].ffill()
+    idx = roe.index
+    ni, cfo = panel["fin_ni_ttm"].reindex(idx), panel["fin_cfo_ttm"].reindex(idx)
+    gp, rev = panel["fin_gp_ttm"].reindex(idx), panel["fin_rev_ttm"].reindex(idx)
+    gpa = gpa.reindex(idx)
+    sh = panel["total_shares"].ffill().reindex(idx)
     with np.errstate(invalid="ignore", divide="ignore"):
         gm = gp / rev.where(rev > 0)
         assets = gp / gpa.where(gpa != 0)
         at = rev / assets.where(assets > 0)
-    lag = lambda x: x.shift(YEAR)
+    lag = lambda x: x.shift(12)
     items = [roe > 0, cfo > 0, roe > lag(roe), cfo > ni, gpa > lag(gpa), gm > lag(gm), at > lag(at), sh <= lag(sh) * 1.01]
     valid = [roe.notna(), cfo.notna(), roe.notna() & lag(roe).notna(), cfo.notna() & ni.notna(),
              gpa.notna() & lag(gpa).notna(), gm.notna() & lag(gm).notna(), at.notna() & lag(at).notna(),
@@ -83,12 +87,12 @@ def _fscore8(panel) -> pd.DataFrame:
 
 @factor("cn_fscore_cheap", needs=["fin_roe", "fin_gpa", "fin_ni_ttm", "fin_cfo_ttm", "fin_gp_ttm", "fin_rev_ttm",
                                    "fin_be", "fin_mcap", "total_shares", "close_adj"],
-        lookback=YEAR + 30, markets=("cn",), direction=1,
+        lookback=YEAR + 60, markets=("cn",), direction=1,
         doc="R15 V3 便宜 + 基本面改善（Piotroski 2000）：仅在当日 BP 位于截面前 40% 的股票里给分，分数 = F8 + BP 截面百分位（作同分排序）；其余为空")
 def cn_fscore_cheap(panel, dates):
     dates = pd.DatetimeIndex(dates)
     f = _fscore8(panel).reindex(dates)
-    bp = _bp(panel).reindex(dates).where(panel["close_adj"].reindex(dates).notna())
+    bp = _bp(panel).reindex(dates).where(panel["close_adj"].reindex(dates).notna())   # 非月末调仓日为空（财报字段只有月末值）
     pct = bp.rank(axis=1, pct=True)
     return (f + pct).where(pct > 0.6)
 

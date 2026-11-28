@@ -18,6 +18,9 @@ def _panel(seed=7, n=40, days=1700):
          "fin_roe": ni / 1e9, "fin_gpa": step(0.2).abs() * 0.3, "fin_cfo_ttm": step(0.5) * 1e8,
          "fin_gp_ttm": step(0.2).abs() * 3e8, "fin_rev_ttm": step(0.2).abs() * 1e9,
          "total_shares": pd.DataFrame(1e8, idx, cols)}
+    me = month_end_dates(idx, drop_incomplete_last=False)
+    for k in [k for k in p if k.startswith("fin_")]:
+        p[k] = p[k].reindex(me)                     # 与 fundamentals_cn 一致：财报字段只有月末值
     return p, idx
 
 
@@ -48,3 +51,4 @@ def test_fscore_cheap_only_top40_bp():
     assert f.notna().equals((pct > 0.6) & f.notna())
     assert f.notna().sum(axis=1).max() <= int(0.4 * 40) + 1
     assert ((f.stack() >= 0) & (f.stack() <= 9)).all()
+    assert f.notna().sum().sum() > 0                 # 回归：初版在月末面板上全空
