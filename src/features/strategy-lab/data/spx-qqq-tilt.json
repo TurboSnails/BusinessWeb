@@ -1,0 +1,86 @@
+{
+  "verdict": {
+    "K1": "不通过",
+    "K2": "不通过"
+  },
+  "K1": {
+    "vol": 0.1795,
+    "volM": 0.1796,
+    "maxDd": -0.8365,
+    "maxDdM": -0.8412,
+    "kSameVol": 0.986,
+    "sharpe": 0.4391,
+    "sharpeM": 0.4322,
+    "dSharpe": 0.0069,
+    "dSharpeThr": 0.03,
+    "dSharpePass": false,
+    "L": 1.008,
+    "LPass": false,
+    "maxDdVsMstar": 0,
+    "maxDdPass": true,
+    "veto1973": {
+      "dSharpe": -0.0576,
+      "triggered": true
+    },
+    "vetoEtfTriggered": false
+  },
+  "K2": {
+    "vol": 0.1953,
+    "volM": 0.1796,
+    "maxDd": -0.8462,
+    "maxDdM": -0.8412,
+    "dCerVsM": -0.0075,
+    "dCerVsMPass": false,
+    "dCerVsMstar": 0.0075,
+    "dCerVsMstarThr": 0.002,
+    "dCerVsMstarPass": true,
+    "L": 1.014,
+    "LPass": false,
+    "placeboP": 0.46,
+    "placeboPass": false,
+    "concentration": {
+      "share": 0.758,
+      "from": "1929",
+      "to": "1945"
+    },
+    "concentrationPass": false,
+    "crash1929": {
+      "cand": -0.709,
+      "m": -0.695
+    },
+    "crash1937": {
+      "cand": -0.151,
+      "m": -0.166
+    },
+    "conditionalP": 0.0002,
+    "maIncrement": 0.048
+  },
+  "E1": {
+    "liquidateDate": "1931-09-30",
+    "maxDd": -0.9055,
+    "dCerVsM": -0.0552
+  },
+  "proxy": {
+    "corr": 0.984,
+    "volRatio": 1.006,
+    "qqqCorr": 0.85,
+    "qqqBeta": 1.2,
+    "qqqVolRatio": 1.4
+  },
+  "known1999": {
+    "mix": {
+      "cagr": 0.092,
+      "vol": 0.207,
+      "maxDd": -0.61,
+      "sharpe": 0.488,
+      "cer": 0.0293
+    },
+    "spy": {
+      "cagr": 0.083,
+      "vol": 0.192,
+      "maxDd": -0.552,
+      "sharpe": 0.471,
+      "cer": 0.033
+    }
+  }
+}

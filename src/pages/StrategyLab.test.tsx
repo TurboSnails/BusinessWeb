@@ -166,6 +166,16 @@ describe('研究中页签', () => {
     expect(screen.getByTestId('lab-group-cn-timing').querySelector('#lab-liquidity-defense')).not.toBeNull()
   })
 
+  it('2026-11-28 新增三项（L-049 / L-051 / L-052）：放在对应页签与分组', () => {
+    renderPage(at('rotate'))
+    expect(screen.getByTestId('lab-group-rotate-industry').querySelector('#lab-spx-qqq-tilt')).not.toBeNull()
+    cleanup()
+    renderPage(at('cn'))
+    const cn = screen.getByTestId('lab-group-cn-timing')
+    expect(cn.querySelector('#lab-dead-cat-bounce')).not.toBeNull()
+    expect(cn.querySelector('#lab-theme-pe-cn')).not.toBeNull()
+  })
+
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('offline'))))
     renderPage()

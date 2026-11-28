@@ -1,0 +1,125 @@
+{
+  "verdict": {
+    "C1": {
+      "explore": "不支持",
+      "validate": "不支持",
+      "eligible": false
+    },
+    "C2": {
+      "explore": "不支持",
+      "validate": "部分成立",
+      "eligible": false
+    }
+  },
+  "headline": {
+    "volFull": 0.2243,
+    "volAvoid": 0.2147,
+    "mddFull": -0.4836,
+    "mddAvoid": -0.5064,
+    "sharpeFull": 0.233,
+    "sharpeAvoid": 0.201,
+    "eventMean": 0.0049
+  },
+  "layers": {
+    "explore": {
+      "from": "2005",
+      "to": "2014",
+      "C1": {
+        "events": 2766,
+        "mean": -0.064,
+        "t": -2.2,
+        "s1": true,
+        "s2": false,
+        "s3": false,
+        "s5": false,
+        "volRatio": 0.987,
+        "avoidNet": -0.013,
+        "grade": "不支持"
+      },
+      "C2lo": {
+        "events": 418,
+        "mean": -0.0013,
+        "t": -0.04,
+        "s1": false,
+        "s2": false,
+        "s3": false,
+        "s5": false,
+        "volRatio": 0.998,
+        "avoidNet": -0.0075,
+        "grade": "不支持"
+      },
+      "C2hi": {
+        "events": 740,
+        "mean": -0.0338,
+        "t": -1.3,
+        "s1": false,
+        "s2": false,
+        "s3": false,
+        "s5": false,
+        "volRatio": 0.997,
+        "avoidNet": -0.0092,
+        "grade": "不支持"
+      },
+      "C2grade": "不支持"
+    },
+    "validate": {
+      "from": "2015",
+      "to": "2023-10",
+      "C1": {
+        "events": 5376,
+        "mean": -0.032,
+        "t": -2.07,
+        "s1": true,
+        "s2": false,
+        "s3": false,
+        "s5": false,
+        "volRatio": 0.957,
+        "avoidNet": -0.0104,
+        "grade": "不支持"
+      },
+      "C2lo": {
+        "events": 657,
+        "mean": -0.0145,
+        "t": -0.54,
+        "s1": false,
+        "s2": false,
+        "s3": false,
+        "s5": false,
+        "volRatio": 1.001,
+        "avoidNet": -0.0023,
+        "grade": "不支持"
+      },
+      "C2hi": {
+        "events": 1082,
+        "mean": -0.0647,
+        "t": -2.69,
+        "s1": true,
+        "s2": true,
+        "s3": false,
+        "s5": true,
+        "volRatio": 0.998,
+        "avoidNet": 0.0192,
+        "grade": "部分成立"
+      },
+      "C2grade": "部分成立"
+    }
+  },
+  "costMean": 0.0055,
+  "trials": 50,
+  "h3": {
+    "stages": {
+      "sc": 971,
+      "ar": 492,
+      "st": 264,
+      "spring": 201,
+      "sos": 66,
+      "lps": 7
+    },
+    "byYear": {
+      "2013": 1,
+      "2017": 1,
+      "2022": 3,
+      "2023": 2
+    }
+  }
+}

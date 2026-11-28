@@ -20,6 +20,9 @@ import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendMomentumStudy from '../features/strategy-lab/TrendMomentumStudy'
 import TierSwitchStudy from '../features/strategy-lab/TierSwitchStudy'
 import LiquidityDefenseStudy from '../features/strategy-lab/LiquidityDefenseStudy'
+import SpxQqqTiltStudy from '../features/strategy-lab/SpxQqqTiltStudy'
+import DeadCatBounceStudy from '../features/strategy-lab/DeadCatBounceStudy'
+import ThemePeCnStudy from '../features/strategy-lab/ThemePeCnStudy'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
@@ -109,9 +112,12 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-multi-asset', tab: 'vol', group: 'assets', title: '多资产降波动（股、债、金）', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '两个候选都不通过；降波动继续用调低上限。', Component: MultiAssetStudy },
   { id: 'lab-vol-target', tab: 'vol', group: 'cap', title: '波动率目标：市场越乱，仓位越低', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '回撤明显更浅，但按事先门槛差一点不通过。', Component: VolTargetStudy },
   { id: 'lab-tier-switch', tab: 'rotate', group: 'industry', title: '按宏观档位切换行业：偏防守买防守行业，偏进攻买进攻行业', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '防守侧换防守行业方向对，进攻侧换进攻行业在每段历史都拖后腿；合起来几乎没有好处，还不如一直放防守行业。股票部分维持全买宽基。', Component: TierSwitchStudy },
+  { id: 'lab-spx-qqq-tilt', tab: 'rotate', group: 'industry', title: '股票部分 30% 大盘成长倾斜，与深度回调后有限加杠杆（1.3 倍）', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '成长倾斜的波动、回撤几乎和大盘一样（17.95% 对 17.96%，−83.7% 对 −84.1%），没降波动；回调后加到 1.3 倍回撤更深、风险调整后更差。代用品比纳指 100 温和，不能直接外推。两个都不通过，不改仓位规则。', Component: SpxQqqTiltStudy },
   { id: 'lab-trend-momentum', tab: 'rotate', group: 'multi', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
   { id: 'lab-country-momentum', tab: 'rotate', group: 'country', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
   { id: 'lab-liquidity-defense', tab: 'cn', group: 'timing', title: 'A 股流动性踩踏防守：跌停潮、冲击成本飙升时减仓', date: '2026-11-28', status: 'partial', statusText: '部分成立', summary: '跌停潮出现就减到半仓一个月：夏普 0.485 → 0.549、最大回撤 −72% → −59%，两段都有效，但时机检验不显著；冲击成本写法不稳定。不改仓位规则。', Component: LiquidityDefenseStudy },
+  { id: 'lab-dead-cat-bounce', tab: 'cn', group: 'timing', title: 'A 股暴跌后反弹（死猫跳）回避', date: '2026-11-28', status: 'fail', statusText: '不晋级', summary: '反弹股之后 60 日确实跑输，但剔除它们回撤反而更深（−48.4% → −50.6%）、扣成本不赚，两个写法都不晋级；威科夫完整形态只出现 7 次，结案；截图里「做空胜率 77%」在原始资料中不存在。', Component: DeadCatBounceStudy },
+  { id: 'lab-theme-pe-cn', tab: 'cn', group: 'timing', title: 'A 股主线行业 + 估值过滤', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '检验的是申万一级行业，不是概念题材。持续主线波动 26.0%（行业等权 22.8%）、夏普 0.11（0.24）；每月主线夏普 −0.02；估值过滤增量不稳健。两个都不通过。', Component: ThemePeCnStudy },
   { id: 'lab-etf-volume', tab: 'cn', group: 'timing', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 

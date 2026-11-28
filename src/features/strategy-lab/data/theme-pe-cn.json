@@ -1,0 +1,101 @@
+{
+  "verdict": {
+    "C1a": "不通过",
+    "C1b": "不通过"
+  },
+  "window": [
+    "2015-01-01",
+    "2023-10-31"
+  ],
+  "rows": {
+    "C1a": {
+      "cagr": 0.0103,
+      "vol": 0.2601,
+      "sharpe": 0.108,
+      "maxdd": -0.5197,
+      "costAnn": 0.0158
+    },
+    "C1b": {
+      "cagr": -0.0276,
+      "vol": 0.2798,
+      "sharpe": -0.018,
+      "maxdd": -0.6027,
+      "costAnn": 0.0267
+    },
+    "B0": {
+      "cagr": 0.0312,
+      "vol": 0.2151,
+      "sharpe": 0.175,
+      "maxdd": -0.4705,
+      "costAnn": 0.0013
+    },
+    "B1": {
+      "cagr": 0.0448,
+      "vol": 0.228,
+      "sharpe": 0.236,
+      "maxdd": -0.5271,
+      "costAnn": 0.0025
+    },
+    "B2p": {
+      "cagr": 0.0066,
+      "vol": 0.2906,
+      "sharpe": 0.113,
+      "maxdd": -0.5369,
+      "costAnn": 0.0162
+    },
+    "B2b": {
+      "cagr": -0.0367,
+      "vol": 0.3038,
+      "sharpe": -0.024,
+      "maxdd": -0.5873,
+      "costAnn": 0.0271
+    },
+    "B4": {
+      "cagr": -0.0119,
+      "vol": 0.2855,
+      "sharpe": 0.044,
+      "maxdd": -0.6081,
+      "costAnn": 0.0246
+    }
+  },
+  "C1a": {
+    "grade": "不通过",
+    "L": 1.041,
+    "sharpeB1star": 0.236,
+    "pass": {
+      "c1": false,
+      "c2": false,
+      "c3": false,
+      "c4": false
+    },
+    "vs4": "B2p",
+    "placeboP": 0.65,
+    "holm": 1
+  },
+  "C1b": {
+    "grade": "不通过",
+    "L": 1.104,
+    "sharpeB1star": 0.236,
+    "pass": {
+      "c1": false,
+      "c2": false,
+      "c3": false,
+      "c4": false
+    },
+    "vs4": "B2b",
+    "placeboP": 0.87,
+    "holm": 1
+  },
+  "decomposition": {
+    "totalAnn": -0.0262,
+    "emptyMonths": 32,
+    "emptyAnn": -0.0089,
+    "heldMonths": 74,
+    "heldAnn": -0.0173
+  },
+  "power": {
+    "C1a": 0.419,
+    "C1b": 0.341
+  },
+  "trials": 46
+}
