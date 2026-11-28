@@ -1,0 +1,2322 @@
+{
+ "generatedAt": "2026-11-28T12:02:32.208Z",
+ "discipline": "不含任何收益 / 回撤 / 波动 / 夏普；只含数据校验、日期与事件计数",
+ "window": [
+  "2005-01-01",
+  "2010-12-31"
+ ],
+ "warmup": 120,
+ "inputsCleanSha256": "353b80a5b6f2b8c0091608b89149b2abfa5a53a70eb94054a8ed06a8fbd34cb0",
+ "data": {
+  "000300": {
+   "name": "沪深300",
+   "fullName": "沪深300指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-04-08",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 24,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 61,
+   "backfillShare": 0.0419,
+   "backfillYears": 0.27
+  },
+  "000922": {
+   "name": "中证红利",
+   "fullName": "中证红利指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2008-05-26",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 820,
+   "backfillShare": 0.5628,
+   "backfillYears": 3.4
+  },
+  "000015": {
+   "name": "红利指数",
+   "fullName": "上证红利指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-01-04",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 0,
+   "backfillShare": 0,
+   "backfillYears": 0.01
+  },
+  "H00300": {
+   "name": "300收益",
+   "fullName": "沪深300全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2005-04-08",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 61,
+   "backfillShare": 0.0419,
+   "backfillYears": 0.27
+  },
+  "H00905": {
+   "name": "500收益",
+   "fullName": "中证小盘500全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2007-01-15",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 490,
+   "backfillShare": 0.3363,
+   "backfillYears": 2.04
+  },
+  "H00852": {
+   "name": "中证1000全收益",
+   "fullName": "中证1000全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2014-10-17",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00016": {
+   "name": "50收益",
+   "fullName": "上证50全收益指数",
+   "basicDate": "2003-12-31",
+   "publishDate": "2004-01-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 24,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 0,
+   "backfillShare": 0,
+   "backfillYears": 0
+  },
+  "H00922": {
+   "name": "中红收益",
+   "fullName": "中证红利全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2008-05-26",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 820,
+   "backfillShare": 0.5628,
+   "backfillYears": 3.4
+  },
+  "H00986": {
+   "name": "全指能源全收益",
+   "fullName": "中证全指能源全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00987": {
+   "name": "全指材料全收益",
+   "fullName": "中证全指原材料全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00988": {
+   "name": "全指工业全收益",
+   "fullName": "中证全指工业全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00989": {
+   "name": "全指可选全收益",
+   "fullName": "中证全指可选消费全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00990": {
+   "name": "全指消费全收益",
+   "fullName": "中证全指主要消费全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00991": {
+   "name": "全指医药全收益",
+   "fullName": "中证全指医药卫生全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00992": {
+   "name": "金融地产全收益",
+   "fullName": "中证全指金融地产全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00993": {
+   "name": "全指信息全收益",
+   "fullName": "中证全指信息技术全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00994": {
+   "name": "全指通信全收益",
+   "fullName": "中证全指通信服务全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  },
+  "H00995": {
+   "name": "全指公用全收益",
+   "fullName": "中证全指公用事业全收益指数",
+   "basicDate": "2004-12-31",
+   "publishDate": "2011-08-02",
+   "firstBar": "2004-12-31",
+   "lastBar": "2010-12-31",
+   "barsTotal": 1458,
+   "bars2005_2010": 1457,
+   "missingVsH00300": 0,
+   "missingDates": [],
+   "extraVsH00300": 0,
+   "maxCalendarGapDays": 12,
+   "maxGapAt": "2005-02-04→2005-02-16",
+   "fakeRowsDropped": [
+    "2004-11-28",
+    "2010-12-25"
+   ],
+   "duplicateRowsMerged": 4,
+   "rowsBeforeBaseDropped": 0,
+   "rowsAfter2010Dropped": 1,
+   "backfillDays": 1457,
+   "backfillShare": 1,
+   "backfillYears": 6
+  }
+ },
+ "xcheck": {
+  "H00300": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00905": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00852": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00016": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00922": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00986": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00987": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00988": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00989": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00990": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00991": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00992": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00993": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00994": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "H00995": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   }
+  },
+  "000300": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   },
+   "vsEastmoney": {
+    "firstCommon": "2005-01-04",
+    "commonDays": 1457,
+    "daysDifferOver5e5": 0,
+    "maxRelDiff": 0.000012004946037702524
+   }
+  },
+  "000922": {
+   "vsEtfVolume20261125": {
+    "commonDays": 1457,
+    "daysDiffer": 0,
+    "maxRelDiff": 0,
+    "examples": []
+   },
+   "vsEastmoney": {
+    "firstCommon": "2008-08-04",
+    "commonDays": 588,
+    "daysDifferOver5e5": 0,
+    "maxRelDiff": 0.00000562882408239318
+   }
+  }
+ },
+ "timing": {
+  "main": {
+   "firstDefined": "2005-01-28",
+   "perYear": {
+    "2005": {
+     "days": 224,
+     "bullDays": 130,
+     "bullShare": 0.58,
+     "switches": 32,
+     "toBull": 16,
+     "toBear": 16
+    },
+    "2006": {
+     "days": 241,
+     "bullDays": 168,
+     "bullShare": 0.697,
+     "switches": 27,
+     "toBull": 14,
+     "toBear": 13
+    },
+    "2007": {
+     "days": 242,
+     "bullDays": 104,
+     "bullShare": 0.43,
+     "switches": 29,
+     "toBull": 14,
+     "toBear": 15
+    },
+    "2008": {
+     "days": 246,
+     "bullDays": 121,
+     "bullShare": 0.492,
+     "switches": 29,
+     "toBull": 15,
+     "toBear": 14
+    },
+    "2009": {
+     "days": 244,
+     "bullDays": 120,
+     "bullShare": 0.492,
+     "switches": 26,
+     "toBull": 13,
+     "toBear": 13
+    },
+    "2010": {
+     "days": 242,
+     "bullDays": 143,
+     "bullShare": 0.591,
+     "switches": 39,
+     "toBull": 19,
+     "toBear": 20
+    }
+   },
+   "runsMedian": 4,
+   "runsMin": 1,
+   "runsMax": 61,
+   "runs": 183,
+   "daysDefined2005_2010": 1439,
+   "daysBefore000922Publish": 802
+  },
+  "explore_000015": {
+   "firstDefined": "2005-01-28",
+   "perYear": {
+    "2005": {
+     "days": 224,
+     "bullDays": 126,
+     "bullShare": 0.563,
+     "switches": 32,
+     "toBull": 16,
+     "toBear": 16
+    },
+    "2006": {
+     "days": 241,
+     "bullDays": 160,
+     "bullShare": 0.664,
+     "switches": 32,
+     "toBull": 16,
+     "toBear": 16
+    },
+    "2007": {
+     "days": 242,
+     "bullDays": 119,
+     "bullShare": 0.492,
+     "switches": 41,
+     "toBull": 21,
+     "toBear": 20
+    },
+    "2008": {
+     "days": 246,
+     "bullDays": 141,
+     "bullShare": 0.573,
+     "switches": 30,
+     "toBull": 15,
+     "toBear": 15
+    },
+    "2009": {
+     "days": 244,
+     "bullDays": 132,
+     "bullShare": 0.541,
+     "switches": 24,
+     "toBull": 12,
+     "toBear": 12
+    },
+    "2010": {
+     "days": 242,
+     "bullDays": 184,
+     "bullShare": 0.76,
+     "switches": 23,
+     "toBull": 11,
+     "toBear": 12
+    }
+   },
+   "runsMedian": 3,
+   "runsMin": 1,
+   "runsMax": 58,
+   "runs": 183,
+   "agreementWithMain": 0.76,
+   "commonDays": 1439
+  }
+ },
+ "crash2008": {
+  "peak": "2007-10-16",
+  "trough": "2008-11-04",
+  "tradingDays": 258,
+  "note": "只记日期；跌幅不在本阶段计算",
+  "timingSwitches": 22,
+  "timingBullShare": 0.479
+ },
+ "events": {
+  "H00300": {
+   "name": "300收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3774,
+   "k": 0.377711,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 10,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 57,
+     "heldShare": 0.236
+    },
+    "2006": {
+     "days": 241,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 106,
+     "heldShare": 0.44
+    },
+    "2007": {
+     "days": 242,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 94,
+     "heldShare": 0.388
+    },
+    "2008": {
+     "days": 246,
+     "gold": 9,
+     "dead": 10,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 52,
+     "heldShare": 0.211
+    },
+    "2009": {
+     "days": 244,
+     "gold": 8,
+     "dead": 7,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 105,
+     "heldShare": 0.43
+    },
+    "2010": {
+     "days": 242,
+     "gold": 10,
+     "dead": 11,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 8,
+     "heldDays": 91,
+     "heldShare": 0.376
+    }
+   },
+   "totals": {
+    "gold": 53,
+    "dead": 54,
+    "goldInBull": 35,
+    "buys": 30,
+    "sells": 30,
+    "heldShare": 0.347
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 10,
+    "buys": 5,
+    "sells": 6,
+    "heldShare": 0.208,
+    "heldAtPeak": 1
+   }
+  },
+  "H00905": {
+   "name": "500收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3729,
+   "k": 0.373224,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 10,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 62,
+     "heldShare": 0.256
+    },
+    "2006": {
+     "days": 241,
+     "gold": 6,
+     "dead": 7,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 7,
+     "heldDays": 139,
+     "heldShare": 0.577
+    },
+    "2007": {
+     "days": 242,
+     "gold": 9,
+     "dead": 8,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 2,
+     "heldDays": 53,
+     "heldShare": 0.219
+    },
+    "2008": {
+     "days": 246,
+     "gold": 9,
+     "dead": 10,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 4,
+     "heldDays": 55,
+     "heldShare": 0.224
+    },
+    "2009": {
+     "days": 244,
+     "gold": 12,
+     "dead": 12,
+     "goldInBull": 8,
+     "buys": 8,
+     "sells": 8,
+     "heldDays": 99,
+     "heldShare": 0.406
+    },
+    "2010": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 91,
+     "heldShare": 0.376
+    }
+   },
+   "totals": {
+    "gold": 56,
+    "dead": 57,
+    "goldInBull": 36,
+    "buys": 31,
+    "sells": 31,
+    "heldShare": 0.342
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 9,
+    "buys": 4,
+    "sells": 4,
+    "heldShare": 0.324,
+    "heldAtPeak": 0
+   }
+  },
+  "H00852": {
+   "name": "中证1000全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3969,
+   "k": 0.397158,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 7,
+     "buys": 3,
+     "sells": 2,
+     "heldDays": 51,
+     "heldShare": 0.211
+    },
+    "2006": {
+     "days": 241,
+     "gold": 7,
+     "dead": 8,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 8,
+     "heldDays": 134,
+     "heldShare": 0.556
+    },
+    "2007": {
+     "days": 242,
+     "gold": 9,
+     "dead": 8,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 3,
+     "heldDays": 56,
+     "heldShare": 0.231
+    },
+    "2008": {
+     "days": 246,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 5,
+     "heldDays": 88,
+     "heldShare": 0.358
+    },
+    "2009": {
+     "days": 244,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 91,
+     "heldShare": 0.373
+    },
+    "2010": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 111,
+     "heldShare": 0.459
+    }
+   },
+   "totals": {
+    "gold": 53,
+    "dead": 54,
+    "goldInBull": 36,
+    "buys": 32,
+    "sells": 32,
+    "heldShare": 0.364
+   },
+   "crash2008": {
+    "gold": 8,
+    "dead": 8,
+    "buys": 4,
+    "sells": 4,
+    "heldShare": 0.336,
+    "heldAtPeak": 0
+   }
+  },
+  "H00016": {
+   "name": "50收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3774,
+   "k": 0.377711,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 5,
+     "buys": 2,
+     "sells": 2,
+     "heldDays": 29,
+     "heldShare": 0.12
+    },
+    "2006": {
+     "days": 241,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 101,
+     "heldShare": 0.419
+    },
+    "2007": {
+     "days": 242,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 101,
+     "heldShare": 0.417
+    },
+    "2008": {
+     "days": 246,
+     "gold": 9,
+     "dead": 10,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 73,
+     "heldShare": 0.297
+    },
+    "2009": {
+     "days": 244,
+     "gold": 10,
+     "dead": 9,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 5,
+     "heldDays": 98,
+     "heldShare": 0.402
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 103,
+     "heldShare": 0.426
+    }
+   },
+   "totals": {
+    "gold": 49,
+    "dead": 50,
+    "goldInBull": 31,
+    "buys": 28,
+    "sells": 28,
+    "heldShare": 0.347
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 10,
+    "buys": 4,
+    "sells": 5,
+    "heldShare": 0.228,
+    "heldAtPeak": 1
+   }
+  },
+  "H00922": {
+   "name": "中红收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3326,
+   "k": 0.332835,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 6,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 27,
+     "heldShare": 0.112
+    },
+    "2006": {
+     "days": 241,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 6,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 80,
+     "heldShare": 0.332
+    },
+    "2007": {
+     "days": 242,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 4,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 58,
+     "heldShare": 0.24
+    },
+    "2008": {
+     "days": 246,
+     "gold": 7,
+     "dead": 8,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 70,
+     "heldShare": 0.285
+    },
+    "2009": {
+     "days": 244,
+     "gold": 11,
+     "dead": 10,
+     "goldInBull": 8,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 118,
+     "heldShare": 0.484
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 6,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 92,
+     "heldShare": 0.38
+    }
+   },
+   "totals": {
+    "gold": 53,
+    "dead": 54,
+    "goldInBull": 34,
+    "buys": 31,
+    "sells": 31,
+    "heldShare": 0.305
+   },
+   "crash2008": {
+    "gold": 8,
+    "dead": 8,
+    "buys": 4,
+    "sells": 4,
+    "heldShare": 0.27,
+    "heldAtPeak": 0
+   }
+  },
+  "H00986": {
+   "name": "全指能源全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3401,
+   "k": 0.340314,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 5,
+     "buys": 2,
+     "sells": 2,
+     "heldDays": 36,
+     "heldShare": 0.149
+    },
+    "2006": {
+     "days": 241,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 48,
+     "heldShare": 0.199
+    },
+    "2007": {
+     "days": 242,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 7,
+     "heldDays": 102,
+     "heldShare": 0.421
+    },
+    "2008": {
+     "days": 246,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 72,
+     "heldShare": 0.293
+    },
+    "2009": {
+     "days": 244,
+     "gold": 10,
+     "dead": 9,
+     "goldInBull": 6,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 107,
+     "heldShare": 0.439
+    },
+    "2010": {
+     "days": 242,
+     "gold": 7,
+     "dead": 8,
+     "goldInBull": 4,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 90,
+     "heldShare": 0.372
+    }
+   },
+   "totals": {
+    "gold": 50,
+    "dead": 51,
+    "goldInBull": 30,
+    "buys": 27,
+    "sells": 27,
+    "heldShare": 0.312
+   },
+   "crash2008": {
+    "gold": 10,
+    "dead": 9,
+    "buys": 4,
+    "sells": 4,
+    "heldShare": 0.151,
+    "heldAtPeak": 0
+   }
+  },
+  "H00987": {
+   "name": "全指材料全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3916,
+   "k": 0.391922,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 8,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 41,
+     "heldShare": 0.169
+    },
+    "2006": {
+     "days": 241,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 7,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 85,
+     "heldShare": 0.353
+    },
+    "2007": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 4,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 111,
+     "heldShare": 0.459
+    },
+    "2008": {
+     "days": 246,
+     "gold": 6,
+     "dead": 7,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 5,
+     "heldDays": 107,
+     "heldShare": 0.435
+    },
+    "2009": {
+     "days": 244,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 79,
+     "heldShare": 0.324
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 101,
+     "heldShare": 0.417
+    }
+   },
+   "totals": {
+    "gold": 54,
+    "dead": 55,
+    "goldInBull": 33,
+    "buys": 28,
+    "sells": 28,
+    "heldShare": 0.36
+   },
+   "crash2008": {
+    "gold": 7,
+    "dead": 7,
+    "buys": 4,
+    "sells": 4,
+    "heldShare": 0.363,
+    "heldAtPeak": 0
+   }
+  },
+  "H00988": {
+   "name": "全指工业全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.4073,
+   "k": 0.407629,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 7,
+     "buys": 4,
+     "sells": 3,
+     "heldDays": 59,
+     "heldShare": 0.244
+    },
+    "2006": {
+     "days": 241,
+     "gold": 6,
+     "dead": 7,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 7,
+     "heldDays": 138,
+     "heldShare": 0.573
+    },
+    "2007": {
+     "days": 242,
+     "gold": 8,
+     "dead": 7,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 75,
+     "heldShare": 0.31
+    },
+    "2008": {
+     "days": 246,
+     "gold": 10,
+     "dead": 11,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 76,
+     "heldShare": 0.309
+    },
+    "2009": {
+     "days": 244,
+     "gold": 9,
+     "dead": 8,
+     "goldInBull": 6,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 98,
+     "heldShare": 0.402
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 99,
+     "heldShare": 0.409
+    }
+   },
+   "totals": {
+    "gold": 49,
+    "dead": 50,
+    "goldInBull": 31,
+    "buys": 28,
+    "sells": 28,
+    "heldShare": 0.374
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 9,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.193,
+    "heldAtPeak": 0
+   }
+  },
+  "H00989": {
+   "name": "全指可选全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.4051,
+   "k": 0.405385,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 8,
+     "buys": 4,
+     "sells": 3,
+     "heldDays": 60,
+     "heldShare": 0.248
+    },
+    "2006": {
+     "days": 241,
+     "gold": 6,
+     "dead": 7,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 7,
+     "heldDays": 141,
+     "heldShare": 0.585
+    },
+    "2007": {
+     "days": 242,
+     "gold": 10,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 74,
+     "heldShare": 0.306
+    },
+    "2008": {
+     "days": 246,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 4,
+     "heldDays": 84,
+     "heldShare": 0.341
+    },
+    "2009": {
+     "days": 244,
+     "gold": 10,
+     "dead": 9,
+     "goldInBull": 8,
+     "buys": 8,
+     "sells": 7,
+     "heldDays": 98,
+     "heldShare": 0.402
+    },
+    "2010": {
+     "days": 242,
+     "gold": 11,
+     "dead": 12,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 8,
+     "heldDays": 85,
+     "heldShare": 0.351
+    }
+   },
+   "totals": {
+    "gold": 54,
+    "dead": 55,
+    "goldInBull": 37,
+    "buys": 33,
+    "sells": 33,
+    "heldShare": 0.372
+   },
+   "crash2008": {
+    "gold": 8,
+    "dead": 8,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.324,
+    "heldAtPeak": 0
+   }
+  },
+  "H00990": {
+   "name": "全指消费全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3999,
+   "k": 0.40015,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 7,
+     "buys": 3,
+     "sells": 2,
+     "heldDays": 47,
+     "heldShare": 0.194
+    },
+    "2006": {
+     "days": 241,
+     "gold": 6,
+     "dead": 6,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 138,
+     "heldShare": 0.573
+    },
+    "2007": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 78,
+     "heldShare": 0.322
+    },
+    "2008": {
+     "days": 246,
+     "gold": 7,
+     "dead": 8,
+     "goldInBull": 2,
+     "buys": 2,
+     "sells": 3,
+     "heldDays": 72,
+     "heldShare": 0.293
+    },
+    "2009": {
+     "days": 244,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 100,
+     "heldShare": 0.41
+    },
+    "2010": {
+     "days": 242,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 9,
+     "buys": 9,
+     "sells": 9,
+     "heldDays": 100,
+     "heldShare": 0.413
+    }
+   },
+   "totals": {
+    "gold": 50,
+    "dead": 51,
+    "goldInBull": 31,
+    "buys": 27,
+    "sells": 27,
+    "heldShare": 0.367
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 9,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.236,
+    "heldAtPeak": 1
+   }
+  },
+  "H00991": {
+   "name": "全指医药全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3595,
+   "k": 0.359761,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 9,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 59,
+     "heldShare": 0.244
+    },
+    "2006": {
+     "days": 241,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 103,
+     "heldShare": 0.427
+    },
+    "2007": {
+     "days": 242,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 66,
+     "heldShare": 0.273
+    },
+    "2008": {
+     "days": 246,
+     "gold": 7,
+     "dead": 8,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 4,
+     "heldDays": 66,
+     "heldShare": 0.268
+    },
+    "2009": {
+     "days": 244,
+     "gold": 11,
+     "dead": 10,
+     "goldInBull": 8,
+     "buys": 8,
+     "sells": 7,
+     "heldDays": 102,
+     "heldShare": 0.418
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 85,
+     "heldShare": 0.351
+    }
+   },
+   "totals": {
+    "gold": 50,
+    "dead": 51,
+    "goldInBull": 34,
+    "buys": 30,
+    "sells": 30,
+    "heldShare": 0.33
+   },
+   "crash2008": {
+    "gold": 7,
+    "dead": 7,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.243,
+    "heldAtPeak": 0
+   }
+  },
+  "H00992": {
+   "name": "金融地产全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3401,
+   "k": 0.340314,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 7,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 32,
+     "heldShare": 0.132
+    },
+    "2006": {
+     "days": 241,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 54,
+     "heldShare": 0.224
+    },
+    "2007": {
+     "days": 242,
+     "gold": 14,
+     "dead": 14,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 6,
+     "heldDays": 71,
+     "heldShare": 0.293
+    },
+    "2008": {
+     "days": 246,
+     "gold": 12,
+     "dead": 13,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 74,
+     "heldShare": 0.301
+    },
+    "2009": {
+     "days": 244,
+     "gold": 7,
+     "dead": 6,
+     "goldInBull": 6,
+     "buys": 6,
+     "sells": 5,
+     "heldDays": 116,
+     "heldShare": 0.475
+    },
+    "2010": {
+     "days": 242,
+     "gold": 6,
+     "dead": 7,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 108,
+     "heldShare": 0.446
+    }
+   },
+   "totals": {
+    "gold": 56,
+    "dead": 57,
+    "goldInBull": 37,
+    "buys": 33,
+    "sells": 33,
+    "heldShare": 0.312
+   },
+   "crash2008": {
+    "gold": 13,
+    "dead": 14,
+    "buys": 7,
+    "sells": 8,
+    "heldShare": 0.251,
+    "heldAtPeak": 1
+   }
+  },
+  "H00993": {
+   "name": "全指信息全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.3386,
+   "k": 0.338818,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 9,
+     "buys": 6,
+     "sells": 5,
+     "heldDays": 54,
+     "heldShare": 0.223
+    },
+    "2006": {
+     "days": 241,
+     "gold": 5,
+     "dead": 6,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 4,
+     "heldDays": 95,
+     "heldShare": 0.394
+    },
+    "2007": {
+     "days": 242,
+     "gold": 8,
+     "dead": 7,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 3,
+     "heldDays": 84,
+     "heldShare": 0.347
+    },
+    "2008": {
+     "days": 246,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 4,
+     "heldDays": 89,
+     "heldShare": 0.362
+    },
+    "2009": {
+     "days": 244,
+     "gold": 8,
+     "dead": 7,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 47,
+     "heldShare": 0.193
+    },
+    "2010": {
+     "days": 242,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 4,
+     "heldDays": 84,
+     "heldShare": 0.347
+    }
+   },
+   "totals": {
+    "gold": 48,
+    "dead": 49,
+    "goldInBull": 26,
+    "buys": 23,
+    "sells": 23,
+    "heldShare": 0.311
+   },
+   "crash2008": {
+    "gold": 8,
+    "dead": 8,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.363,
+    "heldAtPeak": 0
+   }
+  },
+  "H00994": {
+   "name": "全指通信全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.346,
+   "k": 0.346298,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 11,
+     "dead": 11,
+     "goldInBull": 10,
+     "buys": 5,
+     "sells": 4,
+     "heldDays": 58,
+     "heldShare": 0.24
+    },
+    "2006": {
+     "days": 241,
+     "gold": 8,
+     "dead": 8,
+     "goldInBull": 6,
+     "buys": 5,
+     "sells": 6,
+     "heldDays": 86,
+     "heldShare": 0.357
+    },
+    "2007": {
+     "days": 242,
+     "gold": 10,
+     "dead": 10,
+     "goldInBull": 4,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 70,
+     "heldShare": 0.289
+    },
+    "2008": {
+     "days": 246,
+     "gold": 9,
+     "dead": 10,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 74,
+     "heldShare": 0.301
+    },
+    "2009": {
+     "days": 244,
+     "gold": 10,
+     "dead": 9,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 98,
+     "heldShare": 0.402
+    },
+    "2010": {
+     "days": 242,
+     "gold": 9,
+     "dead": 10,
+     "goldInBull": 5,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 77,
+     "heldShare": 0.318
+    }
+   },
+   "totals": {
+    "gold": 57,
+    "dead": 58,
+    "goldInBull": 33,
+    "buys": 28,
+    "sells": 28,
+    "heldShare": 0.318
+   },
+   "crash2008": {
+    "gold": 10,
+    "dead": 10,
+    "buys": 2,
+    "sells": 3,
+    "heldShare": 0.178,
+    "heldAtPeak": 1
+   }
+  },
+  "H00995": {
+   "name": "全指公用全收益",
+   "firstBar": "2004-12-31",
+   "warmupEndDate": "2005-07-06",
+   "posMismatchVsTimingGold": 0,
+   "wDays": 1338,
+   "wHeldShare": 0.361,
+   "k": 0.361257,
+   "perYear": {
+    "2005": {
+     "days": 242,
+     "gold": 7,
+     "dead": 7,
+     "goldInBull": 6,
+     "buys": 3,
+     "sells": 2,
+     "heldDays": 57,
+     "heldShare": 0.236
+    },
+    "2006": {
+     "days": 241,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 7,
+     "buys": 7,
+     "sells": 7,
+     "heldDays": 92,
+     "heldShare": 0.382
+    },
+    "2007": {
+     "days": 242,
+     "gold": 9,
+     "dead": 9,
+     "goldInBull": 4,
+     "buys": 4,
+     "sells": 5,
+     "heldDays": 66,
+     "heldShare": 0.273
+    },
+    "2008": {
+     "days": 246,
+     "gold": 8,
+     "dead": 9,
+     "goldInBull": 3,
+     "buys": 3,
+     "sells": 3,
+     "heldDays": 51,
+     "heldShare": 0.207
+    },
+    "2009": {
+     "days": 244,
+     "gold": 9,
+     "dead": 8,
+     "goldInBull": 6,
+     "buys": 5,
+     "sells": 5,
+     "heldDays": 106,
+     "heldShare": 0.434
+    },
+    "2010": {
+     "days": 242,
+     "gold": 10,
+     "dead": 11,
+     "goldInBull": 7,
+     "buys": 8,
+     "sells": 8,
+     "heldDays": 111,
+     "heldShare": 0.459
+    }
+   },
+   "totals": {
+    "gold": 52,
+    "dead": 53,
+    "goldInBull": 33,
+    "buys": 30,
+    "sells": 30,
+    "heldShare": 0.332
+   },
+   "crash2008": {
+    "gold": 9,
+    "dead": 9,
+    "buys": 3,
+    "sells": 3,
+    "heldShare": 0.197,
+    "heldAtPeak": 0
+   }
+  }
+ },
+ "l004Layout": {
+  "fake2008Rows": [
+   "20080101",
+   "20080102"
+  ],
+  "source": "docs/research/etf-volume-2026-11-25/inputs.json",
+  "timingStateDiffDaysInW": 0,
+  "timingStateDiffDates": [],
+  "timingHasFake20080101": true,
+  "perIndex": {
+   "H00300": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00905": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 2,
+    "tradeDateDiffsW": 2,
+    "tradesOnlyClean": [
+     "S2008-01-18"
+    ],
+    "tradesOnlyL004": [
+     "S2008-01-17"
+    ],
+    "posDiffDaysW": 1,
+    "posDiffDaysC": 1
+   },
+   "H00852": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00016": {
+    "barsL004": 1702,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2004-07-06",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 7,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00922": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00986": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00987": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00988": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00989": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00990": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00991": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 4,
+    "tradeDateDiffsW": 2,
+    "tradesOnlyClean": [
+     "S2008-01-14"
+    ],
+    "tradesOnlyL004": [
+     "S2008-01-11"
+    ],
+    "posDiffDaysW": 1,
+    "posDiffDaysC": 1
+   },
+   "H00992": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 0,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00993": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 1,
+    "deadDateDiffsW": 3,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00994": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 2,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   },
+   "H00995": {
+    "barsL004": 1460,
+    "firstBarL004": "2004-01-01",
+    "warmupEndL004": "2005-07-05",
+    "posMismatchVsTimingGold": 0,
+    "heldAtW0_clean": 0,
+    "heldAtW0_l004": 0,
+    "heldDayBeforeW0_l004": 0,
+    "tradesBeforeW0_l004": 0,
+    "goldDateDiffsW": 0,
+    "deadDateDiffsW": 2,
+    "tradeDateDiffsW": 0,
+    "tradesOnlyClean": [],
+    "tradesOnlyL004": [],
+    "posDiffDaysW": 0,
+    "posDiffDaysC": 0
+   }
+  }
+ }
+}
