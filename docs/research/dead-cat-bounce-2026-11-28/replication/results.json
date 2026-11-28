@@ -1,0 +1,2825 @@
+{
+  "meta": {
+    "ledger": "L-051",
+    "preregCommit": "be7deaa4",
+    "preregPath": "docs/research/dead-cat-bounce-2026-11-28/PREREG.md",
+    "clarifyPath": "docs/research/dead-cat-bounce-2026-11-28/CLARIFY-1.md",
+    "impl": "replication-python-claude",
+    "seed": 20261128,
+    "quick": false,
+    "managerRulings": [
+      "第一批(1) 探索变体只报告主推断均值、NW t、事件数、信号月数",
+      "第一批(2) 价值因子经 load_fin_pit 点时现算 TTM EP（已注册 cn_ep_ttm 的 compute_strict），缺失不进回归、报告覆盖率",
+      "第一批(3) 低波安慰剂按事件逐个配对（同板块 × 市值三档 × vol_60d 三档、当时不在任何回避窗中），1000 次，种子 20261128",
+      "第二批 1–7：S3 组合毛收益路径（隔夜/日内两步、前一日市值、成员 = 严格早于当日的月末池），成本只进 S5；诊断对照按字面；分档 quantile_labels 全底池；S2 / 集中度在日历序列上；C2 合并（都支持 / 都不支持 / 其余部分成立），C1∖C2 上下界都 ≤ 0；块自助 p 公式；停牌计数从首个有效行情日起，另报 s 后 60 日内退市诊断"
+    ],
+    "notes": [
+      "独立第二实现；不读 run_main.py；口径 = PREREG > CLARIFY-1 > schema conventions；见 replication/CROSSCHECK.md",
+      "收益 / 波动 / 回撤为小数；夏普 rf = 0；p 单边（H1：超额 < 0）",
+      "未 unseal；价格经 store 默认截断；fin_pit 只经 load_fin_pit()",
+      "事件清单：replication/events.csv"
+    ]
+  },
+  "inputs": {
+    "prices.parquet": "dd61e3085b6346180b3427ffe27ff18bdfc36980a22216f70baaa2bf059bbd3e",
+    "fin_pit.parquet": "da32cbced36ba631453e4959f627d8a5abfeadc530f72f0485ca30b6c380c6df",
+    "securities.parquet": "398590347a823de1a6dcf7a7b3b8d1ed61cc6cfda1d368181e3b59cc8562271d",
+    "st_pit.parquet": "4981bdcb711d6e04620e7101cd140be9768ecd166ffcdda07110239e840a2a0a"
+  },
+  "counts": {
+    "layers": {
+      "explore": 2766,
+      "validate": 5376,
+      "validate_truncated": 32
+    },
+    "skips": {
+      "not_in_universe_on_s": 6380,
+      "long_suspend_resumption": 246,
+      "no_limit_inferred": 224,
+      "delisting": 81
+    },
+    "count_h2_filtered_reference": {
+      "explore": 2766,
+      "validate": 5376,
+      "validate_truncated": 32,
+      "skips": {
+        "no_limit_inferred": 224,
+        "long_suspend_resumption": 463,
+        "delisting_or_terminate": 81,
+        "not_in_universe_on_s": 6275
+      },
+      "note": "counts_h2_filtered.json（上市前空白算停牌的旧计法）"
+    },
+    "alt_prelisting_counted_as_suspension": {
+      "n_events": 8174,
+      "skips": {
+        "not_in_universe_on_s": 6275,
+        "long_suspend_resumption": 463,
+        "no_limit_inferred": 224,
+        "delisting": 81
+      },
+      "same_event_list": true
+    },
+    "terminate_events_in_st_pit": 0,
+    "variant_skips": {
+      "triple_limit_down": {
+        "not_in_universe_on_s": 1929,
+        "long_suspend_resumption": 217,
+        "no_limit_inferred": 94,
+        "delisting": 89
+      },
+      "bounce_05": {
+        "not_in_universe_on_s": 7151,
+        "long_suspend_resumption": 307,
+        "no_limit_inferred": 265,
+        "delisting": 106
+      },
+      "bounce_15": {
+        "not_in_universe_on_s": 5283,
+        "long_suspend_resumption": 196,
+        "delisting": 75,
+        "no_limit_inferred": 175
+      },
+      "cooldown_60": {
+        "not_in_universe_on_s": 7127,
+        "long_suspend_resumption": 249,
+        "no_limit_inferred": 257,
+        "delisting": 82
+      },
+      "cooldown_180": {
+        "not_in_universe_on_s": 5482,
+        "long_suspend_resumption": 223,
+        "delisting": 80,
+        "no_limit_inferred": 215
+      }
+    }
+  },
+  "headline": {
+    "layer": "validate",
+    "candidate": "C1",
+    "pool_vol_full": 0.22431757667884997,
+    "pool_vol_avoid": 0.21467895863165798,
+    "pool_mdd_full": -0.48357904189771195,
+    "pool_mdd_avoid": -0.5064111492404051,
+    "event_excess_sign": "negative",
+    "placebo_vol_ratio_percentile": 0.0
+  },
+  "layers": {
+    "explore": {
+      "meta": {
+        "n_events_C1": 2766,
+        "n_signal_months_C1": 85,
+        "n_events_C2_lo": 418,
+        "n_events_C2_hi": 740,
+        "n_signal_months_C2_lo": 39,
+        "n_signal_months_C2_hi": 63,
+        "date_start": "2005-01-01",
+        "date_end": "2014-12-31",
+        "signal_first": "2005-02-16",
+        "signal_last": "2014-12-31",
+        "explore_cross_2015_n": 1,
+        "pool_days": [
+          "2005-02-01",
+          "2014-12-31",
+          2407
+        ],
+        "mde_monthly_power50": 0.014274024124467577,
+        "mde_monthly_power80": 0.02158024194379992
+      },
+      "C1": {
+        "inference": {
+          "mean_x60": -0.06403207883621767,
+          "daily_mean": -0.001067201313936961,
+          "nw_t": -2.2025163584418754,
+          "nw_p_onesided": 0.013814427450770496,
+          "block_bootstrap_p": 0.028897110288971104,
+          "n_days": 2326,
+          "event_level_month_cluster_t": -2.5657252273503257,
+          "event_mean_excess": 0.004590109183587708
+        },
+        "S1": {
+          "pass": true,
+          "detail": {
+            "mean_x60": -0.06403207883621767,
+            "nw_t": -2.2025163584418754,
+            "thr_mean": -0.015,
+            "thr_t": -2.0
+          }
+        },
+        "S2": {
+          "pass": false,
+          "detail": {
+            "top_year": 2008,
+            "top_year_n": 1199,
+            "mean_x60_ex_top_year": -0.060439460870666484,
+            "a_pass": true,
+            "year_means_ge50": {
+              "2005": -0.06489872985026535,
+              "2007": 0.022343158393883764,
+              "2008": 0.038026832203582515,
+              "2009": -0.08194855782125385,
+              "2010": -0.0427461044975056,
+              "2011": 0.00562514791374501,
+              "2012": 0.0039168154046959145,
+              "2013": -0.04173463681605585
+            },
+            "frac_neg_ge50": 0.5,
+            "b_pass": false,
+            "events_by_year": {
+              "2005": 81,
+              "2006": 41,
+              "2007": 586,
+              "2008": 1199,
+              "2009": 347,
+              "2010": 146,
+              "2011": 64,
+              "2012": 150,
+              "2013": 125,
+              "2014": 27
+            }
+          }
+        },
+        "S3": {
+          "pass": false,
+          "detail": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.2826486816842607,
+            "vol_ratio": 0.9865269069324343,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7126666825231254,
+            "mdd_shallower": -0.001635843677747273,
+            "mdd_shallower_ge_1pct": false,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7322516268398354,
+            "s3_pool": false,
+            "placebo_p5": 0.9946214856815392,
+            "placebo_percentile": 0.0,
+            "s3_placebo": true,
+            "placebo": {
+              "p5": 0.9946214856815392,
+              "percentile": 0.0,
+              "n": 1000,
+              "mean": 0.9964052977595745,
+              "relaxed_events": 75,
+              "events_without_pool": 0
+            },
+            "n_days": 2407
+          }
+        },
+        "S4": {
+          "detail": {
+            "portfolio_spanning": {
+              "alpha_daily": 4.496419092168618e-06,
+              "alpha_ann": 0.0011330976112264917,
+              "alpha_nw_t": 0.26837804190674364,
+              "pass_report": false,
+              "n_days": 2091,
+              "betas": {
+                "mkt": 0.0042637485444371225,
+                "rev_1m": -0.011648071619923536,
+                "max_ret_21d": -0.009943016555568642,
+                "dd_60": -0.017918182713643933,
+                "peak_fall": -0.0018650320350521283,
+                "vol_60d": 0.07535906297110757,
+                "size": 0.012175652181904417,
+                "turnover_20d": 0.06302639579379833,
+                "mom_12_1": 0.014095931992803845,
+                "cn_ep_ttm": -0.05941007852129934
+              },
+              "factors": [
+                "mkt",
+                "rev_1m",
+                "max_ret_21d",
+                "dd_60",
+                "peak_fall",
+                "vol_60d",
+                "size",
+                "turnover_20d",
+                "mom_12_1",
+                "cn_ep_ttm"
+              ]
+            },
+            "event_fama_macbeth": {
+              "gamma_mean": -0.031446418324968334,
+              "gamma_nw_t": -2.9312421957921853,
+              "n_weeks": 176,
+              "gamma_negative_t_le_-2": true
+            },
+            "factor_coverage": {
+              "cn_ep_ttm_mean_pool_coverage": 0.9571403185787654
+            }
+          },
+          "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+        },
+        "S5": {
+          "pass": false,
+          "detail": {
+            "avoid_net_mean": -0.013031285247921643,
+            "cost_mean": 0.008441176064333939,
+            "n": 2765,
+            "thr": 0.01,
+            "n_legs_padded_to_100_shares": 0
+          }
+        },
+        "gates": {
+          "excess_nonneg": false,
+          "concentration_year_gt_50pct": false,
+          "diag_crash_no_bounce_excess_nonneg": false,
+          "c1_minus_c2_excess_le_0": true
+        },
+        "grade": "不支持",
+        "diagnostics": {
+          "n_events": 2766,
+          "n_events_used": 2765,
+          "n_events_no_control": 1,
+          "n_events_ctrl_vol_relaxed": 131,
+          "n_signal_months": 85,
+          "max_year_share": 0.43870837324408,
+          "max_share_year": 2015,
+          "year_sums": {
+            "2005": -0.24524597711618074,
+            "2006": -0.1874328147626371,
+            "2007": -0.19872769114122835,
+            "2008": -0.024552744514818377,
+            "2009": -0.11247511301481775,
+            "2010": -0.3538796231776395,
+            "2011": -0.04519547732912418,
+            "2012": -0.07067668347657476,
+            "2013": -0.05580224399790465,
+            "2014": -0.09931159329422798,
+            "2015": -1.0890102943922186
+          },
+          "diag_crash_no_bounce": {
+            "mean_x60": -0.08035206680855904,
+            "nw_t": -2.6021659455715005,
+            "n_events": 2664,
+            "n_days": 2288
+          },
+          "delist_within_60": {
+            "n": 1,
+            "share": 0.00036153289949385393,
+            "mean_x60_excluding": -0.06406647457384883
+          },
+          "c1_minus_c2": {
+            "lo": -0.057615618275505716,
+            "hi": -0.05617227742611227
+          }
+        }
+      },
+      "C2": {
+        "inference": {
+          "mean_x60": -0.0013471305212114375,
+          "daily_mean": -2.245217535352396e-05,
+          "nw_t": -0.04181775943637966,
+          "nw_p_onesided": 0.4833219887066746,
+          "block_bootstrap_p": 0.5005499450054994,
+          "n_days": 1505,
+          "event_level_month_cluster_t": -0.2296577992100737,
+          "event_mean_excess": -0.0001915305283409673
+        },
+        "S1": {
+          "pass": false,
+          "detail": {
+            "mean_x60": -0.0013471305212114375,
+            "nw_t": -0.04181775943637966,
+            "thr_mean": -0.015,
+            "thr_t": -2.0
+          }
+        },
+        "S2": {
+          "pass": false,
+          "detail": {
+            "top_year": 2008,
+            "top_year_n": 184,
+            "mean_x60_ex_top_year": -0.00660340285309938,
+            "a_pass": false,
+            "year_means_ge50": {
+              "2008": 0.024016497654596757,
+              "2009": -0.015492541776688937
+            },
+            "frac_neg_ge50": 0.5,
+            "b_pass": false,
+            "events_by_year": {
+              "2005": 23,
+              "2006": 9,
+              "2007": 20,
+              "2008": 184,
+              "2009": 97,
+              "2010": 45,
+              "2011": 6,
+              "2012": 9,
+              "2013": 18,
+              "2014": 7
+            }
+          }
+        },
+        "S3": {
+          "pass": false,
+          "detail": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28589589115636144,
+            "vol_ratio": 0.9978606216258279,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7136937188159859,
+            "mdd_shallower": -0.0026628799706077677,
+            "mdd_shallower_ge_1pct": false,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7083553018454904,
+            "s3_pool": false,
+            "placebo_p5": 0.9981381857537465,
+            "placebo_percentile": 0.012,
+            "s3_placebo": true,
+            "placebo": {
+              "p5": 0.9981381857537465,
+              "percentile": 0.012,
+              "n": 1000,
+              "mean": 0.9989452405240785,
+              "relaxed_events": 3,
+              "events_without_pool": 0
+            },
+            "n_days": 2407
+          }
+        },
+        "S4": {
+          "detail": {
+            "portfolio_spanning": {
+              "alpha_daily": -7.843581568482834e-06,
+              "alpha_ann": -0.001976582555257674,
+              "alpha_nw_t": -1.1109065050409666,
+              "pass_report": false,
+              "n_days": 2091,
+              "betas": {
+                "mkt": 0.0006029051385435493,
+                "rev_1m": 0.002372961790469876,
+                "max_ret_21d": -0.004020927879744745,
+                "dd_60": -0.0007811356427654956,
+                "peak_fall": -0.0014811659802813864,
+                "vol_60d": 0.012449077709584682,
+                "size": 0.001227102445018705,
+                "turnover_20d": 0.00918204483102589,
+                "mom_12_1": 0.0008894365176164848,
+                "cn_ep_ttm": -0.009894795995189451
+              },
+              "factors": [
+                "mkt",
+                "rev_1m",
+                "max_ret_21d",
+                "dd_60",
+                "peak_fall",
+                "vol_60d",
+                "size",
+                "turnover_20d",
+                "mom_12_1",
+                "cn_ep_ttm"
+              ]
+            },
+            "event_fama_macbeth": {
+              "gamma_mean": -0.02614356902532814,
+              "gamma_nw_t": -1.2866223260062826,
+              "n_weeks": 66,
+              "gamma_negative_t_le_-2": false
+            },
+            "factor_coverage": {
+              "cn_ep_ttm_mean_pool_coverage": 0.9571403185787654
+            }
+          },
+          "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+        },
+        "S5": {
+          "pass": false,
+          "detail": {
+            "avoid_net_mean": -0.007483028039629354,
+            "cost_mean": 0.007674558567970324,
+            "n": 418,
+            "thr": 0.01,
+            "n_legs_padded_to_100_shares": 0
+          }
+        },
+        "gates": {
+          "excess_nonneg": false,
+          "concentration_year_gt_50pct": true,
+          "diag_crash_no_bounce_excess_nonneg": false,
+          "c1_minus_c2_excess_le_0": null
+        },
+        "grade": "不支持",
+        "diagnostics": {
+          "n_events": 418,
+          "n_events_used": 418,
+          "n_events_no_control": 0,
+          "n_events_ctrl_vol_relaxed": 7,
+          "n_signal_months": 39,
+          "max_year_share": 9.905338507619792,
+          "max_share_year": 2010,
+          "year_sums": {
+            "2005": -0.10021411474016205,
+            "2006": -0.07103755865114085,
+            "2007": 0.4805802871067448,
+            "2008": -0.11099354062683879,
+            "2009": 0.03011421269166077,
+            "2010": -0.3347065776491848,
+            "2011": 0.0189253939018435,
+            "2012": -0.10228780152570204,
+            "2013": -0.11027690000891896,
+            "2014": 0.26610607559464483
+          },
+          "diag_crash_no_bounce": {
+            "mean_x60": -0.03182717853224263,
+            "nw_t": -1.0772077231714237,
+            "n_events": 413,
+            "n_days": 1501
+          },
+          "delist_within_60": {
+            "n": 0,
+            "share": 0.0,
+            "mean_x60_excluding": -0.0013471305212114375
+          }
+        },
+        "bound_lo": {
+          "inference": {
+            "mean_x60": -0.0013471305212114375,
+            "daily_mean": -2.245217535352396e-05,
+            "nw_t": -0.04181775943637966,
+            "nw_p_onesided": 0.4833219887066746,
+            "block_bootstrap_p": 0.5005499450054994,
+            "n_days": 1505,
+            "event_level_month_cluster_t": -0.2296577992100737,
+            "event_mean_excess": -0.0001915305283409673
+          },
+          "S1": {
+            "pass": false,
+            "detail": {
+              "mean_x60": -0.0013471305212114375,
+              "nw_t": -0.04181775943637966,
+              "thr_mean": -0.015,
+              "thr_t": -2.0
+            }
+          },
+          "S2": {
+            "pass": false,
+            "detail": {
+              "top_year": 2008,
+              "top_year_n": 184,
+              "mean_x60_ex_top_year": -0.00660340285309938,
+              "a_pass": false,
+              "year_means_ge50": {
+                "2008": 0.024016497654596757,
+                "2009": -0.015492541776688937
+              },
+              "frac_neg_ge50": 0.5,
+              "b_pass": false,
+              "events_by_year": {
+                "2005": 23,
+                "2006": 9,
+                "2007": 20,
+                "2008": 184,
+                "2009": 97,
+                "2010": 45,
+                "2011": 6,
+                "2012": 9,
+                "2013": 18,
+                "2014": 7
+              }
+            }
+          },
+          "S3": {
+            "pass": false,
+            "detail": {
+              "vol_full": 0.2865088419768959,
+              "vol_avoid": 0.28589589115636144,
+              "vol_ratio": 0.9978606216258279,
+              "mdd_full": -0.7110308388453781,
+              "mdd_avoid": -0.7136937188159859,
+              "mdd_shallower": -0.0026628799706077677,
+              "mdd_shallower_ge_1pct": false,
+              "sharpe_full": 0.7128772090545541,
+              "sharpe_avoid": 0.7083553018454904,
+              "s3_pool": false,
+              "placebo_p5": 0.9981381857537465,
+              "placebo_percentile": 0.012,
+              "s3_placebo": true,
+              "placebo": {
+                "p5": 0.9981381857537465,
+                "percentile": 0.012,
+                "n": 1000,
+                "mean": 0.9989452405240785,
+                "relaxed_events": 3,
+                "events_without_pool": 0
+              },
+              "n_days": 2407
+            }
+          },
+          "S4": {
+            "detail": {
+              "portfolio_spanning": {
+                "alpha_daily": -7.843581568482834e-06,
+                "alpha_ann": -0.001976582555257674,
+                "alpha_nw_t": -1.1109065050409666,
+                "pass_report": false,
+                "n_days": 2091,
+                "betas": {
+                  "mkt": 0.0006029051385435493,
+                  "rev_1m": 0.002372961790469876,
+                  "max_ret_21d": -0.004020927879744745,
+                  "dd_60": -0.0007811356427654956,
+                  "peak_fall": -0.0014811659802813864,
+                  "vol_60d": 0.012449077709584682,
+                  "size": 0.001227102445018705,
+                  "turnover_20d": 0.00918204483102589,
+                  "mom_12_1": 0.0008894365176164848,
+                  "cn_ep_ttm": -0.009894795995189451
+                },
+                "factors": [
+                  "mkt",
+                  "rev_1m",
+                  "max_ret_21d",
+                  "dd_60",
+                  "peak_fall",
+                  "vol_60d",
+                  "size",
+                  "turnover_20d",
+                  "mom_12_1",
+                  "cn_ep_ttm"
+                ]
+              },
+              "event_fama_macbeth": {
+                "gamma_mean": -0.02614356902532814,
+                "gamma_nw_t": -1.2866223260062826,
+                "n_weeks": 66,
+                "gamma_negative_t_le_-2": false
+              },
+              "factor_coverage": {
+                "cn_ep_ttm_mean_pool_coverage": 0.9571403185787654
+              }
+            },
+            "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+          },
+          "S5": {
+            "pass": false,
+            "detail": {
+              "avoid_net_mean": -0.007483028039629354,
+              "cost_mean": 0.007674558567970324,
+              "n": 418,
+              "thr": 0.01,
+              "n_legs_padded_to_100_shares": 0
+            }
+          },
+          "gates": {
+            "excess_nonneg": false,
+            "concentration_year_gt_50pct": true,
+            "diag_crash_no_bounce_excess_nonneg": false,
+            "c1_minus_c2_excess_le_0": null
+          },
+          "grade": "不支持",
+          "diagnostics": {
+            "n_events": 418,
+            "n_events_used": 418,
+            "n_events_no_control": 0,
+            "n_events_ctrl_vol_relaxed": 7,
+            "n_signal_months": 39,
+            "max_year_share": 9.905338507619792,
+            "max_share_year": 2010,
+            "year_sums": {
+              "2005": -0.10021411474016205,
+              "2006": -0.07103755865114085,
+              "2007": 0.4805802871067448,
+              "2008": -0.11099354062683879,
+              "2009": 0.03011421269166077,
+              "2010": -0.3347065776491848,
+              "2011": 0.0189253939018435,
+              "2012": -0.10228780152570204,
+              "2013": -0.11027690000891896,
+              "2014": 0.26610607559464483
+            },
+            "diag_crash_no_bounce": {
+              "mean_x60": -0.03182717853224263,
+              "nw_t": -1.0772077231714237,
+              "n_events": 413,
+              "n_days": 1501
+            },
+            "delist_within_60": {
+              "n": 0,
+              "share": 0.0,
+              "mean_x60_excluding": -0.0013471305212114375
+            }
+          }
+        },
+        "bound_hi": {
+          "inference": {
+            "mean_x60": -0.033787116500723344,
+            "daily_mean": -0.0005631186083453891,
+            "nw_t": -1.300378280328223,
+            "nw_p_onesided": 0.09673567515670117,
+            "block_bootstrap_p": 0.09019098090190981,
+            "n_days": 2018,
+            "event_level_month_cluster_t": -1.113544388136507,
+            "event_mean_excess": 0.0012212516671356458
+          },
+          "S1": {
+            "pass": false,
+            "detail": {
+              "mean_x60": -0.033787116500723344,
+              "nw_t": -1.300378280328223,
+              "thr_mean": -0.015,
+              "thr_t": -2.0
+            }
+          },
+          "S2": {
+            "pass": false,
+            "detail": {
+              "top_year": 2008,
+              "top_year_n": 316,
+              "mean_x60_ex_top_year": -0.04619878532846533,
+              "a_pass": true,
+              "year_means_ge50": {
+                "2007": 0.04515010408390135,
+                "2008": 0.026051932618634525,
+                "2009": -0.10479240081464529,
+                "2010": -0.14054513146691636
+              },
+              "frac_neg_ge50": 0.5,
+              "b_pass": false,
+              "events_by_year": {
+                "2005": 36,
+                "2006": 17,
+                "2007": 92,
+                "2008": 316,
+                "2009": 150,
+                "2010": 60,
+                "2011": 14,
+                "2012": 14,
+                "2013": 30,
+                "2014": 11
+              }
+            }
+          },
+          "S3": {
+            "pass": false,
+            "detail": {
+              "vol_full": 0.2865088419768959,
+              "vol_avoid": 0.2856161174160557,
+              "vol_ratio": 0.996884129108615,
+              "mdd_full": -0.7110308388453781,
+              "mdd_avoid": -0.7129734769291476,
+              "mdd_shallower": -0.0019426380837694879,
+              "mdd_shallower_ge_1pct": false,
+              "sharpe_full": 0.7128772090545541,
+              "sharpe_avoid": 0.7108105882897457,
+              "s3_pool": false,
+              "placebo_p5": 0.99721006643444,
+              "placebo_percentile": 0.014,
+              "s3_placebo": true,
+              "placebo": {
+                "p5": 0.99721006643444,
+                "percentile": 0.014,
+                "n": 1000,
+                "mean": 0.9982739510957901,
+                "relaxed_events": 18,
+                "events_without_pool": 0
+              },
+              "n_days": 2407
+            }
+          },
+          "S4": {
+            "detail": {
+              "portfolio_spanning": {
+                "alpha_daily": -5.886758321085067e-06,
+                "alpha_ann": -0.0014834630969134369,
+                "alpha_nw_t": -0.7459977223711736,
+                "pass_report": false,
+                "n_days": 2091,
+                "betas": {
+                  "mkt": 0.000707895636474915,
+                  "rev_1m": 0.002495945282107498,
+                  "max_ret_21d": -0.006824801884637261,
+                  "dd_60": -0.002173014417884188,
+                  "peak_fall": -0.0018488077559871941,
+                  "vol_60d": 0.015953281950980298,
+                  "size": 0.0022516348471569897,
+                  "turnover_20d": 0.01687585465451018,
+                  "mom_12_1": 0.002186983017738845,
+                  "cn_ep_ttm": -0.010797784398302559
+                },
+                "factors": [
+                  "mkt",
+                  "rev_1m",
+                  "max_ret_21d",
+                  "dd_60",
+                  "peak_fall",
+                  "vol_60d",
+                  "size",
+                  "turnover_20d",
+                  "mom_12_1",
+                  "cn_ep_ttm"
+                ]
+              },
+              "event_fama_macbeth": {
+                "gamma_mean": -0.020896148062323566,
+                "gamma_nw_t": -1.5489532273695594,
+                "n_weeks": 110,
+                "gamma_negative_t_le_-2": false
+              },
+              "factor_coverage": {
+                "cn_ep_ttm_mean_pool_coverage": 0.9571403185787654
+              }
+            },
+            "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+          },
+          "S5": {
+            "pass": false,
+            "detail": {
+              "avoid_net_mean": -0.009207377093567155,
+              "cost_mean": 0.007986125426431515,
+              "n": 740,
+              "thr": 0.01,
+              "n_legs_padded_to_100_shares": 0
+            }
+          },
+          "gates": {
+            "excess_nonneg": false,
+            "concentration_year_gt_50pct": true,
+            "diag_crash_no_bounce_excess_nonneg": false,
+            "c1_minus_c2_excess_le_0": null
+          },
+          "grade": "不支持",
+          "diagnostics": {
+            "n_events": 740,
+            "n_events_used": 740,
+            "n_events_no_control": 0,
+            "n_events_ctrl_vol_relaxed": 27,
+            "n_signal_months": 63,
+            "max_year_share": 0.7620387357253532,
+            "max_share_year": 2010,
+            "year_sums": {
+              "2005": -0.11434746261253764,
+              "2006": -0.07165704962749135,
+              "2007": 0.43997101447596126,
+              "2008": -0.05031235325584337,
+              "2009": -0.18140660824873087,
+              "2010": -0.8659605121964861,
+              "2011": -0.10150273804043282,
+              "2012": -0.15680797306210353,
+              "2013": -0.08261525826112534,
+              "2014": 0.04826558918779392
+            },
+            "diag_crash_no_bounce": {
+              "mean_x60": -0.05621268848957828,
+              "nw_t": -2.3636747293829354,
+              "n_events": 720,
+              "n_days": 2013
+            },
+            "delist_within_60": {
+              "n": 1,
+              "share": 0.0013513513513513514,
+              "mean_x60_excluding": -0.0337861085967469
+            }
+          }
+        },
+        "both_bounds_support": false
+      },
+      "holm": {
+        "C1|lo": 0.027628854901540992,
+        "C2|lo": 0.4833219887066746,
+        "C1|hi": 0.027628854901540992,
+        "C2|hi": 0.09673567515670117
+      },
+      "report": {
+        "C1": {
+          "pool_mcap": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.2826486816842607,
+            "vol_ratio": 0.9865269069324343,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7126666825231254,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7322516268398354,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.18155383921429213,
+            "n_days": 2407
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28263652746140383,
+            "vol_ratio": 0.9864844851252292,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7162739536226542,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7215274494700084,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.17797122490637474,
+            "n_days": 2407
+          },
+          "pool_ew": {
+            "vol_full": 0.31771721829903843,
+            "vol_avoid": 0.31393323318768734,
+            "vol_ratio": 0.9880900848508954,
+            "mdd_full": -0.7154363197947002,
+            "mdd_avoid": -0.7180276418619806,
+            "sharpe_full": 0.8018488270967532,
+            "sharpe_avoid": 0.8088987829354204,
+            "ann_ret_full": 0.22609483783497608,
+            "ann_ret_avoid": 0.22657973517231422,
+            "n_days": 2407
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.2544275008925805,
+            "vol_ratio": 0.8880266980140792,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.6071639433599572,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7954603201702355,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.18512502729005287,
+            "n_days": 2407,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.06458581801109167,
+            "event_nw_t": -2.218675650434743,
+            "pool_mcap": {
+              "vol_full": 0.28650741111193107,
+              "vol_avoid": 0.2826514617846985,
+              "vol_ratio": 0.9865415372249267,
+              "mdd_full": -0.7110308388453783,
+              "mdd_avoid": -0.7126666825231254,
+              "sharpe_full": 0.702854454240434,
+              "sharpe_avoid": 0.7224481994259856,
+              "ann_ret_full": 0.17365011416515475,
+              "ann_ret_avoid": 0.17828817706727484,
+              "n_days": 2407
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.6482284887924801,
+            "ctrl": 0.6618578167848794,
+            "diag": 0.720513638622765,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.6327946752590504,
+            "control_vol": 0.45603829446197774,
+            "event_mdd": -0.2887101496228792,
+            "control_mdd": -0.22964477653582002,
+            "n": 2765,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": null,
+          "sw_industry_subsample": {
+            "n_events": 2444,
+            "n_used": 2262,
+            "mean_x60": -0.06884809388197133,
+            "nw_t": -2.145231856753451,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 2766,
+              "mean_x60": -0.06403207883621767,
+              "pool_mcap": {
+                "vol_full": 0.2865088419768959,
+                "vol_avoid": 0.2826486816842607,
+                "vol_ratio": 0.9865269069324343,
+                "mdd_full": -0.7110308388453781,
+                "mdd_avoid": -0.7126666825231254,
+                "sharpe_full": 0.7128772090545541,
+                "sharpe_avoid": 0.7322516268398354,
+                "ann_ret_full": 0.17702351485084122,
+                "ann_ret_avoid": 0.18155383921429213,
+                "n_days": 2407
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 1935,
+              "mean_x60": -0.06934250661448238,
+              "nw_t": -1.9822889787459146
+            },
+            "validate30": {
+              "n_events": 831,
+              "mean_x60": -0.022705840672180476,
+              "nw_t": -1.1268483028904086
+            },
+            "same_sign": true
+          }
+        },
+        "C2_lo": {
+          "pool_mcap": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28589589115636144,
+            "vol_ratio": 0.9978606216258279,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7136937188159859,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7083553018454904,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.17519643765959314,
+            "n_days": 2407
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28590026629268306,
+            "vol_ratio": 0.997875892136474,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7141071195334441,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7069122579990543,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.17471391226032829,
+            "n_days": 2407
+          },
+          "pool_ew": {
+            "vol_full": 0.31771721829903843,
+            "vol_avoid": 0.31723343263169407,
+            "vol_ratio": 0.9984773073680602,
+            "mdd_full": -0.7154363197947002,
+            "mdd_avoid": -0.7158402895262106,
+            "sharpe_full": 0.8018488270967532,
+            "sharpe_avoid": 0.8033131558678,
+            "ann_ret_full": 0.22609483783497608,
+            "ann_ret_avoid": 0.22637997875459637,
+            "n_days": 2407
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28153298024120593,
+            "vol_ratio": 0.9826327812385935,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7000722144535961,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.718121002628848,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.1762558238730514,
+            "n_days": 2407,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.0013471305212114375,
+            "event_nw_t": -0.04181775943637966,
+            "pool_mcap": {
+              "vol_full": 0.28650741111193107,
+              "vol_avoid": 0.28589433228444705,
+              "vol_ratio": 0.9978601641573436,
+              "mdd_full": -0.7110308388453783,
+              "mdd_avoid": -0.7136937188159858,
+              "sharpe_full": 0.702854454240434,
+              "sharpe_avoid": 0.698274609842265,
+              "ann_ret_full": 0.17365011416515475,
+              "ann_ret_avoid": 0.17181599353538646,
+              "n_days": 2407
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.6770334928229665,
+            "ctrl": 0.6698460681044746,
+            "diag": 0.7286492280436827,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.610733285678358,
+            "control_vol": 0.4338350309079326,
+            "event_mdd": -0.27692923623798726,
+            "control_mdd": -0.2098176149046155,
+            "n": 418,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": {
+            "n_events": 734,
+            "mean_x60": -0.03640523728539969,
+            "nw_t": -1.332728427391937
+          },
+          "sw_industry_subsample": {
+            "n_events": 418,
+            "n_used": 397,
+            "mean_x60": -0.02390692409246653,
+            "nw_t": -0.6878523143755648,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 418,
+              "mean_x60": -0.0013471305212114375,
+              "pool_mcap": {
+                "vol_full": 0.2865088419768959,
+                "vol_avoid": 0.28589589115636144,
+                "vol_ratio": 0.9978606216258279,
+                "mdd_full": -0.7110308388453781,
+                "mdd_avoid": -0.7136937188159859,
+                "sharpe_full": 0.7128772090545541,
+                "sharpe_avoid": 0.7083553018454904,
+                "ann_ret_full": 0.17702351485084122,
+                "ann_ret_avoid": 0.17519643765959314,
+                "n_days": 2407
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 307,
+              "mean_x60": -0.017123463238733858,
+              "nw_t": -0.4858052524020606
+            },
+            "validate30": {
+              "n_events": 111,
+              "mean_x60": -0.004438551487004814,
+              "nw_t": -0.11372082294593454
+            },
+            "same_sign": true
+          }
+        },
+        "C2_hi": {
+          "pool_mcap": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.2856161174160557,
+            "vol_ratio": 0.996884129108615,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7129734769291476,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7108105882897457,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.1758841528710844,
+            "n_days": 2407
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.28562169821470534,
+            "vol_ratio": 0.9969036077348632,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.7136925075605702,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7082700883537764,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.17503402131718215,
+            "n_days": 2407
+          },
+          "pool_ew": {
+            "vol_full": 0.31771721829903843,
+            "vol_avoid": 0.3170107705364556,
+            "vol_ratio": 0.9977764888967462,
+            "mdd_full": -0.7154363197947002,
+            "mdd_avoid": -0.7150687362054959,
+            "sharpe_full": 0.8018488270967532,
+            "sharpe_avoid": 0.8043256201389766,
+            "ann_ret_full": 0.22609483783497608,
+            "ann_ret_avoid": 0.2266419919018905,
+            "n_days": 2407
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.2865088419768959,
+            "vol_avoid": 0.27864780498521097,
+            "vol_ratio": 0.9725626722810919,
+            "mdd_full": -0.7110308388453781,
+            "mdd_avoid": -0.6922004229671477,
+            "sharpe_full": 0.7128772090545541,
+            "sharpe_avoid": 0.7239097179967621,
+            "ann_ret_full": 0.17702351485084122,
+            "ann_ret_avoid": 0.17667306708162567,
+            "n_days": 2407,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.03499575105665691,
+            "event_nw_t": -1.3382269399383238,
+            "pool_mcap": {
+              "vol_full": 0.28650741111193107,
+              "vol_avoid": 0.28562004064147584,
+              "vol_ratio": 0.996902800988598,
+              "mdd_full": -0.7110308388453783,
+              "mdd_avoid": -0.7129734769291476,
+              "sharpe_full": 0.702854454240434,
+              "sharpe_avoid": 0.7012590747888641,
+              "ann_ret_full": 0.17365011416515475,
+              "ann_ret_avoid": 0.17268481212360864,
+              "n_days": 2407
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.6702702702702703,
+            "ctrl": 0.6682167967362556,
+            "diag": 0.7253676647372266,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.6206076772139273,
+            "control_vol": 0.44629255684954683,
+            "event_mdd": -0.28159131491065426,
+            "control_mdd": -0.21817216217404692,
+            "n": 740,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": {
+            "n_events": 1056,
+            "mean_x60": -0.043575806669347385,
+            "nw_t": -1.9405245220634577
+          },
+          "sw_industry_subsample": {
+            "n_events": 418,
+            "n_used": 397,
+            "mean_x60": -0.02390692409246653,
+            "nw_t": -0.6878523143755648,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 740,
+              "mean_x60": -0.033787116500723344,
+              "pool_mcap": {
+                "vol_full": 0.2865088419768959,
+                "vol_avoid": 0.2856161174160557,
+                "vol_ratio": 0.996884129108615,
+                "mdd_full": -0.7110308388453781,
+                "mdd_avoid": -0.7129734769291476,
+                "sharpe_full": 0.7128772090545541,
+                "sharpe_avoid": 0.7108105882897457,
+                "ann_ret_full": 0.17702351485084122,
+                "ann_ret_avoid": 0.1758841528710844,
+                "n_days": 2407
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 531,
+              "mean_x60": -0.01923988071699828,
+              "nw_t": -0.7842930047898564
+            },
+            "validate30": {
+              "n_events": 209,
+              "mean_x60": -0.03571794637978956,
+              "nw_t": -1.0215359972569478
+            },
+            "same_sign": true
+          }
+        }
+      }
+    },
+    "validate": {
+      "meta": {
+        "n_events_C1": 5376,
+        "n_signal_months_C1": 96,
+        "n_events_C2_lo": 657,
+        "n_events_C2_hi": 1082,
+        "n_signal_months_C2_lo": 48,
+        "n_signal_months_C2_hi": 79,
+        "date_start": "2015-01-01",
+        "date_end": "2023-10-31",
+        "signal_first": "2015-01-05",
+        "signal_last": "2023-07-31",
+        "explore_cross_2015_n": null,
+        "pool_days": [
+          "2015-01-05",
+          "2023-10-31",
+          2146
+        ],
+        "mde_monthly_power50": 0.013431368756261094,
+        "mde_monthly_power80": 0.02030626996767255
+      },
+      "C1": {
+        "inference": {
+          "mean_x60": -0.03196148239826745,
+          "daily_mean": -0.0005326913733044575,
+          "nw_t": -2.0685238023334453,
+          "nw_p_onesided": 0.019295397380126592,
+          "block_bootstrap_p": 0.016998300169983,
+          "n_days": 2145,
+          "event_level_month_cluster_t": -1.6872212204640358,
+          "event_mean_excess": 0.00494149297687294
+        },
+        "S1": {
+          "pass": true,
+          "detail": {
+            "mean_x60": -0.03196148239826745,
+            "nw_t": -2.0685238023334453,
+            "thr_mean": -0.015,
+            "thr_t": -2.0
+          }
+        },
+        "S2": {
+          "pass": false,
+          "detail": {
+            "top_year": 2015,
+            "top_year_n": 1505,
+            "mean_x60_ex_top_year": -0.04100318763058153,
+            "a_pass": true,
+            "year_means_ge50": {
+              "2015": 0.2979266402654613,
+              "2016": -0.08501838446574739,
+              "2017": 0.04626502539138251,
+              "2018": -0.011075207562034405,
+              "2019": -0.05498805728757834,
+              "2020": -0.02445502930188246,
+              "2021": 0.01805401802798343,
+              "2022": 0.0009412527472532126,
+              "2023": -0.06344284535615904
+            },
+            "frac_neg_ge50": 0.5555555555555556,
+            "b_pass": false,
+            "events_by_year": {
+              "2015": 1505,
+              "2016": 999,
+              "2017": 63,
+              "2018": 566,
+              "2019": 265,
+              "2020": 483,
+              "2021": 503,
+              "2022": 830,
+              "2023": 162
+            }
+          }
+        },
+        "S3": {
+          "pass": false,
+          "detail": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.21467895863165798,
+            "vol_ratio": 0.9570313740461303,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.5064111492404051,
+            "mdd_shallower": -0.022832107342693142,
+            "mdd_shallower_ge_1pct": false,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.20088447601646262,
+            "s3_pool": false,
+            "placebo_p5": 1.0222995572095799,
+            "placebo_percentile": 0.0,
+            "s3_placebo": true,
+            "placebo": {
+              "p5": 1.0222995572095799,
+              "percentile": 0.0,
+              "n": 1000,
+              "mean": 1.0339525066417834,
+              "relaxed_events": 296,
+              "events_without_pool": 0
+            },
+            "n_days": 2146
+          }
+        },
+        "S4": {
+          "detail": {
+            "portfolio_spanning": {
+              "alpha_daily": 1.8202223551912228e-05,
+              "alpha_ann": 0.004586960335081882,
+              "alpha_nw_t": 0.3740526814221097,
+              "pass_report": false,
+              "n_days": 2146,
+              "betas": {
+                "mkt": -0.012513245421002505,
+                "rev_1m": -0.025094587138986726,
+                "max_ret_21d": 0.21650690695695818,
+                "dd_60": -0.12471583603951583,
+                "peak_fall": 0.034968330147074594,
+                "vol_60d": -0.11151780594514685,
+                "size": -0.07808441263205446,
+                "turnover_20d": -0.03693605790521733,
+                "mom_12_1": -0.1292685123885528,
+                "cn_ep_ttm": -0.07673298081888459
+              },
+              "factors": [
+                "mkt",
+                "rev_1m",
+                "max_ret_21d",
+                "dd_60",
+                "peak_fall",
+                "vol_60d",
+                "size",
+                "turnover_20d",
+                "mom_12_1",
+                "cn_ep_ttm"
+              ]
+            },
+            "event_fama_macbeth": {
+              "gamma_mean": -0.008835484823298491,
+              "gamma_nw_t": -1.0217713450291754,
+              "n_weeks": 282,
+              "gamma_negative_t_le_-2": false
+            },
+            "factor_coverage": {
+              "cn_ep_ttm_mean_pool_coverage": 0.9699125033053633
+            }
+          },
+          "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+        },
+        "S5": {
+          "pass": false,
+          "detail": {
+            "avoid_net_mean": -0.010404620565257502,
+            "cost_mean": 0.005463127588384563,
+            "n": 5345,
+            "thr": 0.01,
+            "n_legs_padded_to_100_shares": 174
+          }
+        },
+        "gates": {
+          "excess_nonneg": false,
+          "concentration_year_gt_50pct": false,
+          "diag_crash_no_bounce_excess_nonneg": false,
+          "c1_minus_c2_excess_le_0": true
+        },
+        "grade": "不支持",
+        "diagnostics": {
+          "n_events": 5376,
+          "n_events_used": 5345,
+          "n_events_no_control": 31,
+          "n_events_ctrl_vol_relaxed": 1527,
+          "n_signal_months": 96,
+          "max_year_share": 0.19746363612718645,
+          "max_share_year": 2016,
+          "year_sums": {
+            "2015": -0.03407621481098379,
+            "2016": -0.22562649146097627,
+            "2017": -0.1885925842705029,
+            "2018": -0.007207177937336622,
+            "2019": -0.21576563341577393,
+            "2020": -0.212709559346056,
+            "2021": -0.17996456057800583,
+            "2022": 0.1144883566434113,
+            "2023": -0.19316913056183718
+          },
+          "diag_crash_no_bounce": {
+            "mean_x60": -0.049354339250712795,
+            "nw_t": -2.4177800467870747,
+            "n_events": 4813,
+            "n_days": 2136
+          },
+          "delist_within_60": {
+            "n": 2,
+            "share": 0.0003720238095238095,
+            "mean_x60_excluding": -0.03121169380251174
+          },
+          "c1_minus_c2": {
+            "lo": -0.03458071329359875,
+            "hi": -0.016736360560720316
+          }
+        }
+      },
+      "C2": {
+        "inference": {
+          "mean_x60": -0.014487515583503021,
+          "daily_mean": -0.00024145859305838368,
+          "nw_t": -0.5426744050833953,
+          "nw_p_onesided": 0.2936769998760336,
+          "block_bootstrap_p": 0.30086991300869914,
+          "n_days": 1529,
+          "event_level_month_cluster_t": -0.36327707810483345,
+          "event_mean_excess": -0.0038038847769279716
+        },
+        "S1": {
+          "pass": false,
+          "detail": {
+            "mean_x60": -0.014487515583503021,
+            "nw_t": -0.5426744050833953,
+            "thr_mean": -0.015,
+            "thr_t": -2.0
+          }
+        },
+        "S2": {
+          "pass": false,
+          "detail": {
+            "top_year": 2022,
+            "top_year_n": 294,
+            "mean_x60_ex_top_year": -0.020485166946528858,
+            "a_pass": true,
+            "year_means_ge50": {
+              "2019": -0.06731344813926703,
+              "2022": 0.018537849794179738,
+              "2023": 0.11103344447452078
+            },
+            "frac_neg_ge50": 0.3333333333333333,
+            "b_pass": false,
+            "events_by_year": {
+              "2015": 43,
+              "2016": 1,
+              "2017": 9,
+              "2018": 16,
+              "2019": 132,
+              "2020": 44,
+              "2021": 45,
+              "2022": 294,
+              "2023": 73
+            }
+          }
+        },
+        "S3": {
+          "pass": false,
+          "detail": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.22443609900921724,
+            "vol_ratio": 1.0005283684503108,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.48311218996719263,
+            "mdd_shallower": 0.0004668519305193186,
+            "mdd_shallower_ge_1pct": false,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.23471589563076445,
+            "s3_pool": false,
+            "placebo_p5": 0.9990385091972271,
+            "placebo_percentile": 0.8,
+            "s3_placebo": false,
+            "placebo": {
+              "p5": 0.9990385091972271,
+              "percentile": 0.8,
+              "n": 1000,
+              "mean": 0.9999716522965431,
+              "relaxed_events": 17,
+              "events_without_pool": 0
+            },
+            "n_days": 2146
+          }
+        },
+        "S4": {
+          "detail": {
+            "portfolio_spanning": {
+              "alpha_daily": 3.6331041421804815e-07,
+              "alpha_ann": 9.155422438294813e-05,
+              "alpha_nw_t": 0.18448181344199088,
+              "pass_report": false,
+              "n_days": 2146,
+              "betas": {
+                "mkt": -6.167991322570613e-05,
+                "rev_1m": 0.001142752783361964,
+                "max_ret_21d": -0.0026521002393832876,
+                "dd_60": 0.000634450478301797,
+                "peak_fall": -0.0003508418940168856,
+                "vol_60d": 0.0004523081473872596,
+                "size": 0.001970637444921656,
+                "turnover_20d": 0.0020514835714551755,
+                "mom_12_1": -2.014924204029071e-05,
+                "cn_ep_ttm": -9.260758902487231e-05
+              },
+              "factors": [
+                "mkt",
+                "rev_1m",
+                "max_ret_21d",
+                "dd_60",
+                "peak_fall",
+                "vol_60d",
+                "size",
+                "turnover_20d",
+                "mom_12_1",
+                "cn_ep_ttm"
+              ]
+            },
+            "event_fama_macbeth": {
+              "gamma_mean": -0.004960059064759065,
+              "gamma_nw_t": -0.4045242330593867,
+              "n_weeks": 98,
+              "gamma_negative_t_le_-2": false
+            },
+            "factor_coverage": {
+              "cn_ep_ttm_mean_pool_coverage": 0.9699125033053633
+            }
+          },
+          "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+        },
+        "S5": {
+          "pass": false,
+          "detail": {
+            "avoid_net_mean": -0.0023026226721216585,
+            "cost_mean": 0.006106507449049626,
+            "n": 656,
+            "thr": 0.01,
+            "n_legs_padded_to_100_shares": 55
+          }
+        },
+        "gates": {
+          "excess_nonneg": false,
+          "concentration_year_gt_50pct": true,
+          "diag_crash_no_bounce_excess_nonneg": false,
+          "c1_minus_c2_excess_le_0": null
+        },
+        "grade": "部分成立",
+        "diagnostics": {
+          "n_events": 657,
+          "n_events_used": 656,
+          "n_events_no_control": 1,
+          "n_events_ctrl_vol_relaxed": 31,
+          "n_signal_months": 48,
+          "max_year_share": 1.1225163043068402,
+          "max_share_year": 2015,
+          "year_sums": {
+            "2015": -0.4144220063027069,
+            "2016": -0.004222479521664768,
+            "2017": 0.1473376712979078,
+            "2018": 0.10130662032380848,
+            "2019": -0.201676204623006,
+            "2020": -0.3679499340287272,
+            "2021": 0.10070852935451548,
+            "2022": 0.1177621531471807,
+            "2023": 0.15196546156642357
+          },
+          "diag_crash_no_bounce": {
+            "mean_x60": -0.013589816219450495,
+            "nw_t": -0.5865976869429621,
+            "n_events": 625,
+            "n_days": 1502
+          },
+          "delist_within_60": {
+            "n": 0,
+            "share": 0.0,
+            "mean_x60_excluding": -0.014487515583503021
+          }
+        },
+        "bound_lo": {
+          "inference": {
+            "mean_x60": -0.014487515583503021,
+            "daily_mean": -0.00024145859305838368,
+            "nw_t": -0.5426744050833953,
+            "nw_p_onesided": 0.2936769998760336,
+            "block_bootstrap_p": 0.30086991300869914,
+            "n_days": 1529,
+            "event_level_month_cluster_t": -0.36327707810483345,
+            "event_mean_excess": -0.0038038847769279716
+          },
+          "S1": {
+            "pass": false,
+            "detail": {
+              "mean_x60": -0.014487515583503021,
+              "nw_t": -0.5426744050833953,
+              "thr_mean": -0.015,
+              "thr_t": -2.0
+            }
+          },
+          "S2": {
+            "pass": false,
+            "detail": {
+              "top_year": 2022,
+              "top_year_n": 294,
+              "mean_x60_ex_top_year": -0.020485166946528858,
+              "a_pass": true,
+              "year_means_ge50": {
+                "2019": -0.06731344813926703,
+                "2022": 0.018537849794179738,
+                "2023": 0.11103344447452078
+              },
+              "frac_neg_ge50": 0.3333333333333333,
+              "b_pass": false,
+              "events_by_year": {
+                "2015": 43,
+                "2016": 1,
+                "2017": 9,
+                "2018": 16,
+                "2019": 132,
+                "2020": 44,
+                "2021": 45,
+                "2022": 294,
+                "2023": 73
+              }
+            }
+          },
+          "S3": {
+            "pass": false,
+            "detail": {
+              "vol_full": 0.22431757667884997,
+              "vol_avoid": 0.22443609900921724,
+              "vol_ratio": 1.0005283684503108,
+              "mdd_full": -0.48357904189771195,
+              "mdd_avoid": -0.48311218996719263,
+              "mdd_shallower": 0.0004668519305193186,
+              "mdd_shallower_ge_1pct": false,
+              "sharpe_full": 0.2334420042691749,
+              "sharpe_avoid": 0.23471589563076445,
+              "s3_pool": false,
+              "placebo_p5": 0.9990385091972271,
+              "placebo_percentile": 0.8,
+              "s3_placebo": false,
+              "placebo": {
+                "p5": 0.9990385091972271,
+                "percentile": 0.8,
+                "n": 1000,
+                "mean": 0.9999716522965431,
+                "relaxed_events": 17,
+                "events_without_pool": 0
+              },
+              "n_days": 2146
+            }
+          },
+          "S4": {
+            "detail": {
+              "portfolio_spanning": {
+                "alpha_daily": 3.6331041421804815e-07,
+                "alpha_ann": 9.155422438294813e-05,
+                "alpha_nw_t": 0.18448181344199088,
+                "pass_report": false,
+                "n_days": 2146,
+                "betas": {
+                  "mkt": -6.167991322570613e-05,
+                  "rev_1m": 0.001142752783361964,
+                  "max_ret_21d": -0.0026521002393832876,
+                  "dd_60": 0.000634450478301797,
+                  "peak_fall": -0.0003508418940168856,
+                  "vol_60d": 0.0004523081473872596,
+                  "size": 0.001970637444921656,
+                  "turnover_20d": 0.0020514835714551755,
+                  "mom_12_1": -2.014924204029071e-05,
+                  "cn_ep_ttm": -9.260758902487231e-05
+                },
+                "factors": [
+                  "mkt",
+                  "rev_1m",
+                  "max_ret_21d",
+                  "dd_60",
+                  "peak_fall",
+                  "vol_60d",
+                  "size",
+                  "turnover_20d",
+                  "mom_12_1",
+                  "cn_ep_ttm"
+                ]
+              },
+              "event_fama_macbeth": {
+                "gamma_mean": -0.004960059064759065,
+                "gamma_nw_t": -0.4045242330593867,
+                "n_weeks": 98,
+                "gamma_negative_t_le_-2": false
+              },
+              "factor_coverage": {
+                "cn_ep_ttm_mean_pool_coverage": 0.9699125033053633
+              }
+            },
+            "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+          },
+          "S5": {
+            "pass": false,
+            "detail": {
+              "avoid_net_mean": -0.0023026226721216585,
+              "cost_mean": 0.006106507449049626,
+              "n": 656,
+              "thr": 0.01,
+              "n_legs_padded_to_100_shares": 55
+            }
+          },
+          "gates": {
+            "excess_nonneg": false,
+            "concentration_year_gt_50pct": true,
+            "diag_crash_no_bounce_excess_nonneg": false,
+            "c1_minus_c2_excess_le_0": null
+          },
+          "grade": "不支持",
+          "diagnostics": {
+            "n_events": 657,
+            "n_events_used": 656,
+            "n_events_no_control": 1,
+            "n_events_ctrl_vol_relaxed": 31,
+            "n_signal_months": 48,
+            "max_year_share": 1.1225163043068402,
+            "max_share_year": 2015,
+            "year_sums": {
+              "2015": -0.4144220063027069,
+              "2016": -0.004222479521664768,
+              "2017": 0.1473376712979078,
+              "2018": 0.10130662032380848,
+              "2019": -0.201676204623006,
+              "2020": -0.3679499340287272,
+              "2021": 0.10070852935451548,
+              "2022": 0.1177621531471807,
+              "2023": 0.15196546156642357
+            },
+            "diag_crash_no_bounce": {
+              "mean_x60": -0.013589816219450495,
+              "nw_t": -0.5865976869429621,
+              "n_events": 625,
+              "n_days": 1502
+            },
+            "delist_within_60": {
+              "n": 0,
+              "share": 0.0,
+              "mean_x60_excluding": -0.014487515583503021
+            }
+          }
+        },
+        "bound_hi": {
+          "inference": {
+            "mean_x60": -0.06472465890463139,
+            "daily_mean": -0.0010787443150771898,
+            "nw_t": -2.6878454643458767,
+            "nw_p_onesided": 0.0035957334961780833,
+            "block_bootstrap_p": 0.0036996300369963003,
+            "n_days": 1977,
+            "event_level_month_cluster_t": -2.573227612101251,
+            "event_mean_excess": -0.025209583830741837
+          },
+          "S1": {
+            "pass": true,
+            "detail": {
+              "mean_x60": -0.06472465890463139,
+              "nw_t": -2.6878454643458767,
+              "thr_mean": -0.015,
+              "thr_t": -2.0
+            }
+          },
+          "S2": {
+            "pass": true,
+            "detail": {
+              "top_year": 2022,
+              "top_year_n": 328,
+              "mean_x60_ex_top_year": -0.0720644997764126,
+              "a_pass": true,
+              "year_means_ge50": {
+                "2015": 0.046391399863154666,
+                "2016": 0.03734740871608512,
+                "2018": -0.09936946293443176,
+                "2019": -0.12330427067580593,
+                "2020": -0.10932124442063063,
+                "2021": -0.10030847119842778,
+                "2022": -0.02324779143222921,
+                "2023": -0.0017252606064584442
+              },
+              "frac_neg_ge50": 0.75,
+              "b_pass": true,
+              "events_by_year": {
+                "2015": 154,
+                "2016": 91,
+                "2017": 16,
+                "2018": 85,
+                "2019": 171,
+                "2020": 88,
+                "2021": 64,
+                "2022": 328,
+                "2023": 85
+              }
+            }
+          },
+          "S3": {
+            "pass": false,
+            "detail": {
+              "vol_full": 0.22431757667884997,
+              "vol_avoid": 0.2239416039239886,
+              "vol_ratio": 0.9983239264598528,
+              "mdd_full": -0.48357904189771195,
+              "mdd_avoid": -0.4839110444040673,
+              "mdd_shallower": -0.00033200250635534445,
+              "mdd_shallower_ge_1pct": false,
+              "sharpe_full": 0.2334420042691749,
+              "sharpe_avoid": 0.23514562067804257,
+              "s3_pool": false,
+              "placebo_p5": 0.9970120367749572,
+              "placebo_percentile": 0.454,
+              "s3_placebo": false,
+              "placebo": {
+                "p5": 0.9970120367749572,
+                "percentile": 0.454,
+                "n": 1000,
+                "mean": 0.9992656330004297,
+                "relaxed_events": 53,
+                "events_without_pool": 0
+              },
+              "n_days": 2146
+            }
+          },
+          "S4": {
+            "detail": {
+              "portfolio_spanning": {
+                "alpha_daily": 2.205515285074444e-06,
+                "alpha_ann": 0.0005557898518387599,
+                "alpha_nw_t": 1.0543306758986268,
+                "pass_report": false,
+                "n_days": 2146,
+                "betas": {
+                  "mkt": -0.0005117438369570897,
+                  "rev_1m": 0.0002244384918232748,
+                  "max_ret_21d": 0.004349969192590888,
+                  "dd_60": -0.0029845071074788344,
+                  "peak_fall": 0.000649535891580956,
+                  "vol_60d": -0.0028572701019669577,
+                  "size": -0.0013567963460928531,
+                  "turnover_20d": 0.0007714793307088289,
+                  "mom_12_1": -0.00414651266728475,
+                  "cn_ep_ttm": -0.0029724686758528223
+                },
+                "factors": [
+                  "mkt",
+                  "rev_1m",
+                  "max_ret_21d",
+                  "dd_60",
+                  "peak_fall",
+                  "vol_60d",
+                  "size",
+                  "turnover_20d",
+                  "mom_12_1",
+                  "cn_ep_ttm"
+                ]
+              },
+              "event_fama_macbeth": {
+                "gamma_mean": -0.0334894729760644,
+                "gamma_nw_t": -2.048687284300637,
+                "n_weeks": 167,
+                "gamma_negative_t_le_-2": true
+              },
+              "factor_coverage": {
+                "cn_ep_ttm_mean_pool_coverage": 0.9699125033053633
+              }
+            },
+            "note": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+          },
+          "S5": {
+            "pass": true,
+            "detail": {
+              "avoid_net_mean": 0.01922632306712875,
+              "cost_mean": 0.005983260763613084,
+              "n": 1081,
+              "thr": 0.01,
+              "n_legs_padded_to_100_shares": 59
+            }
+          },
+          "gates": {
+            "excess_nonneg": false,
+            "concentration_year_gt_50pct": false,
+            "diag_crash_no_bounce_excess_nonneg": false,
+            "c1_minus_c2_excess_le_0": null
+          },
+          "grade": "部分成立",
+          "diagnostics": {
+            "n_events": 1082,
+            "n_events_used": 1081,
+            "n_events_no_control": 1,
+            "n_events_ctrl_vol_relaxed": 166,
+            "n_signal_months": 79,
+            "max_year_share": 0.31397634274827413,
+            "max_share_year": 2020,
+            "year_sums": {
+              "2015": -0.007272870140798457,
+              "2016": 0.18376735276544004,
+              "2017": -0.29724211140146645,
+              "2018": -0.35589543780150606,
+              "2019": -0.5688226584590748,
+              "2020": -0.6696102851362621,
+              "2021": -0.4112825533003378,
+              "2022": 0.10507573601683833,
+              "2023": -0.11139468345043653
+            },
+            "diag_crash_no_bounce": {
+              "mean_x60": -0.08152891478334622,
+              "nw_t": -4.117910329162198,
+              "n_events": 993,
+              "n_days": 1941
+            },
+            "delist_within_60": {
+              "n": 2,
+              "share": 0.0018484288354898336,
+              "mean_x60_excluding": -0.06152507978157104
+            }
+          }
+        },
+        "both_bounds_support": false
+      },
+      "holm": {
+        "C1|lo": 0.038590794760253185,
+        "C2|lo": 0.2936769998760336,
+        "C1|hi": 0.019295397380126592,
+        "C2|hi": 0.0071914669923561665
+      },
+      "report": {
+        "C1": {
+          "pool_mcap": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.21467895863165798,
+            "vol_ratio": 0.9570313740461303,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.5064111492404051,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.20088447601646262,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.020058970489948535,
+            "n_days": 2146
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.2146719572862144,
+            "vol_ratio": 0.9570001622902473,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.5091298034165485,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.19410776385739506,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.018575951030187943,
+            "n_days": 2146
+          },
+          "pool_ew": {
+            "vol_full": 0.27575692955712505,
+            "vol_avoid": 0.26718608803006666,
+            "vol_ratio": 0.9689188534959994,
+            "mdd_full": -0.6426346354566054,
+            "mdd_avoid": -0.6221954201662038,
+            "sharpe_full": 0.2870955608810474,
+            "sharpe_avoid": 0.32260107942058075,
+            "ann_ret_full": 0.041546603757528056,
+            "ann_ret_avoid": 0.05134975282472731,
+            "n_days": 2146
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.19796233229065807,
+            "vol_ratio": 0.8825092318738622,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.45121916186158273,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.2413456018116521,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.028421536109483503,
+            "n_days": 2146,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.03242221651995439,
+            "event_nw_t": -2.0988358476176137,
+            "pool_mcap": {
+              "vol_full": 0.22431819145779094,
+              "vol_avoid": 0.21467938198678105,
+              "vol_ratio": 0.95703063844992,
+              "mdd_full": -0.48419561333412453,
+              "mdd_avoid": -0.5070043805362585,
+              "sharpe_full": 0.2280842891361617,
+              "sharpe_avoid": 0.19523693401510864,
+              "ann_ret_full": 0.02610447265725835,
+              "ann_ret_avoid": 0.018822935061888035,
+              "n_days": 2146
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.5998883928571429,
+            "ctrl": 0.7071101513806584,
+            "diag": 0.6888386652862629,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.6506710402304345,
+            "control_vol": 0.4263591446374085,
+            "event_mdd": -0.27776576434697603,
+            "control_mdd": -0.17795297971120305,
+            "n": 5341,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": null,
+          "sw_industry_subsample": {
+            "n_events": 4951,
+            "n_used": 3951,
+            "mean_x60": -0.03242483112201022,
+            "nw_t": -1.546570720965195,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 3364,
+              "mean_x60": -0.024562932048327466,
+              "pool_mcap": {
+                "vol_full": 0.2629352978754528,
+                "vol_avoid": 0.24756734609677236,
+                "vol_ratio": 0.9415523442350449,
+                "mdd_full": -0.48357904189771195,
+                "mdd_avoid": -0.5064111492404051,
+                "sharpe_full": 0.19996130105047386,
+                "sharpe_avoid": 0.15054408207828346,
+                "ann_ret_full": 0.017797123400680626,
+                "ann_ret_avoid": 0.006298134944949574,
+                "n_days": 1108
+              }
+            },
+            "2019-07-22~2020-08-23": {
+              "n_events": 419,
+              "mean_x60": -0.07449888893643472,
+              "pool_mcap": {
+                "vol_full": 0.20750431067870767,
+                "vol_avoid": 0.20630339021444583,
+                "vol_ratio": 0.9942125517280395,
+                "mdd_full": -0.14330695072294397,
+                "mdd_avoid": -0.14274126051566194,
+                "sharpe_full": 1.1936276393449192,
+                "sharpe_avoid": 1.2003435888090692,
+                "ann_ret_full": 0.2534874042473667,
+                "ann_ret_avoid": 0.2537388981054236,
+                "n_days": 266
+              }
+            },
+            "2020-08-24~2023-04-09": {
+              "n_events": 1457,
+              "mean_x60": -0.0027487657221164858,
+              "pool_mcap": {
+                "vol_full": 0.16692860321585798,
+                "vol_avoid": 0.16575496019812025,
+                "vol_ratio": 0.9929691916476406,
+                "mdd_full": -0.25213170889208414,
+                "mdd_avoid": -0.24758500030171116,
+                "sharpe_full": 0.10493550273492695,
+                "sharpe_avoid": 0.07598520420752826,
+                "ann_ret_full": 0.00356462864673035,
+                "ann_ret_avoid": -0.0011674617048595959,
+                "n_days": 636
+              }
+            },
+            "2023-04-10~2026-07-05": {
+              "n_events": 136,
+              "mean_x60": 0.011990136752159914,
+              "pool_mcap": {
+                "vol_full": 0.12841216257108096,
+                "vol_avoid": 0.12805348310011014,
+                "vol_ratio": 0.9972068107585037,
+                "mdd_full": -0.12982256324804453,
+                "mdd_avoid": -0.12888499390932462,
+                "sharpe_full": -1.311486896677953,
+                "sharpe_avoid": -1.2993489866965084,
+                "ann_ret_full": -0.1619338226698318,
+                "ann_ret_avoid": -0.1601950351612439,
+                "n_days": 136
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 3697,
+              "mean_x60": -0.02223807731405687,
+              "nw_t": -1.344087169734508
+            },
+            "validate30": {
+              "n_events": 1679,
+              "mean_x60": -0.03594507046552463,
+              "nw_t": -2.0338639253509028
+            },
+            "same_sign": true
+          }
+        },
+        "C2_lo": {
+          "pool_mcap": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.22443609900921724,
+            "vol_ratio": 1.0005283684503108,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.48311218996719263,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.23471589563076445,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.027633508726557787,
+            "n_days": 2146
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.22443335913309234,
+            "vol_ratio": 1.00051615417729,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.4832988964726618,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.23409637306911585,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.027490583616682773,
+            "n_days": 2146
+          },
+          "pool_ew": {
+            "vol_full": 0.27575692955712505,
+            "vol_avoid": 0.2756901316928422,
+            "vol_ratio": 0.9997577654190226,
+            "mdd_full": -0.6426346354566054,
+            "mdd_avoid": -0.6430733110546771,
+            "sharpe_full": 0.2870955608810474,
+            "sharpe_avoid": 0.2896520847858382,
+            "ann_ret_full": 0.041546603757528056,
+            "ann_ret_avoid": 0.042279784803192166,
+            "n_days": 2146
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.2231558096658221,
+            "vol_ratio": 0.9948208828294756,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.4861233102640561,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.22994217602121245,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.02652503643906834,
+            "n_days": 2146,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.014487515583503021,
+            "event_nw_t": -0.5426744050833953,
+            "pool_mcap": {
+              "vol_full": 0.22431819145779094,
+              "vol_avoid": 0.22443674634047542,
+              "vol_ratio": 1.0005285121189416,
+              "mdd_full": -0.48419561333412453,
+              "mdd_avoid": -0.4837302229534922,
+              "sharpe_full": 0.2280842891361617,
+              "sharpe_avoid": 0.22934889677341624,
+              "ann_ret_full": 0.02610447265725835,
+              "ann_ret_avoid": 0.026396420664464237,
+              "n_days": 2146
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.4550989345509893,
+            "ctrl": 0.5792924898013051,
+            "diag": 0.6050203052654288,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.4973706392905432,
+            "control_vol": 0.24787790946635369,
+            "event_mdd": -0.21140842511911614,
+            "control_mdd": -0.10354867210150942,
+            "n": 656,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": {
+            "n_events": 1136,
+            "mean_x60": -0.018004375939552182,
+            "nw_t": -0.8485201138877149
+          },
+          "sw_industry_subsample": {
+            "n_events": 657,
+            "n_used": 651,
+            "mean_x60": -0.026816680809433016,
+            "nw_t": -1.2883442041903317,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 196,
+              "mean_x60": -0.039378720231181885,
+              "pool_mcap": {
+                "vol_full": 0.2629352978754528,
+                "vol_avoid": 0.26322219521400303,
+                "vol_ratio": 1.0010911328409249,
+                "mdd_full": -0.48357904189771195,
+                "mdd_avoid": -0.48311218996719263,
+                "sharpe_full": 0.19996130105047386,
+                "sharpe_avoid": 0.20233670855124258,
+                "ann_ret_full": 0.017797123400680626,
+                "ann_ret_avoid": 0.018415565230896824,
+                "n_days": 1108
+              }
+            },
+            "2019-07-22~2020-08-23": {
+              "n_events": 18,
+              "mean_x60": -0.0781543443522049,
+              "pool_mcap": {
+                "vol_full": 0.20750431067870767,
+                "vol_avoid": 0.2074329659293818,
+                "vol_ratio": 0.9996561770254675,
+                "mdd_full": -0.14330695072294397,
+                "mdd_avoid": -0.14330572051984947,
+                "sharpe_full": 1.1936276393449192,
+                "sharpe_avoid": 1.197609569393085,
+                "ann_ret_full": 0.2534874042473667,
+                "ann_ret_avoid": 0.2544342464836886,
+                "n_days": 266
+              }
+            },
+            "2020-08-24~2023-04-09": {
+              "n_events": 370,
+              "mean_x60": 0.008986498838580317,
+              "pool_mcap": {
+                "vol_full": 0.16692860321585798,
+                "vol_avoid": 0.16675502433123138,
+                "vol_ratio": 0.998960160923397,
+                "mdd_full": -0.25213170889208414,
+                "mdd_avoid": -0.25177092707521675,
+                "sharpe_full": 0.10493550273492695,
+                "sharpe_avoid": 0.10099685919996049,
+                "ann_ret_full": 0.00356462864673035,
+                "ann_ret_avoid": 0.00291652899486583,
+                "n_days": 636
+              }
+            },
+            "2023-04-10~2026-07-05": {
+              "n_events": 73,
+              "mean_x60": 0.11103344447452078,
+              "pool_mcap": {
+                "vol_full": 0.12841216257108096,
+                "vol_avoid": 0.12816497050078118,
+                "vol_ratio": 0.9980750104557818,
+                "mdd_full": -0.12982256324804453,
+                "mdd_avoid": -0.12929310197091293,
+                "sharpe_full": -1.311486896677953,
+                "sharpe_avoid": -1.3054782476939575,
+                "ann_ret_full": -0.1619338226698318,
+                "ann_ret_avoid": -0.16098871996359232,
+                "n_days": 136
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 441,
+              "mean_x60": 0.002751513077448418,
+              "nw_t": 0.09468084061748559
+            },
+            "validate30": {
+              "n_events": 216,
+              "mean_x60": -0.01957329696171286,
+              "nw_t": -0.5103565488966453
+            },
+            "same_sign": false
+          }
+        },
+        "C2_hi": {
+          "pool_mcap": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.2239416039239886,
+            "vol_ratio": 0.9983239264598528,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.4839110444040673,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.23514562067804257,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.027727222465392165,
+            "n_days": 2146
+          },
+          "pool_mcap_net_prop_cost": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.2239391199713308,
+            "vol_ratio": 0.9983128530847987,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.4842749234378938,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.2340981092515344,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.027486100437677408,
+            "n_days": 2146
+          },
+          "pool_ew": {
+            "vol_full": 0.27575692955712505,
+            "vol_avoid": 0.27563307184514335,
+            "vol_ratio": 0.9995508446073119,
+            "mdd_full": -0.6426346354566054,
+            "mdd_avoid": -0.6428909097588343,
+            "sharpe_full": 0.2870955608810474,
+            "sharpe_avoid": 0.2926998184265525,
+            "ann_ret_full": 0.041546603757528056,
+            "ann_ret_avoid": 0.04315434026860432,
+            "n_days": 2146
+          },
+          "pool_Bc_cash": {
+            "vol_full": 0.22431757667884997,
+            "vol_avoid": 0.2207333315699865,
+            "vol_ratio": 0.9840215592468042,
+            "mdd_full": -0.48357904189771195,
+            "mdd_avoid": -0.48255204954014974,
+            "sharpe_full": 0.2334420042691749,
+            "sharpe_avoid": 0.23365065935636703,
+            "ann_ret_full": 0.027338419125592983,
+            "ann_ret_avoid": 0.02735613855822394,
+            "n_days": 2146,
+            "note": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+          },
+          "delist_m100_upper": {
+            "event_mean_x60": -0.06697665805134645,
+            "event_nw_t": -2.744048291091636,
+            "pool_mcap": {
+              "vol_full": 0.22431819145779094,
+              "vol_avoid": 0.22394225538793466,
+              "vol_ratio": 0.9983240945934293,
+              "mdd_full": -0.48419561333412453,
+              "mdd_avoid": -0.48452865163155334,
+              "sharpe_full": 0.2280842891361617,
+              "sharpe_avoid": 0.22976279565351698,
+              "ann_ret_full": 0.02610447265725835,
+              "ann_ret_avoid": 0.026489107884670737,
+              "n_days": 2146
+            },
+            "note": "退市补 −100%：对回避有利的上界"
+          },
+          "breach_trough_rate": {
+            "event": 0.5351201478743068,
+            "ctrl": 0.6321965758271422,
+            "diag": 0.6468199451748375,
+            "note": "s+1…终止日收盘跌破反弹前低点（[crash_end, s] 最低收盘）；对照按各自同区间最低收盘"
+          },
+          "event_vol_mdd_vs_control": {
+            "event_vol": 0.5637518543696781,
+            "control_vol": 0.3188821084839179,
+            "event_mdd": -0.24882021346120387,
+            "control_mdd": -0.13216357062353262,
+            "n": 1080,
+            "note": "按段收益（停牌段合并）计；对照 = 主对照等权段收益"
+          },
+          "c2_full_window": {
+            "n_events": 1561,
+            "mean_x60": -0.05470026669676807,
+            "nw_t": -2.4699120030722326
+          },
+          "sw_industry_subsample": {
+            "n_events": 657,
+            "n_used": 651,
+            "mean_x60": -0.026816680809433016,
+            "nw_t": -1.2883442041903317,
+            "note": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+          },
+          "regime_segments": {
+            "2005-01-01~2019-07-21": {
+              "n_events": 502,
+              "mean_x60": -0.056141016872478675,
+              "pool_mcap": {
+                "vol_full": 0.2629352978754528,
+                "vol_avoid": 0.2624147180335353,
+                "vol_ratio": 0.9980201218850271,
+                "mdd_full": -0.48357904189771195,
+                "mdd_avoid": -0.4839110444040673,
+                "sharpe_full": 0.19996130105047386,
+                "sharpe_avoid": 0.20140043118066955,
+                "ann_ret_full": 0.017797123400680626,
+                "ann_ret_avoid": 0.0182153252704651,
+                "n_days": 1108
+              }
+            },
+            "2019-07-22~2020-08-23": {
+              "n_events": 65,
+              "mean_x60": -0.17741652140795264,
+              "pool_mcap": {
+                "vol_full": 0.20750431067870767,
+                "vol_avoid": 0.20737293778016286,
+                "vol_ratio": 0.9993668907498109,
+                "mdd_full": -0.14330695072294397,
+                "mdd_avoid": -0.1432316717241804,
+                "sharpe_full": 1.1936276393449192,
+                "sharpe_avoid": 1.2030281989985447,
+                "ann_ret_full": 0.2534874042473667,
+                "ann_ret_avoid": 0.25576891932828194,
+                "n_days": 266
+              }
+            },
+            "2020-08-24~2023-04-09": {
+              "n_events": 433,
+              "mean_x60": -0.05018911962412917,
+              "pool_mcap": {
+                "vol_full": 0.16692860321585798,
+                "vol_avoid": 0.16675619157982277,
+                "vol_ratio": 0.9989671534253943,
+                "mdd_full": -0.25213170889208414,
+                "mdd_avoid": -0.2516591856689545,
+                "sharpe_full": 0.10493550273492695,
+                "sharpe_avoid": 0.10218311026539807,
+                "ann_ret_full": 0.00356462864673035,
+                "ann_ret_avoid": 0.0031148933046014626,
+                "n_days": 636
+              }
+            },
+            "2023-04-10~2026-07-05": {
+              "n_events": 82,
+              "mean_x60": 0.09254086369115513,
+              "pool_mcap": {
+                "vol_full": 0.12841216257108096,
+                "vol_avoid": 0.12817148975683681,
+                "vol_ratio": 0.99812577866905,
+                "mdd_full": -0.12982256324804453,
+                "mdd_avoid": -0.12929290495143708,
+                "sharpe_full": -1.311486896677953,
+                "sharpe_avoid": -1.305123039036529,
+                "ann_ret_full": -0.1619338226698318,
+                "ann_ret_avoid": -0.16095834302560919,
+                "n_days": 136
+              }
+            }
+          },
+          "split_70_30": {
+            "explore70": {
+              "n_events": 751,
+              "mean_x60": -0.03413991216203826,
+              "nw_t": -1.3549333220489224
+            },
+            "validate30": {
+              "n_events": 331,
+              "mean_x60": -0.10246283650094284,
+              "nw_t": -2.751881749754805
+            },
+            "same_sign": true
+          }
+        }
+      }
+    }
+  },
+  "variants": {
+    "triple_limit_down|explore|C1": {
+      "n_events": 367,
+      "n_signal_months": 54,
+      "mean_x60": -0.019870230054919853,
+      "nw_t": -0.5770263221127623,
+      "mean_xH": -0.019870230054919853,
+      "H": 60
+    },
+    "triple_limit_down|explore|C2_lo": {
+      "n_events": 10,
+      "n_signal_months": 8,
+      "mean_x60": 0.02514653985866991,
+      "nw_t": 0.3870113128265089,
+      "mean_xH": 0.02514653985866991,
+      "H": 60
+    },
+    "triple_limit_down|explore|C2_hi": {
+      "n_events": 75,
+      "n_signal_months": 26,
+      "mean_x60": -0.0038180270146033956,
+      "nw_t": -0.08775389122289942,
+      "mean_xH": -0.0038180270146033956,
+      "H": 60
+    },
+    "triple_limit_down|validate|C1": {
+      "n_events": 1176,
+      "n_signal_months": 75,
+      "mean_x60": -0.0015561174831164443,
+      "nw_t": -0.036368193424808,
+      "mean_xH": -0.0015561174831164443,
+      "H": 60
+    },
+    "triple_limit_down|validate|C2_lo": {
+      "n_events": 61,
+      "n_signal_months": 11,
+      "mean_x60": -0.002169557081950227,
+      "nw_t": -0.05930820257632436,
+      "mean_xH": -0.002169557081950227,
+      "H": 60
+    },
+    "triple_limit_down|validate|C2_hi": {
+      "n_events": 197,
+      "n_signal_months": 46,
+      "mean_x60": -0.14595981840540567,
+      "nw_t": -3.2677234426678123,
+      "mean_xH": -0.14595981840540567,
+      "H": 60
+    },
+    "bounce_05|explore|C1": {
+      "n_events": 2937,
+      "n_signal_months": 90,
+      "mean_x60": -0.05943134149538378,
+      "nw_t": -1.9764248323209428,
+      "mean_xH": -0.05943134149538378,
+      "H": 60
+    },
+    "bounce_05|explore|C2_lo": {
+      "n_events": 459,
+      "n_signal_months": 44,
+      "mean_x60": 0.004087396021576098,
+      "nw_t": 0.1328237544669451,
+      "mean_xH": 0.004087396021576098,
+      "H": 60
+    },
+    "bounce_05|explore|C2_hi": {
+      "n_events": 806,
+      "n_signal_months": 68,
+      "mean_x60": -0.009122444183767248,
+      "nw_t": -0.3946023989978609,
+      "mean_xH": -0.009122444183767248,
+      "H": 60
+    },
+    "bounce_05|validate|C1": {
+      "n_events": 6147,
+      "n_signal_months": 98,
+      "mean_x60": -0.021973992617664313,
+      "nw_t": -1.5895841692749748,
+      "mean_xH": -0.021973992617664313,
+      "H": 60
+    },
+    "bounce_05|validate|C2_lo": {
+      "n_events": 871,
+      "n_signal_months": 49,
+      "mean_x60": -0.005855874805763319,
+      "nw_t": -0.2241495507498331,
+      "mean_xH": -0.005855874805763319,
+      "H": 60
+    },
+    "bounce_05|validate|C2_hi": {
+      "n_events": 1348,
+      "n_signal_months": 83,
+      "mean_x60": -0.021718548051513083,
+      "nw_t": -0.9100178863301989,
+      "mean_xH": -0.021718548051513083,
+      "H": 60
+    },
+    "bounce_15|explore|C1": {
+      "n_events": 2348,
+      "n_signal_months": 71,
+      "mean_x60": -0.0453346156433524,
+      "nw_t": -1.3717064090660185,
+      "mean_xH": -0.0453346156433524,
+      "H": 60
+    },
+    "bounce_15|explore|C2_lo": {
+      "n_events": 336,
+      "n_signal_months": 28,
+      "mean_x60": 0.05224054546480281,
+      "nw_t": 1.5794742647441775,
+      "mean_xH": 0.05224054546480281,
+      "H": 60
+    },
+    "bounce_15|explore|C2_hi": {
+      "n_events": 607,
+      "n_signal_months": 48,
+      "mean_x60": 0.0145743084315468,
+      "nw_t": 0.5761236136381583,
+      "mean_xH": 0.0145743084315468,
+      "H": 60
+    },
+    "bounce_15|validate|C1": {
+      "n_events": 4449,
+      "n_signal_months": 87,
+      "mean_x60": -0.024996026725136785,
+      "nw_t": -1.7830932869938672,
+      "mean_xH": -0.024996026725136785,
+      "H": 60
+    },
+    "bounce_15|validate|C2_lo": {
+      "n_events": 483,
+      "n_signal_months": 43,
+      "mean_x60": -0.013401764680574834,
+      "nw_t": -0.4740588676180631,
+      "mean_xH": -0.013401764680574834,
+      "H": 60
+    },
+    "bounce_15|validate|C2_hi": {
+      "n_events": 846,
+      "n_signal_months": 71,
+      "mean_x60": -0.03216401016472094,
+      "nw_t": -1.1369134169187944,
+      "mean_xH": -0.03216401016472094,
+      "H": 60
+    },
+    "cooldown_60|explore|C1": {
+      "n_events": 3356,
+      "n_signal_months": 86,
+      "mean_x60": -0.06230299749590497,
+      "nw_t": -2.16351145815201,
+      "mean_xH": -0.06230299749590497,
+      "H": 60
+    },
+    "cooldown_60|explore|C2_lo": {
+      "n_events": 532,
+      "n_signal_months": 39,
+      "mean_x60": -0.004381326298581606,
+      "nw_t": -0.13769885737343956,
+      "mean_xH": -0.004381326298581606,
+      "H": 60
+    },
+    "cooldown_60|explore|C2_hi": {
+      "n_events": 920,
+      "n_signal_months": 65,
+      "mean_x60": -0.03151310452686812,
+      "nw_t": -1.246964145763989,
+      "mean_xH": -0.03151310452686812,
+      "H": 60
+    },
+    "cooldown_60|validate|C1": {
+      "n_events": 5733,
+      "n_signal_months": 96,
+      "mean_x60": -0.026751474944609322,
+      "nw_t": -1.8981709368077149,
+      "mean_xH": -0.026751474944609322,
+      "H": 60
+    },
+    "cooldown_60|validate|C2_lo": {
+      "n_events": 689,
+      "n_signal_months": 51,
+      "mean_x60": -0.0052318316090065225,
+      "nw_t": -0.1998023399247618,
+      "mean_xH": -0.0052318316090065225,
+      "H": 60
+    },
+    "cooldown_60|validate|C2_hi": {
+      "n_events": 1157,
+      "n_signal_months": 80,
+      "mean_x60": -0.05757692150441368,
+      "nw_t": -2.2761157998539163,
+      "mean_xH": -0.05757692150441368,
+      "H": 60
+    },
+    "cooldown_180|explore|C1": {
+      "n_events": 2403,
+      "n_signal_months": 83,
+      "mean_x60": -0.058295776073475344,
+      "nw_t": -1.9684174702410118,
+      "mean_xH": -0.058295776073475344,
+      "H": 60
+    },
+    "cooldown_180|explore|C2_lo": {
+      "n_events": 356,
+      "n_signal_months": 38,
+      "mean_x60": -0.018760584076238086,
+      "nw_t": -0.5593197249956389,
+      "mean_xH": -0.018760584076238086,
+      "H": 60
+    },
+    "cooldown_180|explore|C2_hi": {
+      "n_events": 630,
+      "n_signal_months": 57,
+      "mean_x60": -0.03068655521279419,
+      "nw_t": -1.2255089348067054,
+      "mean_xH": -0.03068655521279419,
+      "H": 60
+    },
+    "cooldown_180|validate|C1": {
+      "n_events": 4324,
+      "n_signal_months": 96,
+      "mean_x60": -0.021860171564638462,
+      "nw_t": -1.6208114012050119,
+      "mean_xH": -0.021860171564638462,
+      "H": 60
+    },
+    "cooldown_180|validate|C2_lo": {
+      "n_events": 608,
+      "n_signal_months": 48,
+      "mean_x60": -0.004765647594147539,
+      "nw_t": -0.16930918081827973,
+      "mean_xH": -0.004765647594147539,
+      "H": 60
+    },
+    "cooldown_180|validate|C2_hi": {
+      "n_events": 940,
+      "n_signal_months": 78,
+      "mean_x60": -0.05017508298292551,
+      "nw_t": -1.9498160260413087,
+      "mean_xH": -0.05017508298292551,
+      "H": 60
+    },
+    "avoid_window_20|explore|C1": {
+      "n_events": 2766,
+      "n_signal_months": 85,
+      "mean_x60": 0.013898677647129477,
+      "nw_t": 0.6111917180428272,
+      "mean_xH": 0.004632892549043159,
+      "H": 20
+    },
+    "avoid_window_20|explore|C2_lo": {
+      "n_events": 418,
+      "n_signal_months": 39,
+      "mean_x60": 0.07901172822965445,
+      "nw_t": 1.614681532490273,
+      "mean_xH": 0.02633724274321815,
+      "H": 20
+    },
+    "avoid_window_20|explore|C2_hi": {
+      "n_events": 740,
+      "n_signal_months": 63,
+      "mean_x60": 0.035009646509903146,
+      "nw_t": 0.9816869674810224,
+      "mean_xH": 0.011669882169967716,
+      "H": 20
+    },
+    "avoid_window_20|validate|C1": {
+      "n_events": 5376,
+      "n_signal_months": 96,
+      "mean_x60": -0.027957300949144167,
+      "nw_t": -1.0249715991712687,
+      "mean_xH": -0.00931910031638139,
+      "H": 20
+    },
+    "avoid_window_20|validate|C2_lo": {
+      "n_events": 657,
+      "n_signal_months": 48,
+      "mean_x60": -0.015182424878449438,
+      "nw_t": -0.3546128964150325,
+      "mean_xH": -0.005060808292816479,
+      "H": 20
+    },
+    "avoid_window_20|validate|C2_hi": {
+      "n_events": 1082,
+      "n_signal_months": 79,
+      "mean_x60": -0.014173291249117476,
+      "nw_t": -0.348638084004337,
+      "mean_xH": -0.004724430416372492,
+      "H": 20
+    },
+    "avoid_window_120|explore|C1": {
+      "n_events": 2766,
+      "n_signal_months": 85,
+      "mean_x60": -0.04186218064801385,
+      "nw_t": -1.9629022723419134,
+      "mean_xH": -0.0837243612960277,
+      "H": 120
+    },
+    "avoid_window_120|explore|C2_lo": {
+      "n_events": 418,
+      "n_signal_months": 39,
+      "mean_x60": -0.010030535360417175,
+      "nw_t": -0.4060263773613806,
+      "mean_xH": -0.02006107072083435,
+      "H": 120
+    },
+    "avoid_window_120|explore|C2_hi": {
+      "n_events": 740,
+      "n_signal_months": 63,
+      "mean_x60": -0.017234120361949844,
+      "nw_t": -1.4975647680285826,
+      "mean_xH": -0.03446824072389969,
+      "H": 120
+    },
+    "avoid_window_120|validate|C1": {
+      "n_events": 5376,
+      "n_signal_months": 96,
+      "mean_x60": -0.012376151879457072,
+      "nw_t": -1.3419047063205518,
+      "mean_xH": -0.024752303758914143,
+      "H": 120
+    },
+    "avoid_window_120|validate|C2_lo": {
+      "n_events": 657,
+      "n_signal_months": 48,
+      "mean_x60": -0.023321953153962655,
+      "nw_t": -1.3071781268436111,
+      "mean_xH": -0.04664390630792531,
+      "H": 120
+    },
+    "avoid_window_120|validate|C2_hi": {
+      "n_events": 1082,
+      "n_signal_months": 79,
+      "mean_x60": -0.04562011119030173,
+      "nw_t": -2.4890076354794135,
+      "mean_xH": -0.09124022238060346,
+      "H": 120
+    },
+    "hk_large|explore|C1": {
+      "n_events": 997,
+      "n_signal_months": 99,
+      "mean_x60": -0.02166615712869552,
+      "nw_t": -0.8361932909087949,
+      "mean_xH": -0.02166615712869552,
+      "H": 60,
+      "note": "港股只报告、不能否决；证券表无退市股（偏向反转，等级 B）"
+    },
+    "hk_large|validate|C1": {
+      "n_events": 1360,
+      "n_signal_months": 102,
+      "mean_x60": -0.03265287543105294,
+      "nw_t": -1.2812181916012142,
+      "mean_xH": -0.03265287543105294,
+      "H": 60,
+      "note": "港股只报告、不能否决；证券表无退市股（偏向反转，等级 B）"
+    },
+    "hk_large|skips": {
+      "not_in_universe_on_s": 7367,
+      "long_suspend_resumption": 60
+    }
+  },
+  "trials": {
+    "logPath": "docs/research/dead-cat-bounce-2026-11-28/replication/trials.jsonl",
+    "n_recorded": 48,
+    "n_effective": 24
+  },
+  "verdict": {
+    "C1": {
+      "explore": "不支持",
+      "validate": "不支持",
+      "eligible": false
+    },
+    "C2": {
+      "explore": "不支持",
+      "validate": "部分成立",
+      "eligible": false,
+      "bounds": {
+        "explore": {
+          "lo": "不支持",
+          "hi": "不支持"
+        },
+        "validate": {
+          "lo": "不支持",
+          "hi": "部分成立"
+        }
+      }
+    },
+    "promote_eligible": {
+      "C1": false,
+      "C2": false
+    },
+    "summary": "同等仓位下（全 A 底池、市值加权毛收益路径、验证层），剔除暴跌后反弹（C1）年化波动 0.2147 vs 满仓 0.2243，最大回撤 -0.5064 vs -0.4836；事件超额 mean_x60 = -0.0320（negative）；相对低波安慰剂的波动比分位 0.000。分级：探索 C1=不支持、C2=不支持；验证 C1=不支持、C2=部分成立。全 A 股票池结论，不等于 ETF / 综合策略持仓结论。"
+  }
+}

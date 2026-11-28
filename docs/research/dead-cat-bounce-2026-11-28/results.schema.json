@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L-051-results",
+  "title": "L-051 results.json 结构（主实现定义，第二实现对齐）。收益/波动/回撤为小数，非百分数；夏普无量纲（rf=0）；日期 ISO；判定为布尔。缺值为 null。",
+  "conventions": {
+    "_note": "PREREG（be7deaa4）+ CLARIFY-1.md 未写死、但两实现须一致的计算口径。与 PREREG/CLARIFY-1 冲突时以后两者为准。下标 t 指面板行（交易日）序号。",
+    "data": [
+      "面板：factorlab.store.load_panel('cn', …, start='2005-01-01', end='2023-10-31', raw=False)；有效行情 valid = close_adj 有限且 > 0；停牌 = 当日无有效行情。",
+      "底池：factorlab.universe.build_universe(panel, 月末交易日, 'cn', securities, UniverseSpec())，panel 含 close_adj、close、amount、volume、mcap_float、is_suspended。月末 = 每个自然月最后一个面板行。",
+      "s 日底池 U_le(s) = 最近一个 ≤ s 的月末底池（事件过滤、对照、分档、安慰剂、S5 仓位用）；组合路径成员 U_lt(t) = 最近一个 < t 的月末底池。",
+      "板块 = securities.board（主板/创业板/科创板/北交所）；最终退市 = securities.status == 'delisted'。",
+      "vol_60d、dd_60、rev_1m、max_ret_21d、peak_fall、turnover_20d、size、mom_12_1 = factorlab 注册因子在全面板上计算的值。"
+    ],
+    "events": [
+      "按 PREREG 伪代码逐股扫描；冷却比较的是 crash_end 行号 − 上次信号行号 < 120。",
+      "第 9 条：[crash_start, s] 内任一行 no_limit_inferred；或该区间含『长停牌复牌首日』= 首个有效行情日之后、与上一个有效行之间缺 ≥ 60 行的有效行；或 s 落在 st_pit flag=='delisting' 的 [start_date, end_date]（end 空 = 无穷）。st_pit 无『终止』事件，该子条款空操作。",
+      "层：s ≤ 2014-12-31 → explore（cross_2015 = 第 s+60 行日期 ≥ 2015-01-01）；s ≥ 2015-01-01 且第 s+60 行存在且 ≤ 2023-10-31 → validate；否则 validate_truncated（不进判定）。",
+      "C2：load_fin_pit('cn')，doc_type=='periodic' 且 announce_rule ∈ {declared, declared_same_report}，announce_date ∈ [date(crash_start), date(crash_end)]；c2_lo = 非退市股才可能为真；c2_hi = 退市股一律为真。全窗口版用 [crash_start, s]。",
+      "事件顺序（安慰剂抽样用）= 按 (s, code) 升序。"
+    ],
+    "controls": [
+      "分档：factorlab.backtest.quantile_labels(值, tie_keys(codes), q)，取值只在 U_le(s) ∩ valid(s) 上（全底池、不分板块），q=3（流通市值 mcap_float、vol_60d）或 5（dd_60、rev_1m）。",
+      "主对照候选 = U_le(s) ∩ valid(s) ∩ 同板块 ∩ 非事件股本身 ∩ 无『[s−29, s] 内任一行 close[t]/close[t−10]−1 ≤ −25%（两端都有效）』；同市值档且同 vol 档；< 10 只时只按同市值档；仍为 0 只则该事件不进主推断（计数报告）。事件股缺 vol 档 → 直接放宽。",
+      "暴跌未反弹诊断对照 = U_le(s) ∩ valid(s) ∩ 同板块 ∩ 同市值档 ∩ 同 dd_60 五档 ∩ 同 rev_1m 五档 ∩ 非事件股本身 ∩ [s−60, s] 内无反弹信号（全市场检测、第 9 条之后、不论底池）。",
+      "申万匹配（报告）：点时 prices.industry 代替板块，其余同主对照；只用最终 status=='listed' 的事件。"
+    ],
+    "event_path": [
+      "起点：s+1 有开盘价则 ref = open_adj[s+1]，否则 ref = close_adj[s]。终点：第 s+60 行有行情则为 s+60；否则为其后首个有行情行（复牌）；其后再无行情（退市/面板止）则为窗口内最后一个有行情行。",
+      "事件股每个有行情行 t 结束一段：段收益 = close_adj[t]/ref − 1，ref ← close_adj[t]。",
+      "对照日收益 R_c(t) = 对照股等权均值：首日（ref 为开盘时）用 close/open − 1，其余用 close[t]/close[t−1] − 1（两日都有行情）；无可用股的日子 R_c = 0；段内复利。段差 d = 段收益 − (Π(1+R_c) − 1)，记在段末日 t。",
+      "事件超额 E_i = 该事件全部段差之和。",
+      "−100% 退市上界（报告）：最终退市股的退市日（第一个 ≥ delist_date 的行）落在 (s, s+60] 时，在该日加一段 d = −1。"
+    ],
+    "inference": [
+      "日历时间序列：每个交易日 = 当日所有段差的等权均值（只取至少有一段的日子，按时间排序）。mean_x60 = 序列均值 × 60。",
+      "NW：Bartlett 权 1 − L/(61)，L = 1…60，自协方差除以 n；t = 均值 / sqrt(长期方差 / n)；单边 p = Φ(t)（正态）。",
+      "块自助：去均值序列，块长 63、循环；rng = numpy.random.default_rng(20261128)；每次 starts = rng.integers(0, n, size=ceil(n/63))，拼接后取前 n；p = (1 + #{boot 均值 ≤ 观测均值}) / (10000 + 1)。",
+      "信号月聚类 t（报告）：E_i 按信号月均值，再取月均值的普通 t。",
+      "Holm：族 = {C1, C2}，C2 分别用下界、上界的 NW p 各算一次（键 C1|lo、C2|lo、C1|hi、C2|hi）。"
+    ],
+    "gates": [
+      "S1：mean_x60 ≤ −0.015 且 nw_t ≤ −2。",
+      "S2(a)：剔除信号年事件数最多的那一年的事件后，重算日历时间 mean_x60 ≤ −0.0075；(b)：事件数 ≥ 50 的信号年各自的日历时间 mean_x60，负值比例 ≥ 0.60。",
+      "S3：组合路径（见 pool）对满仓：(vol_ratio ≤ 0.98 或 mdd_avoid − mdd_full ≥ 0.01) 且 sharpe_avoid ≥ sharpe_full − 0.02；且 vol_ratio < 安慰剂 vol_ratio 分布的 numpy.percentile(·, 5)（线性插值）。",
+      "S5：avoid_net_i = −E_i − cost_i，均值 ≥ 0.01。cost_i = 卖出腿（s+1 行）+ 买回腿（s+61 行；超出面板用最后一行）：各腿 = 佣金 + 0.001% 过户费 + 当日印花税（CN_STAMP 买/卖）+ 滑点 DEFAULT_SLIPPAGE['cn']（该股该行之前 20 行 amount 中位数，至少 10 个值；缺 → 最低档 0.4%）；佣金 = max(0.025% × 成交额, 5 元) / 成交额，成交额 = max(floor(V/(价×100))×100, 100) × 价，V = 该股 s 日流通市值 / U_le(s) 流通市值和 × 1e8，价 = 不复权开盘（无则最近不复权收盘）。",
+      "集中度：日历时间序列按交易日所在自然年求和；总和 < 0 时份额 = 年和 / 总和，最大份额 > 0.5 → 最高部分成立。",
+      "诊断：诊断对照的日历时间 mean_x60 ≥ 0 → 最高部分成立。",
+      "分级优先级：超额 ≥ 0 或 S1/S2 失败 → 不支持；S3、S5 都过 → 支持，否则部分成立；集中度或诊断触发 → 降为部分成立；C1 另须 C1∖C2 在上下界两种标注下的日历时间 mean_x60 都 ≤ 0。",
+      "C2 合并：上下界都支持 → 支持；都不支持 → 不支持；其余 → 部分成立。C2 顶层 inference/S1–S5 取下界，bound_lo / bound_hi 各自完整。"
+    ],
+    "pool": [
+      "权重 W[t,j] = mcap_float 前推后的第 t−1 行值 × U_lt(t)（缺或 ≤ 0 → 0）；等权报告版 W = U_lt(t)。",
+      "r_on[t,j] = open_adj[t]/close_ff[t−1] − 1，r_in = close_adj[t]/open_adj[t] − 1（有开盘价时）；有收盘无开盘：r_on = close/close_ff[t−1] − 1、r_in = 0；无行情：0、0。close_ff = close_adj 前推。",
+      "满仓日收益 = Σ W(1+r_on)(1+r_in) / Σ W − 1。",
+      "回避：事件 (s, j) 令 j 在 t ∈ [s+1, s+60] 不参与日内步（R_a），在 t ∈ [s+2, s+61] 不参与隔夜步（R_b）；同日同股去重。r_on_p = Σ_{∉R_b} W r_on / Σ_{∉R_b} W；r_in_p = Σ_{∉R_a} W(1+r_on)(1+r_in) / Σ_{∉R_a} W(1+r_on) − 1；日收益 = (1+r_on_p)(1+r_in_p) − 1。",
+      "层的组合天数：explore 2005-01-01…2014-12-31，validate 2015-01-01…2023-10-31，且满仓与回避收益都有定义。vol = 日收益 std(ddof=1)×√252；mdd = 层内净值最大回撤；sharpe = mean/std×√252（rf=0）。",
+      "安慰剂：对候选的每个事件（顺序见 events），候选池 = U_le(s) ∩ valid(s) ∩ 同板块 ∩ 同市值档 ∩ 同 vol 档 ∩ 第 s+1 行不在本候选任何事件 [s_k+1, s_k+60] 窗中（含事件股本身），按代码列序升序；空则去掉 vol 档，再空则只按板块。rng = default_rng(20261128)，每次模拟一次调用 k = rng.integers(0, maximum(sizes, 1))（sizes = 各事件池大小，空池事件也占一个抽样位但不剔除），共 1000 次；每次按同一回避规则剔除抽中股，算同层 vol / 满仓 vol。percentile = 安慰剂比值 ≤ 候选比值的比例。",
+      "报告：Bc 现金路径 = Σ_{∉R_a} W·r / Σ W（收盘到收盘一步，被回避权重当日收益 0）；净路径 = 毛路径 ×(1 − 当日比例成本)，比例成本 = 回避股权重 ×（自身费率 + 底池市值加权平均对手费率，无整手）。−100% 版：退市日 r_on = −1，其后权重 0。"
+    ],
+    "spanning": [
+      "因子腿：每个月末在月末底池内按注册方向取前 20%（select_top，并列 tie_keys），持有到下个月末（成员 = 最近月末 < t），按 W 市值加权；因子日收益 = 腿 − 满仓。市场 = 满仓日收益（rf=0）。价值 = cn_ep_ttm（fundamentals_cn.panel_fields(['fin_ni_ttm','fin_mcap'], panel, 2023-11-01, None) + registry.compute_strict）。",
+      "组合层：y = 回避毛路径 − 满仓，OLS 截距的 NW（滞后 60）HAC t；报告 α > 0 且 t ≥ 2。",
+      "事件层 FM：每周最后一个交易日 t，截面 = U_le(t) ∩ valid(t) ∩ (t+1 有开盘)；y = close_ff[t+60]/open_adj[t+1] − 1；Event = 本候选事件 s ∈ (上周末, t]；X = rev_1m、max_ret_21d、dd_60、peak_fall 的值（缺 → 0）与前 20% 指示、vol_60d、size、turnover_20d、板块虚拟变量；只用有事件的周；γ 均值的 NW（滞后 12）t。"
+    ],
+    "variants": [
+      "只报日历时间 mean_x60（日均差×60）、mean_xH（×窗口长）、nw_t、事件数、信号月数；C1、C2_lo、C2_hi × explore、validate；键 '变体|层|候选'。",
+      "triple_limit_down：第 i−2、i−1、i 行都有行情且 limit_down 为真，crash_start = i−2，crash_end = i，其余同主定义。bounce_05/15、cooldown_60/180：改对应参数后重扫、重配对照。avoid_window_20/120：主事件集，路径到 s+H。hk_large：港股默认底池（流通市值前 500、股价 ≥1）同法，无 C2，只报告不能否决。"
+    ]
+  },
+  "type": "object",
+  "required": ["meta", "inputs", "counts", "headline", "layers", "variants", "trials", "verdict"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["ledger", "preregCommit", "preregPath", "impl", "seed", "notes", "managerRulings"],
+      "properties": {
+        "ledger": { "const": "L-051" },
+        "preregCommit": { "type": "string" },
+        "preregPath": { "type": "string" },
+        "clarifyPath": { "type": "string" },
+        "impl": { "type": "string", "description": "main-python | replication-*" },
+        "seed": { "const": 20261128 },
+        "quick": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "managerRulings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "相对 research-py/factor-data/cn/ 的文件 → sha256",
+      "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "layers": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "explore / validate / validate_truncated 事件数" },
+        "skips": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "no_limit_inferred / long_suspend_resumption / delisting / not_in_universe_on_s / signal_oneword" },
+        "count_h2_filtered_reference": { "type": "object" }
+      }
+    },
+    "headline": {
+      "type": "object",
+      "description": "结论口径第一句（验证层 C1，市值加权组合路径）",
+      "required": ["layer", "candidate", "pool_vol_full", "pool_vol_avoid", "pool_mdd_full", "pool_mdd_avoid", "event_excess_sign", "placebo_vol_ratio_percentile"],
+      "properties": {
+        "layer": { "type": "string" },
+        "candidate": { "type": "string" },
+        "pool_vol_full": { "type": "number" },
+        "pool_vol_avoid": { "type": "number" },
+        "pool_mdd_full": { "type": "number" },
+        "pool_mdd_avoid": { "type": "number" },
+        "event_excess_sign": { "enum": ["negative", "non_negative", "na"] },
+        "placebo_vol_ratio_percentile": { "type": ["number", "null"] }
+      }
+    },
+    "layers": {
+      "type": "object",
+      "required": ["explore", "validate"],
+      "properties": {
+        "explore": { "$ref": "#/$defs/layerBlock" },
+        "validate": { "$ref": "#/$defs/layerBlock" }
+      }
+    },
+    "variants": {
+      "type": "object",
+      "description": "键 '变体|层|候选'（另有 'hk_large|skips'）",
+      "additionalProperties": { "type": "object" }
+    },
+    "trials": {
+      "type": "object",
+      "required": ["logPath", "n_recorded", "n_effective"],
+      "properties": {
+        "logPath": { "type": "string" },
+        "n_recorded": { "type": "integer" },
+        "n_effective": { "type": "integer", "description": "不同 (变体, 候选) 写法数" }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["C1", "C2", "promote_eligible", "summary"],
+      "properties": {
+        "C1": { "$ref": "#/$defs/candidateVerdict" },
+        "C2": { "$ref": "#/$defs/candidateVerdict" },
+        "promote_eligible": {
+          "type": "object",
+          "required": ["C1", "C2"],
+          "properties": { "C1": { "type": "boolean" }, "C2": { "type": "boolean" } },
+          "description": "探索与验证均为支持才 true；是否解封由 manager 决定"
+        },
+        "summary": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "layerBlock": {
+      "type": "object",
+      "required": ["meta", "C1", "C2", "holm", "report"],
+      "properties": {
+        "meta": {
+          "type": "object",
+          "required": ["n_events_C1", "n_signal_months_C1", "n_events_C2_lo", "n_events_C2_hi", "date_start", "date_end"],
+          "properties": {
+            "n_events_C1": { "type": "integer" },
+            "n_signal_months_C1": { "type": "integer" },
+            "n_events_C2_lo": { "type": "integer" },
+            "n_events_C2_hi": { "type": "integer" },
+            "date_start": { "type": "string" },
+            "date_end": { "type": "string" },
+            "explore_cross_2015_n": { "type": ["integer", "null"] }
+          }
+        },
+        "C1": { "$ref": "#/$defs/candidateCore" },
+        "C2": {
+          "allOf": [
+            { "$ref": "#/$defs/candidateCore" },
+            {
+              "type": "object",
+              "required": ["bound_lo", "bound_hi", "both_bounds_support"],
+              "properties": {
+                "bound_lo": { "$ref": "#/$defs/candidateCore" },
+                "bound_hi": { "$ref": "#/$defs/candidateCore" },
+                "both_bounds_support": { "type": "boolean" }
+              }
+            }
+          ]
+        },
+        "holm": {
+          "type": "object",
+          "properties": {
+            "C1|lo": { "type": ["number", "null"] }, "C2|lo": { "type": ["number", "null"] },
+            "C1|hi": { "type": ["number", "null"] }, "C2|hi": { "type": ["number", "null"] }
+          }
+        },
+        "report": {
+          "type": "object",
+          "description": "补充报告项（不作判定），按候选 C1 / C2_lo / C2_hi",
+          "additionalProperties": { "$ref": "#/$defs/candidateReport" }
+        }
+      }
+    },
+    "candidateCore": {
+      "type": "object",
+      "required": ["inference", "S1", "S2", "S3", "S4", "S5", "gates", "grade", "diagnostics"],
+      "properties": {
+        "inference": {
+          "type": "object",
+          "required": ["mean_x60", "nw_t", "nw_p_onesided", "block_bootstrap_p", "n_days"],
+          "properties": {
+            "mean_x60": { "type": ["number", "null"] },
+            "daily_mean": { "type": ["number", "null"] },
+            "nw_t": { "type": ["number", "null"] },
+            "nw_p_onesided": { "type": ["number", "null"] },
+            "block_bootstrap_p": { "type": ["number", "null"] },
+            "n_days": { "type": "integer" },
+            "event_level_month_cluster_t": { "type": ["number", "null"] },
+            "event_mean_excess": { "type": ["number", "null"] }
+          }
+        },
+        "S1": { "$ref": "#/$defs/gate" },
+        "S2": { "$ref": "#/$defs/gate", "description": "detail: top_year, mean_x60_ex_top_year, a_pass, year_means_ge50{年: mean_x60}, frac_neg_ge50, b_pass" },
+        "S3": { "$ref": "#/$defs/gate", "description": "detail: vol_full, vol_avoid, vol_ratio, mdd_full, mdd_avoid, mdd_shallower, sharpe_full, sharpe_avoid, s3_pool, placebo_p5, placebo_percentile, s3_placebo, placebo{p5,percentile,n,mean,relaxed_events,events_without_pool}, n_days" },
+        "S4": {
+          "type": "object",
+          "properties": {
+            "detail": {
+              "type": "object",
+              "properties": {
+                "portfolio_spanning": { "type": "object", "description": "alpha_daily, alpha_ann, alpha_nw_t, pass_report, n_days, betas, factors" },
+                "event_fama_macbeth": { "type": "object", "description": "gamma_mean, gamma_nw_t, n_weeks, gamma_negative_t_le_-2" },
+                "factor_coverage": { "type": "object" }
+              }
+            },
+            "note": { "type": "string" }
+          }
+        },
+        "S5": { "$ref": "#/$defs/gate", "description": "detail: avoid_net_mean, cost_mean, n, thr" },
+        "gates": {
+          "type": "object",
+          "properties": {
+            "excess_nonneg": { "type": "boolean" },
+            "concentration_year_gt_50pct": { "type": "boolean" },
+            "diag_crash_no_bounce_excess_nonneg": { "type": "boolean" },
+            "c1_minus_c2_excess_le_0": { "type": ["boolean", "null"] }
+          }
+        },
+        "grade": { "enum": ["支持", "部分成立", "不支持"] },
+        "diagnostics": {
+          "type": "object",
+          "description": "n_events, n_events_used, n_events_no_control, n_events_ctrl_vol_relaxed, n_signal_months, max_year_share, max_share_year, year_sums, diag_crash_no_bounce{mean_x60,nw_t,n_events}, delist_within_60{n,share,mean_x60_excluding}, c1_minus_c2{lo,hi}（仅 C1）"
+        }
+      }
+    },
+    "candidateReport": {
+      "type": "object",
+      "properties": {
+        "pool_mcap": { "$ref": "#/$defs/poolStats" },
+        "pool_mcap_net_prop_cost": { "$ref": "#/$defs/poolStats" },
+        "pool_ew": { "$ref": "#/$defs/poolStats" },
+        "pool_Bc_cash": { "$ref": "#/$defs/poolStats" },
+        "delist_m100_upper": { "type": "object" },
+        "breach_trough_rate": { "type": "object" },
+        "event_vol_mdd_vs_control": { "type": "object" },
+        "c2_full_window": { "type": ["object", "null"] },
+        "sw_industry_subsample": { "type": "object" },
+        "regime_segments": { "type": "object" },
+        "split_70_30": { "type": "object" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": ["pass", "detail"],
+      "properties": { "pass": { "type": "boolean" }, "detail": { "type": "object" } }
+    },
+    "poolStats": {
+      "type": "object",
+      "properties": {
+        "vol_full": { "type": "number" }, "vol_avoid": { "type": "number" }, "vol_ratio": { "type": "number" },
+        "mdd_full": { "type": "number" }, "mdd_avoid": { "type": "number" },
+        "sharpe_full": { "type": "number" }, "sharpe_avoid": { "type": "number" },
+        "ann_ret_full": { "type": "number" }, "ann_ret_avoid": { "type": "number" }
+      }
+    },
+    "candidateVerdict": {
+      "type": "object",
+      "required": ["explore", "validate", "eligible"],
+      "properties": {
+        "explore": { "enum": ["支持", "部分成立", "不支持"] },
+        "validate": { "enum": ["支持", "部分成立", "不支持"] },
+        "eligible": { "type": "boolean" }
+      }
+    }
+  }
+}

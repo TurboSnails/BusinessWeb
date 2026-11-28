@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L-051-replication-results",
+  "title": "L-051 results（第二实现自拟；若主实现 schema 后至，见 CROSSCHECK 映射）",
+  "type": "object",
+  "required": ["meta", "inputs", "events", "layers", "verdict", "report"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["ledger", "preregCommit", "impl", "seed"],
+      "properties": {
+        "ledger": { "const": "L-051" },
+        "preregCommit": { "type": "string" },
+        "preregPath": { "type": "string" },
+        "impl": { "const": "replication-python" },
+        "seed": { "const": 20261128 },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "相对 research-py/ 的路径 → sha256",
+      "additionalProperties": { "type": "string" }
+    },
+    "events": {
+      "type": "object",
+      "description": "事件计数与跳过统计（无收益）",
+      "properties": {
+        "skips": { "type": "object" },
+        "explore": { "$ref": "#/$defs/eventSummary" },
+        "validate": { "$ref": "#/$defs/eventSummary" },
+        "validate_truncated": { "$ref": "#/$defs/eventSummary" },
+        "explore_cross_2015": { "type": "object" }
+      }
+    },
+    "layers": {
+      "type": "object",
+      "description": "explore / validate → C1 / C2 判定块",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "C1": { "$ref": "#/$defs/candidateBlock" },
+          "C2": { "$ref": "#/$defs/candidateBlock" },
+          "C2_bounds": {
+            "type": "object",
+            "properties": {
+              "lo": { "$ref": "#/$defs/candidateBlock" },
+              "hi": { "$ref": "#/$defs/candidateBlock" }
+            }
+          },
+          "C1_minus_C2": { "type": "object" }
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "properties": {
+        "explore": { "type": "object" },
+        "validate": { "type": "object" },
+        "firstSentence": { "type": "string" },
+        "promoteLockbox": { "type": "object" }
+      }
+    },
+    "report": {
+      "type": "object",
+      "description": "必报非判定项：诊断对照、spanning、港股、制度分段、Bc、退市−100% 等"
+    },
+    "trials": {
+      "type": "array",
+      "description": "试验日志条目（计入有效试验）"
+    },
+    "boundaryChecks": {
+      "type": "object",
+      "description": "compute.md 边界自查"
+    }
+  },
+  "$defs": {
+    "eventSummary": {
+      "type": "object",
+      "properties": {
+        "nEvents": { "type": "integer" },
+        "nStocks": { "type": "integer" },
+        "nSignalDays": { "type": "integer" },
+        "nSignalMonths": { "type": "integer" },
+        "c2LoN": { "type": "integer" },
+        "c2HiN": { "type": "integer" },
+        "byYear": { "type": "object" }
+      }
+    },
+    "candidateBlock": {
+      "type": "object",
+      "properties": {
+        "nEvents": { "type": "integer" },
+        "S1": { "type": "object" },
+        "S2": { "type": "object" },
+        "S3": { "type": "object" },
+        "S4": { "type": "object" },
+        "S5": { "type": "object" },
+        "concentration": { "type": "object" },
+        "diagnostic": { "type": "object" },
+        "portfolio": { "type": "object" },
+        "grade": { "type": "string" },
+        "conditions": { "type": "array" }
+      }
+    }
+  }
+}

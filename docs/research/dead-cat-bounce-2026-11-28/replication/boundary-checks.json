@@ -1,0 +1,124 @@
+{
+  "detection_definition": {
+    "n_events": 8174,
+    "n_violations": 0,
+    "examples": []
+  },
+  "cooldown_rescan": {
+    "n_cooldown_violations_within_pool_events": 0,
+    "examples": [],
+    "n_events_preceded_by_failed_anchor_rescan": 2593,
+    "note": "冷却按全部接受信号（含底池外）计；这里只能在底池事件子集上验证 ≥ 120 的必要条件"
+  },
+  "suspension_is_missing_row": {
+    "is_suspended_any_true": false,
+    "events_with_missing_rows_in_[cs,s]": 1187,
+    "max_missing_rows_in_[cs,s]": 16
+  },
+  "rule9": {
+    "n_violations": 0,
+    "examples": [],
+    "skips": {
+      "not_in_universe_on_s": 6380,
+      "long_suspend_resumption": 246,
+      "no_limit_inferred": 224,
+      "delisting": 81
+    },
+    "terminate_events_in_st_pit": 0,
+    "alt_prelisting_counted_as_suspension": {
+      "n_events": 8174,
+      "skips": {
+        "not_in_universe_on_s": 6275,
+        "long_suspend_resumption": 463,
+        "no_limit_inferred": 224,
+        "delisting": 81
+      },
+      "same_event_list": true
+    }
+  },
+  "layer_boundary": {
+    "n_violations": 0,
+    "counts": {
+      "validate": 5376,
+      "explore": 2766,
+      "validate_truncated": 32
+    },
+    "last_validate_signal": "2023-07-31",
+    "first_truncated_signal": "2023-08-01",
+    "explore_cross_2015": 1
+  },
+  "controls": {
+    "n_relaxed": 1658,
+    "n_strict_with_lt10": 0,
+    "n_no_control": 32,
+    "median_n_ctrl": 61.0
+  },
+  "calendar_nw60": {
+    "explore": {
+      "n_days": 2326,
+      "mean_x60": -0.06403207883621767,
+      "t_factorlab_statsmodels": -2.2025163584418754,
+      "t_manual_bartlett": -2.2025163584418754,
+      "t_run_py_nw_t": -2.2025163584418754,
+      "t_manual_x_sqrt((T-1)/T)": -2.2020428517485735,
+      "results_json_nw_t": -2.2025163584418754,
+      "results_json_mean_x60": -0.06403207883621767
+    },
+    "validate": {
+      "n_days": 2145,
+      "mean_x60": -0.03196148239826745,
+      "t_factorlab_statsmodels": -2.0685238023334445,
+      "t_manual_bartlett": -2.0685238023334453,
+      "t_run_py_nw_t": -2.0685238023334453,
+      "t_manual_x_sqrt((T-1)/T)": -2.0680415727424806,
+      "results_json_nw_t": -2.0685238023334453,
+      "results_json_mean_x60": -0.03196148239826745
+    }
+  },
+  "placebo_seed": {
+    "seed": 20261128,
+    "deterministic": true,
+    "p5_50draws": 1.027562635928295,
+    "first_run": {
+      "cand_vol_ratio": 0.9570313740461303,
+      "p5": 1.027562635928295,
+      "percentile": 0.0,
+      "n": 50,
+      "mean": 1.0355695074325677,
+      "relaxed_events": 296,
+      "events_without_pool": 0
+    }
+  },
+  "delist_last_trade": {
+    "events": [
+      {
+        "code": "000540",
+        "signal": "2023-04-28",
+        "delist_date": "2023-06-30",
+        "end": "2023-05-18",
+        "last_trade": "2023-05-18",
+        "last_segment_end": "2023-05-18",
+        "min_segment_return": -0.05882352941176472
+      },
+      {
+        "code": "601558",
+        "signal": "2020-04-02",
+        "delist_date": "2020-07-03",
+        "end": "2020-06-23",
+        "last_trade": "2020-06-23",
+        "last_segment_end": "2020-06-23",
+        "min_segment_return": -0.11538461538461531
+      },
+      {
+        "code": "600472",
+        "signal": "2007-11-14",
+        "delist_date": "2007-12-26",
+        "end": "2007-12-20",
+        "last_trade": "2007-12-20",
+        "last_segment_end": "2007-12-20",
+        "min_segment_return": -0.09855244893912352
+      }
+    ],
+    "all_end_eq_last_trade": true
+  }
+}

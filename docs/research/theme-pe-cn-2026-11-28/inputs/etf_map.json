@@ -1,0 +1,815 @@
+{
+ "source": "eastmoney fundcode_search.js + fundmobapi FundMNDetailInformation (ESTABDATE, INDEXNAME)",
+ "fetched": "2026-11-28",
+ "filter": "名称含ETF、非联接、类型=指数型-股票、排除跨境关键词",
+ "keywords": {
+  "农林牧渔": {
+   "direct": [
+    "农林牧渔",
+    "农业"
+   ],
+   "sub": [
+    "养殖",
+    "畜牧",
+    "农牧",
+    "粮食"
+   ]
+  },
+  "基础化工": {
+   "direct": [
+    "化工"
+   ],
+   "sub": []
+  },
+  "钢铁": {
+   "direct": [
+    "钢铁"
+   ],
+   "sub": []
+  },
+  "有色金属": {
+   "direct": [
+    "有色"
+   ],
+   "sub": [
+    "稀土",
+    "稀有金属",
+    "黄金股",
+    "工业金属"
+   ]
+  },
+  "电子": {
+   "direct": [
+    "电子"
+   ],
+   "sub": [
+    "半导体",
+    "芯片",
+    "集成电路"
+   ]
+  },
+  "家用电器": {
+   "direct": [
+    "家电",
+    "家用电器"
+   ],
+   "sub": []
+  },
+  "食品饮料": {
+   "direct": [
+    "食品饮料",
+    "食品"
+   ],
+   "sub": [
+    "酒"
+   ]
+  },
+  "纺织服饰": {
+   "direct": [
+    "纺织",
+    "服装"
+   ],
+   "sub": []
+  },
+  "轻工制造": {
+   "direct": [
+    "轻工"
+   ],
+   "sub": [
+    "造纸"
+   ]
+  },
+  "医药生物": {
+   "direct": [
+    "医药",
+    "生物"
+   ],
+   "sub": [
+    "医疗",
+    "创新药",
+    "中药",
+    "疫苗"
+   ]
+  },
+  "公用事业": {
+   "direct": [
+    "公用事业"
+   ],
+   "sub": [
+    "电力ETF",
+    "绿电"
+   ]
+  },
+  "交通运输": {
+   "direct": [
+    "交通运输"
+   ],
+   "sub": [
+    "物流",
+    "航运"
+   ]
+  },
+  "房地产": {
+   "direct": [
+    "地产"
+   ],
+   "sub": []
+  },
+  "商贸零售": {
+   "direct": [
+    "商贸",
+    "零售"
+   ],
+   "sub": []
+  },
+  "社会服务": {
+   "direct": [
+    "社会服务"
+   ],
+   "sub": [
+    "旅游",
+    "酒店"
+   ]
+  },
+  "综合": {
+   "direct": [],
+   "sub": []
+  },
+  "建筑材料": {
+   "direct": [
+    "建材",
+    "建筑材料"
+   ],
+   "sub": [
+    "水泥"
+   ]
+  },
+  "建筑装饰": {
+   "direct": [
+    "建筑"
+   ],
+   "sub": [
+    "基建"
+   ]
+  },
+  "电力设备": {
+   "direct": [
+    "电力设备"
+   ],
+   "sub": [
+    "光伏",
+    "电池",
+    "储能",
+    "电网设备"
+   ]
+  },
+  "国防军工": {
+   "direct": [
+    "军工",
+    "国防"
+   ],
+   "sub": []
+  },
+  "计算机": {
+   "direct": [
+    "计算机"
+   ],
+   "sub": [
+    "软件",
+    "信创",
+    "云计算"
+   ]
+  },
+  "传媒": {
+   "direct": [
+    "传媒"
+   ],
+   "sub": [
+    "游戏",
+    "动漫",
+    "影视"
+   ]
+  },
+  "通信": {
+   "direct": [
+    "通信"
+   ],
+   "sub": [
+    "5G"
+   ]
+  },
+  "银行": {
+   "direct": [
+    "银行"
+   ],
+   "sub": []
+  },
+  "非银金融": {
+   "direct": [
+    "非银"
+   ],
+   "sub": [
+    "证券",
+    "券商",
+    "保险"
+   ]
+  },
+  "汽车": {
+   "direct": [
+    "汽车"
+   ],
+   "sub": [
+    "汽车零部件"
+   ]
+  },
+  "机械设备": {
+   "direct": [
+    "机械"
+   ],
+   "sub": [
+    "机器人",
+    "工业母机"
+   ]
+  },
+  "煤炭": {
+   "direct": [
+    "煤炭"
+   ],
+   "sub": []
+  },
+  "石油石化": {
+   "direct": [
+    "石油",
+    "石化",
+    "油气"
+   ],
+   "sub": []
+  },
+  "环保": {
+   "direct": [
+    "环保"
+   ],
+   "sub": []
+  },
+  "美容护理": {
+   "direct": [
+    "美容"
+   ],
+   "sub": []
+  }
+ },
+ "exclude_any": [
+  "港股",
+  "恒生",
+  "香港",
+  "沪港深",
+  "中概",
+  "H股",
+  "纳斯达克",
+  "标普",
+  "日经",
+  "德国",
+  "法国",
+  "沙特",
+  "东南亚",
+  "亚太",
+  "全球",
+  "海外",
+  "美国"
+ ],
+ "special_exclude": {
+  "建筑装饰": [
+   "建筑材料",
+   "建材"
+  ],
+  "非银金融": [
+   "金融科技",
+   "金融地产"
+  ],
+  "房地产": [
+   "金融地产"
+  ],
+  "医药生物": [],
+  "电子": [
+   "消费电子"
+  ],
+  "汽车": [
+   "智能汽车",
+   "新能源汽车",
+   "新能源车",
+   "智能电动"
+  ]
+ },
+ "limitations": [
+  "只含现存基金（已清盘 ETF 不在列表，最早年份可能偏晚）",
+  "成立日早于上市日数周",
+  "关键词人工映射，跨行业主题不计入"
+ ],
+ "by_industry": {
+  "农林牧渔": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "159825",
+    "name": "农业ETF富国",
+    "kind": "direct",
+    "inception": "2020-12-10",
+    "index": "中证农业主题指数"
+   },
+   "earliest_any_year": 2020,
+   "earliest_any": {
+    "code": "159825",
+    "name": "农业ETF富国",
+    "kind": "direct",
+    "inception": "2020-12-10",
+    "index": "中证农业主题指数"
+   },
+   "n_etf": 39
+  },
+  "基础化工": {
+   "earliest_direct_year": 2021,
+   "earliest_direct": {
+    "code": "159870",
+    "name": "化工ETF鹏华",
+    "kind": "direct",
+    "inception": "2021-02-23",
+    "index": "细分化工"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "159870",
+    "name": "化工ETF鹏华",
+    "kind": "direct",
+    "inception": "2021-02-23",
+    "index": "细分化工"
+   },
+   "n_etf": 13
+  },
+  "钢铁": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "515210",
+    "name": "钢铁ETF国泰",
+    "kind": "direct",
+    "inception": "2020-01-22",
+    "index": "中证钢铁指数"
+   },
+   "earliest_any_year": 2020,
+   "earliest_any": {
+    "code": "515210",
+    "name": "钢铁ETF国泰",
+    "kind": "direct",
+    "inception": "2020-01-22",
+    "index": "中证钢铁指数"
+   },
+   "n_etf": 1
+  },
+  "有色金属": {
+   "earliest_direct_year": 2017,
+   "earliest_direct": {
+    "code": "512400",
+    "name": "有色金属ETF南方",
+    "kind": "direct",
+    "inception": "2017-08-03",
+    "index": "有色金属"
+   },
+   "earliest_any_year": 2017,
+   "earliest_any": {
+    "code": "512400",
+    "name": "有色金属ETF南方",
+    "kind": "direct",
+    "inception": "2017-08-03",
+    "index": "有色金属"
+   },
+   "n_etf": 51
+  },
+  "电子": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "159997",
+    "name": "电子ETF天弘",
+    "kind": "direct",
+    "inception": "2020-02-27",
+    "index": "中证电子指数"
+   },
+   "earliest_any_year": 2019,
+   "earliest_any": {
+    "code": "512480",
+    "name": "半导体ETF国联安",
+    "kind": "sub",
+    "inception": "2019-05-08",
+    "index": "中证全指半导体产品与设备指数"
+   },
+   "n_etf": 53
+  },
+  "家用电器": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "159996",
+    "name": "家电ETF国泰",
+    "kind": "direct",
+    "inception": "2020-02-27",
+    "index": "中证全指家用电器指数"
+   },
+   "earliest_any_year": 2020,
+   "earliest_any": {
+    "code": "159996",
+    "name": "家电ETF国泰",
+    "kind": "direct",
+    "inception": "2020-02-27",
+    "index": "中证全指家用电器指数"
+   },
+   "n_etf": 13
+  },
+  "食品饮料": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "515710",
+    "name": "食品饮料ETF华宝",
+    "kind": "direct",
+    "inception": "2020-12-24",
+    "index": "细分食品"
+   },
+   "earliest_any_year": 2019,
+   "earliest_any": {
+    "code": "512690",
+    "name": "酒ETF鹏华",
+    "kind": "sub",
+    "inception": "2019-04-04",
+    "index": "中证酒指数"
+   },
+   "n_etf": 16
+  },
+  "纺织服饰": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": null,
+   "earliest_any": null,
+   "n_etf": 0
+  },
+  "轻工制造": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": null,
+   "earliest_any": null,
+   "n_etf": 0
+  },
+  "医药生物": {
+   "earliest_direct_year": 2013,
+   "earliest_direct": {
+    "code": "510660",
+    "name": "医药ETF华夏",
+    "kind": "direct",
+    "inception": "2013-03-28",
+    "index": "上证医药卫生行业指数"
+   },
+   "earliest_any_year": 2013,
+   "earliest_any": {
+    "code": "510660",
+    "name": "医药ETF华夏",
+    "kind": "direct",
+    "inception": "2013-03-28",
+    "index": "上证医药卫生行业指数"
+   },
+   "n_etf": 64
+  },
+  "公用事业": {
+   "earliest_direct_year": 2024,
+   "earliest_direct": {
+    "code": "159301",
+    "name": "公用事业ETF华夏",
+    "kind": "direct",
+    "inception": "2024-07-10",
+    "index": "中证全指公用事业指数"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "159611",
+    "name": "电力ETF广发",
+    "kind": "sub",
+    "inception": "2021-12-29",
+    "index": "中证全指电力公用事业指数"
+   },
+   "n_etf": 29
+  },
+  "交通运输": {
+   "earliest_direct_year": 2023,
+   "earliest_direct": {
+    "code": "159666",
+    "name": "交通运输ETF华夏",
+    "kind": "direct",
+    "inception": "2023-01-13",
+    "index": "中证全指运输指数"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "516910",
+    "name": "物流ETF富国",
+    "kind": "sub",
+    "inception": "2021-06-03",
+    "index": "中证现代物流指数"
+   },
+   "n_etf": 3
+  },
+  "房地产": {
+   "earliest_direct_year": 2017,
+   "earliest_direct": {
+    "code": "512200",
+    "name": "房地产ETF南方",
+    "kind": "direct",
+    "inception": "2017-08-25",
+    "index": "中证全指房地产指数"
+   },
+   "earliest_any_year": 2017,
+   "earliest_any": {
+    "code": "512200",
+    "name": "房地产ETF南方",
+    "kind": "direct",
+    "inception": "2017-08-25",
+    "index": "中证全指房地产指数"
+   },
+   "n_etf": 4
+  },
+  "商贸零售": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": null,
+   "earliest_any": null,
+   "n_etf": 0
+  },
+  "社会服务": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "159766",
+    "name": "旅游ETF富国",
+    "kind": "sub",
+    "inception": "2021-07-15",
+    "index": "中证旅游主题指数"
+   },
+   "n_etf": 2
+  },
+  "综合": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": null,
+   "earliest_any": null,
+   "n_etf": 0
+  },
+  "建筑材料": {
+   "earliest_direct_year": 2021,
+   "earliest_direct": {
+    "code": "159745",
+    "name": "建材ETF国泰",
+    "kind": "direct",
+    "inception": "2021-06-09",
+    "index": "中证全指建筑材料指数"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "159745",
+    "name": "建材ETF国泰",
+    "kind": "direct",
+    "inception": "2021-06-09",
+    "index": "中证全指建筑材料指数"
+   },
+   "n_etf": 3
+  },
+  "建筑装饰": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "516950",
+    "name": "基建ETF银华",
+    "kind": "sub",
+    "inception": "2021-04-29",
+    "index": "中证基建指数"
+   },
+   "n_etf": 4
+  },
+  "电力设备": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": 2020,
+   "earliest_any": {
+    "code": "515790",
+    "name": "光伏ETF华泰柏瑞",
+    "kind": "sub",
+    "inception": "2020-12-07",
+    "index": "中证光伏产业指数"
+   },
+   "n_etf": 53
+  },
+  "国防军工": {
+   "earliest_direct_year": 2016,
+   "earliest_direct": {
+    "code": "512660",
+    "name": "军工ETF国泰",
+    "kind": "direct",
+    "inception": "2016-07-26",
+    "index": "中证军工指数"
+   },
+   "earliest_any_year": 2016,
+   "earliest_any": {
+    "code": "512660",
+    "name": "军工ETF国泰",
+    "kind": "direct",
+    "inception": "2016-07-26",
+    "index": "中证军工指数"
+   },
+   "n_etf": 6
+  },
+  "计算机": {
+   "earliest_direct_year": 2019,
+   "earliest_direct": {
+    "code": "512720",
+    "name": "计算机ETF国泰",
+    "kind": "direct",
+    "inception": "2019-07-11",
+    "index": "中证计算机主题指数"
+   },
+   "earliest_any_year": 2019,
+   "earliest_any": {
+    "code": "512720",
+    "name": "计算机ETF国泰",
+    "kind": "direct",
+    "inception": "2019-07-11",
+    "index": "中证计算机主题指数"
+   },
+   "n_etf": 43
+  },
+  "传媒": {
+   "earliest_direct_year": 2017,
+   "earliest_direct": {
+    "code": "512980",
+    "name": "传媒ETF广发",
+    "kind": "direct",
+    "inception": "2017-12-27",
+    "index": "中证传媒指数"
+   },
+   "earliest_any_year": 2017,
+   "earliest_any": {
+    "code": "512980",
+    "name": "传媒ETF广发",
+    "kind": "direct",
+    "inception": "2017-12-27",
+    "index": "中证传媒指数"
+   },
+   "n_etf": 9
+  },
+  "通信": {
+   "earliest_direct_year": 2019,
+   "earliest_direct": {
+    "code": "515880",
+    "name": "通信ETF国泰",
+    "kind": "direct",
+    "inception": "2019-08-16",
+    "index": "中证全指通信设备指数"
+   },
+   "earliest_any_year": 2019,
+   "earliest_any": {
+    "code": "515880",
+    "name": "通信ETF国泰",
+    "kind": "direct",
+    "inception": "2019-08-16",
+    "index": "中证全指通信设备指数"
+   },
+   "n_etf": 8
+  },
+  "银行": {
+   "earliest_direct_year": 2017,
+   "earliest_direct": {
+    "code": "512700",
+    "name": "银行ETF南方",
+    "kind": "direct",
+    "inception": "2017-06-28",
+    "index": "中证银行指数"
+   },
+   "earliest_any_year": 2017,
+   "earliest_any": {
+    "code": "512700",
+    "name": "银行ETF南方",
+    "kind": "direct",
+    "inception": "2017-06-28",
+    "index": "中证银行指数"
+   },
+   "n_etf": 15
+  },
+  "非银金融": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": 2014,
+   "earliest_any": {
+    "code": "512070",
+    "name": "证券保险ETF易方达",
+    "kind": "sub",
+    "inception": "2014-06-26",
+    "index": "沪深300非银行金融指数"
+   },
+   "n_etf": 28
+  },
+  "汽车": {
+   "earliest_direct_year": 2021,
+   "earliest_direct": {
+    "code": "516110",
+    "name": "汽车ETF国泰",
+    "kind": "direct",
+    "inception": "2021-04-07",
+    "index": "中证800汽车与零部件指数"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "516110",
+    "name": "汽车ETF国泰",
+    "kind": "direct",
+    "inception": "2021-04-07",
+    "index": "中证800汽车与零部件指数"
+   },
+   "n_etf": 8
+  },
+  "机械设备": {
+   "earliest_direct_year": 2021,
+   "earliest_direct": {
+    "code": "516960",
+    "name": "机械ETF国泰",
+    "kind": "direct",
+    "inception": "2021-04-07",
+    "index": "细分机械"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "516960",
+    "name": "机械ETF国泰",
+    "kind": "direct",
+    "inception": "2021-04-07",
+    "index": "细分机械"
+   },
+   "n_etf": 36
+  },
+  "煤炭": {
+   "earliest_direct_year": 2020,
+   "earliest_direct": {
+    "code": "515220",
+    "name": "煤炭ETF国泰",
+    "kind": "direct",
+    "inception": "2020-01-20",
+    "index": "中证煤炭指数"
+   },
+   "earliest_any_year": 2020,
+   "earliest_any": {
+    "code": "515220",
+    "name": "煤炭ETF国泰",
+    "kind": "direct",
+    "inception": "2020-01-20",
+    "index": "中证煤炭指数"
+   },
+   "n_etf": 1
+  },
+  "石油石化": {
+   "earliest_direct_year": 2021,
+   "earliest_direct": {
+    "code": "516570",
+    "name": "石化ETF易方达",
+    "kind": "direct",
+    "inception": "2021-06-09",
+    "index": "中证石化产业指数"
+   },
+   "earliest_any_year": 2021,
+   "earliest_any": {
+    "code": "516570",
+    "name": "石化ETF易方达",
+    "kind": "direct",
+    "inception": "2021-06-09",
+    "index": "中证石化产业指数"
+   },
+   "n_etf": 19
+  },
+  "环保": {
+   "earliest_direct_year": 2017,
+   "earliest_direct": {
+    "code": "512580",
+    "name": "环保ETF广发",
+    "kind": "direct",
+    "inception": "2017-01-25",
+    "index": "中证环保产业指数"
+   },
+   "earliest_any_year": 2017,
+   "earliest_any": {
+    "code": "512580",
+    "name": "环保ETF广发",
+    "kind": "direct",
+    "inception": "2017-01-25",
+    "index": "中证环保产业指数"
+   },
+   "n_etf": 1
+  },
+  "美容护理": {
+   "earliest_direct_year": null,
+   "earliest_direct": null,
+   "earliest_any_year": null,
+   "earliest_any": null,
+   "n_etf": 0
+  }
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "cells_monthEnds": 1244356,
+ "months": 226,
+ "bothFinite": 624255,
+ "bothFinite_maxRelDiff": 0.0,
+ "bothFinite_nRelDiffGt1e-9": 0,
+ "onlyFundamentalsCn(fallbackToLastAnnual)": 2608,
+ "onlyStrict": 0,
+ "byYear_onlyFundamentalsCn": {
+  "2005": 73,
+  "2006": 73,
+  "2007": 228,
+  "2008": 149,
+  "2009": 118,
+  "2010": 254,
+  "2011": 213,
+  "2012": 89,
+  "2013": 5,
+  "2014": 151,
+  "2015": 139,
+  "2016": 195,
+  "2017": 219,
+  "2018": 119,
+  "2019": 138,
+  "2020": 137,
+  "2021": 135,
+  "2022": 118,
+  "2023": 55
+ },
+ "strictTtmHoldingDiffMonths": {
+  "C1a": {
+   "n": 2,
+   "nValidate": 1,
+   "months": [
+    "2014-02-28",
+    "2016-10-31"
+   ]
+  },
+  "C1b": {
+   "n": 2,
+   "nValidate": 0,
+   "months": [
+    "2008-01-31",
+    "2014-02-28"
+   ]
+  },
+  "B2p": {
+   "n": 0,
+   "nValidate": 0,
+   "months": []
+  },
+  "B4": {
+   "n": 3,
+   "nValidate": 1,
+   "months": [
+    "2008-01-31",
+    "2014-02-28",
+    "2016-10-31"
+   ]
+  }
+ }
+}

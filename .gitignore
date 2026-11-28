@@ -52,3 +52,11 @@ data-raw/spx-qqq-tilt/raw/
 data-raw/managed-futures/raw/
 data-raw/lowvol-core-cn/raw/
 data-raw/insider-buyback-cn/raw/
+# 2026-11-28 L-049 / L-051 / L-052 体积大、可由脚本重生成的中间产物只留本机
+docs/research/spx-qqq-tilt-2026-11-28/replication/internal-results.json
+docs/research/dead-cat-bounce-2026-11-28/events.csv
+docs/research/dead-cat-bounce-2026-11-28/replication/events.csv
+docs/research/theme-pe-cn-2026-11-28/daily/
+docs/research/theme-pe-cn-2026-11-28/replication/daily_series*.csv.gz
+docs/research/theme-pe-cn-2026-11-28/replication/compare-report-*.json
+docs/research/**/__pycache__/

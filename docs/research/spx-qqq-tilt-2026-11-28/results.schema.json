@@ -1,0 +1,488 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L-049-results",
+  "title": "L-049 results.json schema（主实现定义，第二实现对齐；单位：收益/波动/回撤为小数非百分数；夏普无量纲；日期 ISO YYYY-MM-DD；CER 为年化小数）",
+  "type": "object",
+  "required": [
+    "meta",
+    "inputs",
+    "proxyQuality",
+    "windows",
+    "K1",
+    "K2",
+    "exploratory",
+    "report",
+    "verdict"
+  ],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["ledger", "preregCommit", "preregPath", "impl", "seed", "notes"],
+      "properties": {
+        "ledger": { "const": "L-049" },
+        "preregCommit": { "type": "string", "description": "冻结提交，如 15b95bb2" },
+        "preregPath": { "type": "string" },
+        "impl": { "type": "string", "description": "main-python | replication-node" },
+        "seed": { "const": 20261128 },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "含 DTB4WK 退路、口径裁定摘要等"
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "文件名 → sha256，须与 SOURCES.md 一致",
+      "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    },
+    "proxyQuality": {
+      "type": "object",
+      "description": "代用品质量表（事前）",
+      "required": ["kf1927_1972", "ndx1985_2026"],
+      "properties": {
+        "kf1927_1972": { "$ref": "#/$defs/proxyBlock" },
+        "ndx1985_2026": { "$ref": "#/$defs/proxyBlock" }
+      }
+    },
+    "windows": {
+      "type": "object",
+      "description": "各评估窗口的起止与年化参数",
+      "additionalProperties": { "$ref": "#/$defs/windowMeta" }
+    },
+    "K1": {
+      "type": "object",
+      "required": ["main", "halves", "veto", "decision"],
+      "properties": {
+        "main": { "$ref": "#/$defs/k1Window" },
+        "halves": {
+          "type": "object",
+          "properties": {
+            "1927_1949": { "$ref": "#/$defs/k1Window" },
+            "1950_1972": { "$ref": "#/$defs/k1Window" }
+          },
+          "required": ["1927_1949", "1950_1972"]
+        },
+        "veto": {
+          "type": "object",
+          "required": ["kf1973_1984", "spyQqq1999_2026"],
+          "properties": {
+            "kf1973_1984": { "$ref": "#/$defs/k1Window" },
+            "spyQqq1999_2026": { "$ref": "#/$defs/k1Window" }
+          }
+        },
+        "decision": { "$ref": "#/$defs/decisionBlock" }
+      }
+    },
+    "K2": {
+      "type": "object",
+      "required": ["main", "halves", "veto", "leverageByPeakSegment", "tradeDetails", "placebo", "decision"],
+      "properties": {
+        "main": { "$ref": "#/$defs/k2Window" },
+        "halves": {
+          "type": "object",
+          "properties": {
+            "1927_1949": { "$ref": "#/$defs/k2Window" },
+            "1950_1972": { "$ref": "#/$defs/k2Window" }
+          },
+          "required": ["1927_1949", "1950_1972"]
+        },
+        "veto": {
+          "type": "object",
+          "required": ["kf1973_1984", "spy1999_2026"],
+          "properties": {
+            "kf1973_1984": { "$ref": "#/$defs/k2Window" },
+            "spy1999_2026": { "$ref": "#/$defs/k2Window" }
+          }
+        },
+        "leverageByPeakSegment": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/leverageSegment" }
+        },
+        "tradeDetails": {
+          "type": "object",
+          "description": "1930春、1932夏、1937 进出明细",
+          "properties": {
+            "1930_spring": { "type": "array", "items": { "$ref": "#/$defs/leverageTrade" } },
+            "1932_summer": { "type": "array", "items": { "$ref": "#/$defs/leverageTrade" } },
+            "1937": { "type": "array", "items": { "$ref": "#/$defs/leverageTrade" } }
+          }
+        },
+        "placebo": {
+          "type": "object",
+          "required": ["N", "pDeltaCer", "pMeanDailyExcessDiff", "conditionalP"],
+          "properties": {
+            "N": { "type": "integer" },
+            "pDeltaCer": { "type": "number" },
+            "pMeanDailyExcessDiff": { "type": "number" },
+            "conditionalP": { "type": ["number", "null"], "description": "条件安慰剂 p（报告）" }
+          }
+        },
+        "decision": { "$ref": "#/$defs/decisionBlock" }
+      }
+    },
+    "exploratory": {
+      "type": "object",
+      "required": ["E1", "E2", "E3", "E4", "E5", "E6"],
+      "properties": {
+        "E1": {
+          "type": "object",
+          "required": ["main", "path1929_1932", "liquidateIfNoRebalance"],
+          "properties": {
+            "main": { "$ref": "#/$defs/k2Window" },
+            "path1929_1932": {
+              "type": "array",
+              "description": "按调回规则的净值路径抽样或按月点",
+              "items": {
+                "type": "object",
+                "required": ["date", "nav", "exposure", "levered"],
+                "properties": {
+                  "date": { "type": "string" },
+                  "nav": { "type": "number" },
+                  "exposure": { "type": "number" },
+                  "levered": { "type": "boolean" }
+                }
+              }
+            },
+            "liquidateIfNoRebalance": {
+              "type": "object",
+              "required": ["hit", "date"],
+              "properties": {
+                "hit": { "type": "boolean" },
+                "date": { "type": ["string", "null"] }
+              }
+            }
+          }
+        },
+        "E2": {
+          "type": "object",
+          "properties": {
+            "dd15": { "$ref": "#/$defs/k2Window" },
+            "dd25": { "$ref": "#/$defs/k2Window" }
+          }
+        },
+        "E3": {
+          "type": "object",
+          "properties": {
+            "band3": { "$ref": "#/$defs/k1Window" },
+            "band10": { "$ref": "#/$defs/k1Window" },
+            "annual": { "$ref": "#/$defs/k1Window" },
+            "never": { "$ref": "#/$defs/k1Window" }
+          }
+        },
+        "E4": {
+          "type": "object",
+          "properties": {
+            "tilt20": { "$ref": "#/$defs/k1Window" },
+            "tilt40": { "$ref": "#/$defs/k1Window" }
+          }
+        },
+        "E5": { "$ref": "#/$defs/k2Window" },
+        "E6": { "$ref": "#/$defs/k2Window" }
+      }
+    },
+    "report": {
+      "type": "object",
+      "required": [
+        "headlineAbsoluteRisk",
+        "knownResult1999_2026",
+        "approx1985_1999",
+        "costSensitivity",
+        "fundingSensitivity",
+        "holm"
+      ],
+      "properties": {
+        "headlineAbsoluteRisk": {
+          "type": "object",
+          "description": "结论第一句所需：K1 相对 M 的年化波动与最大回撤变化；K2 最大回撤与 1929–32/1937–38；同波动所需 k",
+          "properties": {
+            "K1_volVsM": { "type": "number" },
+            "K1_maxDdVsM": { "type": "number" },
+            "K1_kForSameVol": { "type": "number" },
+            "K2_maxDd": { "type": "number" },
+            "K2_1929_32": { "type": "object" },
+            "K2_1937_38": { "type": "object" }
+          }
+        },
+        "knownResult1999_2026": {
+          "type": "object",
+          "description": "标「已知结果，不是证据」；含 2000–02、2008、2020、2022 四段",
+          "additionalProperties": true
+        },
+        "approx1985_1999": { "type": "object", "additionalProperties": true },
+        "costSensitivity": {
+          "type": "object",
+          "properties": {
+            "cost05bps": { "type": "object" },
+            "cost20bps": { "type": "object" }
+          }
+        },
+        "fundingSensitivity": {
+          "type": "object",
+          "properties": {
+            "rfPlus15": { "type": "object" },
+            "rfPlus30": { "type": "object" },
+            "fixed6pct": { "type": "object" }
+          }
+        },
+        "holm": {
+          "type": "object",
+          "required": ["pK1", "pK2", "adjusted"],
+          "properties": {
+            "pK1": { "type": "number" },
+            "pK2": { "type": "number" },
+            "adjusted": {
+              "type": "object",
+              "properties": {
+                "pK1": { "type": "number" },
+                "pK2": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["K1", "K2", "firstSentence"],
+      "properties": {
+        "K1": { "enum": ["通过", "部分成立", "不通过"] },
+        "K2": { "enum": ["通过", "部分成立", "不通过"] },
+        "firstSentence": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "windowMeta": {
+      "type": "object",
+      "required": ["start", "end", "nDays", "years", "A"],
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "nDays": { "type": "integer" },
+        "years": { "type": "number", "description": "日历天/365.2425" },
+        "A": { "type": "number", "description": "N/years 年化因子" }
+      }
+    },
+    "proxyBlock": {
+      "type": "object",
+      "required": ["corr", "beta", "volRatio", "start", "end"],
+      "properties": {
+        "corr": { "type": "number" },
+        "beta": { "type": "number" },
+        "volRatio": { "type": "number" },
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "metricsDaily": {
+      "type": "object",
+      "required": ["nDays", "cagr", "vol", "sharpeDaily", "maxDd", "maxDdDays"],
+      "properties": {
+        "nDays": { "type": "integer" },
+        "cagr": { "type": "number" },
+        "vol": { "type": "number" },
+        "sharpeDaily": { "type": "number", "description": "日超额均值/标准差×√A" },
+        "maxDd": { "type": "number" },
+        "maxDdDays": { "type": "integer" }
+      }
+    },
+    "metricsMonthly": {
+      "type": "object",
+      "required": ["nMonths", "sharpe", "cerG5", "cerG3"],
+      "properties": {
+        "nMonths": { "type": "integer" },
+        "sharpe": { "type": "number", "description": "月超额×√12" },
+        "cerG5": { "type": "number" },
+        "cerG3": { "type": "number" }
+      }
+    },
+    "tailEvent": {
+      "type": "object",
+      "required": ["peak", "trough", "method", "dropM", "dropCandidate", "dropBenchmark"],
+      "properties": {
+        "peak": { "type": "string" },
+        "trough": { "type": "string" },
+        "method": { "enum": ["polyline", "priorHigh"] },
+        "dropM": { "type": "number" },
+        "dropCandidate": { "type": "number" },
+        "dropBenchmark": { "type": "number" }
+      }
+    },
+    "k1Window": {
+      "type": "object",
+      "required": ["window", "K1", "M", "Mstar", "k", "L", "tailPolyline", "tailPriorHigh", "turnoverPerYear", "rebalanceCount", "trackingError", "worstRolling36", "checks"],
+      "properties": {
+        "window": { "type": "string" },
+        "K1": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "M": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "Mstar": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "k": { "type": "number" },
+        "L": { "type": "number" },
+        "tailPolyline": { "type": "array", "items": { "$ref": "#/$defs/tailEvent" } },
+        "tailPriorHigh": { "type": "array", "items": { "$ref": "#/$defs/tailEvent" } },
+        "turnoverPerYear": { "type": "number" },
+        "rebalanceCount": { "type": "integer" },
+        "trackingError": { "type": "number", "description": "相对 M 的月超额跟踪误差年化 √12" },
+        "worstRolling36": {
+          "type": "object",
+          "required": ["rel", "from", "to"],
+          "properties": {
+            "rel": { "type": "number" },
+            "from": { "type": "string" },
+            "to": { "type": "string" }
+          }
+        },
+        "checks": {
+          "type": "object",
+          "description": "本窗口判定子条件数值与是否满足",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["value", "threshold", "pass"],
+            "properties": {
+              "value": { "type": ["number", "boolean", "null"] },
+              "threshold": { "type": ["number", "string", "boolean", "null"] },
+              "pass": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "k2Window": {
+      "type": "object",
+      "required": ["window", "K2", "M", "Mstar", "k", "L", "deltaCerVsMstar", "deltaCerVsM", "tailPolyline", "tailPriorHigh", "liquidated", "checks"],
+      "properties": {
+        "window": { "type": "string" },
+        "K2": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "M": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "Mstar": {
+          "type": "object",
+          "required": ["daily", "monthly"],
+          "properties": {
+            "daily": { "$ref": "#/$defs/metricsDaily" },
+            "monthly": { "$ref": "#/$defs/metricsMonthly" }
+          }
+        },
+        "k": { "type": "number" },
+        "L": { "type": "number" },
+        "deltaCerVsMstar": { "type": "number" },
+        "deltaCerVsM": { "type": "number" },
+        "tailPolyline": { "type": "array", "items": { "$ref": "#/$defs/tailEvent" } },
+        "tailPriorHigh": { "type": "array", "items": { "$ref": "#/$defs/tailEvent" } },
+        "liquidated": { "type": "boolean" },
+        "checks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["value", "threshold", "pass"],
+            "properties": {
+              "value": { "type": ["number", "boolean", "null"] },
+              "threshold": { "type": ["number", "string", "boolean", "null"] },
+              "pass": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "leverageSegment": {
+      "type": "object",
+      "required": ["peak", "trough", "recoveryAth", "entries", "leveredDays", "cumDiffVsM", "deltaCerShare"],
+      "properties": {
+        "peak": { "type": "string" },
+        "trough": { "type": "string" },
+        "recoveryAth": { "type": ["string", "null"] },
+        "entries": { "type": "integer" },
+        "leveredDays": { "type": "integer" },
+        "cumDiffVsM": { "type": "number" },
+        "deltaCerShare": { "type": "number", "description": "补充裁定 12：c_i ÷ C，c_i = 段内 Σ[ln(1+r_K2) − ln(1+r_M)]，C = 全窗口同式之和（字段名沿用）" }
+      }
+    },
+    "leverageTrade": {
+      "type": "object",
+      "required": ["signalDate", "execDate", "action", "exposure", "nav"],
+      "properties": {
+        "signalDate": { "type": "string" },
+        "execDate": { "type": "string" },
+        "action": { "enum": ["enter", "exit", "rebalance"] },
+        "exposure": { "type": "number" },
+        "nav": { "type": "number" }
+      }
+    },
+    "decisionBlock": {
+      "type": "object",
+      "required": ["grade", "conditions"],
+      "properties": {
+        "grade": { "enum": ["通过", "部分成立", "不通过"] },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "pass", "detail"],
+            "properties": {
+              "id": { "type": "string" },
+              "pass": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "exampleEmpty": {
+    "meta": {
+      "ledger": "L-049",
+      "preregCommit": "15b95bb2",
+      "preregPath": "docs/research/spx-qqq-tilt-2026-11-28/PREREG.md",
+      "impl": "main-python",
+      "seed": 20261128,
+      "notes": []
+    },
+    "inputs": {},
+    "proxyQuality": {
+      "kf1927_1972": { "corr": null, "beta": null, "volRatio": null, "start": null, "end": null },
+      "ndx1985_2026": { "corr": null, "beta": null, "volRatio": null, "start": null, "end": null }
+    },
+    "windows": {},
+    "K1": { "main": null, "halves": {}, "veto": {}, "decision": null },
+    "K2": { "main": null, "halves": {}, "veto": {}, "leverageByPeakSegment": [], "tradeDetails": {}, "placebo": null, "decision": null },
+    "exploratory": { "E1": null, "E2": {}, "E3": {}, "E4": {}, "E5": null, "E6": null },
+    "report": {},
+    "verdict": { "K1": null, "K2": null, "firstSentence": null }
+  }
+}

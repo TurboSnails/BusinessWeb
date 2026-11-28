@@ -1,0 +1,83 @@
+{
+  "window": {
+    "start": "1973-01-02",
+    "end": "1984-12-31",
+    "years": 11.994770597617,
+    "tradingDays": 3033,
+    "A": 252.860192307692
+  },
+  "initialPosition": {
+    "date": "1972-12-29",
+    "nav": 1,
+    "cash": 0,
+    "debt": 0,
+    "leveraged": false,
+    "exposure": 1
+  },
+  "firstFiveDays": [
+    {
+      "date": "1973-01-02",
+      "mDailyReturn": 0.008896045245,
+      "k2Exposure": 1,
+      "managementFeeRate": 0.000003954755,
+      "financingRate": 0.000259321318,
+      "k2Nav": 1.008896045245,
+      "mNav": 1.008896045245
+    },
+    {
+      "date": "1973-01-03",
+      "mDailyReturn": 0.003696045245,
+      "k2Exposure": 1,
+      "managementFeeRate": 0.000003954755,
+      "financingRate": 0.000259321318,
+      "k2Nav": 1.012624970677,
+      "mNav": 1.012624970677
+    },
+    {
+      "date": "1973-01-04",
+      "mDailyReturn": -0.002103954755,
+      "k2Exposure": 1,
+      "managementFeeRate": 0.000003954755,
+      "financingRate": 0.000259321318,
+      "k2Nav": 1.010494453555,
+      "mNav": 1.010494453555
+    },
+    {
+      "date": "1973-01-05",
+      "mDailyReturn": 0.003196045245,
+      "k2Exposure": 1,
+      "managementFeeRate": 0.000003954755,
+      "financingRate": 0.000259321318,
+      "k2Nav": 1.013724039549,
+      "mNav": 1.013724039549
+    },
+    {
+      "date": "1973-01-08",
+      "mDailyReturn": -0.000103954755,
+      "k2Exposure": 1,
+      "managementFeeRate": 0.000003954755,
+      "financingRate": 0.000259321318,
+      "k2Nav": 1.013618658115,
+      "mNav": 1.013618658115
+    }
+  ],
+  "volatilityAndMstar": {
+    "k2DailyReturnStd": 0.0090719863,
+    "mDailyReturnStd": 0.008759654097,
+    "k": 1.035655769046
+  },
+  "firstDayState": {
+    "date": "1973-01-02",
+    "leveraged": false,
+    "dd": -0.001037215854,
+    "I": 62.907712997032,
+    "sma200": 58.377619461487,
+    "previousCloseState": {
+      "date": "1972-12-29",
+      "leveraged": false,
+      "dd": -0.009849554816,
+      "I": 62.352773314533,
+      "sma200": 58.350248992462
+    }
+  }
+}

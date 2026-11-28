@@ -1,0 +1,5531 @@
+{
+  "meta": {
+    "ledger": "L-049",
+    "preregCommit": "15b95bb2",
+    "preregPath": "docs/research/spx-qqq-tilt-2026-11-28/PREREG.md",
+    "impl": "main-python",
+    "seed": 20261128,
+    "notes": [
+      "口径裁定：年数=(末日-首日)日历天/365.2425；A=N/年数；费与融资利差按 rate/A 逐日；月收益=日净值自然月复利；M* 按日 k 常数每日再平衡。",
+      "FRED DTB4WK 本机不可得：1999 窗口在 KF RF 结束后沿用 2026-09 最后一日 RF。",
+      "CLARIFY-2 记账：每日 t 收盘 ①各腿随行情（扣费）②现金按 RF、负债按 RF+利差（或固定 6%）计息 ③NAV ④执行 t−1 指令（目标=权重×NAV×目标暴露，成本 0.05%×Σ|ΔS| 从现金扣，不足记负债）⑤强平（NAV≤0 或暴露≥2）⑥用第④步后持仓产生信号，t+1 收盘执行；指标用第④步后（含当日成本）NAV。",
+      "首日建仓：窗口首日前收盘按目标权重建仓、NAV=1、不计成本，首日即承担当日收益（与 M 基准同口径）。窗口末日产生的指令落在窗口外，不执行。",
+      "K2 信号：I 为 Mkt-RF+RF 日度复利（不扣费），高点与 SMA200 自 1926-07-01 全历史起算后按窗口切片（SPY 自 1993-01-29）；窗口首日 K2 未加杠杆。",
+      "K2 安慰剂（主与条件）均对 K2 信号状态序列做替换，再走与 K2 相同的完整模拟；用实际状态序列复现 K2 逐日收益（代码内断言）。",
+      "E6：M/G 两腿 70/30 + K1 带状 + K2 状态，任一指令按 70/30 与当前目标暴露重设两腿；对照 M。",
+      "补充裁定 7：强平按清仓成交额 Σ|S| 计 0.05% 成本。补充裁定 8：前后半为全窗口模拟的切片（逐日费用/融资费率沿用全窗口 A，年化与 M* 的 k 按半窗口各自计算）；单独模拟窗口在首日前一收盘建仓，起步 K2 状态取全历史状态机在该收盘的状态（加杠杆则以 1.30 建仓，不计成本）。安慰剂序列起步一律未加杠杆。"
+    ]
+  },
+  "inputs": {
+    "6_Portfolios_2x3_CSV.zip": "28d382168866a2f424bf32da868b08895c31c954cbad948f88606cd4ef73db58",
+    "6_Portfolios_2x3_daily_CSV.zip": "2fb5a5ceaea02ea074cddaad15ec178eff0f4f198e506058900047a5d5bfdf20",
+    "F-F_Research_Data_Factors_CSV.zip": "b03d39e4bb253dda0f14893db3b78e64b40b8d6549a0fc0fd4111dae84c98618",
+    "F-F_Research_Data_Factors_daily_CSV.zip": "96c23b88e651cbfff3740a53f8225e59ee39893371e96385a1d8125ec2cd9c89",
+    "shiller.csv": "b2f1189b5185e898f81c98297d32b56db109d8b85a85723f244099d6daca5452",
+    "yahoo_GSPC_chart.json": "7358c7c53d5e9349623b3f1e8399364066224766eb269bb5c298acc46427a1e4",
+    "yahoo_GSPC_daily.csv": "fa449632f59cf62c049937d8f97c4581b786cba066f1d58af1e7b5f15d7498e5",
+    "yahoo_NDX_chart.json": "4c35967822580c78fe1ec802731c4702c89ce2970b916deafca135b48e5290c5",
+    "yahoo_NDX_daily.csv": "ab9c7ea95f5919090258c3b4231fdffe58db26fc88abc3184114be55bb80a909",
+    "yahoo_QQQ_chart.json": "87638a43389e1e5ab8aa64fcd05fa222b0b28b1f3943b78bb235babf49f1a8f2",
+    "yahoo_QQQ_daily.csv": "b66b57ec68b805b9c1262af7d14343751d4c30a698f3b995aed7ed0105c91aeb",
+    "yahoo_SPY_chart.json": "ba4b73b52f95e7c3973908321897adedd0ffdaa38dcf1c294a00425f6516c4cb",
+    "yahoo_SPY_daily.csv": "184ccbbaacac10f4e54fef9e7a652f32169a01d62040d3d3aab4cdafd4f82133"
+  },
+  "proxyQuality": {
+    "kf1927_1972": {
+      "corr": 0.9843008830694502,
+      "beta": 0.990389428463922,
+      "volRatio": 1.0061856547110737,
+      "start": "1927-01-03",
+      "end": "1972-12-29"
+    },
+    "ndx_vs_gspc_1985_2026": {
+      "corr": 0.8429628469703782,
+      "beta": 1.1967267634604326,
+      "volRatio": 1.4196672697515529,
+      "start": "1985-10-02",
+      "end": "2026-11-27"
+    },
+    "qqq_vs_spy_1985_2026": {
+      "corr": 0.8537435113955396,
+      "beta": 1.1972514483035512,
+      "volRatio": 1.4023549606210293,
+      "start": "1999-03-11",
+      "end": "2026-11-27"
+    },
+    "qqq_vs_spy_1999_2026": {
+      "corr": 0.8537435113955396,
+      "beta": 1.1972514483035512,
+      "volRatio": 1.4023549606210293,
+      "start": "1999-03-11",
+      "end": "2026-11-27"
+    },
+    "ndx1985_2026": {
+      "corr": 0.8429628469703782,
+      "beta": 1.1967267634604326,
+      "volRatio": 1.4196672697515529,
+      "start": "1985-10-02",
+      "end": "2026-11-27"
+    },
+    "qqq_spy_1999_2026": {
+      "corr": 0.8537435113955396,
+      "beta": 1.1972514483035512,
+      "volRatio": 1.4023549606210293,
+      "start": "1999-03-11",
+      "end": "2026-11-27"
+    }
+  },
+  "windows": {
+    "main": {
+      "start": "1927-01-03",
+      "end": "1972-12-29",
+      "nDays": 12638,
+      "years": 45.98862399638596,
+      "A": 274.8070914449009
+    },
+    "half1": {
+      "start": "1927-01-03",
+      "end": "1949-12-31",
+      "nDays": 6793,
+      "years": 22.992943044689486,
+      "A": 295.43847374374855
+    },
+    "half2": {
+      "start": "1950-01-03",
+      "end": "1972-12-29",
+      "nDays": 5845,
+      "years": 22.98746723067551,
+      "A": 254.2689867198666
+    },
+    "veto_kf": {
+      "start": "1973-01-02",
+      "end": "1984-12-31",
+      "nDays": 3033,
+      "years": 11.994770597616652,
+      "A": 252.8601923076923
+    },
+    "veto_etf": {
+      "start": "1999-03-11",
+      "end": "2026-11-27",
+      "nDays": 6973,
+      "years": 27.71583263174466,
+      "A": 251.5890499357898
+    }
+  },
+  "K1": {
+    "main": {
+      "window": "main_1927_1972",
+      "K1": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09150252714089557,
+          "vol": 0.17946323685272952,
+          "sharpeDaily": 0.47635143635591287,
+          "maxDd": -0.8365339575143034,
+          "maxDdDays": 841
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4391107047405094,
+          "cerG5": -0.004016775268288142,
+          "cerG3": 0.04474914236805927
+        }
+      },
+      "M": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09078241179482993,
+          "vol": 0.1796449495633866,
+          "sharpeDaily": 0.47232435291694536,
+          "maxDd": -0.8412300742641872,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4321831944898587,
+          "cerG5": -0.006069771154298742,
+          "cerG3": 0.043218800777726774
+        }
+      },
+      "Mstar": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.08996907413096955,
+          "vol": 0.17710725241165948,
+          "sharpeDaily": 0.4723243529169453,
+          "maxDd": -0.8364990374998971,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.43187066500509025,
+          "cerG5": -0.004040323435321014,
+          "cerG3": 0.04378689770409894
+        }
+      },
+      "k": 0.9858746889618669,
+      "L": 1.0080074252219455,
+      "tailPolyline": [
+        {
+          "peak": "1931-11-09",
+          "trough": "1932-07-08",
+          "method": "polyline",
+          "dropM": -0.5697564492652837,
+          "dropCandidate": -0.5644870947815419,
+          "dropBenchmark": -0.5641767537513582
+        },
+        {
+          "peak": "1937-03-10",
+          "trough": "1938-03-31",
+          "method": "polyline",
+          "dropM": -0.5109484473713743,
+          "dropCandidate": -0.5051493425154727,
+          "dropBenchmark": -0.5056317654935322
+        },
+        {
+          "peak": "1929-09-03",
+          "trough": "1929-11-13",
+          "method": "polyline",
+          "dropM": -0.4371577921729647,
+          "dropCandidate": -0.45769094486128725,
+          "dropBenchmark": -0.4321715711135853
+        },
+        {
+          "peak": "1930-04-10",
+          "trough": "1930-12-16",
+          "method": "polyline",
+          "dropM": -0.4363131210871508,
+          "dropCandidate": -0.43616789321788063,
+          "dropBenchmark": -0.4314169675236761
+        },
+        {
+          "peak": "1931-06-27",
+          "trough": "1931-10-05",
+          "method": "polyline",
+          "dropM": -0.4175468817687559,
+          "dropCandidate": -0.4096392255862479,
+          "dropBenchmark": -0.4129410554461743
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "polyline",
+          "dropM": -0.369044990035992,
+          "dropCandidate": -0.35887295710616185,
+          "dropBenchmark": -0.3639667809704956
+        }
+      ],
+      "tailPriorHigh": [
+        {
+          "peak": "1929-09-03",
+          "trough": "1932-07-08",
+          "method": "priorHigh",
+          "dropM": -0.8412300742641872,
+          "dropCandidate": -0.836107787734286,
+          "dropBenchmark": -0.8364990374998971
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "priorHigh",
+          "dropM": -0.369044990035992,
+          "dropCandidate": -0.35887295710616185,
+          "dropBenchmark": -0.3639667809704956
+        },
+        {
+          "peak": "1946-05-29",
+          "trough": "1947-05-17",
+          "method": "priorHigh",
+          "dropM": -0.283429943892445,
+          "dropCandidate": -0.2825975087519359,
+          "dropBenchmark": -0.2798511890161952
+        },
+        {
+          "peak": "1961-12-12",
+          "trough": "1962-06-26",
+          "method": "priorHigh",
+          "dropM": -0.277400404247519,
+          "dropCandidate": -0.28463486175002894,
+          "dropBenchmark": -0.27384448010339524
+        },
+        {
+          "peak": "1957-07-15",
+          "trough": "1957-10-22",
+          "method": "priorHigh",
+          "dropM": -0.20671677006100186,
+          "dropCandidate": -0.20931612738409133,
+          "dropBenchmark": -0.2040026819757329
+        },
+        {
+          "peak": "1966-02-09",
+          "trough": "1966-10-07",
+          "method": "priorHigh",
+          "dropM": -0.20309615117094604,
+          "dropCandidate": -0.20720761709281343,
+          "dropBenchmark": -0.20010049657967277
+        }
+      ],
+      "turnoverPerYear": 0.002197307993323683,
+      "rebalanceCount": 2,
+      "trackingError": 0.011498938725877143,
+      "worstRolling36": {
+        "rel": -0.043675021014004556,
+        "from": "1940-06",
+        "to": "1943-05"
+      },
+      "checks": {
+        "sharpeVsM": {
+          "value": 0.0069275102506506925,
+          "threshold": 0.03,
+          "pass": false
+        },
+        "maxDdVsMstar": {
+          "value": -3.4920014406303324e-05,
+          "threshold": -0.01,
+          "pass": true
+        },
+        "L": {
+          "value": 1.0080074252219455,
+          "threshold": 1.0,
+          "pass": false
+        }
+      }
+    },
+    "halves": {
+      "1927_1949": {
+        "window": "half_1927_1949",
+        "K1": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.0571020770507642,
+            "vol": 0.2312301642816116,
+            "sharpeDaily": 0.3289872901558621,
+            "maxDd": -0.8365339575143034,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.31786374183353977,
+            "cerG5": -0.0891819408776292,
+            "cerG3": -0.015737492471874948
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.055586172323838445,
+            "vol": 0.2323318452927951,
+            "sharpeDaily": 0.32226508777990465,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.31079631190909346,
+            "cerG5": -0.09321311315360581,
+            "cerG3": -0.018859690423798425
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.055173949506067466,
+            "vol": 0.22810112966293675,
+            "sharpeDaily": 0.32226508777990465,
+            "maxDd": -0.8351073837534043,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.31026217478527424,
+            "cerG5": -0.08826462848232375,
+            "cerG3": -0.01657224844389571
+          }
+        },
+        "k": 0.9817905464531874,
+        "L": 1.0084283028691918,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5644870947815419,
+            "dropBenchmark": -0.5625519804130888
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5051493425154727,
+            "dropBenchmark": -0.5040856685058381
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45769094486128725,
+            "dropBenchmark": -0.4307234738462997
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43616789321788063,
+            "dropBenchmark": -0.42999443347825705
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4096392255862479,
+            "dropBenchmark": -0.41160333914793856
+          },
+          {
+            "peak": "1932-09-07",
+            "trough": "1933-02-27",
+            "method": "polyline",
+            "dropM": -0.36399667206468256,
+            "dropCandidate": -0.34673544564162206,
+            "dropBenchmark": -0.3581787581883583
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.836107787734286,
+            "dropBenchmark": -0.8351073837534043
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.2825975087519359,
+            "dropBenchmark": -0.27881418092962407
+          },
+          {
+            "peak": "1928-05-14",
+            "trough": "1928-06-12",
+            "method": "priorHigh",
+            "dropM": -0.103022882731295,
+            "dropCandidate": -0.09987067015526219,
+            "dropBenchmark": -0.10118243746851219
+          }
+        ],
+        "turnoverPerYear": 0.002205477867256712,
+        "rebalanceCount": 1,
+        "trackingError": 0.013693609334791263,
+        "worstRolling36": {
+          "rel": -0.043675021014004556,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.007067429924446311,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0014265737608990525,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0084283028691918,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "sharpeVsM_half": {
+            "value": 0.007067429924446311,
+            "threshold": -0.02,
+            "pass": true
+          }
+        }
+      },
+      "1950_1972": {
+        "window": "half_1950_1972",
+        "K1": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.1270663009753208,
+            "vol": 0.10464973816589825,
+            "sharpeDaily": 0.9067624733343733,
+            "maxDd": -0.35887295710616296,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7777026556385908,
+            "cerG5": 0.09210579981771971,
+            "cerG3": 0.10961711198476332
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.12719599783062052,
+            "vol": 0.10281572986274032,
+            "sharpeDaily": 0.9221881735211512,
+            "maxDd": -0.36904499003599056,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7817470741987815,
+            "cerG5": 0.0926071111530109,
+            "cerG3": 0.10992836385817317
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.12759207186836874,
+            "vol": 0.10332963054723752,
+            "sharpeDaily": 0.9215176112136199,
+            "maxDd": -0.3708952454582314,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7812868647826313,
+            "cerG5": 0.09264096770125718,
+            "cerG3": 0.11014359318039757
+          }
+        },
+        "k": 1.0049954854042604,
+        "L": 0.9986582932819618,
+        "tailPolyline": [
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.36904499003599056,
+            "dropCandidate": -0.35887295710616296,
+            "dropBenchmark": -0.3708952454582314
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "polyline",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.28463486175002917,
+            "dropBenchmark": -0.27868106768692746
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "polyline",
+            "dropM": -0.20671677006100142,
+            "dropCandidate": -0.20931612738409078,
+            "dropBenchmark": -0.20768982766017818
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "polyline",
+            "dropM": -0.20309615117094626,
+            "dropCandidate": -0.20720761709281488,
+            "dropBenchmark": -0.20418958480571348
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.36904499003599056,
+            "dropCandidate": -0.35887295710616296,
+            "dropBenchmark": -0.3708952454582314
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.28463486175002917,
+            "dropBenchmark": -0.27868106768692746
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100142,
+            "dropCandidate": -0.20931612738409078,
+            "dropBenchmark": -0.20768982766017818
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094626,
+            "dropCandidate": -0.20720761709281488,
+            "dropBenchmark": -0.20418958480571348
+          },
+          {
+            "peak": "1950-06-12",
+            "trough": "1950-07-13",
+            "method": "priorHigh",
+            "dropM": -0.12779212315774657,
+            "dropCandidate": -0.1347508643872264,
+            "dropBenchmark": -0.12840657772736874
+          },
+          {
+            "peak": "1971-04-28",
+            "trough": "1971-11-23",
+            "method": "priorHigh",
+            "dropM": -0.12695873965979187,
+            "dropCandidate": -0.11380771594795336,
+            "dropBenchmark": -0.1277186846605184
+          }
+        ],
+        "turnoverPerYear": 0.0021899212999804715,
+        "rebalanceCount": 1,
+        "trackingError": 0.008798352492178245,
+        "worstRolling36": {
+          "rel": -0.03391076290653772,
+          "from": "1966-01",
+          "to": "1968-12"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": -0.004044418560190777,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": 0.012022288352068422,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 0.9986582932819618,
+            "threshold": 1.0,
+            "pass": true
+          },
+          "sharpeVsM_half": {
+            "value": -0.004044418560190777,
+            "threshold": -0.02,
+            "pass": true
+          }
+        }
+      }
+    },
+    "veto": {
+      "kf1973_1984": {
+        "window": "veto_kf_1973_1984",
+        "K1": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.07229326042553685,
+            "vol": 0.14496882224211444,
+            "sharpeDaily": -0.013985134893610491,
+            "maxDd": -0.4960568162907658,
+            "maxDdDays": 437
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.010916342384708112,
+            "cerG5": 0.012329423762962977,
+            "cerG3": 0.041857417184895995
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.0832031947090317,
+            "vol": 0.1392923254626658,
+            "sharpeDaily": 0.05234838093089681,
+            "maxDd": -0.4824893259475467,
+            "maxDdDays": 436
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.06849569560494442,
+            "cerG5": 0.02395181383884526,
+            "cerG3": 0.053178781180015955
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.08281310921078444,
+            "vol": 0.14113742523467523,
+            "sharpeDaily": 0.050941815208065164,
+            "maxDd": -0.4882013680263606,
+            "maxDdDays": 436
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.06769563725811673,
+            "cerG5": 0.022034377971044128,
+            "cerG3": 0.05200599985137089
+          }
+        },
+        "k": 1.0132409860111342,
+        "L": 1.0088380858608788,
+        "tailPolyline": [
+          {
+            "peak": "1973-01-11",
+            "trough": "1974-10-03",
+            "method": "polyline",
+            "dropM": -0.4824893259475467,
+            "dropCandidate": -0.4959627422937476,
+            "dropBenchmark": -0.4882013680263606
+          },
+          {
+            "peak": "1981-08-11",
+            "trough": "1982-08-12",
+            "method": "polyline",
+            "dropM": -0.20247260284486301,
+            "dropCandidate": -0.21174062665795235,
+            "dropBenchmark": -0.20637559753361645
+          },
+          {
+            "peak": "1980-02-13",
+            "trough": "1980-03-27",
+            "method": "polyline",
+            "dropM": -0.1867109530854114,
+            "dropCandidate": -0.18383691741548758,
+            "dropBenchmark": -0.18915284089990037
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1973-01-11",
+            "trough": "1974-10-03",
+            "method": "priorHigh",
+            "dropM": -0.4824893259475467,
+            "dropCandidate": -0.4959627422937476,
+            "dropBenchmark": -0.4882013680263606
+          },
+          {
+            "peak": "1981-08-11",
+            "trough": "1982-08-12",
+            "method": "priorHigh",
+            "dropM": -0.20247260284486301,
+            "dropCandidate": -0.21174062665795235,
+            "dropBenchmark": -0.20637559753361645
+          },
+          {
+            "peak": "1980-02-13",
+            "trough": "1980-03-27",
+            "method": "priorHigh",
+            "dropM": -0.1867109530854114,
+            "dropCandidate": -0.18383691741548758,
+            "dropBenchmark": -0.18915284089990037
+          },
+          {
+            "peak": "1978-09-12",
+            "trough": "1978-11-14",
+            "method": "priorHigh",
+            "dropM": -0.15174479571558863,
+            "dropCandidate": -0.15311679734671424,
+            "dropBenchmark": -0.15380478689312704
+          },
+          {
+            "peak": "1983-10-10",
+            "trough": "1984-07-24",
+            "method": "priorHigh",
+            "dropM": -0.13342626321236128,
+            "dropCandidate": -0.14791254542913224,
+            "dropBenchmark": -0.1360918176875826
+          },
+          {
+            "peak": "1979-10-05",
+            "trough": "1979-10-25",
+            "method": "priorHigh",
+            "dropM": -0.10855294053435383,
+            "dropCandidate": -0.10688697408728576,
+            "dropBenchmark": -0.10999990654875047
+          }
+        ],
+        "turnoverPerYear": 0.004199251880236672,
+        "rebalanceCount": 1,
+        "trackingError": 0.013003252197967012,
+        "worstRolling36": {
+          "rel": -0.05516287916722129,
+          "from": "1974-06",
+          "to": "1977-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": -0.057579353220236315,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.007855448264405207,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0088380858608788,
+            "threshold": 1.0,
+            "pass": false
+          }
+        }
+      },
+      "spyQqq1999_2026": {
+        "window": "veto_spy_qqq_1999_2026",
+        "K1": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.09203919830829665,
+            "vol": 0.20747667072975354,
+            "sharpeDaily": 0.4305001476958265,
+            "maxDd": -0.6102796250199509,
+            "maxDdDays": 637
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.48815403438718796,
+            "cerG5": 0.02933642562700478,
+            "cerG3": 0.06078628023809074
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.08300645086771996,
+            "vol": 0.19206996462833456,
+            "sharpeDaily": 0.40580694848207743,
+            "maxDd": -0.5518945179095609,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.47105346918796126,
+            "cerG5": 0.03296578722642218,
+            "cerG3": 0.058112285984449175
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.08603456470487858,
+            "vol": 0.21456119107656926,
+            "sharpeDaily": 0.3976217637555356,
+            "maxDd": -0.599797063821107,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4547316422806184,
+            "cerG5": 0.022975995078399203,
+            "cerG3": 0.05468453448007482
+          }
+        },
+        "k": 1.1170912431109778,
+        "L": 0.9789502058534477,
+        "tailPolyline": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2008-11-20",
+            "method": "polyline",
+            "dropM": -0.5076007059476216,
+            "dropCandidate": -0.5111621951053438,
+            "dropBenchmark": -0.5535891402802922
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2001-09-21",
+            "method": "polyline",
+            "dropM": -0.3555236775133852,
+            "dropCandidate": -0.5082043540618546,
+            "dropBenchmark": -0.3977655097860021
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "polyline",
+            "dropM": -0.33717265401236207,
+            "dropCandidate": -0.31853964773684285,
+            "dropBenchmark": -0.37113726638309497
+          },
+          {
+            "peak": "2002-03-19",
+            "trough": "2002-07-23",
+            "method": "polyline",
+            "dropM": -0.3169020986880542,
+            "dropCandidate": -0.3383851631130468,
+            "dropBenchmark": -0.3486649940797587
+          },
+          {
+            "peak": "2009-01-06",
+            "trough": "2009-03-09",
+            "method": "polyline",
+            "dropM": -0.2713171933302565,
+            "dropCandidate": -0.2448055329821115,
+            "dropBenchmark": -0.29918091794864854
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "polyline",
+            "dropM": -0.2449638885379869,
+            "dropCandidate": -0.2750492648913251,
+            "dropBenchmark": -0.2730307767475605
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2009-03-09",
+            "method": "priorHigh",
+            "dropM": -0.5518945179095609,
+            "dropCandidate": -0.5412235981693233,
+            "dropBenchmark": -0.599797063821107
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2002-10-09",
+            "method": "priorHigh",
+            "dropM": -0.47515860816946065,
+            "dropCandidate": -0.6102796250199509,
+            "dropBenchmark": -0.5255919861704184
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "priorHigh",
+            "dropM": -0.33717265401236207,
+            "dropCandidate": -0.31853964773684285,
+            "dropBenchmark": -0.37113726638309497
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "priorHigh",
+            "dropM": -0.2449638885379869,
+            "dropCandidate": -0.2750492648913251,
+            "dropBenchmark": -0.2730307767475605
+          },
+          {
+            "peak": "2018-09-20",
+            "trough": "2018-12-24",
+            "method": "priorHigh",
+            "dropM": -0.19348923397643158,
+            "dropCandidate": -0.20135981961626126,
+            "dropBenchmark": -0.2150998392009088
+          },
+          {
+            "peak": "2025-02-19",
+            "trough": "2025-04-08",
+            "method": "priorHigh",
+            "dropM": -0.18755229084676706,
+            "dropCandidate": -0.2000772359175631,
+            "dropBenchmark": -0.20847236427940807
+          }
+        ],
+        "turnoverPerYear": 0.023405432575532282,
+        "rebalanceCount": 13,
+        "trackingError": 0.040003938151178066,
+        "worstRolling36": {
+          "rel": -0.22873784641020578,
+          "from": "2000-03",
+          "to": "2003-02"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.017100565199226703,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.010482561198843943,
+            "threshold": -0.01,
+            "pass": false
+          },
+          "L": {
+            "value": 0.9789502058534477,
+            "threshold": 1.0,
+            "pass": true
+          }
+        }
+      }
+    },
+    "decision": {
+      "grade": "不通过",
+      "conditions": [
+        {
+          "id": "main_sharpe",
+          "pass": false,
+          "detail": "Δ夏普=0.0069275102506506925"
+        },
+        {
+          "id": "half1_sharpe",
+          "pass": true,
+          "detail": "Δ=0.007067429924446311"
+        },
+        {
+          "id": "half2_sharpe",
+          "pass": true,
+          "detail": "Δ=-0.004044418560190777"
+        },
+        {
+          "id": "maxDd",
+          "pass": true,
+          "detail": "ΔDD=-3.4920014406303324e-05"
+        },
+        {
+          "id": "L",
+          "pass": false,
+          "detail": "L=1.0080074252219455"
+        },
+        {
+          "id": "veto_kf1973",
+          "pass": false,
+          "detail": "否决触发"
+        },
+        {
+          "id": "veto_spyqqq",
+          "pass": true,
+          "detail": "否决未触发"
+        }
+      ]
+    }
+  },
+  "K2": {
+    "main": {
+      "window": "main_1927_1972",
+      "K2": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.0945328823674314,
+          "vol": 0.19531440891089993,
+          "sharpeDaily": 0.46706140979219635,
+          "maxDd": -0.8462186978097499,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.43205220601784966,
+          "cerG5": -0.013560488205170085,
+          "cerG3": 0.04098480043181141
+        }
+      },
+      "M": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09078241179482993,
+          "vol": 0.1796449495633866,
+          "sharpeDaily": 0.47232435291694536,
+          "maxDd": -0.8412300742641872,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4321831944898587,
+          "cerG5": -0.006069771154298742,
+          "cerG3": 0.043218800777726774
+        }
+      },
+      "Mstar": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.094229443513701,
+          "vol": 0.19531541365351943,
+          "sharpeDaily": 0.4656261613607553,
+          "maxDd": -0.8683154666877335,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4283842083235574,
+          "cerG5": -0.021033996294404722,
+          "cerG3": 0.037734594504064134
+        }
+      },
+      "k": 1.0872246026709727,
+      "L": 1.0139864886839263,
+      "deltaCerVsMstar": 0.007473508089234637,
+      "deltaCerVsM": -0.007490717050871343,
+      "tailPolyline": [
+        {
+          "peak": "1931-11-09",
+          "trough": "1932-07-08",
+          "method": "polyline",
+          "dropM": -0.5694449290716384,
+          "dropCandidate": -0.569893452216154,
+          "dropBenchmark": -0.5697564492652837
+        },
+        {
+          "peak": "1937-03-10",
+          "trough": "1938-03-31",
+          "method": "polyline",
+          "dropM": -0.5103826189625668,
+          "dropCandidate": -0.5338586826001894,
+          "dropBenchmark": -0.5109484473713743
+        },
+        {
+          "peak": "1929-09-03",
+          "trough": "1929-11-13",
+          "method": "polyline",
+          "dropM": -0.4370418231923594,
+          "dropCandidate": -0.4371577921729646,
+          "dropBenchmark": -0.4371577921729647
+        },
+        {
+          "peak": "1930-04-10",
+          "trough": "1930-12-16",
+          "method": "polyline",
+          "dropM": -0.4358953463001126,
+          "dropCandidate": -0.4515167168397667,
+          "dropBenchmark": -0.4363131210871508
+        },
+        {
+          "peak": "1931-06-27",
+          "trough": "1931-10-05",
+          "method": "polyline",
+          "dropM": -0.4173718745568139,
+          "dropCandidate": -0.417620108728018,
+          "dropBenchmark": -0.4175468817687559
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "polyline",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.3690546453098177,
+          "dropBenchmark": -0.369044990035992
+        }
+      ],
+      "tailPriorHigh": [
+        {
+          "peak": "1929-09-03",
+          "trough": "1932-07-08",
+          "method": "priorHigh",
+          "dropM": -0.8407399476860211,
+          "dropCandidate": -0.8462186978097499,
+          "dropBenchmark": -0.8412300742641872
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "priorHigh",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.3690546453098177,
+          "dropBenchmark": -0.369044990035992
+        },
+        {
+          "peak": "1946-05-29",
+          "trough": "1947-05-17",
+          "method": "priorHigh",
+          "dropM": -0.2827168121900687,
+          "dropCandidate": -0.2834577779953006,
+          "dropBenchmark": -0.283429943892445
+        },
+        {
+          "peak": "1961-12-12",
+          "trough": "1962-06-26",
+          "method": "priorHigh",
+          "dropM": -0.27704445895225804,
+          "dropCandidate": -0.2774084108037175,
+          "dropBenchmark": -0.277400404247519
+        },
+        {
+          "peak": "1957-07-15",
+          "trough": "1957-10-22",
+          "method": "priorHigh",
+          "dropM": -0.206513998270773,
+          "dropCandidate": -0.20672548473875585,
+          "dropBenchmark": -0.20671677006100186
+        },
+        {
+          "peak": "1966-02-09",
+          "trough": "1966-10-07",
+          "method": "priorHigh",
+          "dropM": -0.20261105326955742,
+          "dropCandidate": -0.20310168772618897,
+          "dropBenchmark": -0.20309615117094604
+        }
+      ],
+      "liquidated": false,
+      "checks": {
+        "deltaCerVsMstar": {
+          "value": 0.007473508089234637,
+          "threshold": 0.002,
+          "pass": true
+        },
+        "deltaCerVsM_nonneg": {
+          "value": -0.007490717050871343,
+          "threshold": 0.0,
+          "pass": false
+        },
+        "maxDdVsM": {
+          "value": -0.0049886235455627315,
+          "threshold": -0.01,
+          "pass": true
+        },
+        "L": {
+          "value": 1.0139864886839263,
+          "threshold": 1.0,
+          "pass": false
+        },
+        "liquidated": {
+          "value": false,
+          "threshold": false,
+          "pass": true
+        }
+      }
+    },
+    "halves": {
+      "1927_1949": {
+        "window": "half_1927_1949",
+        "K2": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.06078756842015953,
+            "vol": 0.2561588360644079,
+            "sharpeDaily": 0.3342113572548623,
+            "maxDd": -0.8462186978097499,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.3234987306620469,
+            "cerG5": -0.10766568701963242,
+            "cerG3": -0.024660720845489537
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.055586172323838445,
+            "vol": 0.2323318452927951,
+            "sharpeDaily": 0.32226508777990465,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.31079631190909346,
+            "cerG5": -0.09321311315360581,
+            "cerG3": -0.018859690423798425
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6793,
+            "cagr": 0.055809666945118463,
+            "vol": 0.25615930093848355,
+            "sharpeDaily": 0.3158089820859861,
+            "maxDd": -0.8726129456881606,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.30825685344550313,
+            "cerG5": -0.1245486245614279,
+            "cerG3": -0.03457878243477441
+          }
+        },
+        "k": 1.1025558538545803,
+        "L": 1.0347623131941288,
+        "deltaCerVsMstar": 0.016882937541795484,
+        "deltaCerVsM": -0.014452573866026608,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5694449290716384,
+            "dropCandidate": -0.569893452216154,
+            "dropBenchmark": -0.5697564492652837
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5103826189625668,
+            "dropCandidate": -0.5338586826001894,
+            "dropBenchmark": -0.5109484473713743
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4370418231923594,
+            "dropCandidate": -0.4371577921729646,
+            "dropBenchmark": -0.4371577921729647
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4358953463001126,
+            "dropCandidate": -0.4515167168397667,
+            "dropBenchmark": -0.4363131210871508
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4173718745568139,
+            "dropCandidate": -0.417620108728018,
+            "dropBenchmark": -0.4175468817687559
+          },
+          {
+            "peak": "1932-09-07",
+            "trough": "1933-02-27",
+            "method": "polyline",
+            "dropM": -0.3636714193301801,
+            "dropCandidate": -0.4207725445063516,
+            "dropBenchmark": -0.36399667206468256
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8407399476860211,
+            "dropCandidate": -0.8462186978097499,
+            "dropBenchmark": -0.8412300742641872
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.2827168121900687,
+            "dropCandidate": -0.2834577779953006,
+            "dropBenchmark": -0.283429943892445
+          },
+          {
+            "peak": "1928-05-14",
+            "trough": "1928-06-12",
+            "method": "priorHigh",
+            "dropM": -0.1029507111230672,
+            "dropCandidate": -0.10302288273129467,
+            "dropBenchmark": -0.103022882731295
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.016882937541795484,
+            "threshold": 0.002,
+            "pass": true
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.014452573866026608,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -0.0049886235455627315,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0347623131941288,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          },
+          "deltaCerVsMstar_half": {
+            "value": 0.016882937541795484,
+            "threshold": -0.002,
+            "pass": true
+          }
+        }
+      },
+      "1950_1972": {
+        "window": "half_1950_1972",
+        "K2": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.12939656329747828,
+            "vol": 0.1033718653268702,
+            "sharpeDaily": 0.9366616397190226,
+            "maxDd": -0.3690546453098176,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7923060861637401,
+            "cerG5": 0.09425618698750915,
+            "cerG3": 0.1118431961053461
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.12719599783062052,
+            "vol": 0.10281572986274032,
+            "sharpeDaily": 0.9221881735211512,
+            "maxDd": -0.36904499003599056,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7817470741987815,
+            "cerG5": 0.0926071111530109,
+            "cerG3": 0.10992836385817317
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 5845,
+            "cagr": 0.12762485472342955,
+            "vol": 0.10337217524355444,
+            "sharpeDaily": 0.9214623955342732,
+            "maxDd": -0.3710481960570593,
+            "maxDdDays": 369
+          },
+          "monthly": {
+            "nMonths": 276,
+            "sharpe": 0.7812490129089541,
+            "cerG5": 0.0926436741340646,
+            "cerG3": 0.11016135927532211
+          }
+        },
+        "k": 1.0054090503940627,
+        "L": 1.0000302133129315,
+        "deltaCerVsMstar": 0.0016125128534445476,
+        "deltaCerVsM": 0.0016490758344982481,
+        "tailPolyline": [
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.3681961176625179,
+            "dropCandidate": -0.3690546453098176,
+            "dropBenchmark": -0.36904499003599056
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "polyline",
+            "dropM": -0.2770444589522567,
+            "dropCandidate": -0.2774084108037177,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "polyline",
+            "dropM": -0.20651399827077332,
+            "dropCandidate": -0.20672548473875618,
+            "dropBenchmark": -0.20671677006100142
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "polyline",
+            "dropM": -0.20261105326955708,
+            "dropCandidate": -0.20310168772618897,
+            "dropBenchmark": -0.20309615117094626
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.3681961176625179,
+            "dropCandidate": -0.3690546453098176,
+            "dropBenchmark": -0.36904499003599056
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.2770444589522567,
+            "dropCandidate": -0.2774084108037177,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20651399827077332,
+            "dropCandidate": -0.20672548473875618,
+            "dropBenchmark": -0.20671677006100142
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20261105326955708,
+            "dropCandidate": -0.20310168772618897,
+            "dropBenchmark": -0.20309615117094626
+          },
+          {
+            "peak": "1950-06-12",
+            "trough": "1950-07-13",
+            "method": "priorHigh",
+            "dropM": -0.12772185097872013,
+            "dropCandidate": -0.12780622047736123,
+            "dropBenchmark": -0.12779212315774657
+          },
+          {
+            "peak": "1971-04-28",
+            "trough": "1971-11-23",
+            "method": "priorHigh",
+            "dropM": -0.1264943435561091,
+            "dropCandidate": -0.12698134633765557,
+            "dropBenchmark": -0.12695873965979187
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.0016125128534445476,
+            "threshold": 0.002,
+            "pass": false
+          },
+          "deltaCerVsM_nonneg": {
+            "value": 0.0016490758344982481,
+            "threshold": 0.0,
+            "pass": true
+          },
+          "maxDdVsM": {
+            "value": -9.655273827013922e-06,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0000302133129315,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          },
+          "deltaCerVsMstar_half": {
+            "value": 0.0016125128534445476,
+            "threshold": -0.002,
+            "pass": true
+          }
+        }
+      }
+    },
+    "veto": {
+      "kf1973_1984": {
+        "window": "veto_kf_1973_1984",
+        "K2": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.08939700668984218,
+            "vol": 0.144258900449309,
+            "sharpeDaily": 0.09493151832031244,
+            "maxDd": -0.48248932594753546,
+            "maxDdDays": 436
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.10411829724869937,
+            "cerG5": 0.026127240490393167,
+            "cerG3": 0.05723737965592135
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.0832031947090317,
+            "vol": 0.1392923254626658,
+            "sharpeDaily": 0.05234838093089681,
+            "maxDd": -0.4824893259475467,
+            "maxDdDays": 436
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.06849569560494442,
+            "cerG5": 0.02395181383884526,
+            "cerG3": 0.053178781180015955
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 3033,
+            "cagr": 0.08214470149680264,
+            "vol": 0.14426088143896212,
+            "sharpeDaily": 0.04864271016692043,
+            "maxDd": -0.4977382384792751,
+            "maxDdDays": 436
+          },
+          "monthly": {
+            "nMonths": 144,
+            "sharpe": 0.06640868880095528,
+            "cerG5": 0.018741154526379367,
+            "cerG3": 0.049991370080985975
+          }
+        },
+        "k": 1.0356557690464747,
+        "L": 1.0000822220186474,
+        "deltaCerVsMstar": 0.0073860859640138,
+        "deltaCerVsM": 0.002175426651547907,
+        "tailPolyline": [
+          {
+            "peak": "1973-01-11",
+            "trough": "1974-10-03",
+            "method": "polyline",
+            "dropM": -0.48159482400007814,
+            "dropCandidate": -0.48248932594753546,
+            "dropBenchmark": -0.4824893259475467
+          },
+          {
+            "peak": "1981-08-11",
+            "trough": "1982-08-12",
+            "method": "polyline",
+            "dropM": -0.2016703370140599,
+            "dropCandidate": -0.20251731010759022,
+            "dropBenchmark": -0.20247260284486301
+          },
+          {
+            "peak": "1980-02-13",
+            "trough": "1980-03-27",
+            "method": "polyline",
+            "dropM": -0.18661378337182566,
+            "dropCandidate": -0.18673791652664362,
+            "dropBenchmark": -0.1867109530854114
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1973-01-11",
+            "trough": "1974-10-03",
+            "method": "priorHigh",
+            "dropM": -0.48159482400007814,
+            "dropCandidate": -0.48248932594753546,
+            "dropBenchmark": -0.4824893259475467
+          },
+          {
+            "peak": "1981-08-11",
+            "trough": "1982-08-12",
+            "method": "priorHigh",
+            "dropM": -0.2016703370140599,
+            "dropCandidate": -0.20251731010759022,
+            "dropBenchmark": -0.20247260284486301
+          },
+          {
+            "peak": "1980-02-13",
+            "trough": "1980-03-27",
+            "method": "priorHigh",
+            "dropM": -0.18661378337182566,
+            "dropCandidate": -0.18673791652664362,
+            "dropBenchmark": -0.1867109530854114
+          },
+          {
+            "peak": "1978-09-12",
+            "trough": "1978-11-14",
+            "method": "priorHigh",
+            "dropM": -0.1515932621859215,
+            "dropCandidate": -0.15176774307460406,
+            "dropBenchmark": -0.15174479571558863
+          },
+          {
+            "peak": "1983-10-10",
+            "trough": "1984-07-24",
+            "method": "priorHigh",
+            "dropM": -0.1327434999311604,
+            "dropCandidate": -0.13345166764619054,
+            "dropBenchmark": -0.13342626321236128
+          },
+          {
+            "peak": "1979-10-05",
+            "trough": "1979-10-25",
+            "method": "priorHigh",
+            "dropM": -0.10850317328154513,
+            "dropCandidate": -0.10856881204907465,
+            "dropBenchmark": -0.10855294053435383
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.0073860859640138,
+            "threshold": 0.002,
+            "pass": true
+          },
+          "deltaCerVsM_nonneg": {
+            "value": 0.002175426651547907,
+            "threshold": 0.0,
+            "pass": true
+          },
+          "maxDdVsM": {
+            "value": 1.1213252548714081e-14,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0000822220186474,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      },
+      "spy1999_2026": {
+        "window": "veto_spy_1999_2026",
+        "K2": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08616948900189625,
+            "vol": 0.19672591207282483,
+            "sharpeDaily": 0.41561820387867165,
+            "maxDd": -0.5519671174005888,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4799572220808334,
+            "cerG5": 0.03297007450792511,
+            "cerG3": 0.05966821007201384
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08333969371209027,
+            "vol": 0.19206709415336073,
+            "sharpeDaily": 0.4073856364061257,
+            "maxDd": -0.5518945179095609,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4731525789869894,
+            "cerG5": 0.03329433555790584,
+            "cerG3": 0.058448668247981894
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08401968164793461,
+            "vol": 0.19672621187726305,
+            "sharpeDaily": 0.40553630901688825,
+            "maxDd": -0.5621655590802009,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4695595060992575,
+            "cerG5": 0.03140733769852133,
+            "cerG3": 0.057855728594687905
+          }
+        },
+        "k": 1.0242562003658167,
+        "L": 1.0047573553519065,
+        "deltaCerVsMstar": 0.0015627368094037752,
+        "deltaCerVsM": -0.00032426104998073413,
+        "tailPolyline": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2008-11-20",
+            "method": "polyline",
+            "dropM": -0.5076007059476217,
+            "dropCandidate": -0.5076674112830621,
+            "dropBenchmark": -0.5076007059476217
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2001-09-21",
+            "method": "polyline",
+            "dropM": -0.3555236775133849,
+            "dropCandidate": -0.3555236775133849,
+            "dropBenchmark": -0.3555236775133849
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "polyline",
+            "dropM": -0.3371726540123622,
+            "dropCandidate": -0.3371923081881918,
+            "dropBenchmark": -0.3371726540123622
+          },
+          {
+            "peak": "2002-03-19",
+            "trough": "2002-07-23",
+            "method": "polyline",
+            "dropM": -0.3169020986880543,
+            "dropCandidate": -0.3264227404658955,
+            "dropBenchmark": -0.3169020986880543
+          },
+          {
+            "peak": "2009-01-06",
+            "trough": "2009-03-09",
+            "method": "polyline",
+            "dropM": -0.2713171933302567,
+            "dropCandidate": -0.2713734900067978,
+            "dropBenchmark": -0.2713171933302567
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "polyline",
+            "dropM": -0.24496388853798678,
+            "dropCandidate": -0.24497457857057403,
+            "dropBenchmark": -0.24496388853798678
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2009-03-09",
+            "method": "priorHigh",
+            "dropM": -0.5518945179095609,
+            "dropCandidate": -0.5519671174005888,
+            "dropBenchmark": -0.5518945179095609
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2002-10-09",
+            "method": "priorHigh",
+            "dropM": -0.4751586081694599,
+            "dropCandidate": -0.4819550223729143,
+            "dropBenchmark": -0.4751586081694599
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "priorHigh",
+            "dropM": -0.3371726540123622,
+            "dropCandidate": -0.3371923081881918,
+            "dropBenchmark": -0.3371726540123622
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "priorHigh",
+            "dropM": -0.24496388853798678,
+            "dropCandidate": -0.24497457857057403,
+            "dropBenchmark": -0.24496388853798678
+          },
+          {
+            "peak": "2018-09-20",
+            "trough": "2018-12-24",
+            "method": "priorHigh",
+            "dropM": -0.1934892339764317,
+            "dropCandidate": -0.19350241882269392,
+            "dropBenchmark": -0.1934892339764317
+          },
+          {
+            "peak": "2025-02-19",
+            "trough": "2025-04-08",
+            "method": "priorHigh",
+            "dropM": -0.18755229084676694,
+            "dropCandidate": -0.18755935206870156,
+            "dropBenchmark": -0.18755229084676694
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.0015627368094037752,
+            "threshold": 0.002,
+            "pass": false
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.00032426104998073413,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -7.259949102789154e-05,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0047573553519065,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      }
+    },
+    "leverageByPeakSegment": [
+      {
+        "peak": "1929-09-03",
+        "trough": "1932-07-08",
+        "recoveryAth": "1945-02-06",
+        "drop": -0.8407399476860208,
+        "entries": 49,
+        "leveredDays": 2523,
+        "cumDiffVsM": 0.12714300679314805,
+        "logDiffContrib": 0.11968611857205888,
+        "deltaCerShare": 0.7582131084836962,
+        "deltaCerContribLeaveOneOut": -0.008004243223900698
+      },
+      {
+        "peak": "1946-05-29",
+        "trough": "1947-05-17",
+        "recoveryAth": "1949-12-15",
+        "drop": -0.2827168121900683,
+        "entries": 3,
+        "leveredDays": 118,
+        "cumDiffVsM": -0.006690642934236379,
+        "logDiffContrib": -0.006713125624222132,
+        "deltaCerShare": -0.04252773761828122,
+        "deltaCerContribLeaveOneOut": -0.00021126554612194148
+      },
+      {
+        "peak": "1957-07-15",
+        "trough": "1957-10-22",
+        "recoveryAth": "1958-07-28",
+        "drop": -0.20651399827077366,
+        "entries": 0,
+        "leveredDays": 0,
+        "cumDiffVsM": -1.2992643423359596e-06,
+        "logDiffContrib": -1.2992651863427783e-06,
+        "deltaCerShare": -8.230861752681034e-06,
+        "deltaCerContribLeaveOneOut": -9.773849363181597e-08
+      },
+      {
+        "peak": "1961-12-12",
+        "trough": "1962-06-26",
+        "recoveryAth": "1963-05-31",
+        "drop": -0.27704445895225727,
+        "entries": 0,
+        "leveredDays": 0,
+        "cumDiffVsM": -1.6057622134191263e-06,
+        "logDiffContrib": -1.605763499176407e-06,
+        "deltaCerShare": -1.0172532526962843e-05,
+        "deltaCerContribLeaveOneOut": -1.666931052080045e-07
+      },
+      {
+        "peak": "1966-02-09",
+        "trough": "1966-10-07",
+        "recoveryAth": "1967-03-08",
+        "drop": -0.2026110532695583,
+        "entries": 0,
+        "leveredDays": 0,
+        "cumDiffVsM": -1.5766240043513235e-06,
+        "logDiffContrib": -1.576625247837608e-06,
+        "deltaCerShare": -9.987941328025528e-06,
+        "deltaCerContribLeaveOneOut": -7.900029619367643e-08
+      },
+      {
+        "peak": "1968-11-29",
+        "trough": "1970-05-26",
+        "recoveryAth": "1971-04-27",
+        "drop": -0.3681961176625179,
+        "entries": 2,
+        "leveredDays": 115,
+        "cumDiffVsM": 0.04573414163420031,
+        "logDiffContrib": 0.04471916663919593,
+        "deltaCerShare": 0.28329649879899077,
+        "deltaCerContribLeaveOneOut": 0.0007172836240002534
+      }
+    ],
+    "tradeDetails": {
+      "1930_spring": [
+        {
+          "signalDate": "1930-04-04",
+          "execDate": "1930-04-05",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.8455845437641731,
+          "navPrev": 1.8365019459302119,
+          "navChange": 0.004945596629553739,
+          "exposureAfter": 1.300195029254388
+        },
+        {
+          "signalDate": "1930-04-21",
+          "execDate": "1930-04-22",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.817979416017781,
+          "navPrev": 1.8067787242337001,
+          "navChange": 0.006199260393013217,
+          "exposureAfter": 1.0001526595718535
+        },
+        {
+          "signalDate": "1930-04-22",
+          "execDate": "1930-04-23",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.8246085395008236,
+          "navPrev": 1.817979416017781,
+          "navChange": 0.0036464238399154247,
+          "exposureAfter": 1.3001949303560638
+        },
+        {
+          "signalDate": "1930-04-28",
+          "execDate": "1930-04-29",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.741437827500518,
+          "navPrev": 1.7519250105065387,
+          "navChange": -0.005986091267107696,
+          "exposureAfter": 1.000157387680694
+        },
+        {
+          "signalDate": "1930-05-27",
+          "execDate": "1930-05-28",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.7207368718796008,
+          "navPrev": 1.7151686596421263,
+          "navChange": 0.003246451715504417,
+          "exposureAfter": 1.3001949253052263
+        },
+        {
+          "signalDate": "1930-06-05",
+          "execDate": "1930-06-06",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.6534979873319395,
+          "navPrev": 1.6857841640711493,
+          "navChange": -0.01915202279587147,
+          "exposureAfter": 1.0001563460534226
+        }
+      ],
+      "1932_summer": [
+        {
+          "signalDate": "1932-08-05",
+          "execDate": "1932-08-06",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 0.5595311601588524,
+          "navPrev": 0.5282285344218149,
+          "navChange": 0.0592596266525065,
+          "exposureAfter": 1.3001948017845644
+        },
+        {
+          "signalDate": "1932-08-24",
+          "execDate": "1932-08-25",
+          "action": "rebalance",
+          "exposure": 1.3,
+          "nav": 0.6736397931911935,
+          "navPrev": 0.6772194024465477,
+          "navChange": -0.005285745273130638,
+          "exposureAfter": 1.3000327894204373
+        }
+      ],
+      "1937": [
+        {
+          "signalDate": "1937-04-24",
+          "execDate": "1937-04-26",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.7254711223529136,
+          "navPrev": 1.7990127651718557,
+          "navChange": -0.04087888882318014,
+          "exposureAfter": 1.0001462156389702
+        },
+        {
+          "signalDate": "1937-07-20",
+          "execDate": "1937-07-21",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.7983106042126766,
+          "navPrev": 1.8088990297543597,
+          "navChange": -0.005853519388045014,
+          "exposureAfter": 1.3001949377009505
+        },
+        {
+          "signalDate": "1937-07-21",
+          "execDate": "1937-07-22",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.8052509710353164,
+          "navPrev": 1.7983106042126766,
+          "navChange": 0.003859381580902266,
+          "exposureAfter": 1.0001495285739084
+        },
+        {
+          "signalDate": "1937-07-22",
+          "execDate": "1937-07-23",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.809125809662334,
+          "navPrev": 1.8052509710353164,
+          "navChange": 0.0021464265574084873,
+          "exposureAfter": 1.3001949322491426
+        },
+        {
+          "signalDate": "1937-07-28",
+          "execDate": "1937-07-29",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.7806063945149038,
+          "navPrev": 1.7872082709980597,
+          "navChange": -0.0036939603460256487,
+          "exposureAfter": 1.0001525431553133
+        },
+        {
+          "signalDate": "1937-07-31",
+          "execDate": "1937-08-02",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.8024713933387513,
+          "navPrev": 1.7995086283353914,
+          "navChange": 0.0016464300068961268,
+          "exposureAfter": 1.3001949312733825
+        },
+        {
+          "signalDate": "1937-08-03",
+          "execDate": "1937-08-04",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.7987908647569986,
+          "navPrev": 1.789543727503611,
+          "navChange": 0.00516731561865047,
+          "exposureAfter": 1.000150421001685
+        },
+        {
+          "signalDate": "1937-08-04",
+          "execDate": "1937-08-05",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.7911395755198174,
+          "navPrev": 1.7987908647569986,
+          "navChange": -0.004253573546035727,
+          "exposureAfter": 1.300194931042982
+        },
+        {
+          "signalDate": "1937-08-05",
+          "execDate": "1937-08-06",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.7831477507560518,
+          "navPrev": 1.7911395755198174,
+          "navChange": -0.0044618659946956685,
+          "exposureAfter": 1.00015077841147
+        },
+        {
+          "signalDate": "1937-08-07",
+          "execDate": "1937-08-09",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.800558106873265,
+          "navPrev": 1.7952684793313107,
+          "navChange": 0.0029464270123678027,
+          "exposureAfter": 1.3001949321709232
+        },
+        {
+          "signalDate": "1937-08-19",
+          "execDate": "1937-08-20",
+          "action": "exit",
+          "exposure": 1.0,
+          "nav": 1.7356278890259051,
+          "navPrev": 1.761025918097773,
+          "navChange": -0.014422291467068415,
+          "exposureAfter": 1.000155797659698
+        },
+        {
+          "signalDate": "1938-06-22",
+          "execDate": "1938-06-23",
+          "action": "enter",
+          "exposure": 1.3,
+          "nav": 1.220571479991257,
+          "navPrev": 1.1878478164174724,
+          "navChange": 0.027548700365067402,
+          "exposureAfter": 1.3001948832363732
+        },
+        {
+          "signalDate": "1938-07-25",
+          "execDate": "1938-07-26",
+          "action": "rebalance",
+          "exposure": 1.3,
+          "nav": 1.4520491906133701,
+          "navPrev": 1.4701132622483057,
+          "navChange": -0.012287537361107437,
+          "exposureAfter": 1.3000307420615413
+        },
+        {
+          "signalDate": "1938-09-14",
+          "execDate": "1938-09-15",
+          "action": "rebalance",
+          "exposure": 1.3,
+          "nav": 1.299163807570046,
+          "navPrev": 1.2410023520714202,
+          "navChange": 0.04686651512105966,
+          "exposureAfter": 1.3000234785642142
+        },
+        {
+          "signalDate": "1938-11-09",
+          "execDate": "1938-11-10",
+          "action": "rebalance",
+          "exposure": 1.3,
+          "nav": 1.5884378030374624,
+          "navPrev": 1.5958596644898688,
+          "navChange": -0.004650698064217917,
+          "exposureAfter": 1.3000351036994253
+        }
+      ]
+    },
+    "placebo": {
+      "N": 601,
+      "pDeltaCer": 0.4584717607973422,
+      "pMeanDailyExcessDiff": 0.24086378737541528,
+      "conditionalP": 0.0001999600079984003,
+      "conditional": {
+        "N": 5000,
+        "seed": 20261128,
+        "nSegments": 54,
+        "totalLeverDays": 2756,
+        "eligibleDays": 4632,
+        "redraws": 0,
+        "nInfinite": 0,
+        "actualDeltaCer": -0.007490717050871343,
+        "e1DeltaCer": -0.05516261669182965,
+        "e1DeltaCerFullEngine": -0.05516261669182965,
+        "maIncrementVsE1": 0.047671899640958304,
+        "p": 0.0001999600079984003,
+        "nGeActual": 0,
+        "distribution": {
+          "mean": -0.039521529141349994,
+          "std": 0.007449312109410999,
+          "min": -0.060789084821415096,
+          "q05": -0.05080429730806025,
+          "q50": -0.04012552529937935,
+          "q95": -0.02672293506349607,
+          "max": -0.011429974784886832
+        },
+        "note": "CLARIFY-2 §4：与 K2 完全相同的完整模拟（漂移带、成本、融资、强平）。放置对象为 K2 信号状态序列的加杠杆段（段数、各段长度同 K2）；每段整段落在同一 DD≤−20% 连续区间内、段间不重叠且不相邻；按长度降序逐段在可行起点中等概率抽取，任一段放不下则整次重抽。单边 p=(1+#{ΔCER≥实际})/(1+N)；ΔCER 相对 M；maIncrementVsE1=实际−E1（同一完整引擎）。"
+      }
+    },
+    "decision": {
+      "grade": "不通过",
+      "conditions": [
+        {
+          "id": "deltaCer_mstar",
+          "pass": true,
+          "detail": "0.007473508089234637"
+        },
+        {
+          "id": "deltaCer_m",
+          "pass": false,
+          "detail": "-0.007490717050871343"
+        },
+        {
+          "id": "half1",
+          "pass": true,
+          "detail": "0.016882937541795484"
+        },
+        {
+          "id": "half2",
+          "pass": true,
+          "detail": "0.0016125128534445476"
+        },
+        {
+          "id": "maxDd",
+          "pass": true,
+          "detail": "-0.0049886235455627315"
+        },
+        {
+          "id": "L",
+          "pass": false,
+          "detail": "1.0139864886839263"
+        },
+        {
+          "id": "placebo",
+          "pass": false,
+          "detail": "p=0.4584717607973422, N=601"
+        },
+        {
+          "id": "liquidated",
+          "pass": true,
+          "detail": "False"
+        },
+        {
+          "id": "concentration",
+          "pass": false,
+          "detail": "maxShare=0.758213（补充裁定 12：对数收益差份额 c_i/C），C=0.157853, nEpisodes=6, ΔCER=-0.007490717050871343"
+        },
+        {
+          "id": "veto_kf1973",
+          "pass": true,
+          "detail": "否决未触发"
+        },
+        {
+          "id": "veto_spy",
+          "pass": true,
+          "detail": "否决未触发"
+        }
+      ]
+    }
+  },
+  "exploratory": {
+    "E1": {
+      "main": {
+        "window": "E1",
+        "K2": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.08966626544926282,
+            "vol": 0.2233830627202732,
+            "sharpeDaily": 0.414506587128062,
+            "maxDd": -0.9054969899315616,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.3890841243330279,
+            "cerG5": -0.06123238784612839,
+            "cerG3": 0.016751786437447347
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.0997542022650324,
+            "vol": 0.2233860009727931,
+            "sharpeDaily": 0.4559769925004896,
+            "maxDd": -0.9064935019315321,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4236108636707568,
+            "cerG5": -0.05270317194471508,
+            "cerG3": 0.02527720164244407
+          }
+        },
+        "k": 1.2434697622348345,
+        "L": 1.1768293551617706,
+        "deltaCerVsMstar": -0.008529215901413312,
+        "deltaCerVsM": -0.05516261669182965,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5694449290716384,
+            "dropCandidate": -0.6749038015000673,
+            "dropBenchmark": -0.5697564492652837
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5103826189625668,
+            "dropCandidate": -0.6161058701707356,
+            "dropBenchmark": -0.5109484473713743
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4370418231923594,
+            "dropCandidate": -0.4662359789514523,
+            "dropBenchmark": -0.4371577921729647
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4358953463001126,
+            "dropCandidate": -0.5332492299476057,
+            "dropBenchmark": -0.4363131210871508
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4173718745568139,
+            "dropCandidate": -0.5132157051882231,
+            "dropBenchmark": -0.4175468817687559
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.42170527774693845,
+            "dropBenchmark": -0.369044990035992
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8407399476860211,
+            "dropCandidate": -0.9054969899315616,
+            "dropBenchmark": -0.8412300742641872
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.42170527774693845,
+            "dropBenchmark": -0.369044990035992
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.2827168121900687,
+            "dropCandidate": -0.30013394681044336,
+            "dropBenchmark": -0.283429943892445
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.27704445895225804,
+            "dropCandidate": -0.30203933435873875,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.206513998270773,
+            "dropCandidate": -0.20684406074663575,
+            "dropBenchmark": -0.20671677006100186
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20261105326955742,
+            "dropCandidate": -0.20311961410354729,
+            "dropBenchmark": -0.20309615117094604
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": -0.008529215901413312,
+            "threshold": 0.002,
+            "pass": false
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.05516261669182965,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -0.06426691566737441,
+            "threshold": -0.01,
+            "pass": false
+          },
+          "L": {
+            "value": 1.1768293551617706,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      },
+      "path1929_1932": [
+        {
+          "date": "1929-01-02",
+          "nav": 1.8630551130302253,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-01-31",
+          "nav": 1.9256273073626167,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-02-28",
+          "nav": 1.926693180765231,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-03-28",
+          "nav": 1.9145062551644894,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-04-30",
+          "nav": 1.947637798970669,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-05-31",
+          "nav": 1.8332304490284852,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-06-29",
+          "nav": 2.0205842042753424,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-07-31",
+          "nav": 2.1163282094721665,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-08-30",
+          "nav": 2.2994426089965803,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-09-30",
+          "nav": 2.1793968421644396,
+          "exposure": 1.0,
+          "levered": false
+        },
+        {
+          "date": "1929-10-29",
+          "nav": 1.485744304752666,
+          "exposure": 1.3001950292543882,
+          "levered": true
+        },
+        {
+          "date": "1929-10-31",
+          "nav": 1.829436324132435,
+          "exposure": 1.243922225331266,
+          "levered": true
+        },
+        {
+          "date": "1929-11-04",
+          "nav": 1.7323339398945192,
+          "exposure": 1.3000275248954147,
+          "levered": true
+        },
+        {
+          "date": "1929-11-12",
+          "nav": 1.330420081351928,
+          "exposure": 1.3000592464219058,
+          "levered": true
+        },
+        {
+          "date": "1929-11-27",
+          "nav": 1.522658407622545,
+          "exposure": 1.2629113732133548,
+          "levered": true
+        },
+        {
+          "date": "1929-12-05",
+          "nav": 1.60511527791388,
+          "exposure": 1.300032791228073,
+          "levered": true
+        },
+        {
+          "date": "1929-12-31",
+          "nav": 1.5478129541186145,
+          "exposure": 1.3121520539751759,
+          "levered": true
+        },
+        {
+          "date": "1930-01-31",
+          "nav": 1.6659636969612903,
+          "exposure": 1.2911819916461547,
+          "levered": true
+        },
+        {
+          "date": "1930-02-28",
+          "nav": 1.7227319883335483,
+          "exposure": 1.2825460112566567,
+          "levered": true
+        },
+        {
+          "date": "1930-03-31",
+          "nav": 1.8832317200257918,
+          "exposure": 1.2595066609594807,
+          "levered": true
+        },
+        {
+          "date": "1930-04-30",
+          "nav": 1.838367249406636,
+          "exposure": 1.266827820059227,
+          "levered": true
+        },
+        {
+          "date": "1930-05-29",
+          "nav": 1.8027400722210674,
+          "exposure": 1.273154595850667,
+          "levered": true
+        },
+        {
+          "date": "1930-06-19",
+          "nav": 1.4647995183391682,
+          "exposure": 1.3000240502308478,
+          "levered": true
+        },
+        {
+          "date": "1930-06-30",
+          "nav": 1.4378732884289762,
+          "exposure": 1.306067918046562,
+          "levered": true
+        },
+        {
+          "date": "1930-07-31",
+          "nav": 1.5175855577115316,
+          "exposure": 1.2911142618427487,
+          "levered": true
+        },
+        {
+          "date": "1930-08-29",
+          "nav": 1.5230396040114385,
+          "exposure": 1.2904678632100433,
+          "levered": true
+        },
+        {
+          "date": "1930-09-30",
+          "nav": 1.2740437924843686,
+          "exposure": 1.3485805672055884,
+          "levered": true
+        },
+        {
+          "date": "1930-10-09",
+          "nav": 1.1895871207477442,
+          "exposure": 1.3000477624171414,
+          "levered": true
+        },
+        {
+          "date": "1930-10-31",
+          "nav": 1.126013575461712,
+          "exposure": 1.3172997320703888,
+          "levered": true
+        },
+        {
+          "date": "1930-11-11",
+          "nav": 1.0145549465875299,
+          "exposure": 1.300034180908951,
+          "levered": true
+        },
+        {
+          "date": "1930-11-29",
+          "nav": 1.0805650778660234,
+          "exposure": 1.2823594478396907,
+          "levered": true
+        },
+        {
+          "date": "1930-12-31",
+          "nav": 0.9738235583963084,
+          "exposure": 1.3145707564449898,
+          "levered": true
+        },
+        {
+          "date": "1931-01-31",
+          "nav": 1.0560216142872694,
+          "exposure": 1.2912535232706326,
+          "levered": true
+        },
+        {
+          "date": "1931-02-28",
+          "nav": 1.2040720723014544,
+          "exposure": 1.2557484537356574,
+          "levered": true
+        },
+        {
+          "date": "1931-03-31",
+          "nav": 1.1073464586325903,
+          "exposure": 1.2784827525709268,
+          "levered": true
+        },
+        {
+          "date": "1931-04-30",
+          "nav": 0.9657097062660576,
+          "exposure": 1.3197627327609232,
+          "levered": true
+        },
+        {
+          "date": "1931-05-19",
+          "nav": 0.8671637032152171,
+          "exposure": 1.3000366624662592,
+          "levered": true
+        },
+        {
+          "date": "1931-05-29",
+          "nav": 0.7988458292771603,
+          "exposure": 1.3258560494721658,
+          "levered": true
+        },
+        {
+          "date": "1931-06-03",
+          "nav": 0.8019754955934191,
+          "exposure": 1.3000160120172235,
+          "levered": true
+        },
+        {
+          "date": "1931-06-27",
+          "nav": 0.9900384534006026,
+          "exposure": 1.3000368571927494,
+          "levered": true
+        },
+        {
+          "date": "1931-06-30",
+          "nav": 0.9409097533186412,
+          "exposure": 1.3157374592860391,
+          "levered": true
+        },
+        {
+          "date": "1931-07-31",
+          "nav": 0.8585842127143848,
+          "exposure": 1.3465034042862611,
+          "levered": true
+        },
+        {
+          "date": "1931-08-06",
+          "nav": 0.841165054439037,
+          "exposure": 1.3000349488077048,
+          "levered": true
+        },
+        {
+          "date": "1931-08-31",
+          "nav": 0.8622073173153264,
+          "exposure": 1.293048270922868,
+          "levered": true
+        },
+        {
+          "date": "1931-09-16",
+          "nav": 0.7037124342608887,
+          "exposure": 1.3000385300157329,
+          "levered": true
+        },
+        {
+          "date": "1931-09-29",
+          "nav": 0.5687742999185799,
+          "exposure": 1.3000464314653575,
+          "levered": true
+        },
+        {
+          "date": "1931-09-30",
+          "nav": 0.5457659277266564,
+          "exposure": 1.3127128417515224,
+          "levered": true
+        },
+        {
+          "date": "1931-10-06",
+          "nav": 0.5546907345932779,
+          "exposure": 1.3000050467318547,
+          "levered": true
+        },
+        {
+          "date": "1931-10-31",
+          "nav": 0.6025011169082828,
+          "exposure": 1.2765154588980083,
+          "levered": true
+        },
+        {
+          "date": "1931-11-10",
+          "nav": 0.6550259587348095,
+          "exposure": 1.3000295028907563,
+          "levered": true
+        },
+        {
+          "date": "1931-11-21",
+          "nav": 0.551693185342824,
+          "exposure": 1.3000368991423252,
+          "levered": true
+        },
+        {
+          "date": "1931-11-30",
+          "nav": 0.529754300031527,
+          "exposure": 1.3127523454947845,
+          "levered": true
+        },
+        {
+          "date": "1931-12-11",
+          "nav": 0.4489569884355691,
+          "exposure": 1.3000449984960114,
+          "levered": true
+        },
+        {
+          "date": "1931-12-31",
+          "nav": 0.4361437194217671,
+          "exposure": 1.3091128623407922,
+          "levered": true
+        },
+        {
+          "date": "1932-01-30",
+          "nav": 0.42802698647945026,
+          "exposure": 1.316194120404746,
+          "levered": true
+        },
+        {
+          "date": "1932-02-29",
+          "nav": 0.45962162938318607,
+          "exposure": 1.2955074716581385,
+          "levered": true
+        },
+        {
+          "date": "1932-03-31",
+          "nav": 0.39315968315394534,
+          "exposure": 1.3468528915664566,
+          "levered": true
+        },
+        {
+          "date": "1932-04-02",
+          "nav": 0.3799727980141896,
+          "exposure": 1.3000382984541217,
+          "levered": true
+        },
+        {
+          "date": "1932-04-09",
+          "nav": 0.3327266686584075,
+          "exposure": 1.3000277865916403,
+          "levered": true
+        },
+        {
+          "date": "1932-04-30",
+          "nav": 0.30242673685664756,
+          "exposure": 1.330411832970883,
+          "levered": true
+        },
+        {
+          "date": "1932-05-16",
+          "nav": 0.28809192222141367,
+          "exposure": 1.3000306094957081,
+          "levered": true
+        },
+        {
+          "date": "1932-05-28",
+          "nav": 0.2445062113802462,
+          "exposure": 1.3000349169370675,
+          "levered": true
+        },
+        {
+          "date": "1932-05-31",
+          "nav": 0.22282254745269978,
+          "exposure": 1.3292503651274343,
+          "levered": true
+        },
+        {
+          "date": "1932-06-30",
+          "nav": 0.22032291515158042,
+          "exposure": 1.3334587018729107,
+          "levered": true
+        },
+        {
+          "date": "1932-07-29",
+          "nav": 0.316088955999977,
+          "exposure": 1.300043737200837,
+          "levered": true
+        },
+        {
+          "date": "1932-07-30",
+          "nav": 0.3190820690256293,
+          "exposure": 1.2972454349628746,
+          "levered": true
+        },
+        {
+          "date": "1932-08-08",
+          "nav": 0.40417449674414857,
+          "exposure": 1.300042415693444,
+          "levered": true
+        },
+        {
+          "date": "1932-08-29",
+          "nav": 0.4898447032774782,
+          "exposure": 1.3000339282177988,
+          "levered": true
+        },
+        {
+          "date": "1932-08-31",
+          "nav": 0.47557311748674075,
+          "exposure": 1.309071454889634,
+          "levered": true
+        },
+        {
+          "date": "1932-09-15",
+          "nav": 0.42623503362505977,
+          "exposure": 1.300029293329098,
+          "levered": true
+        },
+        {
+          "date": "1932-09-30",
+          "nav": 0.4559903594391137,
+          "exposure": 1.280650165803215,
+          "levered": true
+        },
+        {
+          "date": "1932-10-11",
+          "nav": 0.3732164529178888,
+          "exposure": 1.300027986569684,
+          "levered": true
+        },
+        {
+          "date": "1932-10-31",
+          "nav": 0.37869648432544123,
+          "exposure": 1.2959446896806814,
+          "levered": true
+        },
+        {
+          "date": "1932-11-30",
+          "nav": 0.3497363589593311,
+          "exposure": 1.3208706211777905,
+          "levered": true
+        },
+        {
+          "date": "1932-12-31",
+          "nav": 0.36987824795851276,
+          "exposure": 1.3038283336063425,
+          "levered": true
+        }
+      ],
+      "liquidateIfNoRebalance": {
+        "hit": true,
+        "date": "1931-09-30",
+        "rule": "no_band_rebalance（进入 1.30 后不做漂移调回；退出/强平同 K2）"
+      }
+    },
+    "E2": {
+      "dd15": {
+        "window": "E2_15",
+        "K2": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09553502859855056,
+            "vol": 0.19568256105285023,
+            "sharpeDaily": 0.4712296214607512,
+            "maxDd": -0.8462186978097499,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4356680379859637,
+            "cerG5": -0.013102067081891766,
+            "cerG3": 0.04170448586871589
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09430732404702424,
+            "vol": 0.1956835901359157,
+            "sharpeDaily": 0.4654816860053411,
+            "maxDd": -0.8688975145174436,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4283061129953556,
+            "cerG5": -0.02140893702712443,
+            "cerG3": 0.03759309923808729
+          }
+        },
+        "k": 1.0892739346607951,
+        "L": 1.0139864386323256,
+        "deltaCerVsMstar": 0.008306869945232664,
+        "deltaCerVsM": -0.007032295927593024,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5694449290716384,
+            "dropCandidate": -0.569893452216154,
+            "dropBenchmark": -0.5697564492652837
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5103826189625668,
+            "dropCandidate": -0.5338586826001894,
+            "dropBenchmark": -0.5109484473713743
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4370418231923594,
+            "dropCandidate": -0.4371577921729646,
+            "dropBenchmark": -0.4371577921729647
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4358953463001126,
+            "dropCandidate": -0.4515167168397667,
+            "dropBenchmark": -0.4363131210871508
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4173718745568139,
+            "dropCandidate": -0.417620108728018,
+            "dropBenchmark": -0.4175468817687559
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690545081300083,
+            "dropBenchmark": -0.369044990035992
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8407399476860211,
+            "dropCandidate": -0.8462186978097499,
+            "dropBenchmark": -0.8412300742641872
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690545081300083,
+            "dropBenchmark": -0.369044990035992
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.2827168121900687,
+            "dropCandidate": -0.2834577779953006,
+            "dropBenchmark": -0.283429943892445
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.27704445895225804,
+            "dropCandidate": -0.2774082970476821,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.206513998270773,
+            "dropCandidate": -0.20672536092021443,
+            "dropBenchmark": -0.20671677006100186
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20261105326955742,
+            "dropCandidate": -0.2031016090639215,
+            "dropBenchmark": -0.20309615117094604
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.008306869945232664,
+            "threshold": 0.002,
+            "pass": true
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.007032295927593024,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -0.0049886235455627315,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0139864386323256,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      },
+      "dd25": {
+        "window": "E2_25",
+        "K2": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09364073630250447,
+            "vol": 0.19466082539948137,
+            "sharpeDaily": 0.46378135887182337,
+            "maxDd": -0.8422450591795685,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.42910670543801194,
+            "cerG5": -0.013553944018136699,
+            "cerG3": 0.040546037682370306
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09409082898165577,
+            "vol": 0.1946617870069349,
+            "sharpeDaily": 0.4658839958975209,
+            "maxDd": -0.8672763074395711,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4285240162154627,
+            "cerG5": -0.020371006382766454,
+            "cerG3": 0.03798436038993325
+          }
+        },
+        "k": 1.0835864068129368,
+        "L": 1.005956053955227,
+        "deltaCerVsMstar": 0.006817062364629756,
+        "deltaCerVsM": -0.007484172863837957,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5694449290716384,
+            "dropCandidate": -0.5698934522161517,
+            "dropBenchmark": -0.5697564492652837
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5103826189625668,
+            "dropCandidate": -0.5270551950442546,
+            "dropBenchmark": -0.5109484473713743
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4370418231923594,
+            "dropCandidate": -0.4371577921729646,
+            "dropBenchmark": -0.4371577921729647
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4358953463001126,
+            "dropCandidate": -0.4363131210871487,
+            "dropBenchmark": -0.4363131210871508
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4173718745568139,
+            "dropCandidate": -0.4176201087280178,
+            "dropBenchmark": -0.4175468817687559
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690521726439411,
+            "dropBenchmark": -0.369044990035992
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8407399476860211,
+            "dropCandidate": -0.8422450591795685,
+            "dropBenchmark": -0.8412300742641872
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690521726439411,
+            "dropBenchmark": -0.369044990035992
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.2827168121900687,
+            "dropCandidate": -0.2834563602960918,
+            "dropBenchmark": -0.283429943892445
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.27704445895225804,
+            "dropCandidate": -0.2774063603549263,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.206513998270773,
+            "dropCandidate": -0.206723252920752,
+            "dropBenchmark": -0.20671677006100186
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20261105326955742,
+            "dropCandidate": -0.2031002698399118,
+            "dropBenchmark": -0.20309615117094604
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.006817062364629756,
+            "threshold": 0.002,
+            "pass": true
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.007484172863837957,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -0.0010149849153813228,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.005956053955227,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      }
+    },
+    "E3": {
+      "band3": {
+        "window": "E3_band3",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09152156571328107,
+            "vol": 0.17931537092905006,
+            "sharpeDaily": 0.47668982728878495,
+            "maxDd": -0.8369125489303663,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.43929311605168053,
+            "cerG5": -0.0039056096809807483,
+            "cerG3": 0.044809953348658116
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.08994503329548698,
+            "vol": 0.17703254626563253,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8363578364481977,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.43186146226746797,
+            "cerG5": -0.003981360967108771,
+            "cerG3": 0.04380320111325364
+          }
+        },
+        "k": 0.9854588600020736,
+        "L": 1.0081258801171327,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5648357779062422,
+            "dropBenchmark": -0.5640115628103739
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5053352163769547,
+            "dropBenchmark": -0.5054745307961998
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.4558024919635276,
+            "dropBenchmark": -0.43202426382726933
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43619423354872744,
+            "dropBenchmark": -0.4312722728862646
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4103865894014558,
+            "dropBenchmark": -0.41280497860696375
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.35886630478356774,
+            "dropBenchmark": -0.36381671036598684
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.8365391469836587,
+            "dropBenchmark": -0.8363578364481977
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.35886630478356774,
+            "dropBenchmark": -0.36381671036598684
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.28253225379229574,
+            "dropBenchmark": -0.2797456518860362
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.2846292780520172,
+            "dropBenchmark": -0.27373957527773884
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.20952079945419455,
+            "dropBenchmark": -0.2039226584383127
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20720375911634603,
+            "dropBenchmark": -0.20001216403904398
+          }
+        ],
+        "turnoverPerYear": 0.003963513046118321,
+        "rebalanceCount": 6,
+        "trackingError": 0.011559876719545791,
+        "worstRolling36": {
+          "rel": -0.04284127580744401,
+          "from": "1942-07",
+          "to": "1945-06"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.00710992156182183,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0005547124821685401,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0081258801171327,
+            "threshold": 1.0,
+            "pass": false
+          }
+        }
+      },
+      "band10": {
+        "window": "E3_band10",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09120448504308665,
+            "vol": 0.17917396517212894,
+            "sharpeDaily": 0.4753102881189319,
+            "maxDd": -0.8364654469198671,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4384512061710676,
+            "cerG5": -0.003964055187782867,
+            "cerG3": 0.044639962321165516
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.0898215441045358,
+            "vol": 0.17664907951742267,
+            "sharpeDaily": 0.47232435291694547,
+            "maxDd": -0.8356313010699922,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4318142225214474,
+            "cerG5": -0.003679409629632202,
+            "cerG3": 0.04388650816012918
+          }
+        },
+        "k": 0.9833244092404739,
+        "L": 1.0096773616639954,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5643045660583439,
+            "dropBenchmark": -0.5631627949776838
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5041356605433249,
+            "dropBenchmark": -0.5046667957783071
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45769094486128725,
+            "dropBenchmark": -0.43126766628750357
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43616789321788063,
+            "dropBenchmark": -0.43052905072653846
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4096392255862479,
+            "dropBenchmark": -0.41210605570195835
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3590150687772451,
+            "dropBenchmark": -0.3630458783057501
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.8360390985269432,
+            "dropBenchmark": -0.8356313010699922
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3590150687772451,
+            "dropBenchmark": -0.3630458783057501
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.2824424885868805,
+            "dropBenchmark": -0.27920376420430093
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.2845119970262846,
+            "dropBenchmark": -0.2732008971657336
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.20977819225204042,
+            "dropBenchmark": -0.20351178514030843
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20713570425476158,
+            "dropBenchmark": -0.1995586225179138
+          }
+        ],
+        "turnoverPerYear": 0.0,
+        "rebalanceCount": 0,
+        "trackingError": 0.012697568035002015,
+        "worstRolling36": {
+          "rel": -0.050929386604579796,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.006268011681208885,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0008341458498749565,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0096773616639954,
+            "threshold": 1.0,
+            "pass": false
+          }
+        }
+      },
+      "annual": {
+        "window": "E3_annual",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09144347870070635,
+            "vol": 0.17938670724257078,
+            "sharpeDaily": 0.47617323980611154,
+            "maxDd": -0.8366870065661527,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4388085378608645,
+            "cerG5": -0.004030912062324532,
+            "cerG3": 0.044704018997715034
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.08997486145393818,
+            "vol": 0.17712523891923976,
+            "sharpeDaily": 0.4723243529169454,
+            "maxDd": -0.8365330169651275,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.43187288066795737,
+            "cerG5": -0.004054526113719148,
+            "cerG3": 0.04378296884862598
+          }
+        },
+        "k": 0.985974805364983,
+        "L": 1.0066507550400188,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5645781478989073,
+            "dropBenchmark": -0.5642165176974685
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5049715684736304,
+            "dropBenchmark": -0.5056696157006396
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45581343296656207,
+            "dropBenchmark": -0.4322070328706854
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.4361805461371183,
+            "dropBenchmark": -0.43145179991565197
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4102500582135349,
+            "dropBenchmark": -0.4129738135953869
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3567549494193606,
+            "dropBenchmark": -0.3640029075561513
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.836312645324109,
+            "dropBenchmark": -0.8365330169651275
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3567549494193606,
+            "dropBenchmark": -0.3640029075561513
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.28240752271194336,
+            "dropBenchmark": -0.2798765969271507
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.2845457980019326,
+            "dropBenchmark": -0.2738697354367928
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.2096899915004713,
+            "dropBenchmark": -0.20402194765050985
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20717973100732345,
+            "dropBenchmark": -0.20012176258679737
+          }
+        ],
+        "turnoverPerYear": 0.007365544493383485,
+        "rebalanceCount": 45,
+        "trackingError": 0.011596535800782768,
+        "worstRolling36": {
+          "rel": -0.04445299405754155,
+          "from": "1942-07",
+          "to": "1945-06"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.006625343371005787,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0001539896010251951,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0066507550400188,
+            "threshold": 1.0,
+            "pass": false
+          }
+        },
+        "note": "日历年最后一个交易日收盘产生指令，下一交易日收盘调回 70/30（CLARIFY-2 §2）；窗口末日指令落在窗口外不执行"
+      },
+      "never": {
+        "window": "E3_never",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09120448504308665,
+            "vol": 0.17917396517212894,
+            "sharpeDaily": 0.4753102881189319,
+            "maxDd": -0.8364654469198671,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4384512061710676,
+            "cerG5": -0.003964055187782867,
+            "cerG3": 0.044639962321165516
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.0898215441045358,
+            "vol": 0.17664907951742267,
+            "sharpeDaily": 0.47232435291694547,
+            "maxDd": -0.8356313010699922,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4318142225214474,
+            "cerG5": -0.003679409629632202,
+            "cerG3": 0.04388650816012918
+          }
+        },
+        "k": 0.9833244092404739,
+        "L": 1.0096773616639954,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5643045660583439,
+            "dropBenchmark": -0.5631627949776838
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5041356605433249,
+            "dropBenchmark": -0.5046667957783071
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45769094486128725,
+            "dropBenchmark": -0.43126766628750357
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43616789321788063,
+            "dropBenchmark": -0.43052905072653846
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4096392255862479,
+            "dropBenchmark": -0.41210605570195835
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3590150687772451,
+            "dropBenchmark": -0.3630458783057501
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.8360390985269432,
+            "dropBenchmark": -0.8356313010699922
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3590150687772451,
+            "dropBenchmark": -0.3630458783057501
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.2824424885868805,
+            "dropBenchmark": -0.27920376420430093
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.2845119970262846,
+            "dropBenchmark": -0.2732008971657336
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.20977819225204042,
+            "dropBenchmark": -0.20351178514030843
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20713570425476158,
+            "dropBenchmark": -0.1995586225179138
+          }
+        ],
+        "turnoverPerYear": 0.0,
+        "rebalanceCount": 0,
+        "trackingError": 0.012697568035002015,
+        "worstRolling36": {
+          "rel": -0.050929386604579796,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.006268011681208885,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0008341458498749565,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0096773616639954,
+            "threshold": 1.0,
+            "pass": false
+          }
+        },
+        "note": "只在首日建仓"
+      }
+    },
+    "E4": {
+      "tilt20": {
+        "window": "E4_tilt20",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09147200431992197,
+            "vol": 0.17926494381164734,
+            "sharpeDaily": 0.47650936101643626,
+            "maxDd": -0.8379601269202391,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4382927251010927,
+            "cerG5": -0.004204388452717311,
+            "cerG3": 0.044604284280102435
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.090109052590305,
+            "vol": 0.17754257501153264,
+            "sharpeDaily": 0.4723243529169453,
+            "maxDd": -0.8373196291010547,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4319242879421186,
+            "cerG5": -0.004384794234539635,
+            "cerG3": 0.0436914173412124
+          }
+        },
+        "k": 0.9882977791538982,
+        "L": 1.0067728727790908,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5660441823732247,
+            "dropBenchmark": -0.5651382795943938
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5063246278490017,
+            "dropBenchmark": -0.5065471732071687
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45105145769698296,
+            "dropBenchmark": -0.43302935773459605
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.4362151351924811,
+            "dropBenchmark": -0.43225948537727155
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.41218806375300276,
+            "dropBenchmark": -0.41373343716514777
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3621169359844084,
+            "dropBenchmark": -0.364840606342156
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.8377176238513679,
+            "dropBenchmark": -0.8373196291010547
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.3621169359844084,
+            "dropBenchmark": -0.364840606342156
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.28291560900687673,
+            "dropBenchmark": -0.2804659587718702
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.281134529333147,
+            "dropBenchmark": -0.27445551986340255
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.2083435628523408,
+            "dropBenchmark": -0.20446884775557894
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20521087993101406,
+            "dropBenchmark": -0.20061505715394923
+          }
+        ],
+        "turnoverPerYear": 0.002193167337953826,
+        "rebalanceCount": 2,
+        "trackingError": 0.008128903926471902,
+        "worstRolling36": {
+          "rel": -0.02792839020862259,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.006109530611233982,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.0006404978191844046,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0067728727790908,
+            "threshold": 1.0,
+            "pass": false
+          }
+        }
+      },
+      "tilt40": {
+        "window": "E4_tilt40",
+        "K1": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09159177927207729,
+            "vol": 0.17946204218286227,
+            "sharpeDaily": 0.47682677484942654,
+            "maxDd": -0.8353256420291887,
+            "maxDdDays": 841
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4407201513597009,
+            "cerG5": -0.0035432933420874724,
+            "cerG3": 0.0450790753888457
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09078241179482993,
+            "vol": 0.1796449495633866,
+            "sharpeDaily": 0.47232435291694536,
+            "maxDd": -0.8412300742641872,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4321831944898587,
+            "cerG5": -0.006069771154298742,
+            "cerG3": 0.043218800777726774
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.08971568672076002,
+            "vol": 0.1763207257897676,
+            "sharpeDaily": 0.4723243529169455,
+            "maxDd": -0.8350068515941408,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.43177376945063567,
+            "cerG5": -0.0034217908273198594,
+            "cerG3": 0.04395733878148067
+          }
+        },
+        "k": 0.9814967281062679,
+        "L": 1.0105645919634394,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5634470713687785,
+            "dropBenchmark": -0.5624348928804699
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5030283374782494,
+            "dropBenchmark": -0.5039742868450474
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.46413744619099107,
+            "dropBenchmark": -0.43061918502103624
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43612176358796517,
+            "dropBenchmark": -0.429891975317221
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.40717186916229653,
+            "dropBenchmark": -0.4115069980395242
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.355438973210929,
+            "dropBenchmark": -0.36238514108353703
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.8347187633435083,
+            "dropBenchmark": -0.8350068515941408
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.355438973210929,
+            "dropBenchmark": -0.36238514108353703
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.282276302531416,
+            "dropBenchmark": -0.2787395381734039
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.28696326541657746,
+            "dropBenchmark": -0.2727393713798222
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.21030220375464592,
+            "dropBenchmark": -0.20315981428497465
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20854181666205163,
+            "dropBenchmark": -0.19917009176703626
+          }
+        ],
+        "turnoverPerYear": 0.0021583188612549114,
+        "rebalanceCount": 2,
+        "trackingError": 0.015469159544994516,
+        "worstRolling36": {
+          "rel": -0.05891657336833089,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.008536956869842183,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.00031879043504789983,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0105645919634394,
+            "threshold": 1.0,
+            "pass": false
+          }
+        }
+      }
+    },
+    "E5": {
+      "window": "E5",
+      "K2": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09501481973919024,
+          "vol": 0.19538586074192266,
+          "sharpeDaily": 0.4692143428328814,
+          "maxDd": -0.841928302447393,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.43402725542226056,
+          "cerG5": -0.013010354236898225,
+          "cerG3": 0.04148987650913072
+        }
+      },
+      "M": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09078241179482993,
+          "vol": 0.1796449495633866,
+          "sharpeDaily": 0.47232435291694536,
+          "maxDd": -0.8412300742641872,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4321831944898587,
+          "cerG5": -0.006069771154298742,
+          "cerG3": 0.043218800777726774
+        }
+      },
+      "Mstar": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09424456994518904,
+          "vol": 0.19538687020616943,
+          "sharpeDaily": 0.4655980786650802,
+          "maxDd": -0.868428617008049,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.42836901456479587,
+          "cerG5": -0.021106681684065487,
+          "cerG3": 0.037707178228093774
+        }
+      },
+      "k": 1.0876223418292201,
+      "L": 1.0092388560893417,
+      "deltaCerVsMstar": 0.008096327447167262,
+      "deltaCerVsM": -0.006940583082599483,
+      "tailPolyline": [
+        {
+          "peak": "1931-11-09",
+          "trough": "1932-07-08",
+          "method": "polyline",
+          "dropM": -0.5694449290716384,
+          "dropCandidate": -0.5699464209548338,
+          "dropBenchmark": -0.5697564492652837
+        },
+        {
+          "peak": "1937-03-10",
+          "trough": "1938-03-31",
+          "method": "polyline",
+          "dropM": -0.5103826189625668,
+          "dropCandidate": -0.53385868260019,
+          "dropBenchmark": -0.5109484473713743
+        },
+        {
+          "peak": "1929-09-03",
+          "trough": "1929-11-13",
+          "method": "polyline",
+          "dropM": -0.4370418231923594,
+          "dropCandidate": -0.4371577921729646,
+          "dropBenchmark": -0.4371577921729647
+        },
+        {
+          "peak": "1930-04-10",
+          "trough": "1930-12-16",
+          "method": "polyline",
+          "dropM": -0.4358953463001126,
+          "dropCandidate": -0.43842328106853734,
+          "dropBenchmark": -0.4363131210871508
+        },
+        {
+          "peak": "1931-06-27",
+          "trough": "1931-10-05",
+          "method": "polyline",
+          "dropM": -0.4173718745568139,
+          "dropCandidate": -0.4176484177807336,
+          "dropBenchmark": -0.4175468817687559
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "polyline",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.36905464530982124,
+          "dropBenchmark": -0.369044990035992
+        }
+      ],
+      "tailPriorHigh": [
+        {
+          "peak": "1929-09-03",
+          "trough": "1932-07-08",
+          "method": "priorHigh",
+          "dropM": -0.8407399476860211,
+          "dropCandidate": -0.841928302447393,
+          "dropBenchmark": -0.8412300742641872
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "priorHigh",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.36905464530982124,
+          "dropBenchmark": -0.369044990035992
+        },
+        {
+          "peak": "1946-05-29",
+          "trough": "1947-05-17",
+          "method": "priorHigh",
+          "dropM": -0.2827168121900687,
+          "dropCandidate": -0.28345739032133765,
+          "dropBenchmark": -0.283429943892445
+        },
+        {
+          "peak": "1961-12-12",
+          "trough": "1962-06-26",
+          "method": "priorHigh",
+          "dropM": -0.27704445895225804,
+          "dropCandidate": -0.27740841080371836,
+          "dropBenchmark": -0.277400404247519
+        },
+        {
+          "peak": "1957-07-15",
+          "trough": "1957-10-22",
+          "method": "priorHigh",
+          "dropM": -0.206513998270773,
+          "dropCandidate": -0.2067254847387564,
+          "dropBenchmark": -0.20671677006100186
+        },
+        {
+          "peak": "1966-02-09",
+          "trough": "1966-10-07",
+          "method": "priorHigh",
+          "dropM": -0.20261105326955742,
+          "dropCandidate": -0.20310168772618864,
+          "dropBenchmark": -0.20309615117094604
+        }
+      ],
+      "liquidated": false,
+      "checks": {
+        "deltaCerVsMstar": {
+          "value": 0.008096327447167262,
+          "threshold": 0.002,
+          "pass": true
+        },
+        "deltaCerVsM_nonneg": {
+          "value": -0.006940583082599483,
+          "threshold": 0.0,
+          "pass": false
+        },
+        "maxDdVsM": {
+          "value": -0.0006982281832058623,
+          "threshold": -0.01,
+          "pass": true
+        },
+        "L": {
+          "value": 1.0092388560893417,
+          "threshold": 1.0,
+          "pass": false
+        },
+        "liquidated": {
+          "value": false,
+          "threshold": false,
+          "pass": true
+        }
+      }
+    },
+    "E6": {
+      "window": "E6_K1plusK2",
+      "K2": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09510750413448199,
+          "vol": 0.19412625178585385,
+          "sharpeDaily": 0.47148223596582584,
+          "maxDd": -0.8422734140110083,
+          "maxDdDays": 841
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.43913558676885545,
+          "cerG5": -0.010770168455151885,
+          "cerG3": 0.042856016353667536
+        }
+      },
+      "M": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09078241179482993,
+          "vol": 0.1796449495633866,
+          "sharpeDaily": 0.47232435291694536,
+          "maxDd": -0.8412300742641872,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.4321831944898587,
+          "cerG5": -0.006069771154298742,
+          "cerG3": 0.043218800777726774
+        }
+      },
+      "Mstar": {
+        "daily": {
+          "nDays": 12638,
+          "cagr": 0.09397711929036867,
+          "vol": 0.19412717818601657,
+          "sharpeDaily": 0.4660961725219454,
+          "maxDd": -0.8664207789955045,
+          "maxDdDays": 845
+        },
+        "monthly": {
+          "nMonths": 552,
+          "sharpe": 0.428639483355384,
+          "cerG5": -0.01983125505023675,
+          "cerG3": 0.03818728513179037
+        }
+      },
+      "k": 1.0806106837830005,
+      "L": 1.0116754936715593,
+      "deltaCerVsMstar": 0.009061086595084866,
+      "deltaCerVsM": -0.004700397300853143,
+      "tailPolyline": [
+        {
+          "peak": "1931-11-09",
+          "trough": "1932-07-08",
+          "method": "polyline",
+          "dropM": -0.5694449290716384,
+          "dropCandidate": -0.5649213817890844,
+          "dropBenchmark": -0.5697564492652837
+        },
+        {
+          "peak": "1937-03-10",
+          "trough": "1938-03-31",
+          "method": "polyline",
+          "dropM": -0.5103826189625668,
+          "dropCandidate": -0.5284205710581538,
+          "dropBenchmark": -0.5109484473713743
+        },
+        {
+          "peak": "1929-09-03",
+          "trough": "1929-11-13",
+          "method": "polyline",
+          "dropM": -0.4370418231923594,
+          "dropCandidate": -0.45769094486128725,
+          "dropBenchmark": -0.4371577921729647
+        },
+        {
+          "peak": "1930-04-10",
+          "trough": "1930-12-16",
+          "method": "polyline",
+          "dropM": -0.4358953463001126,
+          "dropCandidate": -0.45204352783391677,
+          "dropBenchmark": -0.4363131210871508
+        },
+        {
+          "peak": "1931-06-27",
+          "trough": "1931-10-05",
+          "method": "polyline",
+          "dropM": -0.4173718745568139,
+          "dropCandidate": -0.41042177698081717,
+          "dropBenchmark": -0.4175468817687559
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "polyline",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.3592692949011824,
+          "dropBenchmark": -0.369044990035992
+        }
+      ],
+      "tailPriorHigh": [
+        {
+          "peak": "1929-09-03",
+          "trough": "1932-07-08",
+          "method": "priorHigh",
+          "dropM": -0.8407399476860211,
+          "dropCandidate": -0.8418622074788644,
+          "dropBenchmark": -0.8412300742641872
+        },
+        {
+          "peak": "1968-11-29",
+          "trough": "1970-05-26",
+          "method": "priorHigh",
+          "dropM": -0.36819611766251725,
+          "dropCandidate": -0.3592692949011824,
+          "dropBenchmark": -0.369044990035992
+        },
+        {
+          "peak": "1946-05-29",
+          "trough": "1947-05-17",
+          "method": "priorHigh",
+          "dropM": -0.2827168121900687,
+          "dropCandidate": -0.2825409503889742,
+          "dropBenchmark": -0.283429943892445
+        },
+        {
+          "peak": "1961-12-12",
+          "trough": "1962-06-26",
+          "method": "priorHigh",
+          "dropM": -0.27704445895225804,
+          "dropCandidate": -0.28435240945906215,
+          "dropBenchmark": -0.277400404247519
+        },
+        {
+          "peak": "1957-07-15",
+          "trough": "1957-10-22",
+          "method": "priorHigh",
+          "dropM": -0.206513998270773,
+          "dropCandidate": -0.2097163344957369,
+          "dropBenchmark": -0.20671677006100186
+        },
+        {
+          "peak": "1966-02-09",
+          "trough": "1966-10-07",
+          "method": "priorHigh",
+          "dropM": -0.20261105326955742,
+          "dropCandidate": -0.2070454687840676,
+          "dropBenchmark": -0.20309615117094604
+        }
+      ],
+      "liquidated": false,
+      "checks": {
+        "deltaCerVsMstar": {
+          "value": 0.009061086595084866,
+          "threshold": 0.002,
+          "pass": true
+        },
+        "deltaCerVsM_nonneg": {
+          "value": -0.004700397300853143,
+          "threshold": 0.0,
+          "pass": false
+        },
+        "maxDdVsM": {
+          "value": -0.001043339746821137,
+          "threshold": -0.01,
+          "pass": true
+        },
+        "L": {
+          "value": 1.0116754936715593,
+          "threshold": 1.0,
+          "pass": false
+        },
+        "liquidated": {
+          "value": false,
+          "threshold": false,
+          "pass": true
+        }
+      }
+    }
+  },
+  "report": {
+    "headlineAbsoluteRisk": {
+      "K1_volVsM": -0.00018171271065708927,
+      "K1_maxDdVsM": 0.004696116749883794,
+      "K1_kForSameVol": 0.9858746889618669,
+      "K2_maxDd": -0.8462186978097499,
+      "K2_1929_32": {
+        "from": "1929-01-01",
+        "to": "1932-12-31",
+        "maxDd": -0.8462186978097491,
+        "cumReturn": -0.7089404389070286,
+        "M_maxDd": -0.8412300742641867,
+        "M_cumReturn": -0.6949337798889493
+      },
+      "K2_1937_38": {
+        "from": "1937-01-01",
+        "to": "1938-12-31",
+        "maxDd": -0.5338586826001899,
+        "cumReturn": -0.15122998823507616,
+        "M_maxDd": -0.5109484473713739,
+        "M_cumReturn": -0.166010982056081
+      }
+    },
+    "alwaysReport": {
+      "K1": {
+        "trackingError": 0.011498938725877143,
+        "worstRolling36": {
+          "rel": -0.043675021014004556,
+          "from": "1940-06",
+          "to": "1943-05"
+        },
+        "turnoverPerYear": 0.002197307993323683,
+        "rebalanceCount": 2,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5697564492652837,
+            "dropCandidate": -0.5644870947815419,
+            "dropBenchmark": -0.5641767537513582
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5109484473713743,
+            "dropCandidate": -0.5051493425154727,
+            "dropBenchmark": -0.5056317654935322
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4371577921729647,
+            "dropCandidate": -0.45769094486128725,
+            "dropBenchmark": -0.4321715711135853
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4363131210871508,
+            "dropCandidate": -0.43616789321788063,
+            "dropBenchmark": -0.4314169675236761
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4175468817687559,
+            "dropCandidate": -0.4096392255862479,
+            "dropBenchmark": -0.4129410554461743
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.35887295710616185,
+            "dropBenchmark": -0.3639667809704956
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8412300742641872,
+            "dropCandidate": -0.836107787734286,
+            "dropBenchmark": -0.8364990374998971
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.369044990035992,
+            "dropCandidate": -0.35887295710616185,
+            "dropBenchmark": -0.3639667809704956
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.283429943892445,
+            "dropCandidate": -0.2825975087519359,
+            "dropBenchmark": -0.2798511890161952
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.277400404247519,
+            "dropCandidate": -0.28463486175002894,
+            "dropBenchmark": -0.27384448010339524
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.20671677006100186,
+            "dropCandidate": -0.20931612738409133,
+            "dropBenchmark": -0.2040026819757329
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20309615117094604,
+            "dropCandidate": -0.20720761709281343,
+            "dropBenchmark": -0.20010049657967277
+          }
+        ]
+      },
+      "K2": {
+        "trackingError": 0.026841361370232405,
+        "worstRolling36": {
+          "rel": -0.09219283830423508,
+          "from": "1938-12",
+          "to": "1941-11"
+        },
+        "turnoverPerYear": 0.3690803095710708,
+        "rebalanceCount": 108,
+        "tailPolyline": [
+          {
+            "peak": "1931-11-09",
+            "trough": "1932-07-08",
+            "method": "polyline",
+            "dropM": -0.5694449290716384,
+            "dropCandidate": -0.569893452216154,
+            "dropBenchmark": -0.5697564492652837
+          },
+          {
+            "peak": "1937-03-10",
+            "trough": "1938-03-31",
+            "method": "polyline",
+            "dropM": -0.5103826189625668,
+            "dropCandidate": -0.5338586826001894,
+            "dropBenchmark": -0.5109484473713743
+          },
+          {
+            "peak": "1929-09-03",
+            "trough": "1929-11-13",
+            "method": "polyline",
+            "dropM": -0.4370418231923594,
+            "dropCandidate": -0.4371577921729646,
+            "dropBenchmark": -0.4371577921729647
+          },
+          {
+            "peak": "1930-04-10",
+            "trough": "1930-12-16",
+            "method": "polyline",
+            "dropM": -0.4358953463001126,
+            "dropCandidate": -0.4515167168397667,
+            "dropBenchmark": -0.4363131210871508
+          },
+          {
+            "peak": "1931-06-27",
+            "trough": "1931-10-05",
+            "method": "polyline",
+            "dropM": -0.4173718745568139,
+            "dropCandidate": -0.417620108728018,
+            "dropBenchmark": -0.4175468817687559
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "polyline",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690546453098177,
+            "dropBenchmark": -0.369044990035992
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "method": "priorHigh",
+            "dropM": -0.8407399476860211,
+            "dropCandidate": -0.8462186978097499,
+            "dropBenchmark": -0.8412300742641872
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "method": "priorHigh",
+            "dropM": -0.36819611766251725,
+            "dropCandidate": -0.3690546453098177,
+            "dropBenchmark": -0.369044990035992
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "method": "priorHigh",
+            "dropM": -0.2827168121900687,
+            "dropCandidate": -0.2834577779953006,
+            "dropBenchmark": -0.283429943892445
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "method": "priorHigh",
+            "dropM": -0.27704445895225804,
+            "dropCandidate": -0.2774084108037175,
+            "dropBenchmark": -0.277400404247519
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "method": "priorHigh",
+            "dropM": -0.206513998270773,
+            "dropCandidate": -0.20672548473875585,
+            "dropBenchmark": -0.20671677006100186
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "method": "priorHigh",
+            "dropM": -0.20261105326955742,
+            "dropCandidate": -0.20310168772618897,
+            "dropBenchmark": -0.20309615117094604
+          }
+        ],
+        "concentrationMaxShare": 0.7582131084836962,
+        "leverageByPeakSegment": [
+          {
+            "peak": "1929-09-03",
+            "trough": "1932-07-08",
+            "recoveryAth": "1945-02-06",
+            "drop": -0.8407399476860208,
+            "entries": 49,
+            "leveredDays": 2523,
+            "cumDiffVsM": 0.12714300679314805,
+            "logDiffContrib": 0.11968611857205888,
+            "deltaCerShare": 0.7582131084836962,
+            "deltaCerContribLeaveOneOut": -0.008004243223900698
+          },
+          {
+            "peak": "1946-05-29",
+            "trough": "1947-05-17",
+            "recoveryAth": "1949-12-15",
+            "drop": -0.2827168121900683,
+            "entries": 3,
+            "leveredDays": 118,
+            "cumDiffVsM": -0.006690642934236379,
+            "logDiffContrib": -0.006713125624222132,
+            "deltaCerShare": -0.04252773761828122,
+            "deltaCerContribLeaveOneOut": -0.00021126554612194148
+          },
+          {
+            "peak": "1957-07-15",
+            "trough": "1957-10-22",
+            "recoveryAth": "1958-07-28",
+            "drop": -0.20651399827077366,
+            "entries": 0,
+            "leveredDays": 0,
+            "cumDiffVsM": -1.2992643423359596e-06,
+            "logDiffContrib": -1.2992651863427783e-06,
+            "deltaCerShare": -8.230861752681034e-06,
+            "deltaCerContribLeaveOneOut": -9.773849363181597e-08
+          },
+          {
+            "peak": "1961-12-12",
+            "trough": "1962-06-26",
+            "recoveryAth": "1963-05-31",
+            "drop": -0.27704445895225727,
+            "entries": 0,
+            "leveredDays": 0,
+            "cumDiffVsM": -1.6057622134191263e-06,
+            "logDiffContrib": -1.605763499176407e-06,
+            "deltaCerShare": -1.0172532526962843e-05,
+            "deltaCerContribLeaveOneOut": -1.666931052080045e-07
+          },
+          {
+            "peak": "1966-02-09",
+            "trough": "1966-10-07",
+            "recoveryAth": "1967-03-08",
+            "drop": -0.2026110532695583,
+            "entries": 0,
+            "leveredDays": 0,
+            "cumDiffVsM": -1.5766240043513235e-06,
+            "logDiffContrib": -1.576625247837608e-06,
+            "deltaCerShare": -9.987941328025528e-06,
+            "deltaCerContribLeaveOneOut": -7.900029619367643e-08
+          },
+          {
+            "peak": "1968-11-29",
+            "trough": "1970-05-26",
+            "recoveryAth": "1971-04-27",
+            "drop": -0.3681961176625179,
+            "entries": 2,
+            "leveredDays": 115,
+            "cumDiffVsM": 0.04573414163420031,
+            "logDiffContrib": 0.04471916663919593,
+            "deltaCerShare": 0.28329649879899077,
+            "deltaCerContribLeaveOneOut": 0.0007172836240002534
+          }
+        ]
+      }
+    },
+    "knownResult1999_2026": {
+      "note": "已知结果，不是证据",
+      "K1": {
+        "window": "veto_spy_qqq_1999_2026",
+        "K1": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.09203919830829665,
+            "vol": 0.20747667072975354,
+            "sharpeDaily": 0.4305001476958265,
+            "maxDd": -0.6102796250199509,
+            "maxDdDays": 637
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.48815403438718796,
+            "cerG5": 0.02933642562700478,
+            "cerG3": 0.06078628023809074
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.08300645086771996,
+            "vol": 0.19206996462833456,
+            "sharpeDaily": 0.40580694848207743,
+            "maxDd": -0.5518945179095609,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.47105346918796126,
+            "cerG5": 0.03296578722642218,
+            "cerG3": 0.058112285984449175
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6973,
+            "cagr": 0.08603456470487858,
+            "vol": 0.21456119107656926,
+            "sharpeDaily": 0.3976217637555356,
+            "maxDd": -0.599797063821107,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4547316422806184,
+            "cerG5": 0.022975995078399203,
+            "cerG3": 0.05468453448007482
+          }
+        },
+        "k": 1.1170912431109778,
+        "L": 0.9789502058534477,
+        "tailPolyline": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2008-11-20",
+            "method": "polyline",
+            "dropM": -0.5076007059476216,
+            "dropCandidate": -0.5111621951053438,
+            "dropBenchmark": -0.5535891402802922
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2001-09-21",
+            "method": "polyline",
+            "dropM": -0.3555236775133852,
+            "dropCandidate": -0.5082043540618546,
+            "dropBenchmark": -0.3977655097860021
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "polyline",
+            "dropM": -0.33717265401236207,
+            "dropCandidate": -0.31853964773684285,
+            "dropBenchmark": -0.37113726638309497
+          },
+          {
+            "peak": "2002-03-19",
+            "trough": "2002-07-23",
+            "method": "polyline",
+            "dropM": -0.3169020986880542,
+            "dropCandidate": -0.3383851631130468,
+            "dropBenchmark": -0.3486649940797587
+          },
+          {
+            "peak": "2009-01-06",
+            "trough": "2009-03-09",
+            "method": "polyline",
+            "dropM": -0.2713171933302565,
+            "dropCandidate": -0.2448055329821115,
+            "dropBenchmark": -0.29918091794864854
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "polyline",
+            "dropM": -0.2449638885379869,
+            "dropCandidate": -0.2750492648913251,
+            "dropBenchmark": -0.2730307767475605
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2009-03-09",
+            "method": "priorHigh",
+            "dropM": -0.5518945179095609,
+            "dropCandidate": -0.5412235981693233,
+            "dropBenchmark": -0.599797063821107
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2002-10-09",
+            "method": "priorHigh",
+            "dropM": -0.47515860816946065,
+            "dropCandidate": -0.6102796250199509,
+            "dropBenchmark": -0.5255919861704184
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "priorHigh",
+            "dropM": -0.33717265401236207,
+            "dropCandidate": -0.31853964773684285,
+            "dropBenchmark": -0.37113726638309497
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "priorHigh",
+            "dropM": -0.2449638885379869,
+            "dropCandidate": -0.2750492648913251,
+            "dropBenchmark": -0.2730307767475605
+          },
+          {
+            "peak": "2018-09-20",
+            "trough": "2018-12-24",
+            "method": "priorHigh",
+            "dropM": -0.19348923397643158,
+            "dropCandidate": -0.20135981961626126,
+            "dropBenchmark": -0.2150998392009088
+          },
+          {
+            "peak": "2025-02-19",
+            "trough": "2025-04-08",
+            "method": "priorHigh",
+            "dropM": -0.18755229084676706,
+            "dropCandidate": -0.2000772359175631,
+            "dropBenchmark": -0.20847236427940807
+          }
+        ],
+        "turnoverPerYear": 0.023405432575532282,
+        "rebalanceCount": 13,
+        "trackingError": 0.040003938151178066,
+        "worstRolling36": {
+          "rel": -0.22873784641020578,
+          "from": "2000-03",
+          "to": "2003-02"
+        },
+        "checks": {
+          "sharpeVsM": {
+            "value": 0.017100565199226703,
+            "threshold": 0.03,
+            "pass": false
+          },
+          "maxDdVsMstar": {
+            "value": -0.010482561198843943,
+            "threshold": -0.01,
+            "pass": false
+          },
+          "L": {
+            "value": 0.9789502058534477,
+            "threshold": 1.0,
+            "pass": true
+          }
+        }
+      },
+      "K2": {
+        "window": "veto_spy_1999_2026",
+        "K2": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08616948900189625,
+            "vol": 0.19672591207282483,
+            "sharpeDaily": 0.41561820387867165,
+            "maxDd": -0.5519671174005888,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4799572220808334,
+            "cerG5": 0.03297007450792511,
+            "cerG3": 0.05966821007201384
+          }
+        },
+        "M": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08333969371209027,
+            "vol": 0.19206709415336073,
+            "sharpeDaily": 0.4073856364061257,
+            "maxDd": -0.5518945179095609,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4731525789869894,
+            "cerG5": 0.03329433555790584,
+            "cerG3": 0.058448668247981894
+          }
+        },
+        "Mstar": {
+          "daily": {
+            "nDays": 6974,
+            "cagr": 0.08401968164793461,
+            "vol": 0.19672621187726305,
+            "sharpeDaily": 0.40553630901688825,
+            "maxDd": -0.5621655590802009,
+            "maxDdDays": 355
+          },
+          "monthly": {
+            "nMonths": 333,
+            "sharpe": 0.4695595060992575,
+            "cerG5": 0.03140733769852133,
+            "cerG3": 0.057855728594687905
+          }
+        },
+        "k": 1.0242562003658167,
+        "L": 1.0047573553519065,
+        "deltaCerVsMstar": 0.0015627368094037752,
+        "deltaCerVsM": -0.00032426104998073413,
+        "tailPolyline": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2008-11-20",
+            "method": "polyline",
+            "dropM": -0.5076007059476217,
+            "dropCandidate": -0.5076674112830621,
+            "dropBenchmark": -0.5076007059476217
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2001-09-21",
+            "method": "polyline",
+            "dropM": -0.3555236775133849,
+            "dropCandidate": -0.3555236775133849,
+            "dropBenchmark": -0.3555236775133849
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "polyline",
+            "dropM": -0.3371726540123622,
+            "dropCandidate": -0.3371923081881918,
+            "dropBenchmark": -0.3371726540123622
+          },
+          {
+            "peak": "2002-03-19",
+            "trough": "2002-07-23",
+            "method": "polyline",
+            "dropM": -0.3169020986880543,
+            "dropCandidate": -0.3264227404658955,
+            "dropBenchmark": -0.3169020986880543
+          },
+          {
+            "peak": "2009-01-06",
+            "trough": "2009-03-09",
+            "method": "polyline",
+            "dropM": -0.2713171933302567,
+            "dropCandidate": -0.2713734900067978,
+            "dropBenchmark": -0.2713171933302567
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "polyline",
+            "dropM": -0.24496388853798678,
+            "dropCandidate": -0.24497457857057403,
+            "dropBenchmark": -0.24496388853798678
+          }
+        ],
+        "tailPriorHigh": [
+          {
+            "peak": "2007-10-09",
+            "trough": "2009-03-09",
+            "method": "priorHigh",
+            "dropM": -0.5518945179095609,
+            "dropCandidate": -0.5519671174005888,
+            "dropBenchmark": -0.5518945179095609
+          },
+          {
+            "peak": "2000-03-24",
+            "trough": "2002-10-09",
+            "method": "priorHigh",
+            "dropM": -0.4751586081694599,
+            "dropCandidate": -0.4819550223729143,
+            "dropBenchmark": -0.4751586081694599
+          },
+          {
+            "peak": "2020-02-19",
+            "trough": "2020-03-23",
+            "method": "priorHigh",
+            "dropM": -0.3371726540123622,
+            "dropCandidate": -0.3371923081881918,
+            "dropBenchmark": -0.3371726540123622
+          },
+          {
+            "peak": "2022-01-03",
+            "trough": "2022-10-12",
+            "method": "priorHigh",
+            "dropM": -0.24496388853798678,
+            "dropCandidate": -0.24497457857057403,
+            "dropBenchmark": -0.24496388853798678
+          },
+          {
+            "peak": "2018-09-20",
+            "trough": "2018-12-24",
+            "method": "priorHigh",
+            "dropM": -0.1934892339764317,
+            "dropCandidate": -0.19350241882269392,
+            "dropBenchmark": -0.1934892339764317
+          },
+          {
+            "peak": "2025-02-19",
+            "trough": "2025-04-08",
+            "method": "priorHigh",
+            "dropM": -0.18755229084676694,
+            "dropCandidate": -0.18755935206870156,
+            "dropBenchmark": -0.18755229084676694
+          }
+        ],
+        "liquidated": false,
+        "checks": {
+          "deltaCerVsMstar": {
+            "value": 0.0015627368094037752,
+            "threshold": 0.002,
+            "pass": false
+          },
+          "deltaCerVsM_nonneg": {
+            "value": -0.00032426104998073413,
+            "threshold": 0.0,
+            "pass": false
+          },
+          "maxDdVsM": {
+            "value": -7.259949102789154e-05,
+            "threshold": -0.01,
+            "pass": true
+          },
+          "L": {
+            "value": 1.0047573553519065,
+            "threshold": 1.0,
+            "pass": false
+          },
+          "liquidated": {
+            "value": false,
+            "threshold": false,
+            "pass": true
+          }
+        }
+      }
+    },
+    "approx1985_1999": {
+      "window": {
+        "start": "1985-10-02",
+        "end": "1999-03-09",
+        "nDays": 3395,
+        "years": 13.432171776285617,
+        "A": 252.7513835099878
+      },
+      "note": "价格收益 + 股息近似（GSPC=Shiller D/P 月摊日；NDX=0.6%/年÷A）；只报告非证据",
+      "buyHold": {
+        "GSPC": {
+          "nDays": 3395,
+          "cagr": 0.18763855739587876,
+          "vol": 0.16104674360160384,
+          "sharpeDaily": 0.827703762042688,
+          "maxDd": -0.3295125870325001,
+          "maxDdDays": 38
+        },
+        "NDX": {
+          "nDays": 3395,
+          "cagr": 0.24800705841184967,
+          "vol": 0.22468801318962206,
+          "sharpeDaily": 0.868102062732016,
+          "maxDd": -0.39912818962775765,
+          "maxDdDays": 15
+        }
+      },
+      "K1_70_30": {
+        "daily": {
+          "nDays": 3395,
+          "cagr": 0.2070098079270677,
+          "vol": 0.17111489815778275,
+          "sharpeDaily": 0.8830721120908508,
+          "maxDd": -0.34419717075013734,
+          "maxDdDays": 71
+        },
+        "monthly": {
+          "nMonths": 162,
+          "sharpe": 0.8888399191717529,
+          "cerG5": 0.12848593032585232,
+          "cerG3": 0.16877576200564293
+        },
+        "turnoverPerYear": 0.011382913961324863,
+        "rebalanceCount": 3
+      },
+      "K2_on_GSPC": {
+        "daily": {
+          "nDays": 3395,
+          "cagr": 0.19073250575353162,
+          "vol": 0.1624409033257938,
+          "sharpeDaily": 0.8380224548573487,
+          "maxDd": -0.3295125870325001,
+          "maxDdDays": 38
+        },
+        "monthly": {
+          "nMonths": 162,
+          "sharpe": 0.8793064739788277,
+          "cerG5": 0.12726664491978412,
+          "cerG3": 0.15980268139338816
+        },
+        "turnoverPerYear": 0.020670427955797085,
+        "rebalanceCount": 2
+      },
+      "proxy": {
+        "corr": 0.7830028775955168,
+        "beta": 1.0924242052600028,
+        "volRatio": 1.3951726571103698,
+        "start": "1985-10-02",
+        "end": "1999-03-09"
+      }
+    },
+    "costSensitivity": {
+      "cost05bps": {
+        "note": "主口径单边 0.05%",
+        "K2_cerG5": -0.013560488205170085
+      },
+      "cost20bps": {
+        "note": "单边 0.20%",
+        "K2": {
+          "daily": {
+            "nDays": 12638,
+            "cagr": 0.09350634927430512,
+            "vol": 0.1952406214213763,
+            "sharpeDaily": 0.4623568332219787,
+            "maxDd": -0.8471363100325973,
+            "maxDdDays": 845
+          },
+          "monthly": {
+            "nMonths": 552,
+            "sharpe": 0.4278359781932035,
+            "cerG5": -0.014645415987257993,
+            "cerG3": 0.0399400803192278
+          },
+          "turnoverPerYear": 0.36786229052534014,
+          "rebalanceCount": 108
+        }
+      }
+    },
+    "fundingSensitivity": {
+      "rfPlus15": {
+        "note": "主口径 RF+1.5%",
+        "deltaCerVsMstar": 0.007473508089234637,
+        "deltaCerVsM": -0.007490717050871343
+      },
+      "rfPlus30": {
+        "deltaCerVsMstar": 0.007983725424601795,
+        "deltaCerVsM": -0.00814443853590685,
+        "cerG5": -0.014214209690205593
+      },
+      "fixed6pct": {
+        "cerG5": -0.01609156597209993,
+        "sharpe": 0.42080018791260265
+      }
+    },
+    "holm": {
+      "pK1": 0.21187881211878812,
+      "pK2": 0.4584717607973422,
+      "adjusted": {
+        "pK1": 0.42375762423757624,
+        "pK2": 0.4584717607973422
+      }
+    }
+  },
+  "verdict": {
+    "K1": "不通过",
+    "K2": "不通过",
+    "firstSentence": "K1 主窗口年化波动 17.95%（M 17.96%），最大回撤 -83.65%（M -84.12%）；同波动效率需把股票暴露调到约 0.99 倍。K2 最大回撤 -84.62%。"
+  }
+}

@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "L-052-results",
+  "title": "L-052 results.json schema（主实现定义，第二实现对齐）。收益 / 波动 / 回撤为小数（非百分数），回撤为负数；夏普无量纲（日超额收益，年化 √252）；日期 ISO；判定为布尔。窗口：explore = 2005-01-01…2014-12-31（只描述，不设门槛），validate = 2015-01-01…2023-10-31（判定），full = 两段合并。",
+  "type": "object",
+  "required": ["meta", "inputs", "params", "headline", "countsCheck", "metrics", "crash", "judgments", "placebo", "power", "decomposition", "skips", "holdings", "survivorship", "c2", "sensitivity", "e4Etf", "e7Concentration", "e8", "feasibility1e6", "allocateVariant", "truncFirstVariant", "strictTtm", "daily", "trials", "verdict"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["ledger", "version", "preregCommit", "preregPath", "clarifications", "impl", "seed", "generatedAt", "deviations", "notes"],
+      "properties": {
+        "ledger": { "const": "L-052" },
+        "version": { "const": "v3" },
+        "preregCommit": { "const": "60ebdb8b" },
+        "preregPath": { "type": "string" },
+        "clarifications": { "type": "array", "items": { "type": "string" }, "description": "CLARIFY-1.md / CLARIFY-2.md 路径" },
+        "impl": { "type": "string", "description": "main-python | replication-*" },
+        "seed": { "const": 20261128 },
+        "generatedAt": { "type": "string" },
+        "runtimeSec": { "type": "number" },
+        "deviations": { "type": "array", "items": { "type": "string" }, "description": "相对冻结 PREREG 原文的偏离（如 CLARIFY-2 第 1 条成本模式），须在结论显著注明" },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "lockbox": { "type": "string", "description": "声明：未读锁箱、store raw=False、未 unseal" }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["sha256", "rf", "panel"],
+      "properties": {
+        "sha256": {
+          "type": "object",
+          "required": ["prices.parquet", "fin_pit.parquet", "industry_pit.parquet"],
+          "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        },
+        "finPitNote": { "type": "string" },
+        "rf": {
+          "type": "object",
+          "required": ["source", "spliceAfter", "fillAnnual", "fillMonthly"],
+          "properties": {
+            "source": { "type": "string" },
+            "spliceAfter": { "type": "string", "description": "CSV 最后一个月（2021-12）" },
+            "fillAnnual": { "const": 0.015 },
+            "fillMonthly": { "type": "number" },
+            "dailyRule": { "type": "string" }
+          }
+        },
+        "panel": {
+          "type": "object",
+          "properties": {
+            "firstDate": { "type": "string" },
+            "lastDate": { "type": "string" },
+            "days": { "type": "integer" },
+            "codes": { "type": "integer" },
+            "industries": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "params": { "type": "object", "description": "冻结参数（K、退出名次、窗口、阈值、成本模型等）" },
+    "headline": {
+      "type": "object",
+      "required": ["firstSentence", "C1a", "C1b"],
+      "properties": {
+        "firstSentence": { "type": "string", "description": "PREREG 规定的结论第一句（原文）" },
+        "C1a": { "$ref": "#/$defs/headlineCand" },
+        "C1b": { "$ref": "#/$defs/headlineCand" }
+      }
+    },
+    "countsCheck": {
+      "type": "object",
+      "description": "信号层复现冻结计数 counts_theme_pe.json（C1a/C1b/B2′/B2b/B4 的有持仓、空缺、切换、跳过三分类）；tieCheck = C1b 按 PREREG 文字并列次序（只用 sha256）时的持仓差异月数",
+      "required": ["match", "diffs"],
+      "properties": {
+        "match": { "type": "boolean" },
+        "diffs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "窗口 → 组合 → {gross, net, turnoverAnn, costAnn}。组合至少含 C1a C1b B0 B1 B1star_C1a B1star_C1b B2p B2b B4",
+      "required": ["explore", "validate", "full"],
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "$ref": "#/$defs/seriesBlock" }
+      }
+    },
+    "crash": {
+      "type": "object",
+      "description": "折线法急跌段（覆盖池 B0 无摩擦日度指数，反弹 ≥20% 开新段，跌幅 ≥20%）",
+      "required": ["validate", "explore"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["segments", "L", "singleSegShare"],
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["peak", "trough", "dropB0", "ret"],
+              "properties": {
+                "peak": { "type": "string" },
+                "trough": { "type": "string" },
+                "dropB0": { "type": "number" },
+                "ret": { "type": "object", "additionalProperties": { "type": "number" }, "description": "组合 → 峰→谷简单收益（净值）" }
+              }
+            }
+          },
+          "L": { "type": "object", "description": "组合 → {net, gross}：L(组合, B1)", "additionalProperties": { "type": "object" } },
+          "singleSegShare": { "type": "object", "additionalProperties": { "type": ["number", "null"] }, "description": "最大单段改善占总改善比例；总改善 ≤0 时为 null" }
+        }
+      }
+    },
+    "judgments": {
+      "type": "object",
+      "required": ["C1a", "C1b"],
+      "properties": {
+        "C1a": { "$ref": "#/$defs/judgment" },
+        "C1b": { "$ref": "#/$defs/judgment" }
+      }
+    },
+    "placebo": {
+      "type": "object",
+      "required": ["randomIndustry", "holm", "circularShift", "bootstrap"],
+      "properties": {
+        "randomIndustry": { "type": "object", "description": "候选 → {n, seed, actualSim{L,vol,maxdd,sharpe}, p{L,vol,maxdd,sharpe}, nSegments}", "additionalProperties": { "type": "object" } },
+        "holm": { "type": "object", "description": "L 单边 p 的 Holm 调整，族 {C1a, C1b}", "required": ["C1a", "C1b"], "additionalProperties": { "type": "number" } },
+        "circularShift": { "type": "object", "additionalProperties": { "type": "object" } },
+        "bootstrap": { "type": "object", "description": "候选 → 块长(6/12/24) → 夏普差、波动差的分布与 p", "additionalProperties": { "type": "object" } }
+      }
+    },
+    "power": { "type": "object", "description": "功效模拟（设计与结果）" },
+    "decomposition": {
+      "type": "object",
+      "required": ["C1a_vs_B1", "persistence_C1a_minus_B4", "peIncrement"],
+      "properties": {
+        "C1a_vs_B1": { "type": "object", "description": "空缺月（= B0 − B1）与有持仓月两部分" },
+        "C1b_vs_B1": { "type": "object" },
+        "persistence_C1a_minus_B4": { "type": "object" },
+        "peIncrement": { "type": "object", "description": "C1a − B2′、C1b − B2b（另报 C1b − B2′）" }
+      }
+    },
+    "skips": { "type": "object", "description": "组合 → 窗口 → {pe90, hist, neg_ni}" },
+    "holdings": { "type": "object", "description": "组合 → 窗口 → {months, monthsWithHeld, monthsEmpty, switches, meanHeld, medianRun, maxRun}" },
+    "survivorship": { "type": "object", "description": "窗口 → {fullMarketB0, coveredB0, diffCagr, diffVol}（均为无摩擦 t−1 mcap_float 加权日度指数）" },
+    "c2": { "type": "object", "description": "C2 作用于 B2 持仓：触发次数、B2+C2 对 B2 的度量；不判定" },
+    "sensitivity": { "type": "object", "description": "E1/E2/E3/E5/E6 变体 → 窗口度量 + L + 判定 1–4 读数（报告项，不判定）" },
+    "e4Etf": { "type": "object", "description": "各申万一级最早场内 ETF 成立年份（inputs/etf_map.json）" },
+    "e7Concentration": { "type": "object", "description": "持仓名次分布、各行业贡献、贡献最大 5 个月" },
+    "e8": { "type": "object", "description": "2015 上半年与 2015 股灾段单列" },
+    "feasibility1e6": { "type": "object", "description": "100 万元整手 + 最低佣金可执行性报告项：目标权重保留率、现金占比、成本拖累、各度量；不参与判定" },
+    "allocateVariant": { "type": "object", "description": "CLARIFY-2 第 11 条报告项：买不进权重按 factorlab allocate 转给其他目标" },
+    "truncFirstVariant": { "type": "object", "description": "CLARIFY-2 第 11a 条报告项：超预算日先截断买不进再缩放（主实现第一版顺序）" },
+    "strictTtm": { "type": "object", "description": "CLARIFY-2 第 12 条报告项：严格 TTM 受影响格数与持仓变化月份" },
+    "daily": { "type": "object", "description": "CLARIFY-2 第 14 条：验证段日度序列 CSV 位置与说明" },
+    "diagnostics": { "type": "object", "description": "非判定诊断：B0 执行 vs 无摩擦逐年、复牌收益口径（ffill 权重对照指数下的急跌段与 L）" },
+    "trials": {
+      "type": "object",
+      "required": ["logPath", "nRecorded"],
+      "properties": {
+        "logPath": { "type": "string" },
+        "nRecorded": { "type": "integer" }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["C1a", "C1b", "summary", "lockboxNote"],
+      "properties": {
+        "C1a": { "enum": ["通过", "部分成立", "不通过"] },
+        "C1b": { "enum": ["通过", "部分成立", "不通过"] },
+        "summary": { "type": "string" },
+        "lockboxNote": { "type": "string", "description": "是否晋级锁箱由 manager 决定，本实现不做锁箱确认" }
+      }
+    }
+  },
+  "$defs": {
+    "perf": {
+      "type": "object",
+      "required": ["cagr", "vol", "sharpe", "maxdd", "n"],
+      "properties": {
+        "cagr": { "type": ["number", "null"] },
+        "vol": { "type": ["number", "null"] },
+        "sharpe": { "type": ["number", "null"] },
+        "maxdd": { "type": ["number", "null"] },
+        "n": { "type": "integer" }
+      }
+    },
+    "seriesBlock": {
+      "type": "object",
+      "required": ["gross", "net"],
+      "properties": {
+        "gross": { "$ref": "#/$defs/perf" },
+        "net": { "$ref": "#/$defs/perf" },
+        "turnoverAnn": { "type": ["number", "null"], "description": "窗口内日单边换手之和 ÷ 窗口交易日 × 252" },
+        "costAnn": { "type": ["number", "null"], "description": "窗口内日成本之和 ÷ 窗口交易日 × 252" },
+        "k": { "type": "number", "description": "仅 B1star：σ(候选)/σ(B1)" }
+      }
+    },
+    "headlineCand": {
+      "type": "object",
+      "required": ["vol", "volB1", "maxdd", "maxddB1", "L", "sharpe", "sharpeB1", "sharpeB1star", "grade"],
+      "properties": {
+        "vol": { "type": "number" }, "volB1": { "type": "number" },
+        "maxdd": { "type": "number" }, "maxddB1": { "type": "number" },
+        "L": { "type": ["number", "null"] },
+        "sharpe": { "type": "number" }, "sharpeB1": { "type": "number" }, "sharpeB1star": { "type": "number" },
+        "sharpeB2": { "type": "number" }, "maxddB2": { "type": "number" },
+        "sharpeB4": { "type": "number" }, "maxddB4": { "type": "number" },
+        "grade": { "enum": ["通过", "部分成立", "不通过"] }
+      }
+    },
+    "cond": {
+      "type": "object",
+      "required": ["pass"],
+      "properties": { "pass": { "type": "boolean" }, "detail": { "type": "object" } }
+    },
+    "judgment": {
+      "type": "object",
+      "required": ["net", "gross", "c5", "c6", "singleSegCap", "grade"],
+      "properties": {
+        "net": {
+          "type": "object", "required": ["c1", "c2", "c3", "c4"],
+          "properties": { "c1": { "$ref": "#/$defs/cond" }, "c2": { "$ref": "#/$defs/cond" }, "c3": { "$ref": "#/$defs/cond" }, "c4": { "$ref": "#/$defs/cond" } }
+        },
+        "gross": {
+          "type": "object", "required": ["c1", "c2", "c3", "c4"],
+          "properties": { "c1": { "$ref": "#/$defs/cond" }, "c2": { "$ref": "#/$defs/cond" }, "c3": { "$ref": "#/$defs/cond" }, "c4": { "$ref": "#/$defs/cond" } }
+        },
+        "c4_vs_B2p": { "$ref": "#/$defs/cond", "description": "C1b 另报对 B2′ 的判定 4" },
+        "c5": { "$ref": "#/$defs/cond" },
+        "c6": { "$ref": "#/$defs/cond" },
+        "singleSegCap": { "type": "boolean", "description": "L 改善超过 50% 来自单一段 → 最高部分成立" },
+        "grade": { "enum": ["通过", "部分成立", "不通过"] },
+        "gradeRule": { "type": "string" }
+      }
+    }
+  }
+}

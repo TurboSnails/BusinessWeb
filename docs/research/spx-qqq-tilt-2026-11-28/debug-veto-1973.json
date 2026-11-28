@@ -1,0 +1,228 @@
+{
+  "window": "veto_kf_1973_1984",
+  "source": "run.py 当前版本函数（read_kf_daily / k2_signal_frame / run_k2 / mstar_daily），与 results.json 同一代码",
+  "requestedRange": {
+    "start": "1973-01-02",
+    "end": "1984-12-31"
+  },
+  "meta": {
+    "firstDate": "1973-01-02",
+    "lastDate": "1984-12-31",
+    "N": 3033,
+    "calendarDays": 4381,
+    "years": 11.994770597616652,
+    "yearsFormula": "(末日 − 首日) 日历天 ÷ 365.2425",
+    "A": 252.8601923076923,
+    "AFormula": "N ÷ years（本窗口独立模拟，用本窗口自己的 A；补充裁定 16）"
+  },
+  "initialBuild": {
+    "date": "1972-12-29",
+    "note": "窗口首日前一个收盘建仓；NAV = 1；不计成本；首日承担当日收益",
+    "NAV": 1.0,
+    "K2_exposure": 1.0,
+    "M_NAV": 1.0
+  },
+  "first5Days": [
+    {
+      "date": "1973-01-02",
+      "M_dailyReturnGross": 0.0089,
+      "M_dailyReturnNetFee": 0.00889604524543435,
+      "RF": 0.0002,
+      "K2_exposureAfterStep4": 1.0,
+      "K2_levered": false,
+      "K2_signalState": false,
+      "dailyFeeRate": 3.9547545656500665e-06,
+      "debtRate": 0.000259321318484751,
+      "debtRateNote": "负债日利率 = RF_t + 1.5%/A；K2 未加杠杆时只有建仓后无负债，成本产生的极小负值现金也按此计息（本窗口前 5 日无成交，现金 = 0）",
+      "K2_returnDaily": 0.008896045245434303,
+      "K2_NAV": 1.0088960452454343,
+      "M_NAV": 1.0088960452454343
+    },
+    {
+      "date": "1973-01-03",
+      "M_dailyReturnGross": 0.0036999999999999997,
+      "M_dailyReturnNetFee": 0.0036960452454343497,
+      "RF": 0.0002,
+      "K2_exposureAfterStep4": 1.0,
+      "K2_levered": false,
+      "K2_signalState": false,
+      "dailyFeeRate": 3.9547545656500665e-06,
+      "debtRate": 0.000259321318484751,
+      "debtRateNote": "负债日利率 = RF_t + 1.5%/A；K2 未加杠杆时只有建仓后无负债，成本产生的极小负值现金也按此计息（本窗口前 5 日无成交，现金 = 0）",
+      "K2_returnDaily": 0.0036960452454344317,
+      "K2_NAV": 1.0126249706766013,
+      "M_NAV": 1.0126249706766013
+    },
+    {
+      "date": "1973-01-04",
+      "M_dailyReturnGross": -0.0021,
+      "M_dailyReturnNetFee": -0.00210395475456565,
+      "RF": 0.0002,
+      "K2_exposureAfterStep4": 1.0,
+      "K2_levered": false,
+      "K2_signalState": false,
+      "dailyFeeRate": 3.9547545656500665e-06,
+      "debtRate": 0.000259321318484751,
+      "debtRateNote": "负债日利率 = RF_t + 1.5%/A；K2 未加杠杆时只有建仓后无负债，成本产生的极小负值现金也按此计息（本窗口前 5 日无成交，现金 = 0）",
+      "K2_returnDaily": -0.0021039547545654846,
+      "K2_NAV": 1.0104944535549545,
+      "M_NAV": 1.0104944535549545
+    },
+    {
+      "date": "1973-01-05",
+      "M_dailyReturnGross": 0.0032,
+      "M_dailyReturnNetFee": 0.00319604524543435,
+      "RF": 0.0002,
+      "K2_exposureAfterStep4": 1.0,
+      "K2_levered": false,
+      "K2_signalState": false,
+      "dailyFeeRate": 3.9547545656500665e-06,
+      "debtRate": 0.000259321318484751,
+      "debtRateNote": "负债日利率 = RF_t + 1.5%/A；K2 未加杠杆时只有建仓后无负债，成本产生的极小负值现金也按此计息（本窗口前 5 日无成交，现金 = 0）",
+      "K2_returnDaily": 0.0031960452454344868,
+      "K2_NAV": 1.0137240395487768,
+      "M_NAV": 1.0137240395487765
+    },
+    {
+      "date": "1973-01-08",
+      "M_dailyReturnGross": -9.999999999999996e-05,
+      "M_dailyReturnNetFee": -0.00010395475456565004,
+      "RF": 0.0002,
+      "K2_exposureAfterStep4": 1.0,
+      "K2_levered": false,
+      "K2_signalState": false,
+      "dailyFeeRate": 3.9547545656500665e-06,
+      "debtRate": 0.000259321318484751,
+      "debtRateNote": "负债日利率 = RF_t + 1.5%/A；K2 未加杠杆时只有建仓后无负债，成本产生的极小负值现金也按此计息（本窗口前 5 日无成交，现金 = 0）",
+      "K2_returnDaily": -0.00010395475456570491,
+      "K2_NAV": 1.0136186581150481,
+      "M_NAV": 1.013618658115048
+    }
+  ],
+  "dailyFeeRate": 3.9547545656500665e-06,
+  "dailyFeeFormula": "0.10% ÷ A，从各腿日收益中减（K2 的股票腿与 M 同）",
+  "debtSpreadDaily": 5.9321318484751e-05,
+  "stdDailyReturn": {
+    "K2": 0.009071986299906586,
+    "M_netFee": 0.008759654096514267,
+    "ddof": 1
+  },
+  "Mstar": {
+    "k": 1.0356557690464747,
+    "kFormula": "std(K2 日收益) ÷ std(M 扣费日收益)，ddof=1",
+    "kCheck": 1.0356557690464747
+  },
+  "K2_stateAtWindowStart": {
+    "initialStateLevered": false,
+    "basis": "全历史状态机（自 1926-07-01 起跑）在首日前一收盘的状态（补充裁定 8）",
+    "prevClose": {
+      "date": "1972-12-29",
+      "I": 62.35277331453259,
+      "peak": 62.973029621722084,
+      "DD": -0.009849554816011907,
+      "SMA200": 58.35024899246237,
+      "I_above_SMA": true
+    },
+    "firstDay": {
+      "date": "1973-01-02",
+      "I": 62.90771299703192,
+      "DD": -0.0010372158538745069,
+      "SMA200": 58.37761946148746,
+      "state": false
+    },
+    "signalSeries": "I = Π(1 + Mkt-RF + RF)，自 1926-07-01，不扣费；DD = I ÷ 历史最高 − 1；SMA200 含当日"
+  },
+  "summary": {
+    "K2_maxDd": -0.48248932594753546,
+    "M_maxDd": -0.4824893259475467,
+    "M_maxDd_peak": "1973-01-11",
+    "M_maxDd_trough": "1974-10-03",
+    "K2_finalNAV": 2.7927989348639484,
+    "M_finalNAV": 2.60818068486033,
+    "K2_nTrades": 8,
+    "K2_nEnterExit": 6,
+    "K2_trades": [
+      {
+        "signalDate": "1975-01-27",
+        "execDate": "1975-01-28",
+        "action": "enter",
+        "exposure": 1.3,
+        "nav": 0.6563712143279046,
+        "navPrev": 0.6506811954257609,
+        "navChange": 0.008744710838647363,
+        "exposureAfter": 1.3001950292543882
+      },
+      {
+        "signalDate": "1975-05-02",
+        "execDate": "1975-05-05",
+        "action": "rebalance",
+        "exposure": 1.3,
+        "nav": 0.8202424044330981,
+        "navPrev": 0.8103140955685435,
+        "navChange": 0.0122524202884422,
+        "exposureAfter": 1.3000360778962214
+      },
+      {
+        "signalDate": "1975-10-01",
+        "execDate": "1975-10-02",
+        "action": "exit",
+        "exposure": 1.0,
+        "nav": 0.758040952992409,
+        "navPrev": 0.7491148086793056,
+        "navChange": 0.011915589185642173,
+        "exposureAfter": 1.000167158523646
+      },
+      {
+        "signalDate": "1975-10-02",
+        "execDate": "1975-10-03",
+        "action": "enter",
+        "exposure": 1.3,
+        "nav": 0.7761175740310323,
+        "navPrev": 0.758040952992409,
+        "navChange": 0.023846496640141712,
+        "exposureAfter": 1.3001949230885506
+      },
+      {
+        "signalDate": "1975-12-05",
+        "execDate": "1975-12-08",
+        "action": "exit",
+        "exposure": 1.0,
+        "nav": 0.789217499364843,
+        "navPrev": 0.7877630422359276,
+        "navChange": 0.0018463129785666332,
+        "exposureAfter": 1.0001493383963704
+      },
+      {
+        "signalDate": "1975-12-10",
+        "execDate": "1975-12-11",
+        "action": "enter",
+        "exposure": 1.3,
+        "nav": 0.7953926783099589,
+        "navPrev": 0.7973493051139936,
+        "navChange": -0.0024539142274100367,
+        "exposureAfter": 1.3001949328486402
+      },
+      {
+        "signalDate": "1976-02-03",
+        "execDate": "1976-02-04",
+        "action": "rebalance",
+        "exposure": 1.3,
+        "nav": 0.9760695244989598,
+        "navPrev": 0.9654253788938407,
+        "navChange": 0.011025342649801484,
+        "exposureAfter": 1.3000344648894908
+      },
+      {
+        "signalDate": "1976-07-09",
+        "execDate": "1976-07-12",
+        "action": "exit",
+        "exposure": 1.0,
+        "nav": 1.042344218270417,
+        "navPrev": 1.0321780914428815,
+        "navChange": 0.009849198420133431,
+        "exposureAfter": 1.0001445056831044
+      }
+    ],
+    "K2_leveredDays": 363
+  }
+}

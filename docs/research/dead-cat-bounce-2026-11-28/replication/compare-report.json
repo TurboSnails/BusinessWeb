@@ -1,0 +1,2057 @@
+{
+  "status": "mismatch",
+  "tol_decision": 1e-08,
+  "n_decision_leaves_compared": 648,
+  "n_decision_diffs": 139,
+  "n_report_leaves_compared": 716,
+  "n_report_diffs": 194,
+  "inputs_identical": true,
+  "grades": {
+    "explore": {
+      "C1": [
+        "不支持",
+        "不支持"
+      ],
+      "C2": [
+        "不支持",
+        "不支持"
+      ]
+    },
+    "validate": {
+      "C1": [
+        "不支持",
+        "不支持"
+      ],
+      "C2": [
+        "部分成立",
+        "部分成立"
+      ]
+    }
+  },
+  "events": {
+    "n_main": 8174,
+    "n_repl": 8174,
+    "only_main": [],
+    "only_repl": [],
+    "per_event_numeric": {
+      "event_excess": {
+        "n_gt_tol": 0,
+        "max_abs_diff": 4.931166586175095e-12,
+        "n_null_mismatch": 31
+      },
+      "cost_roundtrip": {
+        "n_gt_tol": 0,
+        "max_abs_diff": 4.995309721422814e-14,
+        "n_null_mismatch": 0
+      }
+    },
+    "n_only_main": 0,
+    "n_only_repl": 0,
+    "field_diffs": [],
+    "n_field_diffs": 0,
+    "identical": true,
+    "main_source": "/Users/hassan/WorkSpace/workspace/gupiaoWS/BusinessWeb/docs/research/dead-cat-bounce-2026-11-28/events.csv"
+  },
+  "decision_diffs": [
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.mde_monthly_power50",
+      "type": "only_repl",
+      "repl": 0.014274024124467577
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.mde_monthly_power80",
+      "type": "only_repl",
+      "repl": 0.02158024194379992
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.n_signal_months_C2_hi",
+      "type": "only_repl",
+      "repl": 63
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.n_signal_months_C2_lo",
+      "type": "only_repl",
+      "repl": 39
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.pool_days[0]",
+      "type": "only_repl",
+      "repl": "2005-02-01"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.pool_days[1]",
+      "type": "only_repl",
+      "repl": "2014-12-31"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.pool_days[2]",
+      "type": "only_repl",
+      "repl": 2407
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.signal_first",
+      "type": "only_repl",
+      "repl": "2005-02-16"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.meta.signal_last",
+      "type": "only_repl",
+      "repl": "2014-12-31"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2005",
+      "type": "only_repl",
+      "repl": 81
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2006",
+      "type": "only_repl",
+      "repl": 41
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2007",
+      "type": "only_repl",
+      "repl": 586
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2008",
+      "type": "only_repl",
+      "repl": 1199
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2009",
+      "type": "only_repl",
+      "repl": 347
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2010",
+      "type": "only_repl",
+      "repl": 146
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2011",
+      "type": "only_repl",
+      "repl": 64
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2012",
+      "type": "only_repl",
+      "repl": 150
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2013",
+      "type": "only_repl",
+      "repl": 125
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.events_by_year.2014",
+      "type": "only_repl",
+      "repl": 27
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 1199
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.05037738047526927
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.04148387685716081
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C1.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 0
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2005",
+      "type": "only_repl",
+      "repl": 23
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2006",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2007",
+      "type": "only_repl",
+      "repl": 20
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2008",
+      "type": "only_repl",
+      "repl": 184
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2009",
+      "type": "only_repl",
+      "repl": 97
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2010",
+      "type": "only_repl",
+      "repl": 45
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2011",
+      "type": "only_repl",
+      "repl": 6
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2012",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2013",
+      "type": "only_repl",
+      "repl": 18
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.events_by_year.2014",
+      "type": "only_repl",
+      "repl": 7
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 184
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.007361800329100647
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.007496661060027185
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 0
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2005",
+      "type": "only_repl",
+      "repl": 23
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2006",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2007",
+      "type": "only_repl",
+      "repl": 20
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2008",
+      "type": "only_repl",
+      "repl": 184
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2009",
+      "type": "only_repl",
+      "repl": 97
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2010",
+      "type": "only_repl",
+      "repl": 45
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2011",
+      "type": "only_repl",
+      "repl": 6
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2012",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2013",
+      "type": "only_repl",
+      "repl": 18
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.events_by_year.2014",
+      "type": "only_repl",
+      "repl": 7
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 184
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.007361800329100647
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.007496661060027185
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_lo.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 0
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2005",
+      "type": "only_repl",
+      "repl": 36
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2006",
+      "type": "only_repl",
+      "repl": 17
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2007",
+      "type": "only_repl",
+      "repl": 92
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2008",
+      "type": "only_repl",
+      "repl": 316
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2009",
+      "type": "only_repl",
+      "repl": 150
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2010",
+      "type": "only_repl",
+      "repl": 60
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2011",
+      "type": "only_repl",
+      "repl": 14
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2012",
+      "type": "only_repl",
+      "repl": 14
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2013",
+      "type": "only_repl",
+      "repl": 30
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.events_by_year.2014",
+      "type": "only_repl",
+      "repl": 11
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 316
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.012096639908422675
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.012555595679898236
+    },
+    {
+      "kind": "decision",
+      "path": "layers.explore.C2.bound_hi.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 0
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.mde_monthly_power50",
+      "type": "only_repl",
+      "repl": 0.013431368756261094
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.mde_monthly_power80",
+      "type": "only_repl",
+      "repl": 0.02030626996767255
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.n_signal_months_C2_hi",
+      "type": "only_repl",
+      "repl": 79
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.n_signal_months_C2_lo",
+      "type": "only_repl",
+      "repl": 48
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.pool_days[0]",
+      "type": "only_repl",
+      "repl": "2015-01-05"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.pool_days[1]",
+      "type": "only_repl",
+      "repl": "2023-10-31"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.pool_days[2]",
+      "type": "only_repl",
+      "repl": 2146
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.signal_first",
+      "type": "only_repl",
+      "repl": "2015-01-05"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.meta.signal_last",
+      "type": "only_repl",
+      "repl": "2023-07-31"
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2015",
+      "type": "only_repl",
+      "repl": 1505
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2016",
+      "type": "only_repl",
+      "repl": 999
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2017",
+      "type": "only_repl",
+      "repl": 63
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2018",
+      "type": "only_repl",
+      "repl": 566
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2019",
+      "type": "only_repl",
+      "repl": 265
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2020",
+      "type": "only_repl",
+      "repl": 483
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2021",
+      "type": "only_repl",
+      "repl": 503
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2022",
+      "type": "only_repl",
+      "repl": 830
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.events_by_year.2023",
+      "type": "only_repl",
+      "repl": 162
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 1505
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.04519607885608687
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.04400981729557729
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C1.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 174
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2015",
+      "type": "only_repl",
+      "repl": 43
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2016",
+      "type": "only_repl",
+      "repl": 1
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2017",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2018",
+      "type": "only_repl",
+      "repl": 16
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2019",
+      "type": "only_repl",
+      "repl": 132
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2020",
+      "type": "only_repl",
+      "repl": 44
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2021",
+      "type": "only_repl",
+      "repl": 45
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2022",
+      "type": "only_repl",
+      "repl": 294
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.events_by_year.2023",
+      "type": "only_repl",
+      "repl": 73
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 294
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.004208384966685057
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.004233607289879296
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 55
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2015",
+      "type": "only_repl",
+      "repl": 43
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2016",
+      "type": "only_repl",
+      "repl": 1
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2017",
+      "type": "only_repl",
+      "repl": 9
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2018",
+      "type": "only_repl",
+      "repl": 16
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2019",
+      "type": "only_repl",
+      "repl": 132
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2020",
+      "type": "only_repl",
+      "repl": 44
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2021",
+      "type": "only_repl",
+      "repl": 45
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2022",
+      "type": "only_repl",
+      "repl": 294
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.events_by_year.2023",
+      "type": "only_repl",
+      "repl": 73
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 294
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.004208384966685057
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.004233607289879296
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_lo.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 55
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2015",
+      "type": "only_repl",
+      "repl": 154
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2016",
+      "type": "only_repl",
+      "repl": 91
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2017",
+      "type": "only_repl",
+      "repl": 16
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2018",
+      "type": "only_repl",
+      "repl": 85
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2019",
+      "type": "only_repl",
+      "repl": 171
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2020",
+      "type": "only_repl",
+      "repl": 88
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2021",
+      "type": "only_repl",
+      "repl": 64
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2022",
+      "type": "only_repl",
+      "repl": 328
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.events_by_year.2023",
+      "type": "only_repl",
+      "repl": 85
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S2.detail.top_year_n",
+      "type": "only_repl",
+      "repl": 328
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S3.detail.mdd_shallower_ge_1pct",
+      "type": "only_repl",
+      "repl": false
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S3.detail.placebo.removed_weight_share_mean_candidate",
+      "type": "only_main",
+      "main": 0.007038451115590747
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S3.detail.placebo.removed_weight_share_mean_placebo",
+      "type": "only_main",
+      "main": 0.007752069725162581
+    },
+    {
+      "kind": "decision",
+      "path": "layers.validate.C2.bound_hi.S5.detail.n_legs_padded_to_100_shares",
+      "type": "only_repl",
+      "repl": 59
+    },
+    {
+      "kind": "decision",
+      "path": "verdict.C2.bounds.explore.hi",
+      "type": "only_repl",
+      "repl": "不支持"
+    },
+    {
+      "kind": "decision",
+      "path": "verdict.C2.bounds.explore.lo",
+      "type": "only_repl",
+      "repl": "不支持"
+    },
+    {
+      "kind": "decision",
+      "path": "verdict.C2.bounds.validate.hi",
+      "type": "only_repl",
+      "repl": "部分成立"
+    },
+    {
+      "kind": "decision",
+      "path": "verdict.C2.bounds.validate.lo",
+      "type": "only_repl",
+      "repl": "不支持"
+    },
+    {
+      "kind": "decision",
+      "path": "verdict.summary",
+      "main": "C1 探索=不支持 / 验证=不支持；C2 探索=不支持 / 验证=部分成立；晋级资格 C1=False C2=False（是否解封由 manager 决定；本任务不做锁箱确认）",
+      "repl": "同等仓位下（全 A 底池、市值加权毛收益路径、验证层），剔除暴跌后反弹（C1）年化波动 0.2147 vs 满仓 0.2243，最大回撤 -0.5064 vs -0.4836；事件超额 mean_x60 = -0.0320（negative）；相对低波安慰剂的波动比分位 0.000。分级：探索 C1=不支持、C2=不支持；验证 C1=不支持、C2=部分成立。全 A 股票池结论，不等于 ETF / 综合策略持仓结论。"
+    }
+  ],
+  "report_diffs": [
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.03114038266970658,
+      "repl": -0.031446418324968334
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -2.936498281936295,
+      "repl": -2.9312421957921853
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.alpha_ann",
+      "main": 0.00223263634610097,
+      "repl": 0.0011330976112264917
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.alpha_daily",
+      "main": 8.859668040083214e-06,
+      "repl": 4.496419092168618e-06
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.alpha_nw_t",
+      "main": 0.534009804343363,
+      "repl": 0.26837804190674364
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.cn_ep_ttm",
+      "main": -0.04470326441376218,
+      "repl": -0.05941007852129934
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.dd_60",
+      "main": -0.03764801262749003,
+      "repl": -0.017918182713643933
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.max_ret_21d",
+      "main": -0.02347996010385718,
+      "repl": -0.009943016555568642
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.mkt",
+      "main": 0.0013822297324158671,
+      "repl": 0.0042637485444371225
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.mom_12_1",
+      "main": 0.006758386121089647,
+      "repl": 0.014095931992803845
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.peak_fall",
+      "main": -0.0012538065354393475,
+      "repl": -0.0018650320350521283
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.rev_1m",
+      "main": 0.01317336519640051,
+      "repl": -0.011648071619923536
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.size",
+      "main": 0.0066420680847405445,
+      "repl": 0.012175652181904417
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.turnover_20d",
+      "main": 0.0490599874929325,
+      "repl": 0.06302639579379833
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.betas.vol_60d",
+      "main": 0.060820352831211906,
+      "repl": 0.07535906297110757
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.detail.portfolio_spanning.n_days",
+      "main": 2052,
+      "repl": 2091
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C1.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.026266607477357554,
+      "repl": -0.02614356902532814
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -1.2931594536267697,
+      "repl": -1.2866223260062826
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.alpha_ann",
+      "main": -0.00033242199588995807,
+      "repl": -0.001976582555257674
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.alpha_daily",
+      "main": -1.3191349043252304e-06,
+      "repl": -7.843581568482834e-06
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.alpha_nw_t",
+      "main": -0.564257307826565,
+      "repl": -1.1109065050409666
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.cn_ep_ttm",
+      "main": -0.002234072650454925,
+      "repl": -0.009894795995189451
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.dd_60",
+      "main": -0.0016523155280592867,
+      "repl": -0.0007811356427654956
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.max_ret_21d",
+      "main": -0.0009982303508520745,
+      "repl": -0.004020927879744745
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.mkt",
+      "main": -0.0003679534194585133,
+      "repl": 0.0006029051385435493
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.mom_12_1",
+      "main": -0.0015429504411928765,
+      "repl": 0.0008894365176164848
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.peak_fall",
+      "main": -0.0004959884879228128,
+      "repl": -0.0014811659802813864
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.rev_1m",
+      "main": 0.0012989952467039572,
+      "repl": 0.002372961790469876
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.size",
+      "main": -0.0011330517565490978,
+      "repl": 0.001227102445018705
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.turnover_20d",
+      "main": 0.002557884381399568,
+      "repl": 0.00918204483102589
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.betas.vol_60d",
+      "main": 0.002413187724174755,
+      "repl": 0.012449077709584682
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.detail.portfolio_spanning.n_days",
+      "main": 2052,
+      "repl": 2091
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.021036192094663196,
+      "repl": -0.020896148062323566
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -1.558731424434378,
+      "repl": -1.5489532273695594
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.alpha_ann",
+      "main": 0.0002648684135965329,
+      "repl": -0.0014834630969134369
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.alpha_daily",
+      "main": 1.051065133319575e-06,
+      "repl": -5.886758321085067e-06
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.alpha_nw_t",
+      "main": 0.31897743120561534,
+      "repl": -0.7459977223711736
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.cn_ep_ttm",
+      "main": -0.003007137301728851,
+      "repl": -0.010797784398302559
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.dd_60",
+      "main": -0.003004761627395505,
+      "repl": -0.002173014417884188
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.max_ret_21d",
+      "main": -0.0037869534619808833,
+      "repl": -0.006824801884637261
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.mkt",
+      "main": -0.0003843186690734344,
+      "repl": 0.000707895636474915
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.mom_12_1",
+      "main": -0.0005108052362922369,
+      "repl": 0.002186983017738845
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.peak_fall",
+      "main": -0.0006008739623477121,
+      "repl": -0.0018488077559871941
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.rev_1m",
+      "main": 0.0010699861763179136,
+      "repl": 0.002495945282107498
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.size",
+      "main": 4.231584394703044e-05,
+      "repl": 0.0022516348471569897
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.turnover_20d",
+      "main": 0.010062537196265644,
+      "repl": 0.01687585465451018
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.betas.vol_60d",
+      "main": 0.0056701886886741755,
+      "repl": 0.015953281950980298
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.detail.portfolio_spanning.n_days",
+      "main": 2052,
+      "repl": 2091
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_hi.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.026266607477357554,
+      "repl": -0.02614356902532814
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -1.2931594536267697,
+      "repl": -1.2866223260062826
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.alpha_ann",
+      "main": -0.00033242199588995807,
+      "repl": -0.001976582555257674
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.alpha_daily",
+      "main": -1.3191349043252304e-06,
+      "repl": -7.843581568482834e-06
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.alpha_nw_t",
+      "main": -0.564257307826565,
+      "repl": -1.1109065050409666
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.cn_ep_ttm",
+      "main": -0.002234072650454925,
+      "repl": -0.009894795995189451
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.dd_60",
+      "main": -0.0016523155280592867,
+      "repl": -0.0007811356427654956
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.max_ret_21d",
+      "main": -0.0009982303508520745,
+      "repl": -0.004020927879744745
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.mkt",
+      "main": -0.0003679534194585133,
+      "repl": 0.0006029051385435493
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.mom_12_1",
+      "main": -0.0015429504411928765,
+      "repl": 0.0008894365176164848
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.peak_fall",
+      "main": -0.0004959884879228128,
+      "repl": -0.0014811659802813864
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.rev_1m",
+      "main": 0.0012989952467039572,
+      "repl": 0.002372961790469876
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.size",
+      "main": -0.0011330517565490978,
+      "repl": 0.001227102445018705
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.turnover_20d",
+      "main": 0.002557884381399568,
+      "repl": 0.00918204483102589
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.betas.vol_60d",
+      "main": 0.002413187724174755,
+      "repl": 0.012449077709584682
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.detail.portfolio_spanning.n_days",
+      "main": 2052,
+      "repl": 2091
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.C2.bound_lo.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.breach_trough_rate.event",
+      "main": 0.6478669558929863,
+      "repl": 0.6482284887924801
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.2839688806435445,
+      "repl": -0.2887101496228792
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.event_vol_mdd_vs_control.event_vol",
+      "main": 0.6279542205283771,
+      "repl": 0.6327946752590504
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.sw_industry_subsample.n_events",
+      "main": 2262,
+      "repl": 2444
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C1.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_hi.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.2762395205721312,
+      "repl": -0.28159131491065426
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_hi.event_vol_mdd_vs_control.event_vol",
+      "main": 0.6164944250221922,
+      "repl": 0.6206076772139273
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_hi.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_hi.sw_industry_subsample.n_events",
+      "main": 397,
+      "repl": 418
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_hi.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_lo.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.27172248852907444,
+      "repl": -0.27692923623798726
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_lo.event_vol_mdd_vs_control.event_vol",
+      "main": 0.6065394627620896,
+      "repl": 0.610733285678358
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_lo.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_lo.sw_industry_subsample.n_events",
+      "main": 397,
+      "repl": 418
+    },
+    {
+      "kind": "report",
+      "path": "layers.explore.report.C2_lo.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.008800192884915643,
+      "repl": -0.008835484823298491
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -1.0182632706317478,
+      "repl": -1.0217713450291754
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C1.diagnostics.delist_within_60.share",
+      "main": 0.00037418147801683815,
+      "repl": 0.0003720238095238095
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.005034380746072768,
+      "repl": -0.004960059064759065
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -0.41134477435156686,
+      "repl": -0.4045242330593867
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.03345929740058964,
+      "repl": -0.0334894729760644
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -2.048618632765489,
+      "repl": -2.048687284300637
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_hi.diagnostics.delist_within_60.share",
+      "main": 0.0018501387604070306,
+      "repl": 0.0018484288354898336
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.event_fama_macbeth.gamma_mean",
+      "main": -0.005034380746072768,
+      "repl": -0.004960059064759065
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.event_fama_macbeth.gamma_nw_t",
+      "main": -0.41134477435156686,
+      "repl": -0.4045242330593867
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[0]",
+      "main": "rev_1m",
+      "repl": "mkt"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[1]",
+      "main": "max_ret_21d",
+      "repl": "rev_1m"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[2]",
+      "main": "dd_60",
+      "repl": "max_ret_21d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[3]",
+      "main": "peak_fall",
+      "repl": "dd_60"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[4]",
+      "main": "vol_60d",
+      "repl": "peak_fall"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[5]",
+      "main": "size",
+      "repl": "vol_60d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[6]",
+      "main": "turnover_20d",
+      "repl": "size"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[7]",
+      "main": "mom_12_1",
+      "repl": "turnover_20d"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[8]",
+      "main": "cn_ep_ttm",
+      "repl": "mom_12_1"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.detail.portfolio_spanning.factors[9]",
+      "main": "mkt",
+      "repl": "cn_ep_ttm"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.C2.bound_lo.S4.note",
+      "main": "只报告，不作判定",
+      "repl": "只报告：y = 回避毛路径 − 满仓；因子 = 月末前 20% − 满仓；NW(60)。FM 每周、NW(12)"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.breach_trough_rate.event",
+      "main": 0.5995163690476191,
+      "repl": 0.5998883928571429
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.2781284613512946,
+      "repl": -0.27776576434697603
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.event_vol_mdd_vs_control.event_vol",
+      "main": 0.6527003054332011,
+      "repl": 0.6506710402304345
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.sw_industry_subsample.n_events",
+      "main": 3951,
+      "repl": 4951
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C1.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_hi.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.2478953399963626,
+      "repl": -0.24882021346120387
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_hi.event_vol_mdd_vs_control.event_vol",
+      "main": 0.5621481539608331,
+      "repl": 0.5637518543696781
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_hi.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_hi.sw_industry_subsample.n_events",
+      "main": 651,
+      "repl": 657
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_hi.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_lo.event_vol_mdd_vs_control.event_mdd",
+      "main": -0.21144179641784006,
+      "repl": -0.21140842511911614
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_lo.event_vol_mdd_vs_control.event_vol",
+      "main": 0.49783555270500834,
+      "repl": 0.4973706392905432
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_lo.pool_Bc_cash.note",
+      "main": "剔除权重放现金：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据",
+      "repl": "现金路径：危机后等价于市场择时（L-047 同类），不能作为回避选股有效的证据"
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_lo.sw_industry_subsample.n_events",
+      "main": 651,
+      "repl": 657
+    },
+    {
+      "kind": "report",
+      "path": "layers.validate.report.C2_lo.sw_industry_subsample.note",
+      "main": "当前上市股子样本、点时行业 × 市值 × vol 匹配；有幸存者偏差",
+      "repl": "点时行业代替板块；仅最终 status=listed 的事件（幸存者偏差）"
+    }
+  ]
+}
