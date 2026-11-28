@@ -1,0 +1,23 @@
+[
+  {
+    "symbol": "MRVL",
+    "name": "Marvell Technology, Inc.",
+    "market": "us",
+    "exchange": "NASDAQ",
+    "type": "EQUITY"
+  },
+  {
+    "symbol": "MVLL",
+    "name": "GraniteShares 2x Long MRVL Dail",
+    "market": "us",
+    "exchange": "NASDAQ",
+    "type": "ETF"
+  },
+  {
+    "symbol": "MRVU",
+    "name": "Direxion Daily MRVL Bull 2X ETF",
+    "market": "us",
+    "exchange": "NASDAQ",
+    "type": "ETF"
+  }
+]

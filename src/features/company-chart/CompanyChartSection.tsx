@@ -1,6 +1,7 @@
 // 公司页「价格走势与情景价位」卡片：所有市场统一用站内 Lightweight Charts（LwChart，本站日线数据 + 研究价位线），
 // 北交所/非法代码不出图；下方保留研究价位刻度条。
 import React from 'react'
+import { Link } from 'react-router-dom'
 import type { Market } from '../../data/companies'
 import { Card } from '../../components/ui'
 import { chartTargetOf } from './symbols'
@@ -17,6 +18,12 @@ const SOURCE_NOTE: Record<Market, string> = {
   us: '数据：Yahoo Finance · 日线（收盘后数据；盘中最后一根为延迟价）',
   adr: '数据：Yahoo Finance · 日线（收盘后数据；盘中最后一根为延迟价）',
   ndx: '数据：Yahoo Finance · 日线（收盘后数据；盘中最后一根为延迟价）',
+}
+
+/** 公司详情 → 个股查询（多周期 K 线、新闻、分析师）。美股用裸代码，沪深港沿用行情代码。 */
+export function lookupHrefOf(candleSymbol: string): string {
+  const s = candleSymbol.startsWith('us') ? candleSymbol.slice(2) : candleSymbol
+  return `/research-notes?${new URLSearchParams({ tab: 'lookup', s }).toString()}`
 }
 
 export default function CompanyChartSection({ market, code, name, levels, priceDate, scenariosHref }: {
@@ -44,6 +51,11 @@ export default function CompanyChartSection({ market, code, name, levels, priceD
           externalLabel={target.externalLabel}
           note={target.exchangeKnown === false ? '本站资料未记录该股交易所，TradingView 外链按代码自动解析，请核对。' : undefined}
         />
+      )}
+      {target.kind === 'chart' && (
+        <p className="cc-section__lookup">
+          <Link to={lookupHrefOf(target.candleSymbol)}>在个股查询里看分钟线、新闻与分析师评级 →</Link>
+        </p>
       )}
       {target.kind === 'none' && (
         <p className="cc-section__empty" role="note">

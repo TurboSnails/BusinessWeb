@@ -60,3 +60,12 @@ describe('港股', () => {
     expect(chartTargetOf('hk', 'abc')).toEqual({ kind: 'none', reason: 'invalid' })
   })
 })
+
+describe('个股查询入口', () => {
+  it('美股去掉 us 前缀，沪深港沿用行情代码', async () => {
+    const { lookupHrefOf } = await import('./CompanyChartSection')
+    expect(lookupHrefOf('usAAPL')).toBe('/research-notes?tab=lookup&s=AAPL')
+    expect(lookupHrefOf('sh600519')).toBe('/research-notes?tab=lookup&s=sh600519')
+    expect(lookupHrefOf('hk00700')).toBe('/research-notes?tab=lookup&s=hk00700')
+  })
+})

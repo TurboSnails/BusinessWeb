@@ -1,0 +1,88 @@
+{
+  "symbol": "MRVL",
+  "items": [
+    {
+      "id": "e183515b-ed55-32e4-b87d-104ea521957b",
+      "time": "2026-11-27T19:17:00.000Z",
+      "title": "Astera Labs is suddenly back in the AI spotlight after rough patch",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/astera-labs-suddenly-back-ai-191700851.html",
+      "publisher": "TheStreet",
+      "topic": "未分类",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "2db84019-c4b8-35b5-b017-eba630918576",
+      "time": "2026-11-27T19:09:52.000Z",
+      "title": "Marvell Technology (MRVL) Could Be 58% Undervalued Following Its Penguin Solutions Tie Up",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/marvell-technology-mrvl-could-58-190952326.html",
+      "publisher": "Simply Wall St.",
+      "topic": "未分类",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "aa06bf50-db6b-3f29-9b1e-8127a8b2d6e4",
+      "time": "2026-11-27T18:37:33.000Z",
+      "title": "Wall Street ends higher as battered AI stocks gain in volatile week",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/wall-st-futures-surge-investors-073405748.html",
+      "publisher": "Reuters",
+      "topic": "未分类",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "1f56b0a6-fae2-3bc0-b42a-f8e004b82ac1",
+      "time": "2026-11-27T17:06:38.000Z",
+      "title": "Coherent Jumps 12% as Optical Stocks Rebound From Wednesday’s AI Selloff; Applied Optoelectronics and Lumentum Rise 7%",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/coherent-jumps-12-optical-stocks-170638033.html",
+      "publisher": "24/7 Wall St.",
+      "topic": "市场情绪",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "ffd2d44f-32cd-3129-86bc-e1333d64935b",
+      "time": "2026-11-27T16:04:52.000Z",
+      "title": "This Semiconductor Stock Could Have Its Biggest Year Yet in 2027",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/semiconductor-stock-could-biggest-yet-160452163.html",
+      "publisher": "24/7 Wall St.",
+      "topic": "产品进展",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "66e34748-0a79-3b11-a588-1288bcc4bba1",
+      "time": "2026-11-27T15:22:33.000Z",
+      "title": "Tradr to Launch Six New Leveraged ETFs",
+      "url": "https://finance.yahoo.com/markets/options/articles/tradr-launch-six-leveraged-etfs-152233841.html",
+      "publisher": "Stocktwits",
+      "topic": "产品进展",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "977de44c-fcf5-3369-bcdd-0c3ddc7cfec9",
+      "time": "2026-11-27T14:56:00.000Z",
+      "title": "Sandisk, Bloom, Marvell, AMD, Nvidia, HP, and More Stocks That Explain Today’s Market",
+      "url": "https://finance.yahoo.com/m/977de44c-fcf5-3369-bcdd-0c3ddc7cfec9/sandisk%2C-bloom%2C-marvell%2C-amd%2C.html",
+      "publisher": "Barrons.com",
+      "topic": "未分类",
+      "sentiment": "未评级",
+      "lang": "en"
+    },
+    {
+      "id": "406e2727-84ee-3ad6-9cb1-d419af5da08d",
+      "time": "2026-11-27T14:27:00.000Z",
+      "title": "MRVL to Post Q3 Earnings: Time to Buy, Sell or Hold the Stock?",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/mrvl-post-q3-earnings-time-142700413.html",
+      "publisher": "Zacks",
+      "topic": "业绩财报",
+      "sentiment": "未评级",
+      "lang": "en"
+    }
+  ],
+  "start": "2026-10-01T00:00:00.000Z",
+  "end": "2026-11-28T00:00:00.000Z",
+  "source": "Yahoo Finance search news"
+}

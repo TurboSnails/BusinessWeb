@@ -1,0 +1,48 @@
+{
+  "symbol": "MRVL",
+  "daily": [
+    {
+      "date": "2026-11-20",
+      "shortVolume": 1234567,
+      "shortExemptVolume": 1200,
+      "totalVolume": 4567890
+    },
+    {
+      "date": "2026-11-21",
+      "shortVolume": 1345678,
+      "shortExemptVolume": 800,
+      "totalVolume": 4678901
+    },
+    {
+      "date": "2026-11-24",
+      "shortVolume": 1456789,
+      "shortExemptVolume": 900,
+      "totalVolume": 4789012
+    },
+    {
+      "date": "2026-11-25",
+      "shortVolume": 1122334,
+      "shortExemptVolume": 700,
+      "totalVolume": 4455667
+    }
+  ],
+  "ats": [
+    {
+      "weekStart": "2025-09-01",
+      "shares": 1200000,
+      "trades": 3400
+    },
+    {
+      "weekStart": "2025-09-08",
+      "shares": 1100000,
+      "trades": 3100
+    },
+    {
+      "weekStart": "2025-09-15",
+      "shares": 1300000,
+      "trades": 3600
+    }
+  ],
+  "source": "FINRA (synthetic fixture)",
+  "note": "合成样本，非实盘"
+}

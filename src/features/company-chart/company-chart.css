@@ -78,3 +78,5 @@
   .cc-levels__list { grid-template-columns: minmax(0, 1fr); }
   .cc-scale__label { font-size: .65rem; }
 }
+
+.cc-section__lookup { margin: 8px 0 0; font-size: 14px; }

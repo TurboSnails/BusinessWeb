@@ -1,0 +1,13 @@
+{
+  "symbol": "sh600519",
+  "name": "贵州茅台",
+  "market": "cn",
+  "currency": "CNY",
+  "price": 1472.36,
+  "change": 3.36,
+  "changePct": 0.23,
+  "prevClose": 1469,
+  "session": "closed",
+  "time": "2026-11-27T16:14:54+08:00",
+  "timezone": "Asia/Shanghai"
+}

@@ -1,3 +1,5 @@
+import { dispatchLookup } from './stockLookup.mjs'
+
 // 个股日线：沪深 sh/sz 六位、港股 hk 五位（腾讯前复权日线）；美股 us + 代码（Yahoo chart 日线，拆股调整）
 const symbolPattern = /^(?:(sh|sz)\d{6}|hk\d{5})$/
 const usCandlePattern = /^us([A-Z][A-Z.-]{0,9})$/
@@ -50,6 +52,9 @@ export async function handleMarket(req, res) {
     return res.status(405).json({ error: '只支持 GET 请求' })
   }
   const { kind, symbol, symbols, begin, end, period, adjust } = req.query
+  if (typeof kind === 'string' && kind.startsWith('lookup-')) {
+    return dispatchLookup(req, res)
+  }
   // 日线复权：默认前复权（网格等既有调用）；三方案回测传 adjust=hfq
   const candleAdjust = adjust === 'hfq' ? 'hfq' : 'qfq'
   let url

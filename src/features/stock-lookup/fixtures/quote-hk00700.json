@@ -1,0 +1,13 @@
+{
+  "symbol": "hk00700",
+  "name": "腾讯控股",
+  "market": "hk",
+  "currency": "HKD",
+  "price": 352,
+  "change": 11,
+  "changePct": 3.23,
+  "prevClose": 341,
+  "session": "closed",
+  "time": "2026-11-27T16:09:04+08:00",
+  "timezone": "Asia/Hong_Kong"
+}

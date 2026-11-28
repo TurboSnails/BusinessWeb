@@ -1,0 +1,183 @@
+{
+  "symbol": "MRVL",
+  "actions": [
+    {
+      "date": "2026-11-24",
+      "firm": "Oppenheimer",
+      "action": "main",
+      "fromGrade": "Outperform",
+      "toGrade": "Outperform",
+      "priorTarget": 425,
+      "target": 325
+    },
+    {
+      "date": "2026-11-23",
+      "firm": "Susquehanna",
+      "action": "main",
+      "fromGrade": "Positive",
+      "toGrade": "Positive",
+      "priorTarget": 300,
+      "target": 225
+    },
+    {
+      "date": "2026-11-20",
+      "firm": "Stifel",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 370,
+      "target": 280
+    },
+    {
+      "date": "2026-11-09",
+      "firm": "B. Riley Securities",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 275,
+      "target": 250
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "B. Riley Securities",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 365,
+      "target": 275
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "Wells Fargo",
+      "action": "main",
+      "fromGrade": "Overweight",
+      "toGrade": "Overweight",
+      "priorTarget": 365,
+      "target": 285
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "TD Cowen",
+      "action": "down",
+      "fromGrade": "Buy",
+      "toGrade": "Hold",
+      "priorTarget": 350,
+      "target": 175
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "RBC Capital",
+      "action": "main",
+      "fromGrade": "Outperform",
+      "toGrade": "Outperform",
+      "priorTarget": 425,
+      "target": 250
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "Susquehanna",
+      "action": "main",
+      "fromGrade": "Positive",
+      "toGrade": "Positive",
+      "priorTarget": 340,
+      "target": 300
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "Rosenblatt",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 300,
+      "target": 300
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "Cantor Fitzgerald",
+      "action": "main",
+      "fromGrade": "Neutral",
+      "toGrade": "Neutral",
+      "priorTarget": 350,
+      "target": 225
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "Needham",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 400,
+      "target": 300
+    },
+    {
+      "date": "2026-11-03",
+      "firm": "B of A Securities",
+      "action": "down",
+      "fromGrade": "Buy",
+      "toGrade": "Neutral",
+      "priorTarget": 400,
+      "target": 225
+    },
+    {
+      "date": "2026-10-07",
+      "firm": "UBS",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 335,
+      "target": 350
+    },
+    {
+      "date": "2026-10-07",
+      "firm": "Jefferies",
+      "action": "main",
+      "fromGrade": "Buy",
+      "toGrade": "Buy",
+      "priorTarget": 325,
+      "target": 450
+    }
+  ],
+  "trend": [
+    {
+      "period": "0m",
+      "strongBuy": 7,
+      "buy": 31,
+      "hold": 5,
+      "sell": 0,
+      "strongSell": 0
+    },
+    {
+      "period": "-1m",
+      "strongBuy": 8,
+      "buy": 35,
+      "hold": 4,
+      "sell": 0,
+      "strongSell": 0
+    },
+    {
+      "period": "-2m",
+      "strongBuy": 8,
+      "buy": 32,
+      "hold": 6,
+      "sell": 0,
+      "strongSell": 0
+    },
+    {
+      "period": "-3m",
+      "strongBuy": 8,
+      "buy": 31,
+      "hold": 5,
+      "sell": 0,
+      "strongSell": 0
+    }
+  ],
+  "target": {
+    "mean": 292.58282,
+    "median": 295,
+    "high": 450,
+    "low": 175,
+    "count": 39,
+    "current": 140.54
+  },
+  "source": "Yahoo Finance quoteSummary（upgradeDowngradeHistory / recommendationTrend / financialData）"
+}

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { lazy, Suspense, useState, useEffect } from 'react'
 import { Link, Navigate, useNavigationType, useSearchParams } from 'react-router-dom'
 import { PageTabs, PageTitle, Segmented } from '../components/ui/PageTabs'
 import {
   Compass,
   Layers,
   Grid3x3,
+  Search,
   Star,
   Crosshair,
   CheckCircle2,
@@ -49,11 +50,14 @@ import { NDX_CODES, NDX_ASOF } from '../data/ndx100'
 import { Callout, Page, PageDataFreshness, Stat, TableWrap } from '../components/ui'
 import '../styles/research.css'
 
-type TabId = 'companies' | 'pool' | 'watch' | 'method' | 'notes'
+type TabId = 'companies' | 'lookup' | 'pool' | 'watch' | 'method' | 'notes'
 
-// 顺序按使用频率：先查公司，方法和配套笔记放后面，存档垫底。候选池已独立成 /candidates 页
+const StockLookup = lazy(() => import('../features/stock-lookup/StockLookup'))
+
+// 顺序按使用频率：先查公司，个股查询次之；方法和配套笔记放后面，存档垫底。候选池已独立成 /candidates 页
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'companies', label: '公司库', icon: Grid3x3 },
+  { id: 'lookup', label: '个股查询', icon: Search },
   { id: 'method', label: '研究方法', icon: Compass },
   { id: 'notes', label: '配置笔记', icon: Layers },
   // 历史买卖价位与“潜力标的”和书的“不荐股”相悖，只留存档，放最后
@@ -577,6 +581,11 @@ export default function ResearchNotes(): JSX.Element {
       <PageTitle>公司研究</PageTitle>
       <PageTabs<TabId> label="公司研究栏目" value={activeTab} onChange={setActiveTab}
         items={tabs.map(t => ({ id: t.id, label: t.label, icon: <t.icon size={14} /> }))} />
+      {activeTab === 'lookup' && (
+        <Suspense fallback={<div className="rn-hint" role="status">正在加载个股查询…</div>}>
+          <StockLookup />
+        </Suspense>
+      )}
       {activeTab === 'companies' && (
         <div className="rn-info-bar">
           {!combinedLoading && <PageDataFreshness

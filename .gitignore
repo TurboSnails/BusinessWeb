@@ -47,3 +47,8 @@ data-raw/crypto-trend/raw/
 docs/research/crypto-trend-2026-11-27/results-daily.json
 docs/research/crypto-trend-2026-11-27/bootstrap-indices.json
 docs/research/crypto-trend-2026-11-27/replication/results-daily.json
+# 2026-11-28 研究原始下载只留本机；来源、时间与校验值见各自 SOURCES.md
+data-raw/spx-qqq-tilt/raw/
+data-raw/managed-futures/raw/
+data-raw/lowvol-core-cn/raw/
+data-raw/insider-buyback-cn/raw/

@@ -1,0 +1,1 @@
+{"note":"Synthetic sample mirroring CNMSshvol format; live FINRA blocked by WAF in this env","lines":["Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market","20261120|MRVL|1234567|1200|4567890|B","20261121|MRVL|1345678|800|4678901|B","20261124|MRVL|1456789|900|4789012|B","20261125|MRVL|1122334|700|4455667|B"]}
