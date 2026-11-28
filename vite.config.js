@@ -10,9 +10,10 @@ import { sentimentMiddleware } from './server/sentiment.mjs'
 import { dailyAnalysisMiddleware } from './server/daily-analysis.mjs'
 import { knowledgeProxyGuard } from './server/knowledge/local-access.mjs'
 import { knowledgePrivateDeny } from './server/knowledge/private-files.mjs'
+import { companyShardsPlugin } from './vite-plugins/companyShards.mjs'
 
 export default defineConfig({
-  plugins: [react(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } },
+  plugins: [react(), companyShardsPlugin(), { name: 'businessweb-market-api', configureServer(server) { server.middlewares.use(marketMiddleware) } },
     { name: 'businessweb-macro-api', configureServer(server) { server.middlewares.use(macroMiddleware) } },
     { name: 'businessweb-ai-token-api', configureServer(server) { server.middlewares.use(rampMiddleware) } },
     { name: 'businessweb-indexes-api', configureServer(server) { server.middlewares.use(indexesMiddleware) } },
@@ -67,7 +68,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost' } },
-    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'vite-plugins/**/*.test.js'],
     passWithNoTests: true,
     globals: true,
     setupFiles: ['src/features/grid-trading/testSetup.ts'],

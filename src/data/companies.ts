@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadCompanyValuations, type CompanyValuation } from '../features/company-valuation/model'
+import { loadCompanyShard } from './companyShard'
 // 数据来源：Notion「投资计划 / 标普500分类」及「沪深产业分类」下的公司研究页，汇总于 2026-09-29。
 // 仅为个人研究笔记，情景价值与价位均为研究假设，不构成目标价或投资建议。
 
@@ -176,7 +177,7 @@ export const useCompanies = (market: Market, enabled = true): UseCompaniesState 
   useMarketCompanies(market, enabled)
 
 export const useCompanyDetailCompanies = (market: Market, enabled: boolean, code?: string): UseCompaniesState =>
-  useMarketCompanies(market, enabled, market === 'cn' ? code : undefined)
+  useMarketCompanies(market, enabled, code)
 
 function useMarketCompanies(market: Market, enabled: boolean, focusCode?: string): UseCompaniesState {
   const [list, setList] = useState<Company[]>(() => resolved[market] ?? (focusCode ? [] : partialResolved[market] ?? []))
@@ -201,13 +202,11 @@ function useMarketCompanies(market: Market, enabled: boolean, focusCode?: string
       setPartial(result.partial)
     }
     const fail = () => { if (alive) { setLoading(false); setFailed(true) } }
-    if (focusCode) {
+    const loadFocusFallback = (code: string) => {
       // 先渲染正文，再补估值。窄分册的结果留在详情页，避免写入全市场缓存。
-      setList([])
-      setPartial(false)
-      Promise.all([coreOf(market, [focusCode]), generatedResult(market)]).then(([core, g]) => {
+      Promise.all([coreOf(market, [code]), generatedResult(market)]).then(([core, g]) => {
         if (!alive) return
-        const generated = g.ok ? g.list.find(company => company.code === focusCode) : undefined
+        const generated = g.ok ? g.list.find(company => company.code === code) : undefined
         const list = core.merge(generated ? [generated] : [])
         commit({ list, partial: !g.ok })
         if (!list.length) return
@@ -215,6 +214,34 @@ function useMarketCompanies(market: Market, enabled: boolean, focusCode?: string
           commit({ list: list.map(company => ({ ...company, valuation: valuations.get(company.code) })), partial: !g.ok })
         }, fail)
       }).catch(fail)
+    }
+    if (focusCode) {
+      setList([])
+      setPartial(false)
+      // 优先公司分片；不存在 / SPA HTML 回退 / 字段残缺时走全量
+      loadCompanyShard(market, focusCode).then(shard => {
+        if (!alive) return
+        if (!shard) {
+          loadFocusFallback(focusCode)
+          return
+        }
+        coreOf(market, [focusCode]).then(core => {
+          if (!alive) return
+          const list = core.merge(shard.company ? [shard.company] : [])
+          commit({ list, partial: false })
+          if (!list.length || !shard.valuation) return
+          // 分片已含估值：下一微任务再挂上，保留「正文先出」的提交节奏
+          Promise.resolve().then(() => {
+            if (!alive) return
+            commit({
+              list: list.map(company => (
+                company.code === focusCode ? { ...company, valuation: shard.valuation } : company
+              )),
+              partial: false,
+            })
+          })
+        }, fail)
+      }, () => loadFocusFallback(focusCode))
     } else {
       loadCompaniesResult(market).then(commit, fail)
     }
@@ -273,5 +300,37 @@ export const useLynch = (enabled = true): LynchState => {
     })
     return () => { alive = false }
   }, [enabled])
+  return { data, loading, failed }
+}
+
+/** 详情页林奇：分片命中只用该公司；分片失败回退全量 lynch.json */
+export const useCompanyDetailLynch = (market: Market, enabled: boolean, code?: string): LynchState => {
+  const [data, setData] = useState<Record<string, LynchInfo>>({})
+  const [loading, setLoading] = useState(enabled)
+  const [failed, setFailed] = useState(false)
+  useEffect(() => {
+    if (!enabled || !code) { setLoading(false); setData({}); setFailed(false); return }
+    let alive = true
+    setLoading(true)
+    setFailed(false)
+    const applyFull = () => loadLynch().then(result => {
+      if (!alive) return
+      setData(result.data)
+      setFailed(!result.ok)
+      setLoading(false)
+    })
+    loadCompanyShard(market, code).then(shard => {
+      if (!alive) return
+      if (!shard) return applyFull()
+      // ndx 手工页林奇键常在 us:/adr:；分片无条目时回退全量
+      if (!shard.lynch && market === 'ndx') return applyFull()
+      const next: Record<string, LynchInfo> = {}
+      if (shard.lynch) next[shard.lynchKey] = shard.lynch
+      setData(next)
+      setFailed(false)
+      setLoading(false)
+    }, () => applyFull())
+    return () => { alive = false }
+  }, [market, enabled, code])
   return { data, loading, failed }
 }

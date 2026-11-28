@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink, CheckCircle2, AlertTriangle, ArrowRight, CalendarClock } from 'lucide-react'
-import { useCompanyDetailCompanies, useLynch, lynchFor, Market } from '../data/companies'
+import { useCompanyDetailCompanies, useCompanyDetailLynch, lynchFor, Market } from '../data/companies'
 import { usePageSeo } from '../components/RouteSeo'
 import ResearchNotice from '../components/research/ResearchNotice'
 import CompanyDetailHeader from '../components/research/CompanyDetailHeader'
@@ -46,7 +46,7 @@ export default function CompanyDetail(): JSX.Element {
   const validMarket = isMarket(market)
   const mk: Market = validMarket ? market : 'us'
   const { list, loading, failed, partial, retry } = useCompanyDetailCompanies(mk, validMarket, code)
-  const { data: lynchAll, loading: lynchLoading, failed: lynchFailed } = useLynch()
+  const { data: lynchAll, loading: lynchLoading, failed: lynchFailed } = useCompanyDetailLynch(mk, validMarket, code)
   const company = validMarket && code ? list.find(c => c.code === code) : undefined
   // 部分数据下切换公司（同一路由组件不会重新挂载）时自动重试一次，恢复后同一 SPA 可找回
   const prevCode = useRef(code)
