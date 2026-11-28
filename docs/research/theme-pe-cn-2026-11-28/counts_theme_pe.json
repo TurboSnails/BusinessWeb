@@ -1,0 +1,222 @@
+{
+  "id": "L-052",
+  "version": "v3",
+  "generatedAt": "2026-11-28T09:17:58.366745+00:00",
+  "params": {
+    "K": 2,
+    "EXIT_RANK": 4,
+    "LOOK_6": 126,
+    "LOOK_3": 63,
+    "AMT_A": 60,
+    "AMT_B": 20,
+    "AMT_BASE": 250,
+    "PE_HIST": 60,
+    "PE_MIN": 36,
+    "WARM_START": "2000-01-01",
+    "COUNT_START": "2005-01-01",
+    "END": "2023-10-31",
+    "sw_canon": {
+      "黑色金属": "钢铁",
+      "餐饮旅游": "社会服务",
+      "休闲服务": "社会服务",
+      "电子元器件": "电子",
+      "化工": "基础化工",
+      "商业贸易": "商贸零售",
+      "电气设备": "电力设备",
+      "纺织服装": "纺织服饰"
+    },
+    "unmapped": [
+      "建筑建材",
+      "采掘",
+      "信息服务",
+      "信息设备",
+      "交运设备",
+      "金融服务"
+    ],
+    "SW2014_LAUNCH": "2014-02-21",
+    "ttm": "fundamentals_cn.fin_ni_ttm",
+    "mcap_ret": "t-1 mcap_float",
+    "mcap_pe": "mcap_total only (no float fallback)",
+    "coverage": "industry notna",
+    "note": "聚合计数；无逐月持仓清单；无收益"
+  },
+  "coverage_by_year": {
+    "2005": 0.8395444637792621,
+    "2006": 0.8529073725499857,
+    "2007": 0.8711748669572326,
+    "2008": 0.8851199216075938,
+    "2009": 0.8899653862309068,
+    "2010": 0.8967457124454997,
+    "2011": 0.9040620366203095,
+    "2012": 0.9066194703059933,
+    "2013": 0.907979781450617,
+    "2014": 0.912285347557557,
+    "2015": 0.9217758718700187,
+    "2016": 0.9242901457812385,
+    "2017": 0.9357840159301084,
+    "2018": 0.93966675046503,
+    "2019": 0.9398789357657722,
+    "2020": 0.9440309002312669,
+    "2021": 0.9495475941415797,
+    "2022": 0.9645888104002046,
+    "2023": 0.9739410381213949
+  },
+  "pe_exclude_share_median": 0.0002546452528312537,
+  "C1a": {
+    "months": 226,
+    "months_with_held": 137,
+    "months_empty": 89,
+    "switches": 114,
+    "mean_held": 0.827433628318584,
+    "median_run": 2.0,
+    "mean_run": 2.6338028169014085,
+    "max_run": 8,
+    "mean_turnover_jaccard": 0.3977777777777778,
+    "skips": {
+      "pe90": 64,
+      "hist": 59,
+      "neg_ni": 5
+    }
+  },
+  "C1b": {
+    "months": 226,
+    "months_with_held": 185,
+    "months_empty": 41,
+    "switches": 162,
+    "mean_held": 1.5707964601769913,
+    "median_run": 1.0,
+    "mean_run": 1.748768472906404,
+    "max_run": 8,
+    "skips": {
+      "pe90": 131,
+      "hist": 126,
+      "neg_ni": 16
+    }
+  },
+  "B2_persistent_no_pe90": {
+    "months": 226,
+    "months_with_held": 165,
+    "months_empty": 61,
+    "switches": 117,
+    "mean_held": 1.0973451327433628,
+    "median_run": 3.0,
+    "mean_run": 3.263157894736842,
+    "max_run": 11,
+    "mean_turnover_jaccard": 0.37555555555555553,
+    "skips": {
+      "pe90": 0,
+      "hist": 58,
+      "neg_ni": 4
+    }
+  },
+  "B2b_monthly_no_pe90": {
+    "months": 226,
+    "months_with_held": 191,
+    "months_empty": 35,
+    "switches": 166,
+    "mean_held": 1.6902654867256637,
+    "median_run": 1.0,
+    "mean_run": 1.8018867924528301,
+    "max_run": 8,
+    "skips": {
+      "pe90": 0,
+      "hist": 122,
+      "neg_ni": 13
+    }
+  },
+  "B4_monthly_c1a_signal": {
+    "months_with_held": 186,
+    "months_empty": 40,
+    "skips": {
+      "pe90": 129,
+      "hist": 125,
+      "neg_ni": 19
+    },
+    "mean_held": 1.5663716814159292,
+    "switches": 155
+  },
+  "c2_on_B2": {
+    "n": 9,
+    "note": "定义上对 C1a 持仓不可能；改作用 B2"
+  },
+  "windows": {
+    "explore_C1a": {
+      "months": 120,
+      "months_with_held": 62,
+      "months_empty": 58,
+      "switches": 53,
+      "mean_held": 0.675
+    },
+    "validate_C1a": {
+      "months": 106,
+      "months_with_held": 75,
+      "months_empty": 31,
+      "switches": 60,
+      "mean_held": 1.0
+    },
+    "explore_C1b": {
+      "months": 120,
+      "months_with_held": 85,
+      "months_empty": 35,
+      "switches": 75,
+      "mean_held": 1.3916666666666666
+    },
+    "validate_C1b": {
+      "months": 106,
+      "months_with_held": 100,
+      "months_empty": 6,
+      "switches": 86,
+      "mean_held": 1.7735849056603774
+    }
+  },
+  "sensitivity_C1a_K": {
+    "K=1": {
+      "months": 226,
+      "months_with_held": 94,
+      "months_empty": 132,
+      "switches": 62,
+      "mean_held": 0.415929203539823,
+      "median_run": 2.0,
+      "mean_run": 2.6857142857142855,
+      "max_run": 7,
+      "mean_turnover_jaccard": 0.27555555555555555,
+      "skips": {
+        "pe90": 31,
+        "hist": 30,
+        "neg_ni": 4
+      }
+    },
+    "K=2": {
+      "months": 226,
+      "months_with_held": 137,
+      "months_empty": 89,
+      "switches": 114,
+      "mean_held": 0.827433628318584,
+      "median_run": 2.0,
+      "mean_run": 2.6338028169014085,
+      "max_run": 8,
+      "mean_turnover_jaccard": 0.3977777777777778,
+      "skips": {
+        "pe90": 64,
+        "hist": 59,
+        "neg_ni": 5
+      }
+    },
+    "K=3": {
+      "months": 226,
+      "months_with_held": 164,
+      "months_empty": 62,
+      "switches": 140,
+      "mean_held": 1.3628318584070795,
+      "median_run": 2.0,
+      "mean_run": 2.774774774774775,
+      "max_run": 10,
+      "mean_turnover_jaccard": 0.4081481481481482,
+      "skips": {
+        "pe90": 106,
+        "hist": 83,
+        "neg_ni": 15
+      }
+    }
+  }
+}
