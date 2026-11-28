@@ -135,6 +135,7 @@ export default function InvestHub(): JSX.Element {
 
       <CardGroup g={group('watch')} step="1" foldTitle="宏观与市场细节页" />
       <p className="inv-related"><Link to="/monitor?tab=market-cycle">牛熊周期</Link><span>按周 / 月复核沪深300、恒生指数、恒生科技、标普500、纳指100的六维证据、趋势与策略风险预算</span></p>
+      <p className="inv-related"><Link to="/invest/us-data">美股数据</Link><span>异动榜、新股上市、板块追踪与全市场看跌 / 看涨比</span></p>
       <CardGroup g={group('research')} step="2" />
 
       {/* 候选池：分析筛选的落脚点，也是进入工具的主入口 */}

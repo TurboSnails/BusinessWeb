@@ -116,6 +116,7 @@ const AiLearningPlan = lazy(() => import('./pages/AiLearningPlan'))
 const PersonalLifeAnalysis = lazy(() => import('./pages/PersonalLifeAnalysis'))
 const HumanLifePlan = lazy(() => import('./pages/HumanLifePlan'))
 const DevTeamGuide = lazy(() => import('./pages/DevTeamGuide'))
+const UsDataCenter = lazy(() => import('./pages/UsDataCenter'))
 
 function LegacyAiToolsRedirect(): JSX.Element {
   const { search, hash } = useLocation()
@@ -196,6 +197,7 @@ export default function App(): JSX.Element {
           <Route path="/dcf" element={<Dcf />} />
           <Route path="/" element={<Home />} />
           <Route path="/invest" element={<InvestHub />} />
+          <Route path="/invest/us-data" element={<UsDataCenter />} />
           <Route path="/invest/start" element={<StartHere />} />
           <Route path="/invest/my-plan" element={<MyPlan />} />
           <Route path="/invest/ai-tools" element={<LegacyAiToolsRedirect />} />

@@ -220,7 +220,7 @@ const PAGE_PINYIN: Record<string, string> = {
   综合投资策略框架: 'zhtzclkj', 'A 股观察池（AI 扩散）': 'aggccai', 美股观察池: 'mggcc',
   '每日分析 · 历史旧版': 'mrfxlsjb', 从这里开始: 'czlks', 'Human 3.0 人生规划': 'human30rsgh',
   书的目录: 'sdml', 网格记录: 'wgjl', 'ETF 复盘': 'etffp', 全栈学习路线: 'qzxxlx',
-  'dev-team 使用说明': 'devteamsysm',
+  'dev-team 使用说明': 'devteamsysm', 美股数据: 'mgsj',
 }
 
 const withPinyin = (page: SearchablePage): SearchablePage => {
@@ -235,6 +235,7 @@ const EXTRA_PAGES: SearchablePage[] = [
   { path: '/daily-analysis/legacy', label: '每日分析 · 历史旧版', group: '投资 · 历史旧版', desc: '原有手工复盘、导入导出与云同步', archived: true },
   { path: '/first-book/slow-is-fast', label: '书的目录', group: '投资 · 规则', desc: '《正念投资》目录与章节' },
   { path: '/grid-trading/records', label: '网格记录', group: '投资 · 工具', desc: '已保存的网格模拟与回测记录' },
+  { path: '/invest/us-data', label: '美股数据', group: '投资 · 观察盘', desc: '美股异动榜、新股上市日历、行业与主题 ETF 区间涨跌、Cboe 全市场看跌 / 看涨比' },
   { path: '/etf-review', label: 'ETF 复盘', group: '投资 · 工具', desc: '自选 ETF 分组观察与每日复盘笔记，数据保存在本机浏览器' },
   { path: '/ai/fullstack-roadmap', label: '全栈学习路线', group: 'AI实验室', desc: 'AI 全栈开发学习计划' },
   { path: '/ai/dev-team', label: 'dev-team 使用说明', group: 'AI实验室', desc: 'Orca 开发团队的安装、自检、配置、派工与验证范围' },
