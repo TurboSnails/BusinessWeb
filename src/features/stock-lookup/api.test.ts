@@ -91,4 +91,32 @@ describe('stockLookupApi 校验', () => {
     expect(o.daily).toHaveLength(1)
     expect(o.ats).toHaveLength(1)
   })
+
+  it('insider / short / earnings / options：坏体抛中文错误，坏行丢弃', async () => {
+    expect(() => __test.parseInsider({ symbol: 'X', source: 's', transactions: [], holders: [] })).toThrow(/内部人交易数据格式错误/)
+    const ins = __test.parseInsider({
+      symbol: 'X', source: 's', holders: [{ name: 'A', role: 'Director' }],
+      transactions: [{ date: '2026-11-01', name: 'A', role: 'Director', type: 'sell', shares: 10, value: 100 }, { date: '2026-11-01', name: 'A', role: 'D', type: 'weird', shares: 1 }],
+      summary: { months: 6, since: '2026-05-30', buyCount: 0, buyShares: 0, buyValue: 0, sellCount: 1, sellShares: 10, sellValue: 100, netShares: -10 },
+    })
+    expect(ins.transactions).toHaveLength(1)
+    expect(ins.reported).toBeUndefined()
+
+    expect(() => __test.parseShortInterest({ symbol: 'X' })).toThrow(/做空数据格式错误/)
+    expect(__test.parseShortInterest({ symbol: 'X', source: 's', sharesShort: 'abc', settleDate: 'bad' })).toEqual({ symbol: 'X', source: 's' })
+
+    expect(() => __test.parseEarnings({ symbol: 'X', source: 's', estimates: [] })).toThrow(/财报预期数据格式错误/)
+    const e = __test.parseEarnings({ symbol: 'X', source: 's', estimates: [{ period: '0q', eps: { avg: 1 } }, { period: '5y' }], history: [{ periodEnd: 'x' }], nextEarnings: { dates: ['bad'] } })
+    expect(e.estimates).toHaveLength(1)
+    expect(e.history).toHaveLength(0)
+    expect(e.nextEarnings).toBeUndefined()
+
+    expect(() => __test.parseOptions({ symbol: 'X', source: 's', note: 'n', expirations: [], top: [] })).toThrow(/期权数据格式错误/)
+
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ symbol: 'X', source: 's', note: 'n', expirations: ['2026-12-04'], top: [{ contract: 'c', type: 'put', strike: 1, volume: 2, openInterest: 0 }], calls: { count: 1, volume: 0, openInterest: 0 }, puts: { count: 1, volume: 2, openInterest: 0 } }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const o = await stockLookupApi.options('X', '2026-12-04')
+    expect(o.top[0].type).toBe('put')
+    expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toContain('kind=lookup-options&symbol=X&date=2026-12-04')
+  })
 })

@@ -1,4 +1,5 @@
 // 个股查询：经 /api/grid-market?kind=lookup-* 分派。数据源：Yahoo / 腾讯 / FINRA / 东方财富。
+// kind：search / quote / bars / news / analysts / offexchange / insider / short / earnings / options（后四种仅美股）。
 // 契约见 src/features/stock-lookup/types.ts。纯函数尽量导出，供 node --test 不联网测。
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; BusinessWeb/1.0)' }
@@ -1182,6 +1183,343 @@ async function handleOffExchange(symbolRaw) {
   }
 }
 
+// ─── 内部人交易 / 做空 / 财报预期 / 期权（Yahoo，美股） ─────────
+
+/** Yahoo 数值字段：{ raw, fmt } 或裸数字 → 有限数字或 undefined */
+export function yahooNum(x) {
+  const n = x && typeof x === 'object' ? Number(x.raw) : (x == null || x === '' ? NaN : Number(x))
+  return Number.isFinite(n) ? n : undefined
+}
+
+/** Yahoo 日期字段：优先 fmt（YYYY-MM-DD），否则按 timeZone 取 raw 当地日期 */
+export function yahooDate(x, timeZone = 'UTC') {
+  if (x && typeof x === 'object' && typeof x.fmt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.fmt)) return x.fmt
+  const sec = yahooNum(x)
+  if (sec == null) return undefined
+  try { return new Date(sec * 1000).toLocaleDateString('sv-SE', { timeZone }) } catch { return new Date(sec * 1000).toISOString().slice(0, 10) }
+}
+
+/** 内部人交易描述 → 类型。Yahoo 不标注 10b5-1 计划内卖出，故卖出不再细分 */
+export function classifyInsiderText(text) {
+  const t = String(text || '').toLowerCase()
+  if (!t.trim()) return 'other'
+  if (/exercise|conversion/.test(t)) return 'exercise'
+  if (/purchase|buy/.test(t)) return 'buy'
+  if (/sale|sell|sold/.test(t)) return 'sell'
+  if (/gift/.test(t)) return 'gift'
+  if (/award|grant/.test(t)) return 'award'
+  return 'other'
+}
+
+function parsePriceRange(text) {
+  const m = /price\s+([\d.]+)(?:\s*-\s*([\d.]+))?/i.exec(String(text || ''))
+  if (!m) return {}
+  const low = Number(m[1]), high = m[2] != null ? Number(m[2]) : low
+  if (!Number.isFinite(low) || !Number.isFinite(high) || low <= 0) return {}
+  return { priceLow: low, priceHigh: high }
+}
+
+const OWNERSHIP = { D: 'direct', I: 'indirect', 'D/I': 'both' }
+const DAY_MS = 86_400_000
+
+/** quoteSummary(insiderTransactions, insiderHolders, netSharePurchaseActivity) → InsiderData。
+ * 只保留近 12 个月逐笔；近 6 个月公开市场买入 / 卖出自行汇总（Yahoo 自带汇总把授予也算买入，另行转出） */
+export function parseInsiderData(symbol, quoteSummaryResult, now = Date.now()) {
+  const r = quoteSummaryResult || {}
+  const since12 = new Date(now - 365 * DAY_MS).toISOString().slice(0, 10)
+  const since6 = new Date(now - 182 * DAY_MS).toISOString().slice(0, 10)
+  const transactions = []
+  for (const x of r.insiderTransactions?.transactions || []) {
+    if (!x) continue
+    const date = yahooDate(x.startDate)
+    const shares = yahooNum(x.shares)
+    if (!date || shares == null || date < since12) continue
+    const tx = {
+      date,
+      name: String(x.filerName || '').trim(),
+      role: String(x.filerRelation || '').trim(),
+      type: classifyInsiderText(x.transactionText),
+      shares,
+      ...parsePriceRange(x.transactionText),
+    }
+    const value = yahooNum(x.value)
+    if (value != null && value > 0) tx.value = value
+    if (OWNERSHIP[x.ownership]) tx.ownership = OWNERSHIP[x.ownership]
+    transactions.push(tx)
+  }
+  transactions.sort((a, b) => b.date.localeCompare(a.date))
+
+  const summary = { months: 6, since: since6, buyCount: 0, buyShares: 0, buyValue: 0, sellCount: 0, sellShares: 0, sellValue: 0, netShares: 0 }
+  for (const tx of transactions) {
+    if (tx.date < since6) continue
+    if (tx.type === 'buy') { summary.buyCount++; summary.buyShares += tx.shares; summary.buyValue += tx.value ?? 0 }
+    if (tx.type === 'sell') { summary.sellCount++; summary.sellShares += tx.shares; summary.sellValue += tx.value ?? 0 }
+  }
+  summary.netShares = summary.buyShares - summary.sellShares
+
+  const holders = []
+  for (const h of r.insiderHolders?.holders || []) {
+    if (!h || !h.name) continue
+    const holder = { name: String(h.name).trim(), role: String(h.relation || '').trim() }
+    const latestDate = yahooDate(h.latestTransDate)
+    if (latestDate) holder.latestDate = latestDate
+    if (h.transactionDescription) holder.latestType = classifyInsiderText(h.transactionDescription)
+    const direct = yahooNum(h.positionDirect), indirect = yahooNum(h.positionIndirect)
+    if (direct != null) holder.sharesDirect = direct
+    if (indirect != null) holder.sharesIndirect = indirect
+    holders.push(holder)
+  }
+
+  const n = r.netSharePurchaseActivity
+  let reported
+  if (n && typeof n === 'object') {
+    reported = {
+      buyCount: yahooNum(n.buyInfoCount),
+      buyShares: yahooNum(n.buyInfoShares),
+      sellCount: yahooNum(n.sellInfoCount),
+      sellShares: yahooNum(n.sellInfoShares),
+      netCount: yahooNum(n.netInfoCount),
+      netShares: yahooNum(n.netInfoShares),
+      totalInsiderShares: yahooNum(n.totalInsiderShares),
+    }
+    for (const k of Object.keys(reported)) if (reported[k] == null) delete reported[k]
+    if (!Object.keys(reported).length) reported = undefined
+  }
+
+  return {
+    symbol,
+    transactions,
+    holders,
+    summary,
+    ...(reported ? { reported } : {}),
+    source: 'Yahoo Finance 内部人交易（源自美国证监会 Form 4 申报，通常晚 1–2 个工作日）',
+  }
+}
+
+/** quoteSummary(defaultKeyStatistics) → ShortInterestData（半月一次的未平仓空头） */
+export function parseShortInterest(symbol, quoteSummaryResult) {
+  const d = quoteSummaryResult?.defaultKeyStatistics || {}
+  const out = {
+    symbol,
+    sharesShort: yahooNum(d.sharesShort),
+    sharesShortPrior: yahooNum(d.sharesShortPriorMonth),
+    settleDate: yahooDate(d.dateShortInterest),
+    priorSettleDate: yahooDate(d.sharesShortPreviousMonthDate),
+    pctFloat: yahooNum(d.shortPercentOfFloat),
+    pctOutstanding: yahooNum(d.sharesPercentSharesOut),
+    daysToCover: yahooNum(d.shortRatio),
+    floatShares: yahooNum(d.floatShares),
+    source: 'Yahoo Finance（交易所每月两次公布的空头持仓）',
+  }
+  for (const k of Object.keys(out)) if (out[k] == null) delete out[k]
+  return out
+}
+
+function estimateRange(e, countKey = 'numberOfAnalysts') {
+  const out = { avg: yahooNum(e?.avg), low: yahooNum(e?.low), high: yahooNum(e?.high), analysts: yahooNum(e?.[countKey]) }
+  for (const k of Object.keys(out)) if (out[k] == null) delete out[k]
+  return out
+}
+
+const ESTIMATE_PERIODS = ['0q', '+1q', '0y', '+1y']
+
+/** quoteSummary(calendarEvents, earningsHistory, earningsTrend, earnings) → EarningsData */
+export function parseEarningsData(symbol, quoteSummaryResult) {
+  const r = quoteSummaryResult || {}
+  const cal = r.calendarEvents?.earnings || {}
+  const dates = (Array.isArray(cal.earningsDate) ? cal.earningsDate : [])
+    .map(d => yahooDate({ raw: yahooNum(d) }, 'America/New_York'))
+    .filter(Boolean)
+
+  const estimates = []
+  for (const t of r.earningsTrend?.trend || []) {
+    if (!t || !ESTIMATE_PERIODS.includes(t.period)) continue
+    const tr = t.epsTrend || {}, rv = t.epsRevisions || {}
+    const epsTrend = { current: yahooNum(tr.current), d7: yahooNum(tr['7daysAgo']), d30: yahooNum(tr['30daysAgo']), d60: yahooNum(tr['60daysAgo']), d90: yahooNum(tr['90daysAgo']) }
+    for (const k of Object.keys(epsTrend)) if (epsTrend[k] == null) delete epsTrend[k]
+    const revisions = { up7: yahooNum(rv.upLast7days), up30: yahooNum(rv.upLast30days), down7: yahooNum(rv.downLast7Days ?? rv.downLast7days), down30: yahooNum(rv.downLast30days) }
+    for (const k of Object.keys(revisions)) if (revisions[k] == null) delete revisions[k]
+    const est = {
+      period: t.period,
+      eps: estimateRange(t.earningsEstimate),
+      revenue: estimateRange(t.revenueEstimate),
+      epsTrend,
+      revisions,
+    }
+    if (typeof t.endDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.endDate)) est.endDate = t.endDate
+    const yaEps = yahooNum(t.earningsEstimate?.yearAgoEps), yaRev = yahooNum(t.revenueEstimate?.yearAgoRevenue)
+    if (yaEps != null) est.yearAgoEps = yaEps
+    if (yaRev != null) est.yearAgoRevenue = yaRev
+    estimates.push(est)
+  }
+  estimates.sort((a, b) => ESTIMATE_PERIODS.indexOf(a.period) - ESTIMATE_PERIODS.indexOf(b.period))
+
+  // 季度实际 vs 预期：以 earningsHistory 为底，按季末日期补 earningsChart 的公布日、财季与营收
+  const byEnd = new Map()
+  for (const h of r.earningsHistory?.history || []) {
+    const periodEnd = yahooDate(h?.quarter)
+    if (!periodEnd) continue
+    byEnd.set(periodEnd, { periodEnd, epsActual: yahooNum(h.epsActual), epsEstimate: yahooNum(h.epsEstimate) })
+  }
+  const chart = r.earnings?.earningsChart?.quarterly || []
+  for (const q of chart) {
+    const periodEnd = yahooDate(q?.periodEndDate)
+    if (!periodEnd) continue
+    const row = byEnd.get(periodEnd) || { periodEnd }
+    if (row.epsActual == null) row.epsActual = yahooNum(q.actual)
+    if (row.epsEstimate == null) row.epsEstimate = yahooNum(q.estimate)
+    const reported = yahooDate(q.reportedDate, 'America/New_York')
+    if (reported) row.reported = reported
+    if (typeof q.fiscalQuarter === 'string' && /^[1-4]Q\d{4}$/.test(q.fiscalQuarter)) row.fiscalQuarter = q.fiscalQuarter
+    byEnd.set(periodEnd, row)
+  }
+  const revByLabel = new Map()
+  for (const q of r.earnings?.financialsChart?.quarterly || []) {
+    const rev = yahooNum(q?.revenue)
+    if (rev != null && typeof q.fiscalQuarter === 'string') revByLabel.set(q.fiscalQuarter, rev)
+    else if (rev != null && typeof q.date === 'string') revByLabel.set(`cal:${q.date}`, rev)
+  }
+  const chartCal = new Map(chart.filter(q => q?.fiscalQuarter && q?.calendarQuarter).map(q => [q.fiscalQuarter, q.calendarQuarter]))
+  const history = [...byEnd.values()]
+    .sort((a, b) => a.periodEnd.localeCompare(b.periodEnd))
+    .slice(-4)
+    .map(row => {
+      const out = { ...row }
+      if (row.epsActual != null && row.epsEstimate != null && row.epsEstimate !== 0) {
+        out.surprisePct = Math.round(((row.epsActual - row.epsEstimate) / Math.abs(row.epsEstimate)) * 10_000) / 100
+      }
+      const rev = row.fiscalQuarter ? (revByLabel.get(row.fiscalQuarter) ?? revByLabel.get(`cal:${chartCal.get(row.fiscalQuarter)}`)) : undefined
+      if (rev != null) out.revenueActual = rev
+      for (const k of Object.keys(out)) if (out[k] == null) delete out[k]
+      return out
+    })
+
+  const currency = r.earningsTrend?.trend?.[0]?.earningsEstimate?.earningsCurrency
+    || r.earningsHistory?.history?.[0]?.currency
+  return {
+    symbol,
+    ...(dates.length ? { nextEarnings: { dates, estimated: cal.isEarningsDateEstimate === true } } : {}),
+    estimates,
+    history,
+    ...(typeof currency === 'string' ? { currency } : {}),
+    source: 'Yahoo Finance 财报日历与分析师一致预期',
+  }
+}
+
+const unixToDate = sec => new Date(sec * 1000).toISOString().slice(0, 10)
+
+function optionContract(c, type) {
+  const strike = yahooNum(c?.strike)
+  if (strike == null) return null
+  const iv = yahooNum(c.impliedVolatility)
+  const last = yahooNum(c.lastPrice)
+  const lastTrade = yahooNum(c.lastTradeDate)
+  const out = {
+    contract: String(c.contractSymbol || ''),
+    type,
+    strike,
+    volume: yahooNum(c.volume) ?? 0,
+    openInterest: yahooNum(c.openInterest) ?? 0,
+  }
+  if (last != null) out.lastPrice = last
+  // Yahoo 无报价时给 0.00001 这类占位值，不展示
+  if (iv != null && iv > 0.01) out.iv = iv
+  if (lastTrade != null) out.lastTrade = new Date(lastTrade * 1000).toISOString()
+  if (typeof c.inTheMoney === 'boolean') out.inTheMoney = c.inTheMoney
+  return out
+}
+
+/** Yahoo v7 options → OptionsData：到期日列表、所选到期日看跌 / 看涨汇总、成交量前 10 合约 */
+export function parseOptionsData(symbol, json, topN = 10) {
+  const r = json?.optionChain?.result?.[0]
+  const expirations = (Array.isArray(r?.expirationDates) ? r.expirationDates : [])
+    .map(Number).filter(Number.isFinite).map(unixToDate)
+  const chain = r?.options?.[0]
+  const calls = (chain?.calls || []).map(c => optionContract(c, 'call')).filter(Boolean)
+  const puts = (chain?.puts || []).map(c => optionContract(c, 'put')).filter(Boolean)
+  const total = list => ({
+    count: list.length,
+    volume: list.reduce((s, c) => s + c.volume, 0),
+    openInterest: list.reduce((s, c) => s + c.openInterest, 0),
+  })
+  const top = [...calls, ...puts]
+    .filter(c => c.volume > 0)
+    .sort((a, b) => b.volume - a.volume || b.openInterest - a.openInterest || a.strike - b.strike)
+    .slice(0, topN)
+  const expSec = Number(chain?.expirationDate)
+  const quote = r?.quote || {}
+  const out = {
+    symbol,
+    expirations,
+    ...(Number.isFinite(expSec) ? { expiration: unixToDate(expSec) } : {}),
+    calls: total(calls),
+    puts: total(puts),
+    top,
+    source: 'Yahoo Finance 期权链快照',
+    note: '约延迟 15 分钟；成交量为最近一个交易日累计，不是逐笔大单流，看不出主动买卖方向。',
+  }
+  const price = yahooNum(quote.regularMarketPrice)
+  const time = yahooNum(quote.regularMarketTime)
+  if (price != null) out.underlyingPrice = price
+  if (time != null) out.quoteTime = new Date(time * 1000).toISOString()
+  return out
+}
+
+const YAHOO_MODULES = {
+  insider: 'insiderTransactions,insiderHolders,netSharePurchaseActivity',
+  short: 'defaultKeyStatistics',
+  earnings: 'calendarEvents,earningsHistory,earningsTrend,earnings',
+}
+
+function usOnly(symbolRaw, label) {
+  const symbol = normalizeSymbol(symbolRaw)
+  if (!symbol) return { fail: { status: 400, body: lookupError('bad-request', '代码无效'), cache: 0 } }
+  if (marketOf(symbol) !== 'us') {
+    return { fail: { status: 404, body: lookupError('unsupported', `暂不支持该市场：${label}目前只覆盖美股`), cache: 3600 } }
+  }
+  if (isYahooRateLimited()) return { fail: yahooCooldownResponse() }
+  return { symbol }
+}
+
+/** Yahoo 对不存在的代码回 404 + "Quote not found" */
+function yahooNotFound(r) {
+  return r?.status === 404 || /not found/i.test(String(r?.json?.quoteSummary?.error?.description || r?.json?.optionChain?.error?.description || ''))
+}
+
+async function handleQuoteSummaryKind(symbolRaw, kind, label, parse, cache) {
+  const { symbol, fail } = usOnly(symbolRaw, label)
+  if (fail) return fail
+  try {
+    const url = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(yahooSymbolOf(symbol))}?modules=${YAHOO_MODULES[kind]}`
+    const r = await yahooFetchJson(url)
+    if (yahooNotFound(r)) return { status: 404, body: lookupError('not-found'), cache: 300 }
+    if (!r.ok || !r.json?.quoteSummary?.result?.[0]) return upstreamFail(r)
+    return { status: 200, body: parse(symbol, r.json.quoteSummary.result[0]), cache }
+  } catch {
+    return { status: 502, body: lookupError('upstream'), cache: 0 }
+  }
+}
+
+async function handleOptions(symbolRaw, dateRaw) {
+  const { symbol, fail } = usOnly(symbolRaw, '期权数据')
+  if (fail) return fail
+  let dateParam = ''
+  if (dateRaw != null && dateRaw !== '') {
+    if (typeof dateRaw !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateRaw) || !Number.isFinite(Date.parse(`${dateRaw}T00:00:00Z`))) {
+      return { status: 400, body: lookupError('bad-request', '到期日无效'), cache: 0 }
+    }
+    dateParam = `?date=${Math.floor(Date.parse(`${dateRaw}T00:00:00Z`) / 1000)}`
+  }
+  try {
+    const r = await yahooFetchJson(`https://query2.finance.yahoo.com/v7/finance/options/${encodeURIComponent(yahooSymbolOf(symbol))}${dateParam}`)
+    if (yahooNotFound(r)) return { status: 404, body: lookupError('not-found'), cache: 300 }
+    if (!r.ok || !r.json?.optionChain) return upstreamFail(r)
+    return { status: 200, body: parseOptionsData(symbol, r.json), cache: 300 }
+  } catch {
+    return { status: 502, body: lookupError('upstream'), cache: 0 }
+  }
+}
+
 /** 供 handleMarket 调用 */
 export async function handleStockLookup(kind, query) {
   switch (kind) {
@@ -1191,6 +1529,10 @@ export async function handleStockLookup(kind, query) {
     case 'lookup-news': return handleNews(query.symbol, query.start, query.end)
     case 'lookup-analysts': return handleAnalysts(query.symbol)
     case 'lookup-offexchange': return handleOffExchange(query.symbol)
+    case 'lookup-insider': return handleQuoteSummaryKind(query.symbol, 'insider', '内部人交易', (sym, r) => parseInsiderData(sym, r), 3600)
+    case 'lookup-short': return handleQuoteSummaryKind(query.symbol, 'short', '做空数据', parseShortInterest, 3600)
+    case 'lookup-earnings': return handleQuoteSummaryKind(query.symbol, 'earnings', '财报预期', parseEarningsData, 3600)
+    case 'lookup-options': return handleOptions(query.symbol, query.date)
     default: return { status: 400, body: lookupError('bad-request', '未知 kind'), cache: 0 }
   }
 }

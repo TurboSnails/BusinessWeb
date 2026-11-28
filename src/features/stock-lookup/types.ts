@@ -148,6 +148,161 @@ export interface OffExchangeData {
   note: string
 }
 
+// ─── 美股专项：内部人交易 / 做空 / 财报预期 / 期权（2026-11-28 新增，均来自 Yahoo Finance） ───
+
+/** 公开市场买入 / 卖出 / 行权 / 授予 / 赠与 / 来源未注明 */
+export type InsiderTxType = 'buy' | 'sell' | 'exercise' | 'award' | 'gift' | 'other'
+
+export interface InsiderTransaction {
+  /** 交易日 YYYY-MM-DD */
+  date: string
+  name: string
+  /** 原文职务，如 Director、Chief Executive Officer；页面负责翻译 */
+  role: string
+  type: InsiderTxType
+  shares: number
+  /** 成交金额（美元），授予 / 赠与通常没有 */
+  value?: number
+  priceLow?: number
+  priceHigh?: number
+  ownership?: 'direct' | 'indirect' | 'both'
+}
+
+export interface InsiderHolder {
+  name: string
+  role: string
+  latestDate?: string
+  latestType?: InsiderTxType
+  sharesDirect?: number
+  sharesIndirect?: number
+}
+
+/** 服务端按逐笔记录自算：只数公开市场买入与卖出 */
+export interface InsiderSummary {
+  months: number
+  /** 统计起点 YYYY-MM-DD */
+  since: string
+  buyCount: number
+  buyShares: number
+  buyValue: number
+  sellCount: number
+  sellShares: number
+  sellValue: number
+  netShares: number
+}
+
+export interface InsiderData {
+  symbol: string
+  /** 近 12 个月逐笔，按日期倒序 */
+  transactions: InsiderTransaction[]
+  holders: InsiderHolder[]
+  summary: InsiderSummary
+  /** Yahoo 自带的近 6 个月汇总（把授予、行权也算作买入） */
+  reported?: { buyCount?: number; buyShares?: number; sellCount?: number; sellShares?: number; netCount?: number; netShares?: number; totalInsiderShares?: number }
+  source: string
+}
+
+/** 交易所每月两次公布的未平仓空头（与 FINRA 每日卖空成交量不是一回事） */
+export interface ShortInterestData {
+  symbol: string
+  sharesShort?: number
+  sharesShortPrior?: number
+  settleDate?: string
+  priorSettleDate?: string
+  /** 占流通股比例，0–1 */
+  pctFloat?: number
+  /** 占总股本比例，0–1 */
+  pctOutstanding?: number
+  /** 回补天数（空头股数 ÷ 日均成交量） */
+  daysToCover?: number
+  floatShares?: number
+  source: string
+}
+
+export type EstimatePeriod = '0q' | '+1q' | '0y' | '+1y'
+
+export interface EstimateRange {
+  avg?: number
+  low?: number
+  high?: number
+  analysts?: number
+}
+
+export interface EarningsEstimate {
+  period: EstimatePeriod
+  /** 该期截止日 YYYY-MM-DD */
+  endDate?: string
+  eps: EstimateRange
+  revenue: EstimateRange
+  yearAgoEps?: number
+  yearAgoRevenue?: number
+  /** 每股收益一致预期：现在与 7 / 30 / 60 / 90 天前 */
+  epsTrend: { current?: number; d7?: number; d30?: number; d60?: number; d90?: number }
+  /** 近 7 / 30 天上调、下调预期的分析师人数 */
+  revisions: { up7?: number; up30?: number; down7?: number; down30?: number }
+}
+
+export interface EarningsQuarter {
+  /** 季末 YYYY-MM-DD */
+  periodEnd: string
+  /** 公布日 */
+  reported?: string
+  /** 财季，如 3Q2027 */
+  fiscalQuarter?: string
+  epsActual?: number
+  epsEstimate?: number
+  /** 惊喜幅度 %，(实际 − 预期) ÷ |预期| × 100 */
+  surprisePct?: number
+  revenueActual?: number
+}
+
+export interface EarningsData {
+  symbol: string
+  /** 财报日（美东）；可能是已过去的最近一次，页面自行判断 */
+  nextEarnings?: { dates: string[]; estimated: boolean }
+  estimates: EarningsEstimate[]
+  /** 最近 4 个季度，按时间正序 */
+  history: EarningsQuarter[]
+  currency?: string
+  source: string
+}
+
+export interface OptionContract {
+  contract: string
+  type: 'call' | 'put'
+  strike: number
+  volume: number
+  openInterest: number
+  lastPrice?: number
+  /** 隐含波动率，0–1+ */
+  iv?: number
+  /** 最近一次成交时间 ISO */
+  lastTrade?: string
+  inTheMoney?: boolean
+}
+
+export interface OptionSideTotal {
+  count: number
+  volume: number
+  openInterest: number
+}
+
+export interface OptionsData {
+  symbol: string
+  /** 全部到期日 YYYY-MM-DD，升序 */
+  expirations: string[]
+  /** 本次返回的到期日 */
+  expiration?: string
+  calls: OptionSideTotal
+  puts: OptionSideTotal
+  /** 该到期日按成交量前 10 的合约 */
+  top: OptionContract[]
+  underlyingPrice?: number
+  quoteTime?: string
+  source: string
+  note: string
+}
+
 /** 统一的失败形状：页面按 reason 显示中文提示 */
 export interface LookupError {
   error: string
@@ -161,4 +316,9 @@ export interface StockLookupApi {
   news(symbol: string, range?: { start?: string; end?: string }, signal?: AbortSignal): Promise<NewsPage>
   analysts(symbol: string, signal?: AbortSignal): Promise<AnalystData>
   offExchange(symbol: string, signal?: AbortSignal): Promise<OffExchangeData>
+  insider(symbol: string, signal?: AbortSignal): Promise<InsiderData>
+  shortInterest(symbol: string, signal?: AbortSignal): Promise<ShortInterestData>
+  earnings(symbol: string, signal?: AbortSignal): Promise<EarningsData>
+  /** expiration：YYYY-MM-DD，省略则取最近到期日 */
+  options(symbol: string, expiration?: string, signal?: AbortSignal): Promise<OptionsData>
 }

@@ -516,3 +516,120 @@
 
 /* 评级堆叠柱：限制放大倍数，避免横轴文字随宽度被放大 */
 .sl-rating__bars-svg { width: 100%; max-width: 420px; height: auto; display: block; }
+
+/* ─── 美股专项面板：财报预期 / 内部人交易 / 空头持仓 / 期权 ─── */
+.sl-us__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sl-us__body > p {
+  margin: 0;
+}
+
+.sl-us__stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+}
+
+/* 窄屏不挤压列：表格在自己的容器里横向滚动 */
+.sl-insider .sl-us__table { min-width: 680px; }
+.sl-options .sl-us__table { min-width: 820px; }
+.sl-earnings .sl-us__table { min-width: 600px; }
+
+.sl-us__table td.num,
+.sl-us__table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-us__table th[scope='row'] {
+  font-weight: 560;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sl-nowrap {
+  white-space: nowrap;
+}
+
+.sl-us__sub {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.sl-us__tag {
+  margin-left: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.sl-us__flag {
+  margin-left: 0.35rem;
+}
+
+.sl-us__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.sl-us__more {
+  align-self: flex-start;
+}
+
+.sl-earnings__history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sl-earnings__svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  display: block;
+}
+
+.sl-earnings__zero {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.sl-earnings__bar-est {
+  fill: var(--system-gray3);
+}
+
+.sl-earnings__bar-act.is-beat,
+.sl-earnings__swatch--beat {
+  fill: var(--up);
+  background: var(--up);
+}
+
+.sl-earnings__bar-act.is-miss,
+.sl-earnings__swatch--miss {
+  fill: var(--down);
+  background: var(--down);
+}
+
+.sl-options__picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.sl-options__picker select {
+  min-height: 36px;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card, #fff);
+  color: var(--text);
+  font-size: 0.9rem;
+}

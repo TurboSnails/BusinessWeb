@@ -1,0 +1,39 @@
+{
+ "defaultKeyStatistics": {
+  "sharesShort": {
+   "raw": 159086108,
+   "fmt": "159.09M",
+   "longFmt": "159,086,108"
+  },
+  "sharesShortPriorMonth": {
+   "raw": 170799103,
+   "fmt": "170.8M",
+   "longFmt": "170,799,103"
+  },
+  "shortPercentOfFloat": {
+   "raw": 0.3518,
+   "fmt": "35.18%"
+  },
+  "shortRatio": {
+   "raw": 9.06,
+   "fmt": "9.06"
+  },
+  "dateShortInterest": {
+   "raw": 1794528000,
+   "fmt": "2026-11-13"
+  },
+  "sharesShortPreviousMonthDate": {
+   "raw": 1792022400,
+   "fmt": "2026-10-15"
+  },
+  "floatShares": {
+   "raw": 420228341,
+   "fmt": "420.23M",
+   "longFmt": "420,228,341"
+  },
+  "sharesPercentSharesOut": {
+   "raw": 0.32569999,
+   "fmt": "32.57%"
+  }
+ }
+}

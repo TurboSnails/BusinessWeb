@@ -112,3 +112,23 @@ export function sourceDelayNote(market: 'us' | 'hk' | 'cn'): string {
   if (market === 'hk') return '港股行情来自腾讯行情，盘中近实时，收盘后为当日收盘价。'
   return '沪深行情来自腾讯行情，盘中近实时，收盘后为当日收盘价。'
 }
+
+/** 美元金额：万 / 亿美元，小额直接给美元 */
+export function fmtUsdAmount(n: number): string {
+  const abs = Math.abs(n)
+  const sign = n < 0 ? '-' : ''
+  if (abs >= 1e8) return `${sign}${(abs / 1e8).toFixed(2)}亿美元`
+  if (abs >= 1e4) return `${sign}${(abs / 1e4).toFixed(1)}万美元`
+  return `${sign}$${abs.toLocaleString('zh-CN', { maximumFractionDigits: 0 })}`
+}
+
+/** 带正负号的股数（万 / 亿） */
+export function fmtSignedShares(n: number): string {
+  if (n === 0) return '0'
+  return `${n > 0 ? '+' : '-'}${fmtVolume(Math.abs(n))}`
+}
+
+/** 0–1 比例 → 百分比 */
+export function fmtRatioPct(r: number, digits = 2): string {
+  return `${(r * 100).toFixed(digits)}%`
+}

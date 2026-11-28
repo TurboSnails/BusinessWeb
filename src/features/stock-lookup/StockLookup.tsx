@@ -4,10 +4,14 @@ import { Callout } from '../../components/ui'
 import { stockLookupApi } from './api'
 import type { AnalystData, NewsItem, Quote, StockLookupApi } from './types'
 import { AnalystTablePanel } from './panels/AnalystTablePanel'
+import { EarningsPanel } from './panels/EarningsPanel'
+import { InsiderPanel } from './panels/InsiderPanel'
 import { NewsCenter } from './panels/NewsCenter'
 import { OffExchangePanel } from './panels/OffExchangePanel'
+import { OptionsPanel } from './panels/OptionsPanel'
 import { QuoteHeader } from './panels/QuoteHeader'
 import { RatingDistribution } from './panels/RatingDistribution'
+import { ShortInterestPanel } from './panels/ShortInterestPanel'
 import { SymbolSearch } from './panels/SymbolSearch'
 import { parseLookupSymbol } from './panels/symbolParse'
 import './stock-lookup.css'
@@ -89,13 +93,13 @@ export default function StockLookup({ api: apiProp }: StockLookupProps = {}): JS
     <div className="sl-page">
       {usingDemo ? (
         <Callout tone="warn" title="演示数据，非真实行情" className="sl-demo-banner">
-          当前为开发环境演示接口：机构、媒体与新闻均为虚构样本，不代表真实市场。去掉网址中的 demo 参数可走公开接口。
+          当前为开发环境演示接口：机构、媒体、人物与新闻均为虚构样本，不代表真实市场。去掉网址中的 demo 参数可走公开接口。
         </Callout>
       ) : null}
       <SymbolSearch api={api} onSelect={sym => setSymbol(sym)} showExamples={!symbol} />
       {!symbol && (
         <p className="sl-intro">
-          输入美股裸代码（如 MRVL）、港股 hk00700、或沪深 sh600519 / sz000858，查看行情、新闻、场外成交与分析师评级。公开数据整理，不构成买卖建议。
+          输入美股裸代码（如 MRVL）、港股 hk00700、或沪深 sh600519 / sz000858，查看行情、新闻、场外成交与分析师评级；美股另有财报预期、内部人交易、空头持仓与期权概况。公开数据整理，不构成买卖建议。
         </p>
       )}
       {symbol && (
@@ -120,6 +124,10 @@ export default function StockLookup({ api: apiProp }: StockLookupProps = {}): JS
           <OffExchangePanel symbol={symbol} api={api} />
           <RatingDistribution symbol={symbol} api={api} data={analysts} onData={onAnalysts} />
           <AnalystTablePanel symbol={symbol} data={analysts} currentPrice={quote?.price} />
+          <EarningsPanel symbol={symbol} api={api} />
+          <InsiderPanel symbol={symbol} api={api} />
+          <ShortInterestPanel symbol={symbol} api={api} />
+          <OptionsPanel symbol={symbol} api={api} />
         </>
       )}
     </div>

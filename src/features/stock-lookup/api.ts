@@ -4,6 +4,19 @@ import type {
   AnalystData,
   AtsWeek,
   Bar,
+  EarningsData,
+  EarningsEstimate,
+  EarningsQuarter,
+  EstimatePeriod,
+  EstimateRange,
+  InsiderData,
+  InsiderHolder,
+  InsiderSummary,
+  InsiderTransaction,
+  InsiderTxType,
+  OptionContract,
+  OptionSideTotal,
+  OptionsData,
   BarsPage,
   LookupError,
   NewsItem,
@@ -15,6 +28,7 @@ import type {
   RatingAction,
   RecommendationMonth,
   Session,
+  ShortInterestData,
   ShortVolumeDay,
   StockLookupApi,
   SymbolHit,
@@ -261,6 +275,171 @@ function parseOffExchange(raw: unknown): OffExchangeData {
   return { symbol: o.symbol, daily, ats, source: o.source, note: o.note }
 }
 
+// ─── 内部人交易 / 做空 / 财报预期 / 期权 ───
+
+const INSIDER_TYPES = new Set<string>(['buy', 'sell', 'exercise', 'award', 'gift', 'other'])
+const OWNERSHIPS = new Set<string>(['direct', 'indirect', 'both'])
+const PERIODS = new Set<string>(['0q', '+1q', '0y', '+1y'])
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+function isDate(v: unknown): v is string {
+  return isStr(v) && DATE_RE.test(v)
+}
+
+function obj(v: unknown): Record<string, unknown> | null {
+  return v && typeof v === 'object' && !Array.isArray(v) ? v as Record<string, unknown> : null
+}
+
+/** 只挑出给定键里的有限数字 */
+function pickNums<K extends string>(raw: unknown, keys: readonly K[]): Partial<Record<K, number>> {
+  const o = obj(raw)
+  const out: Partial<Record<K, number>> = {}
+  if (!o) return out
+  for (const k of keys) if (isNum(o[k])) out[k] = o[k] as number
+  return out
+}
+
+function parseInsiderTx(raw: unknown): InsiderTransaction | null {
+  const o = obj(raw)
+  if (!o || !isDate(o.date) || !isStr(o.name) || !isStr(o.role) || !isStr(o.type) || !INSIDER_TYPES.has(o.type) || !isNum(o.shares)) return null
+  const tx: InsiderTransaction = { date: o.date, name: o.name, role: o.role, type: o.type as InsiderTxType, shares: o.shares }
+  Object.assign(tx, pickNums(o, ['value', 'priceLow', 'priceHigh'] as const))
+  if (isStr(o.ownership) && OWNERSHIPS.has(o.ownership)) tx.ownership = o.ownership as InsiderTransaction['ownership']
+  return tx
+}
+
+function parseInsiderHolder(raw: unknown): InsiderHolder | null {
+  const o = obj(raw)
+  if (!o || !isStr(o.name) || !isStr(o.role)) return null
+  const h: InsiderHolder = { name: o.name, role: o.role, ...pickNums(o, ['sharesDirect', 'sharesIndirect'] as const) }
+  if (isDate(o.latestDate)) h.latestDate = o.latestDate
+  if (isStr(o.latestType) && INSIDER_TYPES.has(o.latestType)) h.latestType = o.latestType as InsiderTxType
+  return h
+}
+
+function parseInsider(raw: unknown): InsiderData {
+  const o = obj(raw)
+  const sm = obj(o?.summary)
+  if (!o || !isStr(o.symbol) || !isStr(o.source) || !Array.isArray(o.transactions) || !Array.isArray(o.holders) || !sm || !isDate(sm.since)) {
+    throw new Error('内部人交易数据格式错误')
+  }
+  const nums = pickNums(sm, ['months', 'buyCount', 'buyShares', 'buyValue', 'sellCount', 'sellShares', 'sellValue', 'netShares'] as const)
+  if (Object.keys(nums).length !== 8) throw new Error('内部人交易数据格式错误')
+  const summary = { ...nums, since: sm.since } as InsiderSummary
+  const transactions = o.transactions.map(parseInsiderTx).filter((t): t is InsiderTransaction => !!t)
+  const holders = o.holders.map(parseInsiderHolder).filter((h): h is InsiderHolder => !!h)
+  const reported = pickNums(o.reported, ['buyCount', 'buyShares', 'sellCount', 'sellShares', 'netCount', 'netShares', 'totalInsiderShares'] as const)
+  return {
+    symbol: o.symbol,
+    transactions,
+    holders,
+    summary,
+    ...(Object.keys(reported).length ? { reported } : {}),
+    source: o.source,
+  }
+}
+
+function parseShortInterest(raw: unknown): ShortInterestData {
+  const o = obj(raw)
+  if (!o || !isStr(o.symbol) || !isStr(o.source)) throw new Error('做空数据格式错误')
+  const out: ShortInterestData = {
+    symbol: o.symbol,
+    source: o.source,
+    ...pickNums(o, ['sharesShort', 'sharesShortPrior', 'pctFloat', 'pctOutstanding', 'daysToCover', 'floatShares'] as const),
+  }
+  if (isDate(o.settleDate)) out.settleDate = o.settleDate
+  if (isDate(o.priorSettleDate)) out.priorSettleDate = o.priorSettleDate
+  return out
+}
+
+const RANGE_KEYS = ['avg', 'low', 'high', 'analysts'] as const
+
+function parseEstimate(raw: unknown): EarningsEstimate | null {
+  const o = obj(raw)
+  if (!o || !isStr(o.period) || !PERIODS.has(o.period)) return null
+  const est: EarningsEstimate = {
+    period: o.period as EstimatePeriod,
+    eps: pickNums(o.eps, RANGE_KEYS) as EstimateRange,
+    revenue: pickNums(o.revenue, RANGE_KEYS) as EstimateRange,
+    epsTrend: pickNums(o.epsTrend, ['current', 'd7', 'd30', 'd60', 'd90'] as const),
+    revisions: pickNums(o.revisions, ['up7', 'up30', 'down7', 'down30'] as const),
+    ...pickNums(o, ['yearAgoEps', 'yearAgoRevenue'] as const),
+  }
+  if (isDate(o.endDate)) est.endDate = o.endDate
+  return est
+}
+
+function parseQuarter(raw: unknown): EarningsQuarter | null {
+  const o = obj(raw)
+  if (!o || !isDate(o.periodEnd)) return null
+  const q: EarningsQuarter = { periodEnd: o.periodEnd, ...pickNums(o, ['epsActual', 'epsEstimate', 'surprisePct', 'revenueActual'] as const) }
+  if (isDate(o.reported)) q.reported = o.reported
+  if (isStr(o.fiscalQuarter) && /^[1-4]Q\d{4}$/.test(o.fiscalQuarter)) q.fiscalQuarter = o.fiscalQuarter
+  return q
+}
+
+function parseEarnings(raw: unknown): EarningsData {
+  const o = obj(raw)
+  if (!o || !isStr(o.symbol) || !isStr(o.source) || !Array.isArray(o.estimates) || !Array.isArray(o.history)) {
+    throw new Error('财报预期数据格式错误')
+  }
+  const out: EarningsData = {
+    symbol: o.symbol,
+    estimates: o.estimates.map(parseEstimate).filter((e): e is EarningsEstimate => !!e),
+    history: o.history.map(parseQuarter).filter((q): q is EarningsQuarter => !!q),
+    source: o.source,
+  }
+  const ne = obj(o.nextEarnings)
+  if (ne && Array.isArray(ne.dates)) {
+    const dates = ne.dates.filter(isDate)
+    if (dates.length) out.nextEarnings = { dates, estimated: ne.estimated === true }
+  }
+  if (isStr(o.currency)) out.currency = o.currency
+  return out
+}
+
+function parseOptionContract(raw: unknown): OptionContract | null {
+  const o = obj(raw)
+  if (!o || !isStr(o.contract) || (o.type !== 'call' && o.type !== 'put') || !isNum(o.strike) || !isNum(o.volume) || !isNum(o.openInterest)) return null
+  const c: OptionContract = {
+    contract: o.contract,
+    type: o.type,
+    strike: o.strike,
+    volume: o.volume,
+    openInterest: o.openInterest,
+    ...pickNums(o, ['lastPrice', 'iv'] as const),
+  }
+  if (isStr(o.lastTrade)) c.lastTrade = o.lastTrade
+  if (typeof o.inTheMoney === 'boolean') c.inTheMoney = o.inTheMoney
+  return c
+}
+
+function parseSideTotal(raw: unknown): OptionSideTotal | null {
+  const t = pickNums(raw, ['count', 'volume', 'openInterest'] as const)
+  return t.count != null && t.volume != null && t.openInterest != null ? t as OptionSideTotal : null
+}
+
+function parseOptions(raw: unknown): OptionsData {
+  const o = obj(raw)
+  const calls = parseSideTotal(o?.calls), puts = parseSideTotal(o?.puts)
+  if (!o || !isStr(o.symbol) || !isStr(o.source) || !isStr(o.note) || !Array.isArray(o.expirations) || !Array.isArray(o.top) || !calls || !puts) {
+    throw new Error('期权数据格式错误')
+  }
+  const out: OptionsData = {
+    symbol: o.symbol,
+    expirations: o.expirations.filter(isDate),
+    calls,
+    puts,
+    top: o.top.map(parseOptionContract).filter((c): c is OptionContract => !!c),
+    source: o.source,
+    note: o.note,
+    ...pickNums(o, ['underlyingPrice'] as const),
+  }
+  if (isDate(o.expiration)) out.expiration = o.expiration
+  if (isStr(o.quoteTime)) out.quoteTime = o.quoteTime
+  return out
+}
+
 export const stockLookupApi: StockLookupApi = {
   async search(q, signal) {
     const body = await getJson(url('lookup-search', { q }), signal)
@@ -295,10 +474,23 @@ export const stockLookupApi: StockLookupApi = {
   async offExchange(symbol, signal) {
     return parseOffExchange(await getJson(url('lookup-offexchange', { symbol }), signal))
   },
+  async insider(symbol, signal) {
+    return parseInsider(await getJson(url('lookup-insider', { symbol }), signal))
+  },
+  async shortInterest(symbol, signal) {
+    return parseShortInterest(await getJson(url('lookup-short', { symbol }), signal))
+  },
+  async earnings(symbol, signal) {
+    return parseEarnings(await getJson(url('lookup-earnings', { symbol }), signal))
+  },
+  async options(symbol, expiration, signal) {
+    return parseOptions(await getJson(url('lookup-options', { symbol, date: expiration }), signal))
+  },
 }
 
 /** 测试用：导出校验函数 */
 export const __test = {
   parseHit, parseQuote, parseBar, parseBarsPage, parseNewsItem, parseNewsPage,
   parseAnalysts, parseOffExchange, url,
+  parseInsider, parseShortInterest, parseEarnings, parseOptions,
 }

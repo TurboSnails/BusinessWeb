@@ -1,0 +1,396 @@
+{
+ "insiderTransactions": {
+  "transactions": [
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 2605,
+     "fmt": "2.6k",
+     "longFmt": "2,605"
+    },
+    "value": {
+     "raw": 938419,
+     "fmt": "938.42k",
+     "longFmt": "938,419"
+    },
+    "filerUrl": "",
+    "transactionText": "Sale at price 360.13 per share.",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1788825600,
+     "fmt": "2026-09-08"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 6539,
+     "fmt": "6.54k",
+     "longFmt": "6,539"
+    },
+    "filerUrl": "",
+    "transactionText": "",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1788480000,
+     "fmt": "2026-09-04"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 303960630,
+     "fmt": "303.96M",
+     "longFmt": "303,960,630"
+    },
+    "value": {
+     "raw": 7094441104,
+     "fmt": "7.09B",
+     "longFmt": "7,094,441,104"
+    },
+    "filerUrl": "",
+    "transactionText": "Conversion of Exercise of derivative security at price 23.34 per share.",
+    "filerName": "MUSK ELON REEVE",
+    "filerRelation": "Chief Executive Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1781568000,
+     "fmt": "2026-06-16"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 2605,
+     "fmt": "2.6k",
+     "longFmt": "2,605"
+    },
+    "value": {
+     "raw": 1047924,
+     "fmt": "1.05M",
+     "longFmt": "1,047,924"
+    },
+    "filerUrl": "",
+    "transactionText": "Sale at price 402.20 per share.",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1780876800,
+     "fmt": "2026-06-08"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 6538,
+     "fmt": "6.54k",
+     "longFmt": "6,538"
+    },
+    "filerUrl": "",
+    "transactionText": "",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1780617600,
+     "fmt": "2026-06-05"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 3000,
+     "fmt": "3k",
+     "longFmt": "3,000"
+    },
+    "value": {
+     "raw": 54880,
+     "fmt": "54.88k",
+     "longFmt": "54,880"
+    },
+    "filerUrl": "",
+    "transactionText": "Conversion of Exercise of derivative security at price 18.22 - 18.44 per share.",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1778630400,
+     "fmt": "2026-05-13"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 210699,
+     "fmt": "210.7k",
+     "longFmt": "210,699"
+    },
+    "value": {
+     "raw": 0,
+     "fmt": null,
+     "longFmt": "0"
+    },
+    "filerUrl": "",
+    "transactionText": "Stock Gift at price 0.00 per share.",
+    "filerName": "MUSK ELON REEVE",
+    "filerRelation": "Chief Executive Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1767052800,
+     "fmt": "2025-12-30"
+    },
+    "ownership": "I"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 15242,
+     "fmt": "15.24k",
+     "longFmt": "15,242"
+    },
+    "value": {
+     "raw": 0,
+     "fmt": null,
+     "longFmt": "0"
+    },
+    "filerUrl": "",
+    "transactionText": "Stock Gift at price 0.00 per share.",
+    "filerName": "MUSK KIMBAL J",
+    "filerRelation": "Director",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1765238400,
+     "fmt": "2025-12-09"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 2568732,
+     "fmt": "2.57M",
+     "longFmt": "2,568,732"
+    },
+    "value": {
+     "raw": 999959042,
+     "fmt": "999.96M",
+     "longFmt": "999,959,042"
+    },
+    "filerUrl": "",
+    "transactionText": "Purchase at price 371.90 - 396.36 per share.",
+    "filerName": "MUSK ELON REEVE",
+    "filerRelation": "Chief Executive Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1757635200,
+     "fmt": "2025-09-12"
+    },
+    "ownership": "I"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 4000,
+     "fmt": "4k",
+     "longFmt": "4,000"
+    },
+    "value": {
+     "raw": 1025232,
+     "fmt": "1.03M",
+     "longFmt": "1,025,232"
+    },
+    "filerUrl": "",
+    "transactionText": "Purchase at price 256.31 per share.",
+    "filerName": "GEBBIA JOSEPH",
+    "filerRelation": "Director",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1745452800,
+     "fmt": "2025-04-24"
+    },
+    "ownership": "I"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 112390,
+     "fmt": "112.39k",
+     "longFmt": "112,390"
+    },
+    "value": {
+     "raw": 39793301,
+     "fmt": "39.79M",
+     "longFmt": "39,793,301"
+    },
+    "filerUrl": "",
+    "transactionText": "Sale at price 352.74 - 358.64 per share.",
+    "filerName": "DENHOLM ROBYN M",
+    "filerRelation": "Director",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1733097600,
+     "fmt": "2024-12-02"
+    },
+    "ownership": "D"
+   },
+   {
+    "maxAge": 1,
+    "shares": {
+     "raw": 7000,
+     "fmt": "7k",
+     "longFmt": "7,000"
+    },
+    "value": {
+     "raw": 2481039,
+     "fmt": "2.48M",
+     "longFmt": "2,481,039"
+    },
+    "filerUrl": "",
+    "transactionText": "Sale at price 352.70 - 359.94 per share.",
+    "filerName": "TANEJA VAIBHAV",
+    "filerRelation": "Chief Financial Officer",
+    "moneyText": "",
+    "startDate": {
+     "raw": 1733097600,
+     "fmt": "2024-12-02"
+    },
+    "ownership": "D"
+   }
+  ]
+ },
+ "insiderHolders": {
+  "holders": [
+   {
+    "maxAge": 1,
+    "name": "DENHOLM ROBYN M",
+    "relation": "Director",
+    "url": "",
+    "transactionDescription": "Conversion of Exercise of derivative security",
+    "latestTransDate": {
+     "raw": 1746489600,
+     "fmt": "2025-05-06"
+    },
+    "positionDirect": {
+     "raw": 85000,
+     "fmt": "85k",
+     "longFmt": "85,000"
+    },
+    "positionDirectDate": {
+     "raw": 1746489600,
+     "fmt": "2025-05-06"
+    }
+   },
+   {
+    "maxAge": 1,
+    "name": "EHRENPREIS IRA MATTHEW",
+    "relation": "Director",
+    "url": "",
+    "transactionDescription": "Conversion of Exercise of derivative security",
+    "latestTransDate": {
+     "raw": 1748304000,
+     "fmt": "2025-05-27"
+    },
+    "positionDirect": {
+     "raw": 855394,
+     "fmt": "855.39k",
+     "longFmt": "855,394"
+    },
+    "positionDirectDate": {
+     "raw": 1748304000,
+     "fmt": "2025-05-27"
+    }
+   },
+   {
+    "maxAge": 1,
+    "name": "GEBBIA JOSEPH",
+    "relation": "Director",
+    "url": "",
+    "transactionDescription": "Purchase",
+    "latestTransDate": {
+     "raw": 1745452800,
+     "fmt": "2025-04-24"
+    },
+    "positionIndirect": {
+     "raw": 4111,
+     "fmt": "4.11k",
+     "longFmt": "4,111"
+    },
+    "positionIndirectDate": {
+     "raw": 1745452800,
+     "fmt": "2025-04-24"
+    }
+   }
+  ]
+ },
+ "netSharePurchaseActivity": {
+  "maxAge": 1,
+  "period": "6m",
+  "buyInfoCount": {
+   "raw": 6,
+   "fmt": "6",
+   "longFmt": "6"
+  },
+  "buyInfoShares": {
+   "raw": 303981507,
+   "fmt": "303.98M",
+   "longFmt": "303,981,507"
+  },
+  "buyPercentInsiderShares": {
+   "raw": 0.759,
+   "fmt": "75.90%"
+  },
+  "sellInfoCount": {
+   "raw": 6,
+   "fmt": "6",
+   "longFmt": "6"
+  },
+  "sellInfoShares": {
+   "raw": 14861,
+   "fmt": "14.86k",
+   "longFmt": "14,861"
+  },
+  "sellPercentInsiderShares": {
+   "raw": 0,
+   "fmt": "0.00%"
+  },
+  "netInfoCount": {
+   "raw": 12,
+   "fmt": "12",
+   "longFmt": "12"
+  },
+  "netInfoShares": {
+   "raw": 303966646,
+   "fmt": "303.97M",
+   "longFmt": "303,966,646"
+  },
+  "netPercentInsiderShares": {
+   "raw": 0.759,
+   "fmt": "75.90%"
+  },
+  "netInstSharesBuying": {
+   "raw": -203081787,
+   "fmt": "-203.08M",
+   "longFmt": "-203,081,787"
+  },
+  "netInstBuyingPercent": {
+   "raw": -0.11472,
+   "fmt": "-11.47%"
+  },
+  "totalInsiderShares": {
+   "raw": 704500096,
+   "fmt": "704.5M",
+   "longFmt": "704,500,096"
+  }
+ }
+}
