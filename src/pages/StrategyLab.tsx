@@ -19,6 +19,7 @@ import { CountryMomentumStudy, HeatMoreStudy } from '../features/strategy-lab/Ro
 import Trend14Study from '../features/strategy-lab/Trend14Study'
 import TrendMomentumStudy from '../features/strategy-lab/TrendMomentumStudy'
 import TierSwitchStudy from '../features/strategy-lab/TierSwitchStudy'
+import LiquidityDefenseStudy from '../features/strategy-lab/LiquidityDefenseStudy'
 import TrendStudy from '../features/strategy-lab/TrendStudy'
 import VolConfirmStudy from '../features/strategy-lab/VolConfirmStudy'
 import VolTargetStudy from '../features/strategy-lab/VolTargetStudy'
@@ -110,6 +111,7 @@ export const LAB_STUDIES: LabStudy[] = [
   { id: 'lab-tier-switch', tab: 'rotate', group: 'industry', title: '按宏观档位切换行业：偏防守买防守行业，偏进攻买进攻行业', date: '2026-11-28', status: 'fail', statusText: '不通过', summary: '防守侧换防守行业方向对，进攻侧换进攻行业在每段历史都拖后腿；合起来几乎没有好处，还不如一直放防守行业。股票部分维持全买宽基。', Component: TierSwitchStudy },
   { id: 'lab-trend-momentum', tab: 'rotate', group: 'multi', title: '多资产趋势 + 动量轮动（美股、海外股、国债、黄金）', date: '2026-11-26', status: 'partial', statusText: '不稳定', summary: '大熊市里明显少亏、时机显著；但趋势 + 动量晚一个月执行就变差，只看趋势 2010 年后一直落后。不新开页签，方案不变。', Component: TrendMomentumStudy },
   { id: 'lab-country-momentum', tab: 'rotate', group: 'country', title: '跨国动量轮动：美国与海外之间切换', date: '2026-11-26', status: 'fail', statusText: '不通过', summary: '美国 / 海外二选一和各持一半打平；挑最强 5 个市场 2001 年后反而更差；2014 年后只持有美国最好。方案不轮动。', Component: CountryMomentumStudy },
+  { id: 'lab-liquidity-defense', tab: 'cn', group: 'timing', title: 'A 股流动性踩踏防守：跌停潮、冲击成本飙升时减仓', date: '2026-11-28', status: 'partial', statusText: '部分成立', summary: '跌停潮出现就减到半仓一个月：夏普 0.485 → 0.549、最大回撤 −72% → −59%，两段都有效，但时机检验不显著；冲击成本写法不稳定。不改仓位规则。', Component: LiquidityDefenseStudy },
   { id: 'lab-etf-volume', tab: 'cn', group: 'timing', title: 'A 股 ETF 择时加成交量', date: '2026-11-25', status: 'fail', statusText: '不通过', summary: '三种成交量条件都没有帮助。', Component: EtfVolumeStudy },
 ]
 

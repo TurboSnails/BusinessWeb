@@ -16,6 +16,7 @@ import heatLiq from '../features/strategy-lab/data/heat-liquidity.json'
 import rotHeat from '../features/strategy-lab/data/rotation-heat.json'
 import tm from '../features/strategy-lab/data/trend-momentum.json'
 import ts from '../features/strategy-lab/data/tier-switch.json'
+import liq from '../features/strategy-lab/data/liquidity-defense.json'
 import { pct } from '../features/strategy-lab/LateCycleStudy'
 import StrategyLab, { LAB_GROUPS, LAB_STUDIES, STRATEGY_LAB_LEAD, groupedStudies } from './StrategyLab'
 
@@ -112,7 +113,7 @@ describe('研究中页签', () => {
     expect(screen.queryByTestId('lab-daily-execution')).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: /^A 股 ETF/ }))
     expect(screen.getByTestId('lab-etf-volume')).toBeTruthy()
-    expect(screen.queryByRole('navigation', { name: '本页研究' })).toBeNull()
+    expect(within(screen.getByRole('navigation', { name: '本页研究' })).getAllByRole('button')).toHaveLength(LAB_STUDIES.filter(x => x.tab === 'cn').length)
     expect(screen.queryByTestId('lab-vol-confirm')).toBeNull()
   })
 
@@ -154,6 +155,15 @@ describe('研究中页签', () => {
     expect(within(screen.getByTestId('lab-tier-switch-split')).getAllByRole('row')).toHaveLength(5)
     expect(within(screen.getByTestId('lab-tier-switch-excess')).getAllByRole('row')).toHaveLength(4)
     expect(screen.getByTestId('lab-group-rotate-industry').querySelector('#lab-tier-switch')).not.toBeNull()
+  })
+
+  it('A 股流动性踩踏防守（L-047）：在 A 股页签择时子分组，结论与大跌段来自研究结果', () => {
+    renderPage(at('cn'))
+    const table = screen.getByTestId('lab-liquidity-defense-table')
+    expect(table.textContent).toContain(liq.candidates.C1.verdict)
+    expect(table.textContent).toContain(liq.candidates.C2.verdict)
+    expect(within(screen.getByTestId('lab-liquidity-defense-episodes')).getAllByRole('row')).toHaveLength(liq.candidates.C1.episodes.length + 1)
+    expect(screen.getByTestId('lab-group-cn-timing').querySelector('#lab-liquidity-defense')).not.toBeNull()
   })
 
   it('有效策略初版：美股读数来自综合策略，A 股读数加载失败时有提示', async () => {
