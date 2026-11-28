@@ -60,3 +60,7 @@ docs/research/theme-pe-cn-2026-11-28/daily/
 docs/research/theme-pe-cn-2026-11-28/replication/daily_series*.csv.gz
 docs/research/theme-pe-cn-2026-11-28/replication/compare-report-*.json
 docs/research/**/__pycache__/
+data-raw/etf-timing-confirm/raw/
+data-raw/erp-timing-cn/raw/
+data-raw/hk-short-south/raw/
+data-raw/etf-flow-signal-cn/raw/
