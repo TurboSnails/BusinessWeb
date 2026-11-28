@@ -1,0 +1,108 @@
+{
+  "definition": {
+    "base": "count_h2.py 79–141 逻辑 + PREREG 修订（底池、第9条、C2 收窄）",
+    "universe": "UniverseSpec(cn) 月末调仓 ffill 至日；信号日须在池",
+    "exclude_rule9": "no_limit_inferred in [crash_start,s]; 停牌≥60后复牌首日 in window; s 在 delisting 或已终止",
+    "c2": "doc_type=periodic, announce_rule∈{declared,declared_same_report}, announce_date∈[crash_start,crash_end]; 退市股 lo=非C2 hi=C2",
+    "layers": "explore s∈2005–2014; validate s∈2015–2023-10 & s+60≤2023-10-31",
+    "sample": "2005-01-01…2023-10-31"
+  },
+  "skips": {
+    "no_limit_inferred": 224,
+    "long_suspend_resumption": 463,
+    "delisting_or_terminate": 81,
+    "not_in_universe_on_s": 6275
+  },
+  "all_kept": {
+    "n_events": 8174,
+    "n_stocks": 2916,
+    "n_signal_days": 1247,
+    "n_signal_months": 184,
+    "c2_lo_n": 1083,
+    "c2_hi_n": 1832,
+    "c2_lo_pct": 0.1325,
+    "c2_hi_pct": 0.2241,
+    "by_year": {
+      "2005": 81,
+      "2006": 41,
+      "2007": 586,
+      "2008": 1199,
+      "2009": 347,
+      "2010": 146,
+      "2011": 64,
+      "2012": 150,
+      "2013": 125,
+      "2014": 27,
+      "2015": 1505,
+      "2016": 999,
+      "2017": 63,
+      "2018": 566,
+      "2019": 265,
+      "2020": 483,
+      "2021": 503,
+      "2022": 830,
+      "2023": 194
+    }
+  },
+  "explore": {
+    "n_events": 2766,
+    "n_stocks": 1244,
+    "n_signal_days": 405,
+    "n_signal_months": 85,
+    "c2_lo_n": 418,
+    "c2_hi_n": 740,
+    "c2_lo_pct": 0.1511,
+    "c2_hi_pct": 0.2675,
+    "by_year": {
+      "2005": 81,
+      "2006": 41,
+      "2007": 586,
+      "2008": 1199,
+      "2009": 347,
+      "2010": 146,
+      "2011": 64,
+      "2012": 150,
+      "2013": 125,
+      "2014": 27
+    }
+  },
+  "explore_cross_into_2015": {
+    "n_events": 1,
+    "note": "信号在 2014、持有窗跨入 2015；计入探索并单列"
+  },
+  "validate": {
+    "n_events": 5376,
+    "n_stocks": 2748,
+    "n_signal_days": 821,
+    "n_signal_months": 96,
+    "c2_lo_n": 657,
+    "c2_hi_n": 1082,
+    "c2_lo_pct": 0.1222,
+    "c2_hi_pct": 0.2013,
+    "by_year": {
+      "2015": 1505,
+      "2016": 999,
+      "2017": 63,
+      "2018": 566,
+      "2019": 265,
+      "2020": 483,
+      "2021": 503,
+      "2022": 830,
+      "2023": 162
+    }
+  },
+  "validate_truncated_excluded": {
+    "n_events": 32,
+    "n_stocks": 32,
+    "n_signal_days": 21,
+    "n_signal_months": 3,
+    "c2_lo_n": 8,
+    "c2_hi_n": 10,
+    "c2_lo_pct": 0.25,
+    "c2_hi_pct": 0.3125,
+    "by_year": {
+      "2023": 32
+    }
+  },
+  "note": "只数个数，无收益。锁箱层未解封故不计数。"
+}

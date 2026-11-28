@@ -1,0 +1,1214 @@
+{
+  "definition": {
+    "drawdown_from_252d_high": 0.2,
+    "first_bounce_from_rolling_trough": 0.1,
+    "stress_max_days": 504,
+    "one_signal_per_stress": true,
+    "note": "低点为急跌态内截至当日的滚动最低收盘，无事后底部。"
+  },
+  "us_1928_1949": {
+    "source": "Ken French F-F Research Data Factors daily（Mkt-RF+RF 复利指数）",
+    "file": "data-raw/spx-qqq-tilt/raw/F-F_Research_Data_Factors_daily_CSV.zip",
+    "n_events": 8,
+    "events": [
+      {
+        "prior_high_date": "1929-09-03",
+        "trough_date": "1929-10-29",
+        "signal_date": "1929-10-30",
+        "stress_start_date": "1929-10-28",
+        "drawdown_to_trough": 0.35603938416123904,
+        "bounce_from_trough": 0.11220000000000008,
+        "days_stress_to_signal": 2
+      },
+      {
+        "prior_high_date": "1930-09-13",
+        "trough_date": "1931-10-05",
+        "signal_date": "1931-10-06",
+        "stress_start_date": "1931-07-15",
+        "drawdown_to_trough": 0.5755065220133158,
+        "bounce_from_trough": 0.11149999999999993,
+        "days_stress_to_signal": 69
+      },
+      {
+        "prior_high_date": "1932-09-07",
+        "trough_date": "1933-04-03",
+        "signal_date": "1933-04-10",
+        "stress_start_date": "1933-04-01",
+        "drawdown_to_trough": 0.3273717168158818,
+        "bounce_from_trough": 0.10667260116714816,
+        "days_stress_to_signal": 7
+      },
+      {
+        "prior_high_date": "1933-07-18",
+        "trough_date": "1933-07-21",
+        "signal_date": "1933-08-09",
+        "stress_start_date": "1933-07-21",
+        "drawdown_to_trough": 0.20837105712999998,
+        "bounce_from_trough": 0.11607724803300057,
+        "days_stress_to_signal": 14
+      },
+      {
+        "prior_high_date": "1937-03-10",
+        "trough_date": "1937-10-18",
+        "signal_date": "1937-10-21",
+        "stress_start_date": "1937-09-10",
+        "drawdown_to_trough": 0.39563398598354105,
+        "bounce_from_trough": 0.1198669424929999,
+        "days_stress_to_signal": 34
+      },
+      {
+        "prior_high_date": "1940-04-08",
+        "trough_date": "1940-06-10",
+        "signal_date": "1940-06-19",
+        "stress_start_date": "1940-05-18",
+        "drawdown_to_trough": 0.2610293168472528,
+        "bounce_from_trough": 0.10228793223308164,
+        "days_stress_to_signal": 26
+      },
+      {
+        "prior_high_date": "1941-09-17",
+        "trough_date": "1942-04-28",
+        "signal_date": "1942-06-04",
+        "stress_start_date": "1942-03-11",
+        "drawdown_to_trough": 0.2603599547639306,
+        "bounce_from_trough": 0.1118827245458327,
+        "days_stress_to_signal": 71
+      },
+      {
+        "prior_high_date": "1946-05-29",
+        "trough_date": "1946-11-22",
+        "signal_date": "1946-12-19",
+        "stress_start_date": "1946-09-09",
+        "drawdown_to_trough": 0.2603851016345312,
+        "bounce_from_trough": 0.102504709333888,
+        "days_stress_to_signal": 80
+      }
+    ],
+    "by_decade": {
+      "1920s": 1,
+      "1930s": 4,
+      "1940s": 3
+    }
+  },
+  "international": {
+    "n225": {
+      "symbol": "^N225",
+      "start": "1970-01-05",
+      "end": "2026-11-25",
+      "n_events": 15,
+      "by_decade": {
+        "1970s": 2,
+        "1980s": 1,
+        "1990s": 4,
+        "2000s": 3,
+        "2010s": 4,
+        "2020s": 1
+      },
+      "events": [
+        {
+          "prior_high_date": "1971-08-13",
+          "trough_date": "1971-08-24",
+          "signal_date": "1971-09-28",
+          "stress_start_date": "1971-08-23",
+          "drawdown_to_trough": 0.20711929027054768,
+          "bounce_from_trough": 0.1066847911522919,
+          "days_stress_to_signal": 24
+        },
+        {
+          "prior_high_date": "1973-01-24",
+          "trough_date": "1973-12-18",
+          "signal_date": "1974-01-18",
+          "stress_start_date": "1973-12-07",
+          "drawdown_to_trough": 0.2614249944960016,
+          "bounce_from_trough": 0.10385063293057839,
+          "days_stress_to_signal": 23
+        },
+        {
+          "prior_high_date": "1987-10-14",
+          "trough_date": "1987-11-11",
+          "signal_date": "1987-11-25",
+          "stress_start_date": "1987-11-11",
+          "drawdown_to_trough": 0.2105223851750498,
+          "bounce_from_trough": 0.1037674052468156,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "1989-12-29",
+          "trough_date": "1990-04-02",
+          "signal_date": "1990-05-07",
+          "stress_start_date": "1990-03-20",
+          "drawdown_to_trough": 0.28044599799516245,
+          "bounce_from_trough": 0.10549934344139555,
+          "days_stress_to_signal": 30
+        },
+        {
+          "prior_high_date": "1991-04-17",
+          "trough_date": "1992-04-09",
+          "signal_date": "1992-05-07",
+          "stress_start_date": "1992-04-08",
+          "drawdown_to_trough": 0.3848064351971451,
+          "bounce_from_trough": 0.10921277371273308,
+          "days_stress_to_signal": 18
+        },
+        {
+          "prior_high_date": "1994-06-13",
+          "trough_date": "1995-04-03",
+          "signal_date": "1995-04-21",
+          "stress_start_date": "1995-02-27",
+          "drawdown_to_trough": 0.28634410083882333,
+          "bounce_from_trough": 0.10317405107113897,
+          "days_stress_to_signal": 38
+        },
+        {
+          "prior_high_date": "1996-06-26",
+          "trough_date": "1997-01-10",
+          "signal_date": "1997-02-20",
+          "stress_start_date": "1997-01-09",
+          "drawdown_to_trough": 0.2366081670107822,
+          "bounce_from_trough": 0.10102261661556944,
+          "days_stress_to_signal": 29
+        },
+        {
+          "prior_high_date": "2000-04-12",
+          "trough_date": "2000-05-26",
+          "signal_date": "2000-07-03",
+          "stress_start_date": "2000-05-22",
+          "drawdown_to_trough": 0.23160473110000812,
+          "bounce_from_trough": 0.10035644365928831,
+          "days_stress_to_signal": 30
+        },
+        {
+          "prior_high_date": "2001-06-08",
+          "trough_date": "2002-11-14",
+          "signal_date": "2002-11-28",
+          "stress_start_date": "2002-06-17",
+          "drawdown_to_trough": 0.3817383482921352,
+          "bounce_from_trough": 0.10518474984313642,
+          "days_stress_to_signal": 114
+        },
+        {
+          "prior_high_date": "2007-07-09",
+          "trough_date": "2008-01-22",
+          "signal_date": "2008-02-04",
+          "stress_start_date": "2008-01-07",
+          "drawdown_to_trough": 0.3115176996141711,
+          "bounce_from_trough": 0.10233396033579778,
+          "days_stress_to_signal": 19
+        },
+        {
+          "prior_high_date": "2010-04-05",
+          "trough_date": "2010-08-31",
+          "signal_date": "2010-11-08",
+          "stress_start_date": "2010-08-24",
+          "drawdown_to_trough": 0.2218161614914501,
+          "bounce_from_trough": 0.10299793972389137,
+          "days_stress_to_signal": 49
+        },
+        {
+          "prior_high_date": "2013-05-22",
+          "trough_date": "2013-06-13",
+          "signal_date": "2013-07-01",
+          "stress_start_date": "2013-06-13",
+          "drawdown_to_trough": 0.2036108697238032,
+          "bounce_from_trough": 0.11306364289398974,
+          "days_stress_to_signal": 12
+        },
+        {
+          "prior_high_date": "2015-06-24",
+          "trough_date": "2016-01-21",
+          "signal_date": "2016-02-01",
+          "stress_start_date": "2016-01-20",
+          "drawdown_to_trough": 0.23244982875719455,
+          "bounce_from_trough": 0.1153736656581712,
+          "days_stress_to_signal": 8
+        },
+        {
+          "prior_high_date": "2018-10-02",
+          "trough_date": "2018-12-25",
+          "signal_date": "2019-02-13",
+          "stress_start_date": "2018-12-25",
+          "drawdown_to_trough": 0.2107436892835864,
+          "bounce_from_trough": 0.10381953398824573,
+          "days_stress_to_signal": 30
+        },
+        {
+          "prior_high_date": "2024-07-11",
+          "trough_date": "2024-08-05",
+          "signal_date": "2024-08-06",
+          "stress_start_date": "2024-08-05",
+          "drawdown_to_trough": 0.254963880748446,
+          "bounce_from_trough": 0.10226324144696397,
+          "days_stress_to_signal": 1
+        }
+      ]
+    },
+    "ixic": {
+      "symbol": "^IXIC",
+      "start": "1971-02-05",
+      "end": "2026-11-24",
+      "n_events": 15,
+      "by_decade": {
+        "1970s": 2,
+        "1980s": 4,
+        "1990s": 2,
+        "2000s": 3,
+        "2010s": 1,
+        "2020s": 3
+      },
+      "events": [
+        {
+          "prior_high_date": "1973-01-11",
+          "trough_date": "1973-07-05",
+          "signal_date": "1973-07-27",
+          "stress_start_date": "1973-04-25",
+          "drawdown_to_trough": 0.2736772873428822,
+          "bounce_from_trough": 0.10031190260589606,
+          "days_stress_to_signal": 65
+        },
+        {
+          "prior_high_date": "1978-09-13",
+          "trough_date": "1978-11-14",
+          "signal_date": "1979-01-05",
+          "stress_start_date": "1978-10-31",
+          "drawdown_to_trough": 0.20373429084380615,
+          "bounce_from_trough": 0.10073953823953818,
+          "days_stress_to_signal": 45
+        },
+        {
+          "prior_high_date": "1980-02-08",
+          "trough_date": "1980-03-27",
+          "signal_date": "1980-04-10",
+          "stress_start_date": "1980-03-27",
+          "drawdown_to_trough": 0.2490771558245083,
+          "bounce_from_trough": 0.10629381900233703,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "1981-05-29",
+          "trough_date": "1981-09-28",
+          "signal_date": "1981-10-27",
+          "stress_start_date": "1981-09-25",
+          "drawdown_to_trough": 0.21676287644874032,
+          "bounce_from_trough": 0.10043992458435702,
+          "days_stress_to_signal": 22
+        },
+        {
+          "prior_high_date": "1983-06-24",
+          "trough_date": "1984-07-25",
+          "signal_date": "1984-08-06",
+          "stress_start_date": "1984-02-06",
+          "drawdown_to_trough": 0.3150101851570339,
+          "bounce_from_trough": 0.10639147802929427,
+          "days_stress_to_signal": 126
+        },
+        {
+          "prior_high_date": "1987-08-27",
+          "trough_date": "1987-10-28",
+          "signal_date": "1987-10-30",
+          "stress_start_date": "1987-10-19",
+          "drawdown_to_trough": 0.3595875383940325,
+          "bounce_from_trough": 0.1075710859883523,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "1989-10-09",
+          "trough_date": "1990-10-16",
+          "signal_date": "1990-11-30",
+          "stress_start_date": "1990-08-21",
+          "drawdown_to_trough": 0.3300391187976117,
+          "bounce_from_trough": 0.10356484326982196,
+          "days_stress_to_signal": 71
+        },
+        {
+          "prior_high_date": "1998-07-20",
+          "trough_date": "1998-08-31",
+          "signal_date": "1998-09-08",
+          "stress_start_date": "1998-08-31",
+          "drawdown_to_trough": 0.25567829216830085,
+          "bounce_from_trough": 0.10779389694847419,
+          "days_stress_to_signal": 5
+        },
+        {
+          "prior_high_date": "2000-03-10",
+          "trough_date": "2000-04-14",
+          "signal_date": "2000-04-18",
+          "stress_start_date": "2000-04-12",
+          "drawdown_to_trough": 0.3421390399752804,
+          "bounce_from_trough": 0.14219776050871813,
+          "days_stress_to_signal": 4
+        },
+        {
+          "prior_high_date": "2001-05-22",
+          "trough_date": "2002-05-07",
+          "signal_date": "2002-05-17",
+          "stress_start_date": "2002-04-22",
+          "drawdown_to_trough": 0.31982626358666294,
+          "bounce_from_trough": 0.10647342135695315,
+          "days_stress_to_signal": 19
+        },
+        {
+          "prior_high_date": "2007-10-31",
+          "trough_date": "2008-03-10",
+          "signal_date": "2008-04-18",
+          "stress_start_date": "2008-02-06",
+          "drawdown_to_trough": 0.24125605081283744,
+          "bounce_from_trough": 0.10769635004194811,
+          "days_stress_to_signal": 50
+        },
+        {
+          "prior_high_date": "2018-08-29",
+          "trough_date": "2018-12-24",
+          "signal_date": "2019-01-07",
+          "stress_start_date": "2018-12-21",
+          "drawdown_to_trough": 0.23635552037130886,
+          "bounce_from_trough": 0.10181788235598077,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "2020-02-19",
+          "trough_date": "2020-03-23",
+          "signal_date": "2020-03-26",
+          "stress_start_date": "2020-03-12",
+          "drawdown_to_trough": 0.3011567476607335,
+          "bounce_from_trough": 0.13655663368155002,
+          "days_stress_to_signal": 10
+        },
+        {
+          "prior_high_date": "2021-11-19",
+          "trough_date": "2022-03-14",
+          "signal_date": "2022-03-18",
+          "stress_start_date": "2022-03-07",
+          "drawdown_to_trough": 0.21648656323797574,
+          "bounce_from_trough": 0.10433169438257983,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "2024-12-16",
+          "trough_date": "2025-04-08",
+          "signal_date": "2025-04-09",
+          "stress_start_date": "2025-04-04",
+          "drawdown_to_trough": 0.24318463122382444,
+          "bounce_from_trough": 0.12163157891289655,
+          "days_stress_to_signal": 3
+        }
+      ]
+    },
+    "tsx": {
+      "symbol": "^GSPTSE",
+      "start": "1979-06-29",
+      "end": "2026-11-24",
+      "n_events": 10,
+      "by_decade": {
+        "1980s": 2,
+        "1990s": 2,
+        "2000s": 3,
+        "2010s": 2,
+        "2020s": 1
+      },
+      "events": [
+        {
+          "prior_high_date": "1980-11-28",
+          "trough_date": "1981-09-25",
+          "signal_date": "1981-11-27",
+          "stress_start_date": "1981-09-24",
+          "drawdown_to_trough": 0.24548330696861204,
+          "bounce_from_trough": 0.10322758620689654,
+          "days_stress_to_signal": 44
+        },
+        {
+          "prior_high_date": "1987-08-13",
+          "trough_date": "1987-10-28",
+          "signal_date": "1987-12-14",
+          "stress_start_date": "1987-10-19",
+          "drawdown_to_trough": 0.3100245568820053,
+          "bounce_from_trough": 0.11745013743040378,
+          "days_stress_to_signal": 39
+        },
+        {
+          "prior_high_date": "1989-10-06",
+          "trough_date": "1990-10-16",
+          "signal_date": "1991-02-04",
+          "stress_start_date": "1990-09-24",
+          "drawdown_to_trough": 0.25456931992669274,
+          "bounce_from_trough": 0.10565135054320751,
+          "days_stress_to_signal": 91
+        },
+        {
+          "prior_high_date": "1998-04-22",
+          "trough_date": "1998-10-05",
+          "signal_date": "1998-10-16",
+          "stress_start_date": "1998-08-24",
+          "drawdown_to_trough": 0.31782212392774506,
+          "bounce_from_trough": 0.10192646452531773,
+          "days_stress_to_signal": 37
+        },
+        {
+          "prior_high_date": "2000-09-01",
+          "trough_date": "2001-04-04",
+          "signal_date": "2001-05-17",
+          "stress_start_date": "2000-11-16",
+          "drawdown_to_trough": 0.34887784490025286,
+          "bounce_from_trough": 0.10970264985503331,
+          "days_stress_to_signal": 126
+        },
+        {
+          "prior_high_date": "2002-03-07",
+          "trough_date": "2003-03-12",
+          "signal_date": "2003-05-30",
+          "stress_start_date": "2003-03-06",
+          "drawdown_to_trough": 0.21732574358201076,
+          "bounce_from_trough": 0.1013389846835564,
+          "days_stress_to_signal": 59
+        },
+        {
+          "prior_high_date": "2008-06-18",
+          "trough_date": "2008-10-10",
+          "signal_date": "2008-10-20",
+          "stress_start_date": "2008-09-17",
+          "drawdown_to_trough": 0.39858423283863303,
+          "bounce_from_trough": 0.13085204959625818,
+          "days_stress_to_signal": 22
+        },
+        {
+          "prior_high_date": "2011-04-05",
+          "trough_date": "2011-10-04",
+          "signal_date": "2011-10-27",
+          "stress_start_date": "2011-10-03",
+          "drawdown_to_trough": 0.2167127991310746,
+          "bounce_from_trough": 0.11518263716798316,
+          "days_stress_to_signal": 17
+        },
+        {
+          "prior_high_date": "2015-04-15",
+          "trough_date": "2016-01-20",
+          "signal_date": "2016-03-03",
+          "stress_start_date": "2016-01-11",
+          "drawdown_to_trough": 0.23350096110906157,
+          "bounce_from_trough": 0.10813047259585762,
+          "days_stress_to_signal": 37
+        },
+        {
+          "prior_high_date": "2020-02-20",
+          "trough_date": "2020-03-23",
+          "signal_date": "2020-03-24",
+          "stress_start_date": "2020-03-11",
+          "drawdown_to_trough": 0.37425114661643655,
+          "bounce_from_trough": 0.11957073518279371,
+          "days_stress_to_signal": 9
+        }
+      ]
+    },
+    "ftse": {
+      "symbol": "^FTSE",
+      "start": "1984-01-03",
+      "end": "2026-11-25",
+      "n_events": 7,
+      "by_decade": {
+        "1980s": 1,
+        "1990s": 1,
+        "2000s": 3,
+        "2010s": 1,
+        "2020s": 1
+      },
+      "events": [
+        {
+          "prior_high_date": "1987-07-16",
+          "trough_date": "1987-11-09",
+          "signal_date": "1987-12-21",
+          "stress_start_date": "1987-10-20",
+          "drawdown_to_trough": 0.35941720553327333,
+          "bounce_from_trough": 0.1181957577306414,
+          "days_stress_to_signal": 44
+        },
+        {
+          "prior_high_date": "1998-07-20",
+          "trough_date": "1998-10-05",
+          "signal_date": "1998-10-16",
+          "stress_start_date": "1998-10-01",
+          "drawdown_to_trough": 0.24766143388897882,
+          "bounce_from_trough": 0.10420117452190958,
+          "days_stress_to_signal": 11
+        },
+        {
+          "prior_high_date": "2000-09-04",
+          "trough_date": "2001-03-22",
+          "signal_date": "2001-04-18",
+          "stress_start_date": "2001-03-22",
+          "drawdown_to_trough": 0.21819331872140746,
+          "bounce_from_trough": 0.10826371641454036,
+          "days_stress_to_signal": 17
+        },
+        {
+          "prior_high_date": "2002-03-28",
+          "trough_date": "2003-03-31",
+          "signal_date": "2003-05-06",
+          "stress_start_date": "2003-03-24",
+          "drawdown_to_trough": 0.3145984293789597,
+          "bounce_from_trough": 0.10879251653613031,
+          "days_stress_to_signal": 28
+        },
+        {
+          "prior_high_date": "2007-10-12",
+          "trough_date": "2008-10-10",
+          "signal_date": "2008-10-14",
+          "stress_start_date": "2008-07-11",
+          "drawdown_to_trough": 0.41579627676170383,
+          "bounce_from_trough": 0.11751990030772363,
+          "days_stress_to_signal": 66
+        },
+        {
+          "prior_high_date": "2015-04-27",
+          "trough_date": "2016-02-11",
+          "signal_date": "2016-02-26",
+          "stress_start_date": "2016-01-20",
+          "drawdown_to_trough": 0.22057995495495494,
+          "bounce_from_trough": 0.10095719703810735,
+          "days_stress_to_signal": 27
+        },
+        {
+          "prior_high_date": "2019-07-29",
+          "trough_date": "2020-03-23",
+          "signal_date": "2020-03-25",
+          "stress_start_date": "2020-03-09",
+          "drawdown_to_trough": 0.35031093071058733,
+          "bounce_from_trough": 0.13902961613168063,
+          "days_stress_to_signal": 12
+        }
+      ]
+    },
+    "hsi": {
+      "symbol": "^HSI",
+      "start": "1986-12-31",
+      "end": "2026-11-25",
+      "n_events": 14,
+      "by_decade": {
+        "1980s": 1,
+        "1990s": 4,
+        "2000s": 4,
+        "2010s": 3,
+        "2020s": 2
+      },
+      "events": [
+        {
+          "prior_high_date": "1987-10-01",
+          "trough_date": "1988-02-09",
+          "signal_date": "1988-03-01",
+          "stress_start_date": "1988-01-08",
+          "drawdown_to_trough": 0.43717244347671974,
+          "bounce_from_trough": 0.10422852001799354,
+          "days_stress_to_signal": 34
+        },
+        {
+          "prior_high_date": "1990-07-23",
+          "trough_date": "1990-09-28",
+          "signal_date": "1990-10-23",
+          "stress_start_date": "1990-09-25",
+          "drawdown_to_trough": 0.2245012644001124,
+          "bounce_from_trough": 0.116304347826087,
+          "days_stress_to_signal": 19
+        },
+        {
+          "prior_high_date": "1992-11-12",
+          "trough_date": "1992-12-03",
+          "signal_date": "1992-12-28",
+          "stress_start_date": "1992-12-03",
+          "drawdown_to_trough": 0.22783887329186772,
+          "bounce_from_trough": 0.11118476557791968,
+          "days_stress_to_signal": 16
+        },
+        {
+          "prior_high_date": "1994-01-04",
+          "trough_date": "1994-03-21",
+          "signal_date": "1994-04-12",
+          "stress_start_date": "1994-03-16",
+          "drawdown_to_trough": 0.28965421150552,
+          "bounce_from_trough": 0.12358370831891086,
+          "days_stress_to_signal": 16
+        },
+        {
+          "prior_high_date": "1997-08-07",
+          "trough_date": "1997-10-28",
+          "signal_date": "1997-10-29",
+          "stress_start_date": "1997-10-20",
+          "drawdown_to_trough": 0.45662226433879316,
+          "bounce_from_trough": 0.18823607324584146,
+          "days_stress_to_signal": 7
+        },
+        {
+          "prior_high_date": "2000-03-28",
+          "trough_date": "2000-05-26",
+          "signal_date": "2000-06-02",
+          "stress_start_date": "2000-05-10",
+          "drawdown_to_trough": 0.2501949273537033,
+          "bounce_from_trough": 0.11378227316781686,
+          "days_stress_to_signal": 16
+        },
+        {
+          "prior_high_date": "2001-06-08",
+          "trough_date": "2002-10-10",
+          "signal_date": "2002-10-23",
+          "stress_start_date": "2002-06-14",
+          "drawdown_to_trough": 0.35847921158036594,
+          "bounce_from_trough": 0.10678328285559147,
+          "days_stress_to_signal": 90
+        },
+        {
+          "prior_high_date": "2004-02-18",
+          "trough_date": "2004-05-17",
+          "signal_date": "2004-05-28",
+          "stress_start_date": "2004-05-17",
+          "drawdown_to_trough": 0.2125681522187074,
+          "bounce_from_trough": 0.10478270185500094,
+          "days_stress_to_signal": 8
+        },
+        {
+          "prior_high_date": "2007-10-30",
+          "trough_date": "2008-01-22",
+          "signal_date": "2008-01-23",
+          "stress_start_date": "2008-01-16",
+          "drawdown_to_trough": 0.3122991748587626,
+          "bounce_from_trough": 0.10720561016985752,
+          "days_stress_to_signal": 5
+        },
+        {
+          "prior_high_date": "2010-11-08",
+          "trough_date": "2011-10-04",
+          "signal_date": "2011-10-11",
+          "stress_start_date": "2011-08-09",
+          "drawdown_to_trough": 0.3490614824247517,
+          "bounce_from_trough": 0.11638698926233215,
+          "days_stress_to_signal": 42
+        },
+        {
+          "prior_high_date": "2015-04-28",
+          "trough_date": "2015-09-29",
+          "signal_date": "2015-10-12",
+          "stress_start_date": "2015-08-21",
+          "drawdown_to_trough": 0.277263977639293,
+          "bounce_from_trough": 0.10577284181236202,
+          "days_stress_to_signal": 33
+        },
+        {
+          "prior_high_date": "2018-01-26",
+          "trough_date": "2018-10-30",
+          "signal_date": "2018-12-03",
+          "stress_start_date": "2018-09-11",
+          "drawdown_to_trough": 0.2584472156100057,
+          "bounce_from_trough": 0.10561130876576597,
+          "days_stress_to_signal": 56
+        },
+        {
+          "prior_high_date": "2021-02-17",
+          "trough_date": "2022-03-15",
+          "signal_date": "2022-03-17",
+          "stress_start_date": "2021-08-20",
+          "drawdown_to_trough": 0.4075883691588273,
+          "bounce_from_trough": 0.16758819402359348,
+          "days_stress_to_signal": 141
+        },
+        {
+          "prior_high_date": "2023-01-27",
+          "trough_date": "2024-01-22",
+          "signal_date": "2024-02-21",
+          "stress_start_date": "2023-09-12",
+          "drawdown_to_trough": 0.340594740159285,
+          "bounce_from_trough": 0.10306138954280342,
+          "days_stress_to_signal": 109
+        }
+      ]
+    },
+    "dax": {
+      "symbol": "^GDAXI",
+      "start": "1987-12-30",
+      "end": "2026-11-25",
+      "n_events": 11,
+      "by_decade": {
+        "1990s": 3,
+        "2000s": 3,
+        "2010s": 3,
+        "2020s": 2
+      },
+      "events": [
+        {
+          "prior_high_date": "1990-03-30",
+          "trough_date": "1990-09-28",
+          "signal_date": "1990-10-12",
+          "stress_start_date": "1990-08-22",
+          "drawdown_to_trough": 0.32478454302783777,
+          "bounce_from_trough": 0.10084489224235305,
+          "days_stress_to_signal": 36
+        },
+        {
+          "prior_high_date": "1992-05-25",
+          "trough_date": "1992-10-05",
+          "signal_date": "1992-11-17",
+          "stress_start_date": "1992-10-05",
+          "drawdown_to_trough": 0.22622259742982792,
+          "bounce_from_trough": 0.10548797010710675,
+          "days_stress_to_signal": 31
+        },
+        {
+          "prior_high_date": "1998-07-20",
+          "trough_date": "1998-10-08",
+          "signal_date": "1998-10-12",
+          "stress_start_date": "1998-08-28",
+          "drawdown_to_trough": 0.3757139000564169,
+          "bounce_from_trough": 0.10609830937701492,
+          "days_stress_to_signal": 31
+        },
+        {
+          "prior_high_date": "2000-03-07",
+          "trough_date": "2001-03-22",
+          "signal_date": "2001-03-27",
+          "stress_start_date": "2000-11-30",
+          "drawdown_to_trough": 0.331923119366842,
+          "bounce_from_trough": 0.10211357790060172,
+          "days_stress_to_signal": 80
+        },
+        {
+          "prior_high_date": "2002-03-19",
+          "trough_date": "2002-12-27",
+          "signal_date": "2003-01-06",
+          "stress_start_date": "2002-11-27",
+          "drawdown_to_trough": 0.480096292024787,
+          "bounce_from_trough": 0.11170774647887316,
+          "days_stress_to_signal": 23
+        },
+        {
+          "prior_high_date": "2007-07-16",
+          "trough_date": "2008-03-17",
+          "signal_date": "2008-04-07",
+          "stress_start_date": "2008-01-23",
+          "drawdown_to_trough": 0.2372888674499024,
+          "bounce_from_trough": 0.10331591802403639,
+          "days_stress_to_signal": 51
+        },
+        {
+          "prior_high_date": "2011-05-02",
+          "trough_date": "2011-09-12",
+          "signal_date": "2011-09-27",
+          "stress_start_date": "2011-08-08",
+          "drawdown_to_trough": 0.32617261186773017,
+          "bounce_from_trough": 0.10963600554380326,
+          "days_stress_to_signal": 36
+        },
+        {
+          "prior_high_date": "2015-04-10",
+          "trough_date": "2015-09-24",
+          "signal_date": "2015-10-22",
+          "stress_start_date": "2015-08-24",
+          "drawdown_to_trough": 0.23815388295340587,
+          "bounce_from_trough": 0.11289463747024708,
+          "days_stress_to_signal": 43
+        },
+        {
+          "prior_high_date": "2018-01-23",
+          "trough_date": "2018-12-27",
+          "signal_date": "2019-02-21",
+          "stress_start_date": "2018-12-06",
+          "drawdown_to_trough": 0.23437933272367917,
+          "bounce_from_trough": 0.10034860054076922,
+          "days_stress_to_signal": 50
+        },
+        {
+          "prior_high_date": "2020-02-19",
+          "trough_date": "2020-03-18",
+          "signal_date": "2020-03-24",
+          "stress_start_date": "2020-03-09",
+          "drawdown_to_trough": 0.38779389368337086,
+          "bounce_from_trough": 0.14912381496166072,
+          "days_stress_to_signal": 11
+        },
+        {
+          "prior_high_date": "2022-01-05",
+          "trough_date": "2022-03-08",
+          "signal_date": "2022-03-16",
+          "stress_start_date": "2022-03-07",
+          "drawdown_to_trough": 0.21142409390508088,
+          "bounce_from_trough": 0.12541236378259457,
+          "days_stress_to_signal": 7
+        }
+      ]
+    },
+    "rut": {
+      "symbol": "^RUT",
+      "start": "1987-09-10",
+      "end": "2026-11-24",
+      "n_events": 11,
+      "by_decade": {
+        "1990s": 2,
+        "2000s": 3,
+        "2010s": 4,
+        "2020s": 2
+      },
+      "events": [
+        {
+          "prior_high_date": "1989-10-09",
+          "trough_date": "1990-10-30",
+          "signal_date": "1990-12-06",
+          "stress_start_date": "1990-08-20",
+          "drawdown_to_trough": 0.34273702843234877,
+          "bounce_from_trough": 0.10360208719070862,
+          "days_stress_to_signal": 76
+        },
+        {
+          "prior_high_date": "1998-04-21",
+          "trough_date": "1998-08-31",
+          "signal_date": "1998-09-23",
+          "stress_start_date": "1998-08-25",
+          "drawdown_to_trough": 0.31228505728414163,
+          "bounce_from_trough": 0.11259061991418862,
+          "days_stress_to_signal": 20
+        },
+        {
+          "prior_high_date": "2000-03-09",
+          "trough_date": "2000-04-14",
+          "signal_date": "2000-04-28",
+          "stress_start_date": "2000-04-14",
+          "drawdown_to_trough": 0.2513488986057255,
+          "bounce_from_trough": 0.11577624966939948,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "2002-04-16",
+          "trough_date": "2002-07-23",
+          "signal_date": "2002-07-29",
+          "stress_start_date": "2002-07-11",
+          "drawdown_to_trough": 0.30396787455779717,
+          "bounce_from_trough": 0.1011566251820104,
+          "days_stress_to_signal": 12
+        },
+        {
+          "prior_high_date": "2007-07-13",
+          "trough_date": "2008-03-10",
+          "signal_date": "2008-04-01",
+          "stress_start_date": "2008-01-17",
+          "drawdown_to_trough": 0.2474964067448029,
+          "bounce_from_trough": 0.10354519620479197,
+          "days_stress_to_signal": 50
+        },
+        {
+          "prior_high_date": "2010-04-23",
+          "trough_date": "2010-07-06",
+          "signal_date": "2010-07-23",
+          "stress_start_date": "2010-07-06",
+          "drawdown_to_trough": 0.20472557688160448,
+          "bounce_from_trough": 0.10274053861668042,
+          "days_stress_to_signal": 13
+        },
+        {
+          "prior_high_date": "2011-04-29",
+          "trough_date": "2011-08-08",
+          "signal_date": "2011-08-15",
+          "stress_start_date": "2011-08-08",
+          "drawdown_to_trough": 0.24769730379410362,
+          "bounce_from_trough": 0.10395416000983149,
+          "days_stress_to_signal": 5
+        },
+        {
+          "prior_high_date": "2015-06-23",
+          "trough_date": "2016-02-11",
+          "signal_date": "2016-03-01",
+          "stress_start_date": "2016-01-13",
+          "drawdown_to_trough": 0.2639913566908473,
+          "bounce_from_trough": 0.1056599421213773,
+          "days_stress_to_signal": 32
+        },
+        {
+          "prior_high_date": "2018-08-31",
+          "trough_date": "2018-12-24",
+          "signal_date": "2019-01-07",
+          "stress_start_date": "2018-12-17",
+          "drawdown_to_trough": 0.2721987649001867,
+          "bounce_from_trough": 0.1092807754238625,
+          "days_stress_to_signal": 13
+        },
+        {
+          "prior_high_date": "2021-11-08",
+          "trough_date": "2022-01-27",
+          "signal_date": "2022-03-29",
+          "stress_start_date": "2022-01-27",
+          "drawdown_to_trough": 0.20937553730646727,
+          "bounce_from_trough": 0.10449492308249919,
+          "days_stress_to_signal": 42
+        },
+        {
+          "prior_high_date": "2024-11-25",
+          "trough_date": "2025-04-08",
+          "signal_date": "2025-04-24",
+          "stress_start_date": "2025-04-03",
+          "drawdown_to_trough": 0.2789973915144368,
+          "bounce_from_trough": 0.1118185277530086,
+          "days_stress_to_signal": 14
+        }
+      ]
+    },
+    "sse": {
+      "symbol": "000001.SS",
+      "start": "1997-07-02",
+      "end": "2026-11-25",
+      "n_events": 10,
+      "by_decade": {
+        "1990s": 1,
+        "2000s": 4,
+        "2010s": 4,
+        "2020s": 1
+      },
+      "events": [
+        {
+          "prior_high_date": "1998-06-03",
+          "trough_date": "1998-08-17",
+          "signal_date": "1998-08-21",
+          "stress_start_date": "1998-08-17",
+          "drawdown_to_trough": 0.24619014084507038,
+          "bounce_from_trough": 0.10015788342784515,
+          "days_stress_to_signal": 4
+        },
+        {
+          "prior_high_date": "1999-06-29",
+          "trough_date": "1999-12-27",
+          "signal_date": "2000-01-07",
+          "stress_start_date": "1999-12-22",
+          "drawdown_to_trough": 0.22645469181232758,
+          "bounce_from_trough": 0.1272902962054483,
+          "days_stress_to_signal": 10
+        },
+        {
+          "prior_high_date": "2001-06-13",
+          "trough_date": "2001-10-22",
+          "signal_date": "2001-10-24",
+          "stress_start_date": "2001-09-17",
+          "drawdown_to_trough": 0.3218620954147751,
+          "bounce_from_trough": 0.12980462559266637,
+          "days_stress_to_signal": 22
+        },
+        {
+          "prior_high_date": "2004-04-06",
+          "trough_date": "2004-09-13",
+          "signal_date": "2004-09-17",
+          "stress_start_date": "2004-06-25",
+          "drawdown_to_trough": 0.2909671902425852,
+          "bounce_from_trough": 0.12249270026659898,
+          "days_stress_to_signal": 60
+        },
+        {
+          "prior_high_date": "2007-10-16",
+          "trough_date": "2007-11-28",
+          "signal_date": "2007-12-27",
+          "stress_start_date": "2007-11-27",
+          "drawdown_to_trough": 0.21153271635538717,
+          "bounce_from_trough": 0.10523817553852588,
+          "days_stress_to_signal": 22
+        },
+        {
+          "prior_high_date": "2009-08-04",
+          "trough_date": "2010-07-05",
+          "signal_date": "2010-07-28",
+          "stress_start_date": "2010-05-06",
+          "drawdown_to_trough": 0.319028990851059,
+          "bounce_from_trough": 0.11409293766788631,
+          "days_stress_to_signal": 56
+        },
+        {
+          "prior_high_date": "2011-07-15",
+          "trough_date": "2012-12-03",
+          "signal_date": "2012-12-17",
+          "stress_start_date": "2012-06-25",
+          "drawdown_to_trough": 0.3050879911494697,
+          "bounce_from_trough": 0.10234364236619609,
+          "days_stress_to_signal": 120
+        },
+        {
+          "prior_high_date": "2015-06-12",
+          "trough_date": "2015-07-08",
+          "signal_date": "2015-07-10",
+          "stress_start_date": "2015-06-29",
+          "drawdown_to_trough": 0.3211474251647682,
+          "bounce_from_trough": 0.10567149199216463,
+          "days_stress_to_signal": 9
+        },
+        {
+          "prior_high_date": "2018-01-24",
+          "trough_date": "2019-01-03",
+          "signal_date": "2019-02-13",
+          "stress_start_date": "2018-06-26",
+          "drawdown_to_trough": 0.3076609719986402,
+          "bounce_from_trough": 0.1041690337450698,
+          "days_stress_to_signal": 153
+        },
+        {
+          "prior_high_date": "2021-09-13",
+          "trough_date": "2022-04-26",
+          "signal_date": "2022-05-31",
+          "stress_start_date": "2022-04-25",
+          "drawdown_to_trough": 0.22311102258994395,
+          "bounce_from_trough": 0.10393461819618,
+          "days_stress_to_signal": 23
+        }
+      ]
+    },
+    "asx": {
+      "symbol": "^AXJO",
+      "start": "1992-11-23",
+      "end": "2026-11-25",
+      "n_events": 6,
+      "by_decade": {
+        "1990s": 1,
+        "2000s": 2,
+        "2010s": 2,
+        "2020s": 1
+      },
+      "events": [
+        {
+          "prior_high_date": "1994-02-03",
+          "trough_date": "1995-02-08",
+          "signal_date": "1995-04-12",
+          "stress_start_date": "1994-11-22",
+          "drawdown_to_trough": 0.2167779926173317,
+          "bounce_from_trough": 0.10621107557650222,
+          "days_stress_to_signal": 97
+        },
+        {
+          "prior_high_date": "2002-03-07",
+          "trough_date": "2003-03-13",
+          "signal_date": "2003-04-07",
+          "stress_start_date": "2003-02-27",
+          "drawdown_to_trough": 0.22792772186642266,
+          "bounce_from_trough": 0.10331802695896908,
+          "days_stress_to_signal": 27
+        },
+        {
+          "prior_high_date": "2007-11-01",
+          "trough_date": "2008-01-22",
+          "signal_date": "2008-01-25",
+          "stress_start_date": "2008-01-22",
+          "drawdown_to_trough": 0.24044107956126345,
+          "bounce_from_trough": 0.1298488470733401,
+          "days_stress_to_signal": 3
+        },
+        {
+          "prior_high_date": "2011-04-11",
+          "trough_date": "2011-09-26",
+          "signal_date": "2011-10-17",
+          "stress_start_date": "2011-09-22",
+          "drawdown_to_trough": 0.22274299967814606,
+          "bounce_from_trough": 0.10649861538859695,
+          "days_stress_to_signal": 15
+        },
+        {
+          "prior_high_date": "2015-04-27",
+          "trough_date": "2016-02-12",
+          "signal_date": "2016-04-21",
+          "stress_start_date": "2016-02-10",
+          "drawdown_to_trough": 0.20348672004279,
+          "bounce_from_trough": 0.1064780811281556,
+          "days_stress_to_signal": 49
+        },
+        {
+          "prior_high_date": "2020-02-20",
+          "trough_date": "2020-03-23",
+          "signal_date": "2020-03-26",
+          "stress_start_date": "2020-03-11",
+          "drawdown_to_trough": 0.36530541012216405,
+          "bounce_from_trough": 0.1247910250769908,
+          "days_stress_to_signal": 11
+        }
+      ]
+    }
+  },
+  "overlap_months_ge2_markets": {
+    "1995-04": [
+      "asx",
+      "n225"
+    ],
+    "2016-02": [
+      "ftse",
+      "n225"
+    ],
+    "2019-02": [
+      "dax",
+      "n225",
+      "sse"
+    ],
+    "1998-09": [
+      "ixic",
+      "rut"
+    ],
+    "2000-04": [
+      "ixic",
+      "rut"
+    ],
+    "2008-04": [
+      "dax",
+      "ixic",
+      "rut"
+    ],
+    "2019-01": [
+      "ixic",
+      "rut"
+    ],
+    "2020-03": [
+      "asx",
+      "dax",
+      "ftse",
+      "ixic",
+      "tsx"
+    ],
+    "2022-03": [
+      "dax",
+      "hsi",
+      "ixic",
+      "rut"
+    ],
+    "2025-04": [
+      "ixic",
+      "rut"
+    ],
+    "1987-12": [
+      "ftse",
+      "tsx"
+    ],
+    "1998-10": [
+      "dax",
+      "ftse",
+      "tsx"
+    ],
+    "2003-05": [
+      "ftse",
+      "tsx"
+    ],
+    "2008-10": [
+      "ftse",
+      "tsx"
+    ],
+    "2011-10": [
+      "asx",
+      "hsi",
+      "tsx"
+    ],
+    "2016-03": [
+      "rut",
+      "tsx"
+    ],
+    "1990-10": [
+      "dax",
+      "hsi"
+    ],
+    "2008-01": [
+      "asx",
+      "hsi"
+    ],
+    "2015-10": [
+      "dax",
+      "hsi"
+    ],
+    "2010-07": [
+      "rut",
+      "sse"
+    ]
+  },
+  "yahoo_gspc": {
+    "used": false,
+    "reason": "本地 GSPC 缓存仅自 1985；本计数用 Ken French 含息日度（1926 起）覆盖 1928–1949。"
+  }
+}
