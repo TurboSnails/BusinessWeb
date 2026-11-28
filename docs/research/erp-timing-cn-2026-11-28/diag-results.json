@@ -1,0 +1,436 @@
+{
+ "generated": "2026-11-28",
+ "note": "信号诊断 + 模拟收益；不含任何沪深 300 实际收益",
+ "lg_over_csindex_by_calendar_month": {
+  "months": 184,
+  "from": "2011-06",
+  "to": "2026-11",
+  "overall_median": 0.9206,
+  "by_month": {
+   "1": {
+    "n": 14,
+    "median": 0.9161,
+    "p25": 0.9129,
+    "p75": 0.9305,
+    "median_change_vs_prev_month": 0.0007
+   },
+   "2": {
+    "n": 14,
+    "median": 0.9197,
+    "p25": 0.9094,
+    "p75": 0.9261,
+    "median_change_vs_prev_month": -0.0032
+   },
+   "3": {
+    "n": 15,
+    "median": 0.9196,
+    "p25": 0.9075,
+    "p75": 0.9251,
+    "median_change_vs_prev_month": -0.0032
+   },
+   "4": {
+    "n": 15,
+    "median": 0.9185,
+    "p25": 0.8979,
+    "p75": 0.9334,
+    "median_change_vs_prev_month": -0.0056
+   },
+   "5": {
+    "n": 15,
+    "median": 0.9243,
+    "p25": 0.9116,
+    "p75": 0.9347,
+    "median_change_vs_prev_month": -0.0041
+   },
+   "6": {
+    "n": 16,
+    "median": 0.9343,
+    "p25": 0.9157,
+    "p75": 0.939,
+    "median_change_vs_prev_month": 0.0046
+   },
+   "7": {
+    "n": 16,
+    "median": 0.9404,
+    "p25": 0.914,
+    "p75": 0.9524,
+    "median_change_vs_prev_month": 0.0002
+   },
+   "8": {
+    "n": 16,
+    "median": 0.9212,
+    "p25": 0.8928,
+    "p75": 0.9369,
+    "median_change_vs_prev_month": -0.0212
+   },
+   "9": {
+    "n": 16,
+    "median": 0.9218,
+    "p25": 0.9098,
+    "p75": 0.9279,
+    "median_change_vs_prev_month": 0.0043
+   },
+   "10": {
+    "n": 16,
+    "median": 0.9028,
+    "p25": 0.8922,
+    "p75": 0.9279,
+    "median_change_vs_prev_month": -0.0163
+   },
+   "11": {
+    "n": 16,
+    "median": 0.9242,
+    "p25": 0.9164,
+    "p75": 0.9324,
+    "median_change_vs_prev_month": 0.0148
+   },
+   "12": {
+    "n": 15,
+    "median": 0.9256,
+    "p25": 0.9141,
+    "p75": 0.9328,
+    "median_change_vs_prev_month": -0.0019
+   }
+  },
+  "median_jan_apr": 0.9189,
+  "median_may_dec": 0.9239
+ },
+ "lg_over_csindex_by_year": {
+  "2011": 0.8207,
+  "2012": 0.9246,
+  "2013": 0.9218,
+  "2014": 0.9122,
+  "2015": 0.9143,
+  "2016": 0.9206,
+  "2017": 0.9244,
+  "2018": 0.9376,
+  "2019": 0.9199,
+  "2020": 0.9101,
+  "2021": 0.9031,
+  "2022": 0.913,
+  "2023": 0.9383,
+  "2024": 0.9433,
+  "2025": 0.9279,
+  "2026": 0.948
+ },
+ "tier_agreement_S1_vs_S2": {
+  "months": 88,
+  "from": "2016-07",
+  "to": "2023-10",
+  "agree": 82,
+  "contingency_s1_s2": {
+   "0.5|0.5": 21,
+   "0.75|0.5": 3,
+   "0.75|0.75": 46,
+   "0.75|1.0": 2,
+   "1.0|0.75": 1,
+   "1.0|1.0": 15
+  },
+  "opposite_extremes": 0,
+  "avg_pos_s1_same_window": 0.7358,
+  "avg_pos_s2_same_window": 0.7301
+ },
+ "E4_vs_C1_month_end": {
+  "months": 164,
+  "e4_reduced_months": 20,
+  "c1_50pct_months": 25,
+  "both_reduced": 7,
+  "e4_reduced_while_c1_75": 13,
+  "e4_reduced_while_c1_100": 0
+ },
+ "window_sensitivity_counts": {
+  "36": {
+   "months_with_signal": 164,
+   "first_signal": "2010-03",
+   "tier_months": {
+    "0.5": 23,
+    "0.75": 88,
+    "1.0": 53
+   },
+   "avg_pos": 0.7957,
+   "switches": 33,
+   "jensen_ratio": 1.021
+  },
+  "48": {
+   "months_with_signal": 164,
+   "first_signal": "2010-03",
+   "tier_months": {
+    "0.5": 23,
+    "0.75": 81,
+    "1.0": 60
+   },
+   "avg_pos": 0.8064,
+   "switches": 27,
+   "jensen_ratio": 1.0216
+  },
+  "60": {
+   "months_with_signal": 164,
+   "first_signal": "2010-03",
+   "tier_months": {
+    "0.5": 25,
+    "0.75": 84,
+    "1.0": 55
+   },
+   "avg_pos": 0.7957,
+   "switches": 23,
+   "jensen_ratio": 1.0222
+  },
+  "72": {
+   "months_with_signal": 152,
+   "first_signal": "2011-03",
+   "tier_months": {
+    "0.5": 15,
+    "0.75": 94,
+    "1.0": 55
+   },
+   "avg_pos": 0.811,
+   "switches": 17,
+   "jensen_ratio": 1.0173
+  },
+  "84": {
+   "months_with_signal": 140,
+   "first_signal": "2012-03",
+   "tier_months": {
+    "0.5": 13,
+    "0.75": 104,
+    "1.0": 47
+   },
+   "avg_pos": 0.8018,
+   "switches": 13,
+   "jensen_ratio": 1.0156
+  },
+  "120": {
+   "months_with_signal": 104,
+   "first_signal": "2015-03",
+   "tier_months": {
+    "0.5": 6,
+    "0.75": 153,
+    "1.0": 5
+   },
+   "avg_pos": 0.7485,
+   "switches": 9,
+   "jensen_ratio": 1.0037
+  }
+ },
+ "E2prime_m1m2_d12": {
+  "raw": {
+   "flips": 24,
+   "flips_in_feb_mar_decisions": 12,
+   "neg_months": 99,
+   "months": 164
+  },
+  "jan_feb_averaged": {
+   "flips": 18,
+   "flips_in_feb_mar_decisions": 4,
+   "neg_months": 96,
+   "months": 164
+  }
+ },
+ "m2_break_check": {
+  "2011-10": {
+   "reported_yoy": 12.9,
+   "level_yoy": 16.73
+  },
+  "2012-03": {
+   "reported_yoy": 13.4,
+   "level_yoy": 18.13
+  },
+  "2012-09": {
+   "reported_yoy": 14.8,
+   "level_yoy": 19.85
+  },
+  "2018-01": {
+   "reported_yoy": 8.62,
+   "level_yoy": 9.19
+  },
+  "2018-06": {
+   "reported_yoy": 8.3,
+   "level_yoy": 8.51
+  },
+  "2018-12": {
+   "reported_yoy": 8.1,
+   "level_yoy": 8.94
+  }
+ },
+ "m1_fixed_values": {
+  "2018-06": 6.6,
+  "2019-02": 2.0,
+  "2022-12": 3.7
+ },
+ "jensen_C1_monthly": {
+  "all": 1.0222,
+  "H1": 1.0145,
+  "H2": 1.0253
+ },
+ "sim_calendar": {
+  "days": 3299,
+  "from": "2010-04-02",
+  "to": "2023-10-31",
+  "avg_w": 0.7939,
+  "jensen_daily": 1.0223
+ },
+ "simulation_C1": {
+  "n": 2000,
+  "seed": 20261128,
+  "mu_annual": 0.08,
+  "vol_annual": 0.25,
+  "rf": 0.015,
+  "fee": 0.002,
+  "cost_per_unit": 0.001,
+  "garch": {
+   "alpha": 0.08,
+   "beta": 0.9
+  },
+  "H1": "贵档（仓位 50%）日子的收益偏离均值部分乘以倍数",
+  "G6_episodes": "模拟路径上按 20% 交替峰谷自行分段（实测时用 counts.json 的固定分段）",
+  "results": {
+   "iid_x1.0": {
+    "G1": 0.0,
+    "G1_G2_G4": 0.0,
+    "G2": 0.199,
+    "G3": 0.451,
+    "G4": 0.0,
+    "G5": 0.131,
+    "G6": 0.02,
+    "joint_G1_G6": 0.0,
+    "ratio_lt_1_not_fail": 0.0,
+    "sigma_ratio_median": 1.0224,
+    "sigma_ratio_p05": 1.014,
+    "sigma_ratio_p95": 1.0306,
+    "episodes_median": 8.0
+   },
+   "iid_x1.3": {
+    "G1": 0.0,
+    "G1_G2_G4": 0.0,
+    "G2": 0.3255,
+    "G3": 0.5065,
+    "G4": 0.077,
+    "G5": 0.9995,
+    "G6": 0.0875,
+    "joint_G1_G6": 0.0,
+    "ratio_lt_1_not_fail": 0.9365,
+    "sigma_ratio_median": 0.9913,
+    "sigma_ratio_p05": 0.9812,
+    "sigma_ratio_p95": 1.0006,
+    "episodes_median": 8.0
+   },
+   "iid_x1.5": {
+    "G1": 0.0005,
+    "G1_G2_G4": 0.0005,
+    "G2": 0.408,
+    "G3": 0.5275,
+    "G4": 0.222,
+    "G5": 1.0,
+    "G6": 0.2005,
+    "joint_G1_G6": 0.0,
+    "ratio_lt_1_not_fail": 1.0,
+    "sigma_ratio_median": 0.9695,
+    "sigma_ratio_p05": 0.9585,
+    "sigma_ratio_p95": 0.9797,
+    "episodes_median": 9.0
+   },
+   "garch_x1.0": {
+    "G1": 0.0025,
+    "G1_G2_G4": 0.0,
+    "G2": 0.213,
+    "G3": 0.467,
+    "G4": 0.0215,
+    "G5": 0.137,
+    "G6": 0.044,
+    "joint_G1_G6": 0.0,
+    "ratio_lt_1_not_fail": 0.169,
+    "sigma_ratio_median": 1.021,
+    "sigma_ratio_p05": 0.9846,
+    "sigma_ratio_p95": 1.0612,
+    "episodes_median": 7.0
+   },
+   "garch_x1.3": {
+    "G1": 0.063,
+    "G1_G2_G4": 0.0165,
+    "G2": 0.3445,
+    "G3": 0.5135,
+    "G4": 0.106,
+    "G5": 0.5775,
+    "G6": 0.139,
+    "joint_G1_G6": 0.012,
+    "ratio_lt_1_not_fail": 0.6375,
+    "sigma_ratio_median": 0.9911,
+    "sigma_ratio_p05": 0.9462,
+    "sigma_ratio_p95": 1.0363,
+    "episodes_median": 8.0
+   },
+   "garch_x1.5": {
+    "G1": 0.2295,
+    "G1_G2_G4": 0.068,
+    "G2": 0.4365,
+    "G3": 0.5475,
+    "G4": 0.1925,
+    "G5": 0.8,
+    "G6": 0.249,
+    "joint_G1_G6": 0.048,
+    "ratio_lt_1_not_fail": 0.858,
+    "sigma_ratio_median": 0.9703,
+    "sigma_ratio_p05": 0.9204,
+    "sigma_ratio_p95": 1.0173,
+    "episodes_median": 9.0
+   }
+  }
+ },
+ "forward_threshold": {
+  "proxy_entries_all": 4,
+  "proxy_segment": {
+   "first_month": "2017-01",
+   "last_month": "2021-12",
+   "decision_months": 60,
+   "minimal_span_months": 47,
+   "entries_in_segment": 3,
+   "extended_past_main_window": false,
+   "days": 1218,
+   "avg_w": 0.6712,
+   "jensen": 1.0197
+  },
+  "rule": "c = 使 P(σ比 ≤ c 且 MDD(C1) 不深于 MDD(Bc) | GARCH H0) ≤ 0.10 的最大值，按 0.005 向下取，c ≤ 1.00",
+  "c": 0.99,
+  "pass_rates_at_c": {
+   "iid_x1.0": 0.0,
+   "iid_x1.3": 0.5405,
+   "iid_x1.5": 0.6625,
+   "garch_x1.0": 0.0885,
+   "garch_x1.3": 0.4125,
+   "garch_x1.5": 0.603
+  },
+  "pass_rates_at_0.95": {
+   "iid_x1.0": 0.0,
+   "iid_x1.3": 0.003,
+   "iid_x1.5": 0.498,
+   "garch_x1.0": 0.015,
+   "garch_x1.3": 0.1665,
+   "garch_x1.5": 0.38
+  },
+  "pass_rates_at_1.00": {
+   "iid_x1.0": 0.003,
+   "iid_x1.3": 0.5485,
+   "iid_x1.5": 0.6625,
+   "garch_x1.0": 0.124,
+   "garch_x1.3": 0.462,
+   "garch_x1.5": 0.6185
+  },
+  "sigma_ratio_median": {
+   "iid_x1.0": 1.0196,
+   "iid_x1.3": 0.9724,
+   "iid_x1.5": 0.9445,
+   "garch_x1.0": 1.0225,
+   "garch_x1.3": 0.9758,
+   "garch_x1.5": 0.9485
+  },
+  "mdd_not_deeper_rate": {
+   "iid_x1.0": 0.3445,
+   "iid_x1.3": 0.5485,
+   "iid_x1.5": 0.6625,
+   "garch_x1.0": 0.3455,
+   "garch_x1.3": 0.545,
+   "garch_x1.5": 0.636
+  },
+  "settings": "同 simulation_C1（漂移 8%、波动 25%、现金 1.5%、费率 0.20%、成本 0.1% 记在成交日），各 2,000 次，种子 20261128"
+ }
+}
