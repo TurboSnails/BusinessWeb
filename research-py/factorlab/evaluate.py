@@ -29,7 +29,7 @@ from scipy import stats
 
 from . import data as data_mod
 from .backtest import CostModel, _backtest_vs_universe, cost_model, quantile_labels, select_top, tie_keys
-from .calendar import month_end_dates, trading_days
+from .calendar import month_end_dates, rebalance_dates, trading_days
 from .guard import CANDIDATE_FIELDS, Lockbox, TrialLedger, UnsealToken, split_codes, stable_hash, trial_key, \
     truncate_panel, verify_prereg
 from .preprocess import standard_pipeline
@@ -296,7 +296,7 @@ def _source_hash(spec: FactorSpec | None, df: pd.DataFrame | None) -> str | None
 
 def _identity(market: str, factor, *, params=None, name=None, direction=None, universe=None, preprocess=None,
               n_quantiles=5, top_q=0.2, execution="open", delist_return=-1.0, costs=None, slippage="default",
-              start=None, end=None, segments=None, min_universe=30, min_coverage=0.1):
+              start=None, end=None, segments=None, min_universe=30, min_coverage=0.1, rebalance="M"):
     """因子与口径的身份：返回（spec 或 None，记录骨架，config）。evaluate_factor 与 candidate_spec 共用。"""
     params = dict(params or {})
     pp = {"mad_n": 5.0, "neutralize": None, "method": "zscore", **(preprocess or {})}
@@ -321,6 +321,10 @@ def _identity(market: str, factor, *, params=None, name=None, direction=None, un
               "start": None if start is None else str(start), "end": None if end is None else str(end),
               "segments": None if segments is None else [str(x) for x in segments],
               "min_universe": min_universe, "min_coverage": min_coverage}
+    if rebalance not in ("M", "W", "D"):
+        raise ValueError(f"rebalance 须为 M / W / D，得到 {rebalance}")
+    if rebalance != "M":  # 默认月度不写入，已登记 / 已冻结候选的配置哈希保持不变
+        config["rebalance"] = rebalance
     p_hash = params_hash(fname, version, params)
     record = {"event": "evaluate", "factor": fname, "version": version, "params": params, "params_hash": p_hash,
               "config": config, "config_hash": stable_hash(config),
@@ -369,7 +373,7 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                     max_horizon: int = 6, segments=None, run_backtest: bool = True, costs: CostModel | None = None,
                     slippage="default", min_universe: int = 30, min_coverage: float = 0.1,
                     parent: str | None = None, family: str | None = None,
-                    motivation: str = "mining", note: str = "", repo=None) -> EvalResult:
+                    motivation: str = "mining", note: str = "", repo=None, rebalance: str = "M") -> EvalResult:
     """评估一个因子并自动记账（登记簿、锁箱配置路径固定，不能由调用方更换）。
 
     factor：已注册因子名、FactorSpec，或现成的 调仓日 × 代码 DataFrame（须给 name；只能用于 explore / validate）。
@@ -385,6 +389,8 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
     不静默给出空结果。
     motivation：'literature'（文献）| 'mining'（挖掘）等，写进登记簿。
     segments：分段报告的切点（默认 A 股 2017-01-01、2024-01-01）。
+    rebalance：调仓频率 'M' 月末（默认，配置哈希与以前相同）、'W' 周末、'D' 每日。每期收益、IC、NW t 都按该频率计；
+          回测本来就逐日记账，换手与成本按实际调仓次数计。
     """
     ledger = TrialLedger()
     lockbox = Lockbox()
@@ -392,7 +398,7 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
         market, factor, params=params, name=name, direction=direction, universe=universe, preprocess=preprocess,
         n_quantiles=n_quantiles, top_q=top_q, execution=execution, delist_return=delist_return, costs=costs,
         slippage=slippage, start=start, end=end, segments=segments, min_universe=min_universe,
-        min_coverage=min_coverage)
+        min_coverage=min_coverage, rebalance=rebalance)
     fname, p_hash, c_hash = record["factor"], record["params_hash"], record["config_hash"]
     record.update(mode=mode, zone=mode, parent=parent, family=family or fname, motivation=motivation, note=note)
 
@@ -453,7 +459,7 @@ def evaluate_factor(market: str, factor, *, panel: dict | None = None, securitie
                                  "不静默退化为只做市值中性化")
 
             days = trading_days(panel["close_adj"])
-            dates = month_end_dates(days)
+            dates = rebalance_dates(days, rebalance)
             adv = AdvCache(panel["amount"], uspec.amount_window) if "amount" in panel else None
             mask = build_universe(panel, dates, market, securities, uspec, adv=adv)
             record["universe_applied"] = {"size_screen": dict(mask.attrs.get("size_screen", {}))}

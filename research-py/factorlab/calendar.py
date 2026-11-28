@@ -40,6 +40,33 @@ def month_end_dates(days: pd.DatetimeIndex, start=None, end=None, drop_incomplet
     return out
 
 
+def week_end_dates(days: pd.DatetimeIndex, start=None, end=None, drop_incomplete_last: bool = True) -> pd.DatetimeIndex:
+    """每个自然周（周一至周日）的最后一个交易日。drop_incomplete_last：数据最后一天之后同一周还有工作日时去掉最后一周。"""
+    days = pd.DatetimeIndex(days).sort_values()
+    s = pd.Series(days, index=days)
+    out = pd.DatetimeIndex(s.groupby(days.to_period("W-SUN")).max().values)
+    if drop_incomplete_last and len(out):
+        last = out[-1]
+        if last == days[-1] and last.weekday() < 4:
+            out = out[:-1]
+    if start is not None:
+        out = out[out >= pd.Timestamp(start)]
+    if end is not None:
+        out = out[out <= pd.Timestamp(end)]
+    return out
+
+
+def rebalance_dates(days: pd.DatetimeIndex, freq: str = "M") -> pd.DatetimeIndex:
+    """调仓日：'M' 月末（默认）、'W' 周末、'D' 每个交易日（最后一天除外，没有下一期）。"""
+    if freq == "M":
+        return month_end_dates(days)
+    if freq == "W":
+        return week_end_dates(days)
+    if freq == "D":
+        return pd.DatetimeIndex(days).sort_values()[:-1]
+    raise ValueError(f"未知调仓频率 {freq}（M / W / D）")
+
+
 def shift_days(days: pd.DatetimeIndex, date, n: int):
     """date 之后第 n 个交易日（n < 0 为之前）。date 不是交易日时，先对齐到其后第一个交易日
     （n ≤ 0 时对齐到其前最后一个交易日）。越界返回 None。"""
